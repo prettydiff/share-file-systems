@@ -10,8 +10,8 @@ import util from "../utilities/util.js";
  * Methods for generating the configuration modal and its interactions.
  * ```typescript
  * interface module_configuration {
- *     colorDefaults: browser_colorList;// An object associating color information to color scheme names.
- *     content      : () => Element;    // Generates the configuration modal content to populate into the configuration modal.
+ *     colorDefaults: browser_colorList; // An object associating color information to color scheme names.
+ *     content      : () => HTMLElement; // Generates the configuration modal content to populate into the configuration modal.
  *     events: {
  *         agentColor       : (event:Event) => void;      // Specify custom agent color configurations.
  *         audio            : (event:MouseEvent) => void; // Assign changes to the audio option to settings.
@@ -21,10 +21,10 @@ import util from "../utilities/util.js";
  *         modal            : (event:MouseEvent) => void; // Generates the configuration modal and fills it with content.
  *     };
  *     tools: {
- *         addUserColor    : (agent:string, type:agentType, configurationBody:Element) => void; // Add agent color options to the configuration modal content.
- *         applyAgentColors: (agent:string, type:agentType, colors:[string, string]) => void;   // Update the specified color information against the default colors of the current color scheme.
- *         radio           : (element:Element) => void;                                         // Sets a class on a grandparent element to apply style changes to the corresponding label.
- *         styleText       : (input:configuration_styleText) => void;                           // Generates the CSS code for an agent specific style change and populates it into an HTML style tag.
+ *         addUserColor    : (agent:string, type:agentType, configurationBody:HTMLElement) => void; // Add agent color options to the configuration modal content.
+ *         applyAgentColors: (agent:string, type:agentType, colors:[string, string]) => void;       // Update the specified color information against the default colors of the current color scheme.
+ *         radio           : (element:HTMLElement) => void;                                         // Sets a class on a grandparent element to apply style changes to the corresponding label.
+ *         styleText       : (input:configuration_styleText) => void;                               // Generates the CSS code for an agent specific style change and populates it into an HTML style tag.
  *     };
  * }
  * ``` */
@@ -37,19 +37,19 @@ const configuration:module_configuration = {
         "default": ["fff", "eee"]
     },
 
-    content: function browser_content_configuration_content():Element {
-        const configurationBody:Element = document.createElement("div"),
+    content: function browser_content_configuration_content():HTMLElement {
+        const configurationBody:HTMLElement = document.createElement("div"),
             random:string = Math.random().toString(),
-            createSection = function browser_content_configuration_content_createSection(title:string):Element {
-                const container:Element = document.createElement("div"),
-                    h3:Element = document.createElement("h3");
+            createSection = function browser_content_configuration_content_createSection(title:string):HTMLElement {
+                const container:HTMLElement = document.createElement("div"),
+                    h3:HTMLElement = document.createElement("h3");
                 container.setAttribute("class", "section");
                 h3.innerHTML = title;
                 container.appendChild(h3);
                 return container;
             },
             perAgentType = function browser_content_configuration_content_perAgentType(agentType:agentType):void {
-                const ul:Element = document.createElement("ul");
+                const ul:HTMLElement = document.createElement("ul");
                 section = createSection(`◩ ${common.capitalize(agentType)} Color Definitions`);
                 p = document.createElement("p");
                 p.innerHTML = "Accepted format is 3 or 6 digit hexadecimal (0-f)";
@@ -121,11 +121,11 @@ const configuration:module_configuration = {
                 }
                 configurationBody.appendChild(section);
             };
-        let section:Element,
+        let section:HTMLElement,
             p:HTMLElement,
             select:HTMLElement,
             option:HTMLOptionElement,
-            label:Element,
+            label:HTMLElement,
             input:HTMLInputElement,
             button:HTMLElement,
             text:Text;
@@ -233,13 +233,13 @@ const configuration:module_configuration = {
                 keyboard:KeyboardEvent = event as KeyboardEvent,
                 colorTest:RegExp = (/^(([0-9a-fA-F]{3})|([0-9a-fA-F]{6}))$/),
                 color:string = `${element.value.replace(/\s+/g, "").replace("#", "")}`,
-                parent:Element = element.parentNode as Element;
+                parent:HTMLElement = element.parentNode;
             if (colorTest.test(color) === true) {
                 if (event.type === "blur" || (event.type === "keyup" && keyboard.key === "Enter")) {
-                    const item:Element = parent.parentNode as Element,
-                        ancestor:Element = element.getAncestor("ul", "tag"),
+                    const item:HTMLElement = parent.parentNode,
+                        ancestor:HTMLElement = element.getAncestor("ul", "tag"),
                         type:agentType = ancestor.getAttribute("class").split("-")[0] as agentType,
-                        agent:string = item.getAttribute("data-agent"),
+                        agent:string = item.dataset.agent,
                         swatch:HTMLElement = parent.getElementsByClassName("swatch")[0] as HTMLElement;
                     element.value = color;
                     if (parent.innerHTML.indexOf("Body") > 0) {
@@ -312,7 +312,7 @@ const configuration:module_configuration = {
                     }
                     configuration.tools.applyAgentColors(agent, agentType, [color[0], color[1]]);
                     do {
-                        if (agentColors[c].getAttribute("data-agent") === agent) {
+                        if (agentColors[c].dataset.agent === agent) {
                             swatches = agentColors[c].getElementsByClassName("swatch");
                             swatch1 = swatches[0] as HTMLElement;
                             swatch2 = swatches[1] as HTMLElement;
@@ -328,7 +328,7 @@ const configuration:module_configuration = {
                     complete(counts);
                 },
                 perAgentType: function browser_content_configuration_colorScheme_perAgent(agentNames:agentNames):void {
-                    const list:Element = document.getElementsByClassName(`${agentNames.agentType}-color-list`)[0];
+                    const list:HTMLElement = document.getElementsByClassName(`${agentNames.agentType}-color-list`)[0] as HTMLElement;
                     if (list === undefined) {
                         agentColors = null;
                     } else {
@@ -345,9 +345,9 @@ const configuration:module_configuration = {
         configurationText: function browser_content_configuration_configurationText(event:Event):void {
             const element:HTMLInputElement = event.target as HTMLInputElement,
                 keyboard:KeyboardEvent = event as KeyboardEvent;
-            if (element.value.replace(/\s+/, "") !== "" && (event.type === "blur" || (event.type === "change" && util.name(element) === "select") || (event.type === "keyup" && keyboard.key === "Enter"))) {
+            if (element.value.replace(/\s+/, "") !== "" && (event.type === "blur" || (event.type === "change" && element.lowName() === "select") || (event.type === "keyup" && keyboard.key === "Enter"))) {
                 const numb:number = Number(element.value),
-                    parent:Element = element.parentNode as Element,
+                    parent:HTMLElement = element.parentNode,
                     parentText:string = parent.innerHTML.toLowerCase();
                 if (parentText.indexOf("brotli") > 0) {
                     if (isNaN(numb) === true || numb < 0 || numb > 11) {
@@ -369,7 +369,7 @@ const configuration:module_configuration = {
         /* Shows and hides additional textual information about compression */
         detailsToggle: function browser_content_configuration_detailsToggle(event:MouseEvent):void {
             const element:HTMLInputElement = event.target as HTMLInputElement,
-                parent:Element = element.parentNode as Element,
+                parent:HTMLElement = element.parentNode,
                 info:HTMLElement = parent.getElementsByClassName("configuration-details")[0] as HTMLElement;
             if (info.style.display === "none") {
                 info.style.display = "block";
@@ -383,13 +383,13 @@ const configuration:module_configuration = {
 
     tools: {
         /* Add agent color options to the configuration modal content */
-        addUserColor: function browser_content_configuration_addUserColor(agent:string, type:agentType, configurationBody:Element):void {
-            const ul:Element = configurationBody.getElementsByClassName(`${type}-color-list`)[0],
-                li:Element = document.createElement("li"),
-                p:Element = document.createElement("p"),
+        addUserColor: function browser_content_configuration_addUserColor(agent:string, type:agentType, configurationBody:HTMLElement):void {
+            const ul:HTMLElement = configurationBody.getElementsByClassName(`${type}-color-list`)[0] as HTMLElement,
+                li:HTMLElement = document.createElement("li"),
+                p:HTMLElement = document.createElement("p"),
                 agentColor:[string, string] = browser.data.colors[type][agent];
             let span:HTMLElement,
-                label:Element,
+                label:HTMLElement,
                 input:HTMLInputElement,
                 text:Text;
             p.innerHTML = browser[type][agent].name;
@@ -460,9 +460,9 @@ const configuration:module_configuration = {
         },
 
         /* Sets a class on a grandparent element to apply style changes to the corresponding label */
-        radio: function browser_content_configuration_radio(element:Element):void {
-            const parent:HTMLElement = element.parentNode as HTMLElement,
-                grandParent:Element = parent.parentNode as Element,
+        radio: function browser_content_configuration_radio(element:HTMLElement):void {
+            const parent:HTMLElement = element.parentNode,
+                grandParent:HTMLElement = parent.parentNode,
                 labels:HTMLCollectionOf<Element> = grandParent.getElementsByTagName("label"),
                 length:number = labels.length;
             let a:number = 0;

@@ -25,7 +25,6 @@ type domMethod = "activeElement" | "addClass" | "childNodes" | "documentElement"
 type dragFlag = "" | "control" | "shift";
 type eslintCustom = ["error", ...{selector:string;message:string;}[]];
 type eslintDelimiter = ["error", ...configuration_eslint_item[]];
-type eventCallback = (event:Event, callback:(event:MouseEvent, dragBox:Element) => void) => void;
 type eventName = "blur" | "click" | "contextmenu" | "dblclick" | "focus" | "keydown" | "keyup" | "mousedown" | "mouseenter" | "mouseleave" | "mousemove" | "mouseout" | "mouseover" | "mouseup" | "move" | "refresh-interaction" | "refresh" | "resize" | "select" | "setValue" | "touchend" | "touchstart" | "wait";
 type fileSort = "alphabetically-ascending" | "alphabetically-descending" | "file-extension" | "file-modified-ascending" | "file-modified-descending" | "file-system-type" | "size-ascending" | "size-descending";
 type fileSystemReadType = "base64" | "hash" | "read";

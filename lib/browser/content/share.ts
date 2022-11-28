@@ -16,7 +16,7 @@ import util from "../utilities/util.js";
  * Populates the various agent modals, device details, and share data lists.
  * ```typescript
  * interface module_share {
- *     content: (agent:string, agentType:agentType|"") => Element; // Generates the content of the share modal.
+ *     content: (agent:string, agentType:agentType|"") => HTMLElement; // Generates the content of the share modal.
  *     events: {
  *         context : (event:Event) => void;      // Handler for the File Navigate context menu item *Add a Share*.
  *         readOnly: (event:MouseEvent) => void; // Toggle a share between read only and full access.
@@ -31,29 +31,29 @@ import util from "../utilities/util.js";
 const share:module_share = {
 
     /* Generate the content of a share modal */
-    content: function browser_content_share_content(agentName:string, agentType:agentType|""):Element {
-        let shareListUL:Element = document.createElement("ul"),
-            agent:Element,
+    content: function browser_content_share_content(agentName:string, agentType:agentType|""):HTMLElement {
+        let shareListUL:HTMLElement = document.createElement("ul"),
+            agent:HTMLElement,
             user:boolean = false;
         const sections = {
                 device: document.createElement("div"),
                 user: document.createElement("div")
             },
-            all:Element = document.createElement("div"),
+            all:HTMLElement = document.createElement("div"),
             // open a file navigate modal to a location
             fileNavigate = function browser_content_share_content_fileNavigate(event:MouseEvent):void {
-                const element:Element = (function browser_content_share_content_fileNavigate_getElement():Element {
-                        const item:Element = event.target as Element;
-                        if (util.name(item) === "button") {
+                const element:HTMLElement = (function browser_content_share_content_fileNavigate_getElement():HTMLElement {
+                        const item:HTMLElement = event.target;
+                        if (item.lowName() === "button") {
                             return item;
                         }
                         return item.getAncestor("button", "tag");
                     }()),
-                    ancestor:Element = element.getAncestor("ul", "tag").getAncestor("div", "tag"),
+                    ancestor:HTMLElement = element.getAncestor("ul", "tag").getAncestor("div", "tag"),
                     agentType:agentType = ancestor.getAttribute("class").replace("-share", "") as agentType,
-                    parent:Element = element.parentNode as Element,
-                    agent:string = ancestor.getAttribute("data-hash"),
-                    share:string = parent.getAttribute("data-hash"),
+                    parent:HTMLElement = element.parentNode,
+                    agent:string = ancestor.dataset.hash,
+                    share:string = parent.dataset.hash,
                     path:string = element.firstChild.textContent,
                     type:string = element.getAttribute("class"),
                     slash:string = (path.indexOf("/") > -1 && (path.indexOf("\\") < 0 || path.indexOf("\\") > path.indexOf("/")))
@@ -84,9 +84,9 @@ const share:module_share = {
                 button.innerHTML = "File System Root";
                 button.setAttribute("type", "button");
                 button.onclick = function browser_content_share_content_perAgent_fsRoot(event:MouseEvent):void {
-                    const element:Element = event.target as Element,
-                        ancestor:Element = element.getAncestor("div", "tag"),
-                        agent:string = ancestor.getAttribute("data-hash");
+                    const element:HTMLElement = event.target,
+                        ancestor:HTMLElement = element.getAncestor("div", "tag"),
+                        agent:string = ancestor.dataset.hash;
                     global_events.modal.fileNavigate(event, {
                         agentName: agent,
                         agentType: "device",
@@ -98,14 +98,14 @@ const share:module_share = {
                 return button;
             },
             // hardware and OS details about a device
-            agentDetails = function browser_content_share_content_agentDetails(type:agentType, agentString:string):Element {
-                const agentDetails:Element = document.createElement("ul"),
+            agentDetails = function browser_content_share_content_agentDetails(type:agentType, agentString:string):HTMLElement {
+                const agentDetails:HTMLElement = document.createElement("ul"),
                     agent:agent = browser[type][agentString],
                     ip:string[] = (type === "device" && agentString === browser.data.hashDevice)
                         ? ["127.0.0.1", "::1"]
                         : [agent.ipSelected],
                     createListItem = function browser_content_share_content_agentDetails_createListItem(message:string, dataList?:string[]):void {
-                        const agentItem:Element = document.createElement("li"),
+                        const agentItem:HTMLElement = document.createElement("li"),
                             ul:HTMLElement = document.createElement("ul");
                         if (dataList === undefined) {
                             agentItem.innerHTML = message;
@@ -151,16 +151,16 @@ const share:module_share = {
             },
             perAgent = function browser_content_share_content_perAgent(agentNames:agentNames):void {
                 if ((agentName === "" || agentName === agentNames.agent) && (agentType === "" || agentType === agentNames.agentType)) {
-                    const title:Element = document.createElement("h4"),
-                        toolList:Element = document.createElement("ul"),
+                    const title:HTMLElement = document.createElement("h4"),
+                        toolList:HTMLElement = document.createElement("ul"),
                         messageButton:HTMLElement = document.createElement("button"),
                         // videoButton:HTMLElement = document.createElement("button"),
                         subTitle = function browser_content_share_content_perAgent_subTitle(text:string):void {
-                            const subTitleElement:Element = document.createElement("h5");
+                            const subTitleElement:HTMLElement = document.createElement("h5");
                             subTitleElement.innerHTML = `${browser[agentNames.agentType][agentNames.agent].name} ${text}`;
                             agent.appendChild(subTitleElement);
                         };
-                    let li:Element;
+                    let li:HTMLElement;
                     shareListUL = document.createElement("ul");
                     shareListUL.setAttribute("class", "shares");
                     agent = document.createElement("div");
@@ -203,7 +203,7 @@ const share:module_share = {
                     if (Object.keys(browser[agentNames.agentType][agentNames.agent].shares).length > 0) {
                         agent.appendChild(shareListUL);
                     } else {
-                        const p:Element = document.createElement("p");
+                        const p:HTMLElement = document.createElement("p");
                         p.innerHTML = `${common.capitalize(agentNames.agentType)} <em>${browser[agentNames.agentType][agentNames.agent].name}</em> has no shares.`;
                         agent.appendChild(p);
                     }
@@ -220,8 +220,8 @@ const share:module_share = {
             perAgentType = function browser_content_share_content_perAgentType(agentNames:agentNames):void {
                 const type:agentType = agentNames.agentType;
                 if (agentName === "" && (agentType === "" || agentType === type)) {
-                    const title:Element = document.createElement("h3"),
-                        span:Element = document.createElement("span"),
+                    const title:HTMLElement = document.createElement("h3"),
+                        span:HTMLElement = document.createElement("span"),
                         list:string[] = Object.keys(browser[type]),
                         listLength:number = list.length,
                         plural:string = (listLength === 1)
@@ -251,10 +251,10 @@ const share:module_share = {
                 }
             },
             perShare = function browser_content_share_content_perShare(agentNames:agentNames):void {
-                const li:Element = document.createElement("li"),
+                const li:HTMLElement = document.createElement("li"),
                     button:HTMLElement = document.createElement("button"),
-                    status:Element = document.createElement("strong"),
-                    span:Element = document.createElement("span"),
+                    status:HTMLElement = document.createElement("strong"),
+                    span:HTMLElement = document.createElement("span"),
                     shareItem:agentShare = browser[agentNames.agentType][agentNames.agent].shares[agentNames.share],
                     shareType:string = shareItem.type;
                 button.setAttribute("class", `${agentNames.agentType}-share`);
@@ -273,7 +273,7 @@ const share:module_share = {
                 if (agentNames.agentType === "device" && (agentNames.agent === agentName || agentName === "") && (agentType === "device" || agentType === "")) {
                     const del:HTMLElement = document.createElement("button"),
                         readOnly:HTMLButtonElement = document.createElement("button"),
-                        span:Element = document.createElement("span");
+                        span:HTMLElement = document.createElement("span");
                     if (shareItem.readOnly === true) {
                         li.setAttribute("class", "share");
                         readOnly.setAttribute("class", "grant-full-access");
@@ -314,7 +314,7 @@ const share:module_share = {
             source: browser
         });
         if (user === false) {
-            const title:Element = document.createElement("h3");
+            const title:HTMLElement = document.createElement("h3");
             title.innerHTML = "There are <strong>0 users</strong> available.";
             sections.user.appendChild(title);
             sections.user.setAttribute("class", "agentList");
@@ -327,13 +327,13 @@ const share:module_share = {
 
         /* Share utility for the "adding a share" context menu list */
         context: function browser_content_share_context():void {
-            const element:Element = context.element,
+            const element:HTMLElement = context.element,
                 addresses:[string, fileType, string][] = util.selectedAddresses(element, "share"),
                 deviceData:agentShares = browser.device[addresses[0][2]].shares,
                 shares:string[] = Object.keys(deviceData),
                 shareLength:number = shares.length,
                 addressesLength:number = addresses.length,
-                menu:Element = document.getElementById("contextMenu");
+                menu:HTMLElement = document.getElementById("contextMenu");
             let a:number = 0,
                 b:number = 0;
             context.element = null;
@@ -375,14 +375,14 @@ const share:module_share = {
 
         /* Toggle a share between read only and full access. */
         readOnly: function browser_content_share_readOnly(event:MouseEvent):void {
-            const element:Element = event.target as Element,
-                box:Element = element.getAncestor("box", "class"),
-                boxHash:string = box.getAttribute("data-agent"),
-                parent:Element = element.parentNode as Element,
+            const element:HTMLElement = event.target,
+                box:HTMLElement = element.getAncestor("box", "class") ,
+                boxHash:string = box.dataset.agent,
+                parent:HTMLElement = element.parentNode,
                 hashDevice:string = (boxHash === "")
-                    ? element.getAncestor("device", "class").getAttribute("data-hash")
+                    ? element.getAncestor("device", "class").dataset.hash
                     : boxHash,
-                hashShare:string = parent.getAttribute("data-hash"),
+                hashShare:string = parent.dataset.hash,
                 manage:service_agentManagement = {
                     action: "modify",
                     agentFrom: browser.data.hashDevice,
@@ -482,8 +482,8 @@ const share:module_share = {
                     button.click();
                 };
             let a:number = 0,
-                modal:Element,
-                body:Element,
+                modal:HTMLElement,
+                body:HTMLElement,
                 agent:string,
                 item:config_modal,
                 agentType:agentType | "";
@@ -497,7 +497,7 @@ const share:module_share = {
                         if (item.agent !== "" && browser[item.agentType][item.agent] === undefined) {
                             closer(modals[a]);
                         } else {
-                            body = modal.getElementsByClassName("body")[0];
+                            body = modal.getElementsByClassName("body")[0] as HTMLElement;
                             if (item.title.indexOf("All Shares") > -1) {
                                 agentType = "";
                                 agent = "";
@@ -520,7 +520,7 @@ const share:module_share = {
                         }
                     } else if (item.type === "agent-management") {
                         // redraw the edit and delete content of agent management modals
-                        modal = document.getElementById(modals[a]).getElementsByClassName("agent-management")[0];
+                        modal = document.getElementById(modals[a]).getElementsByClassName("agent-management")[0] as HTMLElement;
                         modal.removeChild(modal.getElementsByClassName("modify-agents")[0]);
                         modal.removeChild(modal.getElementsByClassName("delete-agents")[0]);
                         modal.appendChild(agent_management.content.modifyAgents());

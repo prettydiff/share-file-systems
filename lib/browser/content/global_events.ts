@@ -21,11 +21,11 @@ import util from "../utilities/util.js";
  *     minimizeAll      : (event:Event) => void; // Forcefully minimizes all modals to the tray at the bottom of the application.
  *     minimizeAllFlag  : boolean;               // A flag that halts state saving until all modals are minimized.
  *     modal: {
- *         agentManagement: (event:MouseEvent, config?:config_modal) => void; // Displays agent management modal content from the main menu.
- *         configuration  : (event:MouseEvent) => void;                       // Displays a configuration modal from the main menu.
- *         export         : (event:MouseEvent) => void;                       // Displays an Import/Export modal from the main menu.
- *         fileNavigate   : (Event:Event, config?: navConfig) => void;        // Displays a File Navigate modal from the main menu.
- *         textPad        : (event:Event, config?:config_modal) => Element;   // Displays a TextPad modal from the main menu.
+ *         agentManagement: (event:MouseEvent, config?:config_modal) => void;   // Displays agent management modal content from the main menu.
+ *         configuration  : (event:MouseEvent) => void;                         // Displays a configuration modal from the main menu.
+ *         export         : (event:MouseEvent) => void;                         // Displays an Import/Export modal from the main menu.
+ *         fileNavigate   : (Event:Event, config?: navConfig) => void;          // Displays a File Navigate modal from the main menu.
+ *         textPad        : (event:KeyboardEvent|MouseEvent, config?:config_modal) => HTMLElement; // Displays a TextPad modal from the main menu.
  *     };
  *     shareAll: (event:MouseEvent) => void;     // Displays a Share modal associated with multiple agents.
  *     visibility: () => void;                   // Determines whether the current browser tab is visible or hidden.
@@ -35,7 +35,7 @@ const global_events:module_globalEvents = {
 
     /* Removes the context menu from the DOM. */
     contextMenuRemove: function browser_content_global_contextMenuRemove():void {
-        const menu:Element = document.getElementById("contextMenu");
+        const menu:HTMLElement = document.getElementById("contextMenu");
         if (menu !== null) {
             menu.parentNode.removeChild(menu);
         }
@@ -55,7 +55,7 @@ const global_events:module_globalEvents = {
     /* Toggle fullscreen mode on and off. */
     fullscreenChange: function browser_content_global_fullscreenChange():void {
         const button:HTMLElement = document.getElementById("fullscreen"),
-            span:Element = button.getElementsByTagName("span")[0];
+            span:HTMLElement = button.getElementsByTagName("span")[0];
         let text:string = (document.fullscreenElement === null)
             ? "Toggle Fullscreen"
             : "Exit Fullscreen";
@@ -87,7 +87,7 @@ const global_events:module_globalEvents = {
 
     /* Hides the primary menu on blur. */
     menuBlur: function browser_content_global_menuBlur():void {
-        const active:Element = document.activeElement,
+        const active:HTMLElement = document.activeElement,
             menu:HTMLElement = document.getElementById("menu");
         if (active.parentNode.parentNode !== menu) {
             menu.style.display = "none";
@@ -120,7 +120,7 @@ const global_events:module_globalEvents = {
         agentManagement: function browser_content_global_agentManagement(event:MouseEvent, config?:config_modal):void {
             global_events.menuBlur(event);
             if (config === undefined) {
-                const content:Element = agent_management.content.menu("invite"),
+                const content:HTMLElement = agent_management.content.menu("invite"),
                     payloadModal:config_modal = {
                         agent: browser.data.hashDevice,
                         agentIdentity: false,
@@ -161,10 +161,10 @@ const global_events:module_globalEvents = {
 
         /* Creates an import/export modal */
         export: function browser_content_global_export(event:MouseEvent):void {
-            const element:Element = event.target as Element,
+            const element:HTMLElement = event.target,
                 textArea:HTMLTextAreaElement = document.createElement("textarea"),
-                label:Element = document.createElement("label"),
-                span:Element = document.createElement("span"),
+                label:HTMLElement = document.createElement("label"),
+                span:HTMLElement = document.createElement("span"),
                 agency:agency = (element === document.getElementById("export"))
                     ? [browser.data.hashDevice, false, "device"]
                     : util.getAgent(element),
@@ -256,16 +256,16 @@ const global_events:module_globalEvents = {
         },
 
         /* Creates a textPad modal */
-        textPad: function browser_content_global_textPad(event:Event, config?:config_modal):Element {
-            const element:Element = (event === null)
+        textPad: function browser_content_global_textPad(event:KeyboardEvent|MouseEvent, config?:config_modal):HTMLElement {
+            const element:HTMLElement = (event === null)
                     ? null
-                    : event.target as Element,
+                    : event.target,
                 titleText:string = (element === null)
                     ? ""
                     : element.innerHTML,
                 textArea:HTMLTextAreaElement = document.createElement("textarea"),
-                label:Element = document.createElement("label"),
-                span:Element = document.createElement("span"),
+                label:HTMLElement = document.createElement("label"),
+                span:HTMLElement = document.createElement("span"),
                 agency:agency = (element === document.getElementById("textPad"))
                     ? [browser.data.hashDevice, false, "device"]
                     : (element === null)
@@ -287,7 +287,7 @@ const global_events:module_globalEvents = {
                         width: 800
                     }
                     : config;
-            let box:Element;
+            let box:HTMLElement;
             global_events.menuBlur(event);
             span.innerHTML = "Text Pad";
             label.setAttribute("class", "textPad");
@@ -310,8 +310,8 @@ const global_events:module_globalEvents = {
 
     /* Associates share content to share modals representing multiple agents. */
     shareAll: function browser_content_global_shareAll(event:MouseEvent):void {
-        const element:Element = event.target as Element,
-            parent:Element = element.parentNode as Element,
+        const element:HTMLElement = event.target,
+            parent:HTMLElement = element.parentNode,
             classy:string = element.getAttribute("class");
         if (parent.getAttribute("class") === "all-shares") {
             share.tools.modal("", "", null);

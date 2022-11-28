@@ -103,7 +103,7 @@ interface context_clipboard {
 }
 
 /**
- * A map of supported context functions that generate the associated context menu items and assign their respective handlers.
+ * A map of supported context menu functions that generate the associated context menu items and assign their respective handlers.
  */
 interface context_functions {
     base64: () => void;

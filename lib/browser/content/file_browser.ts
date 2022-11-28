@@ -15,33 +15,32 @@ import util from "../utilities/util.js";
  *     content: {
  *         dataString: (socketData:socketData) => void; // Populate content into modals for string output operations, such as: Base64, Hash, File Read.
  *         details   : (socketData:socketData) => void; // Generates the contents of a details type modal.
- *         list      : (location:string, dirs:directory_response, message:string) => Element; // Generates the contents of a file system list for population into a file navigate modal.
+ *         list      : (location:string, dirs:directory_response, message:string) => HTMLElement; // Generates the contents of a file system list for population into a file navigate modal.
  *         status    : (socketData:socketData) => void; // Translates messaging into file system lists for the appropriate modals.
  *     };
  *     dragFlag: dragFlag; // Allows the drag handler to identify whether the shift or control/command keys are pressed while selecting items from the file list.
  *     events: {
- *         back       : (event:Event) => void;                 // Handler for the back button, which steps back to the prior file system location of the given agent stored in the modal's navigation history.
- *         directory  : (event:Event) => void;                 // Handler for navigation into a directory by means of double click.
- *         drag       : (event:MouseEvent|TouchEvent) => void; // Move file system artifacts from one location to another by means of double click.
- *         execute    : (event:Event) => void;                 // Allows operating system execution of a file by double click interaction.
- *         expand     : (event:Event) => void;                 // Opens a directory into a child list without changing the location of the current modal.
- *         keyExecute : (event:KeyboardEvent) => void;         // Allows file execution by keyboard control, such as pressing the *Enter* key.
- *         listFocus  : (event:Event) => void;                 // When clicking on a file list give focus to an input field in that list so that the list can receive focus.
- *         parent     : (event:Event) => void;                 // Handler to navigate into the parent directory by click the parent navigate button.
- *         rename     : (event:Event) => void;                 // Converts a file system item text into a text input field so that the artifact can be renamed.
- *         saveFile   : (event:Event) => void;                 // A handler for an interaction that allows writing file changes to the file system.
- *         search     : (event?:Event, searchElement?:HTMLInputElement, callback?:eventCallback) => void; // Sends a search query in order to receive a filtered list of file system artifacts.
- *         searchFocus: (event:Event) => void;                 // Provides an interaction that enlarges and reduces the width of the search field.
- *         select     : (event:Event) => void;                 // Select a file system item for interaction by click.
- *         text       : (event:Event) => void;                 // Allows changing file system location by changing the text address of the current location.
+ *         back       : (event:MouseEvent) => void;               // Handler for the back button, which steps back to the prior file system location of the given agent stored in the modal's navigation history.
+ *         directory  : (event:KeyboardEvent|MouseEvent) => void; // Handler for navigation into a directory by means of double click.
+ *         drag       : (event:MouseEvent|TouchEvent) => void;    // Move file system artifacts from one location to another by means of double click.
+ *         execute    : (event:KeyboardEvent|MouseEvent) => void; // Allows operating system execution of a file by double click interaction.
+ *         expand     : (event:MouseEvent) => void;               // Opens a directory into a child list without changing the location of the current modal.
+ *         keyExecute : (event:KeyboardEvent) => void;            // Allows file execution by keyboard control, such as pressing the *Enter* key.
+ *         listFocus  : (event:MouseEvent) => void;               // When clicking on a file list give focus to an input field in that list so that the list can receive focus.
+ *         parent     : (event:MouseEvent) => void;               // Handler to navigate into the parent directory by click the parent navigate button.
+ *         rename     : (event:KeyboardEvent|MouseEvent) => void; // Converts a file system item text into a text input field so that the artifact can be renamed.
+ *         saveFile   : (event:MouseEvent) => void;               // A handler for an interaction that allows writing file changes to the file system.
+ *         search     : (event?:FocusEvent|KeyboardEvent|MouseEvent, searchElement?:HTMLInputElement, callback?:(event:Event, callback:(event:MouseEvent, dragBox:HTMLElement) => void) => void) => void; // Sends a search query in order to receive a filtered list of file system artifacts.
+ *         searchFocus: (event:FocusEvent) => void;               // Provides an interaction that enlarges and reduces the width of the search field.
+ *         select     : (event:KeyboardEvent|MouseEvent) => void; // Select a file system item for interaction by click.
+ *         text       : (event:FocusEvent|KeyboardEvent|MouseEvent) => void; // Allows changing file system location by changing the text address of the current location.
  *     };
  *     tools: {
- *         listFail    : (count:number, box: Element) => void; // Display status information when the Operating system locks files from access.
- *         listItem    : (item:directory_item, extraClass:string) => Element; // Generates the HTML content for a single file system artifacts that populates a file system list.
+ *         listFail    : (count:number, box:HTMLElement) => void; // Display status information when the Operating system locks files from access.
+ *         listItem    : (item:directory_item, extraClass:string) => HTMLElement; // Generates the HTML content for a single file system artifacts that populates a file system list.
  *         modalAddress: (config:config_modalHistory) => void; // Updates the file system address of the current file navigate modal in response to navigating to different locations.
  *     };
  * }
- * type eventCallback = (event:Event, callback:(event:MouseEvent, dragBox:Element) => void) => void;
  * type dragFlag = "" | "control" | "shift";
  * ``` */
 const file_browser:module_fileBrowser = {
@@ -53,9 +52,9 @@ const file_browser:module_fileBrowser = {
                 length:number = data.files.length;
             let a:number = 0,
                 textArea:HTMLTextAreaElement,
-                label:Element,
-                span:Element,
-                modalResult:Element,
+                label:HTMLElement,
+                span:HTMLElement,
+                modalResult:HTMLElement,
                 body:HTMLElement,
                 heading:HTMLElement;
             if (data.files[0] === undefined) {
@@ -102,7 +101,7 @@ const file_browser:module_fileBrowser = {
                     ? ""
                     : "s",
                 fileList:directory_list = [],
-                body:Element = document.getElementById(payload.id).getElementsByClassName("body")[0],
+                body:HTMLElement = document.getElementById(payload.id).getElementsByClassName("body")[0] as HTMLElement,
                 length:number = list.length,
                 details:fileBrowser_DetailCounts = {
                     size: 0,
@@ -110,8 +109,8 @@ const file_browser:module_fileBrowser = {
                     directories: 0,
                     links: 0
                 },
-                output:Element = document.createElement("div"),
-                row = function browser_content_fileBrowser_details_row(heading:string, cell:string, tbody:Element):void {
+                output:HTMLElement = document.createElement("div"),
+                row = function browser_content_fileBrowser_details_row(heading:string, cell:string, tbody:HTMLElement):void {
                     const tr:HTMLElement = document.createElement("tr"),
                         th:HTMLElement = document.createElement("th"),
                         td:HTMLElement = document.createElement("td");
@@ -123,9 +122,9 @@ const file_browser:module_fileBrowser = {
                 };
             let a:number = 0,
                 p:HTMLElement = null,
-                heading:Element = document.createElement("h3"),
+                heading:HTMLElement = document.createElement("h3"),
                 table:HTMLElement = document.createElement("table"),
-                tbody:Element = document.createElement("tbody"),
+                tbody:HTMLElement = document.createElement("tbody"),
                 mTime:Date,
                 aTime:Date,
                 cTime:Date;
@@ -220,8 +219,8 @@ const file_browser:module_fileBrowser = {
                             } else if (sortName === "largest") {
                                 fileList.sort(sortLargest);
                             }
-                            const element:Element = event.target as Element,
-                                grandParent:Element = element.parentNode.parentNode as Element,
+                            const element:HTMLElement = event.target,
+                                grandParent:HTMLElement = element.parentNode.parentNode,
                                 table:HTMLElement = grandParent.getElementsByClassName("detailFileList")[0] as HTMLElement,
                                 p:HTMLElement = table.previousSibling as HTMLElement,
                                 tableBody:HTMLElement = table.getElementsByTagName("tbody")[0],
@@ -291,7 +290,7 @@ const file_browser:module_fileBrowser = {
         },
 
         /* Builds the HTML file list */
-        list: function browser_content_fileBrowser_list(location:string, dirs:directory_response, message:string):Element {
+        list: function browser_content_fileBrowser_list(location:string, dirs:directory_response, message:string):HTMLElement {
             const listLength:number = dirs.length,
                 local:directory_list = (function browser_content_fileBrowser_list_local():directory_list {
                     if (Array.isArray(dirs) === true) {
@@ -321,7 +320,7 @@ const file_browser:module_fileBrowser = {
             location = location.replace(/(\\|\/)+$/, "");
 
             if (dirs === "missing" || dirs === "noShare" || dirs === "readOnly") {
-                const p:Element = document.createElement("p");
+                const p:HTMLElement = document.createElement("p");
                 p.setAttribute("class", "error");
                 if (dirs === "missing") {
                     if (message === "") {
@@ -346,7 +345,7 @@ const file_browser:module_fileBrowser = {
             }
 
             if (message.indexOf("execute-") === 0) {
-                const div:Element = document.createElement("div");
+                const div:HTMLElement = document.createElement("div");
                 let p:HTMLElement = document.createElement("p");
                 p.innerHTML = `Specified location <em>${dirs[0][0]}</em> is a <strong>file</strong>.`;
                 div.appendChild(p);
@@ -367,10 +366,10 @@ const file_browser:module_fileBrowser = {
                     a = a + 1;
                 } while (a < localLength);
             } else {
-                const li:Element = document.createElement("li"),
-                    label:Element = document.createElement("label"),
+                const li:HTMLElement = document.createElement("li"),
+                    label:HTMLElement = document.createElement("label"),
                     input:HTMLInputElement = document.createElement("input"),
-                    p:Element = document.createElement("p");
+                    p:HTMLElement = document.createElement("p");
                 li.setAttribute("class", "empty-list");
                 label.innerHTML = "Empty list";
                 input.type = "checkbox";
@@ -397,22 +396,22 @@ const file_browser:module_fileBrowser = {
                 failures:[string[], number] = (data.fileList === null || typeof data.fileList === "string" || data.fileList.failures === undefined)
                     ? [[], 0]
                     : [data.fileList.failures, Math.min(10, data.fileList.failures.length)],
-                fails:Element = document.createElement("ul"),
+                fails:HTMLElement = document.createElement("ul"),
                 search:boolean  = (data.message.indexOf("search-") === 0),
                 searchFragment:string = (search === true)
                     ? data.message.slice(data.message.indexOf("<em>") + 4, data.message.indexOf("</em>"))
                     : "",
                 expandTest:boolean = (data.message.indexOf("expand-") === 0),
                 expandLocation:string = data.message.replace("expand-", ""),
-                expand = function browser_content_fileBrowser_status_expand(box:Element):void {
+                expand = function browser_content_fileBrowser_status_expand(box:HTMLElement):void {
                     const list:HTMLCollectionOf<Element> = box.getElementsByClassName("fileList")[0].getElementsByTagName("label"),
                         max:number = list.length;
                     let index:number = 0,
                         text:string = "",
-                        grandParent:Element = null;
+                        grandParent:HTMLElement = null;
                     do {
-                        if (util.name(list[index].parentNode as Element) === "p") {
-                            grandParent = list[index].parentNode.parentNode as Element;
+                        if (list[index].parentNode.lowName() === "p") {
+                            grandParent = list[index].parentNode.parentNode;
                             text = list[index].firstChild.textContent;
                             if (text === expandLocation) {
                                 if (grandParent.getAttribute("class").indexOf("directory") > -1) {
@@ -427,18 +426,18 @@ const file_browser:module_fileBrowser = {
                         index = index + 1;
                     } while (index < max);
                 };
-            let listData:Element,
-                body:Element,
-                clone:Element,
+            let listData:HTMLElement,
+                body:HTMLElement,
+                clone:HTMLElement,
                 keyLength:number = keys.length,
-                statusBar:Element,
-                list:Element,
-                p:Element,
+                statusBar:HTMLElement,
+                list:HTMLElement,
+                p:HTMLElement,
                 modal:config_modal,
-                box:Element;
+                box:HTMLElement;
             if (failures[1] > 0) {
                 let b:number = 0,
-                    li:Element;
+                    li:HTMLElement;
                 do {
                     li = document.createElement("li");
                     li.innerHTML = failures[0][b];
@@ -463,7 +462,7 @@ const file_browser:module_fileBrowser = {
                             ((search === false && modal.search[1] === "") || (search === true && modal.search[1] === searchFragment))
                         ) {
                             box = document.getElementById(keys[keyLength]);
-                            statusBar = box.getElementsByClassName("status-bar")[0];
+                            statusBar = box.getElementsByClassName("status-bar")[0] as HTMLElement;
                             list = statusBar.getElementsByTagName("ul")[0];
                             p = statusBar.getElementsByTagName("p")[0];
                             if (failures[1] > 0) {
@@ -482,7 +481,7 @@ const file_browser:module_fileBrowser = {
                                 }
                             }
                             if (data.fileList !== null && expandTest === false) {
-                                body = box.getElementsByClassName("body")[0];
+                                body = box.getElementsByClassName("body")[0] as HTMLElement;
                                 body.innerHTML = "";
                                 listData = file_browser.content.list(data.agentSource.modalAddress, data.fileList, data.message);
                                 if (listData !== null) {
@@ -507,9 +506,9 @@ const file_browser:module_fileBrowser = {
     events: {
 
         /* step back through a modal's address history */
-        back: function browser_content_fileBrowser_back(event:Event):void {
-            const element:Element = event.target as Element,
-                box:Element = element.getAncestor("box", "class"),
+        back: function browser_content_fileBrowser_back(event:MouseEvent):void {
+            const element:HTMLElement = event.target,
+                box:HTMLElement = element.getAncestor("box", "class"),
                 id:string = box.getAttribute("id"),
                 address:HTMLInputElement = box.getElementsByClassName("fileAddress")[0].getElementsByTagName("input")[0] as HTMLInputElement,
                 history = browser.data.modals[id].history;
@@ -521,15 +520,15 @@ const file_browser:module_fileBrowser = {
         },
 
         /* navigate into a directory by double click */
-        directory: function browser_content_fileBrowser_directory(event:Event):void {
+        directory: function browser_content_fileBrowser_directory(event:KeyboardEvent|MouseEvent):void {
             const element:HTMLInputElement = event.target as HTMLInputElement,
-                li:Element = (util.name(element) === "li")
+                li:HTMLElement = (element.lowName() === "li")
                     ? element
-                    : element.getAncestor("li", "tag") as Element,
-                body:Element = li.getAncestor("body", "class"),
-                box:Element = body.parentNode.parentNode as Element,
+                    : element.getAncestor("li", "tag"),
+                body:HTMLElement = li.getAncestor("body", "class"),
+                box:HTMLElement = body.parentNode.parentNode,
                 path:string = (li.getAttribute("class") === "link-directory")
-                    ? li.getAttribute("data-path")
+                    ? li.dataset.path
                     : li.getElementsByTagName("label")[0].innerHTML,
                 id:string = box.getAttribute("id"),
                 agents:[fileAgent, fileAgent, fileAgent] = util.fileAgent(box, null, path),
@@ -553,10 +552,10 @@ const file_browser:module_fileBrowser = {
     
         /* drag and drop of selected list items */
         drag: function browser_content_fileBrowser_drag(event:MouseEvent|TouchEvent):void {
-            const element:Element = event.target as Element,
-                item:Element = (function browser_content_fileBrowser_drag_item():Element {
-                    let el:Element = element;
-                    const name:string = util.name(el);
+            const element:HTMLElement = event.target,
+                item:HTMLElement = (function browser_content_fileBrowser_drag_item():HTMLElement {
+                    let el:HTMLElement = element;
+                    const name:string = el.lowName();
                     if (name !== "label" && name !== "span") {
                         event.preventDefault();
                     }
@@ -565,9 +564,9 @@ const file_browser:module_fileBrowser = {
                     }
                     return el.getAncestor("li", "tag");
                 }()),
-                fileList:Element = element.getAncestor("div", "tag"),
-                body:HTMLElement = fileList.parentNode as HTMLElement,
-                box:HTMLElement = body.getAncestor("box", "class") as HTMLElement,
+                fileList:HTMLElement = element.getAncestor("div", "tag"),
+                body:HTMLElement = fileList.parentNode,
+                box:HTMLElement = body.getAncestor("box", "class"),
                 header:number = (box.getElementsByClassName("header")[0] === undefined)
                     ? 0
                     : box.getElementsByClassName("header")[0].clientHeight + 13,
@@ -594,7 +593,7 @@ const file_browser:module_fileBrowser = {
                     if (init === false) {
                         return;
                     }
-                    let goal:Element = null;
+                    let goal:HTMLElement = null;
                     const addresses:string[] = (function browser_content_fileBrowser_drag_drop_addresses():string[] {
                             const output:string[] = [],
                                 children:HTMLCollectionOf<HTMLElement> = list.getElementsByTagName("li"),
@@ -619,7 +618,7 @@ const file_browser:module_fileBrowser = {
                             ? touchDrop.touches[0].clientY
                             : mouseDrop.clientY,
                         target:string = (function browser_content_fileBrowser_drag_drop_target():string {
-                            const ul:HTMLCollectionOf<Element> = browser.content.getElementsByClassName("fileList"),
+                            const ul:HTMLCollectionOf<HTMLElement> = browser.content.getElementsByClassName("fileList") as HTMLCollectionOf<HTMLElement>,
                                 length:number = ul.length;
                             let a:number = 0,
                                 ulBody:HTMLElement,
@@ -633,8 +632,8 @@ const file_browser:module_fileBrowser = {
                                 zIndex:number = 0;
                             do {
                                 if (ul[a] !== list) {
-                                    ulBody = ul[a].parentNode as HTMLElement;
-                                    ulBox = ulBody.parentNode.parentNode as HTMLElement;
+                                    ulBody = ul[a].parentNode;
+                                    ulBox = ulBody.parentNode.parentNode;
                                     ulHeader = (ulBox.getElementsByClassName("header")[0] === undefined)
                                         ? 0
                                         : box.getElementsByClassName("header")[0].clientHeight + 13;
@@ -646,7 +645,7 @@ const file_browser:module_fileBrowser = {
                                         ulIndex = browser.data.modals[ulBox.getAttribute("id")].zIndex;
                                         if (ulBottom > clientY && ulRight > clientX && ulIndex > zIndex) {
                                             zIndex = ulIndex;
-                                            goal = ul[a] as Element;
+                                            goal = ul[a];
                                         }
                                     }
                                 }
@@ -691,10 +690,10 @@ const file_browser:module_fileBrowser = {
                         outOfBounds = true;
                         if (init === false) {
                             const checkbox:HTMLCollectionOf<HTMLInputElement> = fileList.getElementsByTagName("input"),
-                                selected:Element[] = [];
+                                selected:HTMLElement[] = [];
                             let a:number = 0,
                                 length:number = checkbox.length,
-                                listItem:Element,
+                                listItem:HTMLElement,
                                 parent:HTMLElement;
                             init = true;
                             list.setAttribute("id", "file-list-drag");
@@ -711,7 +710,7 @@ const file_browser:module_fileBrowser = {
                             } else {
                                 a = 0;
                                 do {
-                                    parent = selected[a].parentNode.parentNode as HTMLElement;
+                                    parent = selected[a].parentNode.parentNode;
                                     listItem = parent.getElementsByTagName("p")[0];
                                     list.appendChild(listItem.parentNode.cloneNode(true));
                                     a = a + 1;
@@ -733,7 +732,7 @@ const file_browser:module_fileBrowser = {
                 init:boolean = false;
             event.stopPropagation();
             document.onmousedown = mouseDown;
-            if (util.name(element) === "button") {
+            if (element.lowName() === "button") {
                 return;
             }
             list.style.display = "none";
@@ -750,15 +749,15 @@ const file_browser:module_fileBrowser = {
         },
 
         /* Send instructions to execute a file */
-        execute: function browser_content_fileBrowser_execute(event:Event):void {
-            const element:Element = event.target as Element,
-                li:Element = (util.name(element) === "li")
+        execute: function browser_content_fileBrowser_execute(event:KeyboardEvent|MouseEvent):void {
+            const element:HTMLElement = event.target,
+                li:HTMLElement = (element.lowName() === "li")
                     ? element
                     : element.getAncestor("li", "tag"),
                 path:string = (li.getAttribute("class") === "link-file")
-                    ? li.getAttribute("data-path").replace(/&amp;/g, "&")
+                    ? li.dataset.path.replace(/&amp;/g, "&")
                     : li.getElementsByTagName("label")[0].innerHTML.replace(/&amp;/g, "&"),
-                box:Element = li.getAncestor("box", "class"),
+                box:HTMLElement = li.getAncestor("box", "class"),
                 agents:[fileAgent, fileAgent, fileAgent] = util.fileAgent(box, null),
                 payload:service_fileSystem = {
                     action: "fs-execute",
@@ -775,10 +774,10 @@ const file_browser:module_fileBrowser = {
         },
     
         /* Shows child elements of a directory */
-        expand: function browser_content_fileBrowser_expand(event:Event):void {
-            const button:HTMLElement = event.target as HTMLElement,
-                box:Element = button.getAncestor("box", "class"),
-                li:HTMLElement = button.parentNode as HTMLElement;
+        expand: function browser_content_fileBrowser_expand(event:MouseEvent):void {
+            const button:HTMLElement = event.target,
+                box:HTMLElement = button.getAncestor("box", "class"),
+                li:HTMLElement = button.parentNode;
             button.focus();
             if (button.innerHTML.indexOf("+") === 0) {
                 const agents:[fileAgent, fileAgent, fileAgent] = util.fileAgent(box, null),
@@ -806,8 +805,8 @@ const file_browser:module_fileBrowser = {
     
         /* Allows file execution via keyboard.  This is an accessibility improvement for keyboard users while mouse users have double click. */
         keyExecute: function browser_content_fileBrowser_keyExecute(event:KeyboardEvent):void {
-            const target:Element = event.target as Element,
-                element:Element = (util.name(target) === "li")
+            const target:HTMLElement = event.target,
+                element:HTMLElement = (target.lowName() === "li")
                     ? target
                     : target.getAncestor("li", "tag");
             if (event.key.toLowerCase() === "enter" && element.getElementsByTagName("p")[0].getAttribute("class") === "selected") {
@@ -816,9 +815,9 @@ const file_browser:module_fileBrowser = {
         },
 
         /* When clicking on a file list give focus to an input field so that the list can receive focus */
-        listFocus: function browser_content_fileBrowser_listFocus(event:Event):void {
-            const element:Element = event.target as Element,
-                listItems:HTMLCollectionOf<Element> = element.getElementsByTagName("li"),
+        listFocus: function browser_content_fileBrowser_listFocus(event:MouseEvent):void {
+            const element:HTMLElement = event.target,
+                listItems:HTMLCollectionOf<HTMLElement> = element.getElementsByTagName("li"),
                 inputs:HTMLCollectionOf<HTMLElement> = (listItems.length > 0)
                     ? listItems[listItems.length - 1].getElementsByTagName("input")
                     : null,
@@ -831,16 +830,16 @@ const file_browser:module_fileBrowser = {
         },
 
         /* Request file system information of the parent directory */
-        parent: function browser_content_fileBrowser_parent(event:Event):boolean {
-            const element:Element = event.target as HTMLInputElement,
-                header:Element = element.parentNode as Element,
+        parent: function browser_content_fileBrowser_parent(event:MouseEvent):boolean {
+            const element:HTMLElement = event.target as HTMLInputElement,
+                header:HTMLElement = element.parentNode,
                 input:HTMLInputElement = header.getElementsByTagName("input")[0],
                 slash:string = (input.value.indexOf("/") > -1 && (input.value.indexOf("\\") < 0 || input.value.indexOf("\\") > input.value.indexOf("/")))
                     ? "/"
                     : "\\",
                 value:string = input.value,
-                bodyParent:Element = element.parentNode.parentNode as Element,
-                box:Element = bodyParent.parentNode as Element,
+                bodyParent:HTMLElement = element.parentNode.parentNode,
+                box:HTMLElement = bodyParent.parentNode,
                 id:string = box.getAttribute("id"),
                 newAddress:string = (function browser_content_fileBrowser_parent_newAddress():string {
                     if ((/^\w:\\$/).test(value) === true) {
@@ -873,16 +872,16 @@ const file_browser:module_fileBrowser = {
         },
     
         /* The front-side of renaming a file system object */
-        rename: function browser_content_fileBrowser_rename(event:Event):void {
-            const element:Element = (context.element === null)
-                    ? event.target as Element
+        rename: function browser_content_fileBrowser_rename(event:KeyboardEvent|MouseEvent):void {
+            const element:HTMLElement = (context.element === null)
+                    ? event.target
                     : context.element,
-                box:Element = element.getAncestor("box", "class"),
+                box:HTMLElement = element.getAncestor("box", "class"),
                 input:HTMLInputElement = document.createElement("input"),
-                li:HTMLElement = element.getAncestor("li", "tag") as HTMLElement,
-                menu:Element = document.getElementById("contextMenu"),
+                li:HTMLElement = element.getAncestor("li", "tag"),
+                menu:HTMLElement = document.getElementById("contextMenu"),
                 actionComplete = function browser_content_fileBrowser_rename_actionComplete(field:HTMLInputElement, labelValue:string):void {
-                    const liParent:HTMLElement = field.getAncestor("li", "tag") as HTMLElement;
+                    const liParent:HTMLElement = field.getAncestor("li", "tag");
                     liParent.onkeydown = file_browser.events.keyExecute;
                     field.onblur = null;
                     field.onkeyup = null;
@@ -917,7 +916,7 @@ const file_browser:module_fileBrowser = {
                         field.value = field.value.replace(/\?|<|>|"|\||\*|:|\\|\/|\u0000/g, "");
                     }
                 };
-            let label:Element,
+            let label:HTMLElement,
                 slash:"/" | "\\" = "/",
                 last:string,
                 text:string,
@@ -950,11 +949,11 @@ const file_browser:module_fileBrowser = {
         },
     
         /* A service to write file changes to the file system */
-        saveFile: function browser_content_fileBrowser_saveFile(event:Event):void {
-            const element:Element = event.target as Element,
-                box:Element = element.getAncestor("box", "class"),
+        saveFile: function browser_content_fileBrowser_saveFile(event:MouseEvent):void {
+            const element:HTMLElement = event.target,
+                box:HTMLElement = element.getAncestor("box", "class"),
                 content:string = box.getElementsByClassName("body")[0].getElementsByTagName("textarea")[0].value,
-                title:Element = box.getElementsByTagName("h2")[0].getElementsByTagName("button")[0],
+                title:HTMLElement = box.getElementsByTagName("h2")[0].getElementsByTagName("button")[0],
                 location:string[] = title.innerHTML.split(" - "),
                 agents:[fileAgent, fileAgent, fileAgent] = util.fileAgent(box, null, ""),
                 payload:service_fileSystem = {
@@ -970,26 +969,26 @@ const file_browser:module_fileBrowser = {
         },
     
         /* Search for file system artifacts from a modal's current location */
-        search: function browser_content_fileBrowser_search(event?:Event, searchElement?:HTMLInputElement):void {
+        search: function browser_content_fileBrowser_search(event?:FocusEvent|KeyboardEvent|MouseEvent, searchElement?:HTMLInputElement):void {
             const keyboardEvent:KeyboardEvent = event as KeyboardEvent,
                 element:HTMLInputElement = (searchElement === undefined)
                     ? event.target as HTMLInputElement
                     : searchElement,
                 value:string = element.value,
-                box:Element = element.getAncestor("box", "class"),
+                box:HTMLElement = element.getAncestor("box", "class"),
                 id:string = box.getAttribute("id"),
                 addressLabel:HTMLElement = element.parentNode.previousSibling as HTMLElement,
                 addressElement:HTMLInputElement = addressLabel.getElementsByTagName("input")[0],
                 address:string = addressElement.value;
             if (event !== null && event.type === "blur") {
-                const searchParent:HTMLElement = element.parentNode as HTMLElement;
+                const searchParent:HTMLElement = element.parentNode;
                 searchParent.style.width = "12.5%";
                 addressLabel.style.width = "87.5%";
                 browser.data.modals[id].search = [address, value];
                 network.configuration();
             }
             if (event === null || (event.type === "keyup" && keyboardEvent.key === "Enter")) {
-                const body:Element = box.getElementsByClassName("body")[0],
+                const body:HTMLElement = box.getElementsByClassName("body")[0] as HTMLElement,
                     agents:[fileAgent, fileAgent, fileAgent] = util.fileAgent(box, null),
                     payload:service_fileSystem = {
                         action: "fs-search",
@@ -1019,9 +1018,9 @@ const file_browser:module_fileBrowser = {
         },
     
         /* Expand the search field to a large size when focused */
-        searchFocus: function browser_content_fileBrowser_searchFocus(event:Event):void {
-            const search:HTMLElement = event.target as HTMLElement,
-                searchParent:HTMLElement = search.parentNode as HTMLElement,
+        searchFocus: function browser_content_fileBrowser_searchFocus(event:FocusEvent):void {
+            const search:HTMLElement = event.target,
+                searchParent:HTMLElement = search.parentNode,
                 address:HTMLElement = searchParent.previousSibling as HTMLElement;
             search.focus();
             searchParent.style.width = "60%";
@@ -1029,19 +1028,19 @@ const file_browser:module_fileBrowser = {
         },
     
         /* Select a file system item for an action */
-        select: function browser_content_fileBrowser_select(event:Event):void {
+        select: function browser_content_fileBrowser_select(event:KeyboardEvent|MouseEvent):void {
             event.preventDefault();
             global_events.contextMenuRemove();
             const keyboardEvent:KeyboardEvent = event as KeyboardEvent,
-                element:Element = (function browser_content_fileBrowser_select_element():Element {
-                    const el:Element = event.target as Element;
-                    if (util.name(el) === "li") {
+                element:HTMLElement = (function browser_content_fileBrowser_select_element():HTMLElement {
+                    const el:HTMLElement = event.target;
+                    if (el.lowName() === "li") {
                         return el;
                     }
                     return el.getAncestor("li", "tag");
                 }()),
-                setClasses = function browser_content_fileBrowser_select_setClasses(el:Element, className:string, selectState:boolean):void {
-                    const parent:Element = el.parentNode as Element;
+                setClasses = function browser_content_fileBrowser_select_setClasses(el:HTMLElement, className:string, selectState:boolean):void {
+                    const parent:HTMLElement = el.parentNode;
                     if (selectState === true) {
                         if (className !== null && className.indexOf("cut") > -1) {
                             el.setAttribute("class", "cut");
@@ -1060,13 +1059,13 @@ const file_browser:module_fileBrowser = {
                         modalData.selection[el.getElementsByTagName("label")[0].innerHTML] = "selected";
                     }
                 },
-                p:Element = element.getElementsByTagName("p")[0],
+                p:HTMLElement = element.getElementsByTagName("p")[0],
                 classy:string = p.getAttribute("class"),
-                parent:HTMLElement = p.parentNode as HTMLElement,
+                parent:HTMLElement = p.parentNode,
                 input:HTMLInputElement = parent.getElementsByTagName("input")[0];
             let state:boolean = input.checked,
-                body:Element = p,
-                box:Element,
+                body:HTMLElement = p,
+                box:HTMLElement,
                 modalData:config_modal;
             if (document.getElementById("newFileItem") === null) {
                 if (file_browser.dragFlag !== "") {
@@ -1076,7 +1075,7 @@ const file_browser:module_fileBrowser = {
                 input.focus();
                 modal.events.zTop(keyboardEvent);
                 body = body.getAncestor("body", "class");
-                box = body.parentNode.parentNode as Element;
+                box = body.parentNode.parentNode;
                 modalData = browser.data.modals[box.getAttribute("id")];
 
                 if (document.getElementById("dragBox") !== null) {
@@ -1104,7 +1103,7 @@ const file_browser:module_fileBrowser = {
                             }
                         };
                     let a:number = 0,
-                        focus:Element = browser.data.modals[box.getAttribute("id")].focus,
+                        focus:HTMLElement = browser.data.modals[box.getAttribute("id")].focus as HTMLElement,
                         elementIndex:number = -1,
                         focusIndex:number = -1,
                         listLength:number = liList.length;
@@ -1143,12 +1142,12 @@ const file_browser:module_fileBrowser = {
                         inputsLength = inputs.length,
                         selected:boolean = (p.getAttribute("class") !== null && p.getAttribute("class").indexOf("selected") > -1);
                     let a:number = 0,
-                        item:Element,
+                        item:HTMLElement,
                         itemClass:string,
                         itemParent:HTMLElement;
                     do {
                         if (inputs[a].checked === true) {
-                            itemParent = inputs[a].parentNode.parentNode as HTMLElement;
+                            itemParent = inputs[a].parentNode.parentNode;
                             item = itemParent.getElementsByTagName("p")[0];
                             itemClass = item.getAttribute("class");
                             setClasses(item, itemClass, true);
@@ -1167,14 +1166,14 @@ const file_browser:module_fileBrowser = {
         },
     
         /* Requests file system data from a text field, such as manually typing an address */
-        text: function browser_content_fileBrowser_text(event:Event):boolean {
-            let box:Element,
+        text: function browser_content_fileBrowser_text(event:FocusEvent|KeyboardEvent|MouseEvent):boolean {
+            let box:HTMLElement,
                 history:boolean = true;
             const keyboardEvent:KeyboardEvent = event as KeyboardEvent,
                 element:HTMLInputElement = (function browser_content_fileBrowser_text_element():HTMLInputElement {
                     const el:HTMLInputElement = event.target as HTMLInputElement,
-                        parent:Element = el.parentNode as Element,
-                        name:string = util.name(el);
+                        parent:HTMLElement = el.parentNode,
+                        name:string = el.lowName();
                     box = el.getAncestor("box", "class");
                     if (name !== "input" || (name === "input" && parent.getAttribute("class") !== "fileAddress")) {
                         history = false;
@@ -1217,10 +1216,10 @@ const file_browser:module_fileBrowser = {
     tools: {
     
         /* Display status information when the Operating system locks files from access */
-        listFail: function browser_content_fileBrowser_listFail(count:number, box:Element):void {
-            const statusBar:Element = box.getElementsByClassName("status-bar")[0],
-                p:Element = statusBar.getElementsByTagName("p")[0],
-                ul:Element = statusBar.getElementsByTagName("ul")[0],
+        listFail: function browser_content_fileBrowser_listFail(count:number, box:HTMLElement):void {
+            const statusBar:HTMLElement = box.getElementsByClassName("status-bar")[0] as HTMLElement,
+                p:HTMLElement = statusBar.getElementsByTagName("p")[0],
+                ul:HTMLElement = statusBar.getElementsByTagName("ul")[0],
                 filePlural:string = (count === 1)
                     ? ""
                     : "s";
@@ -1235,7 +1234,7 @@ const file_browser:module_fileBrowser = {
         },
     
         /* Build a single file system object from data */
-        listItem: function browser_content_fileBrowser_listItem(item:directory_item, extraClass:string):Element {
+        listItem: function browser_content_fileBrowser_listItem(item:directory_item, extraClass:string):HTMLElement {
             const li:HTMLElement = document.createElement("li"),
                 label:HTMLLabelElement = document.createElement("label"),
                 p:HTMLElement = document.createElement("p"),
@@ -1247,8 +1246,8 @@ const file_browser:module_fileBrowser = {
                         : "link-file"
                     : item[1],
                 mouseOver = function browser_content_fileBrowser_listItem_mouseOver(event:MouseEvent):void {
-                    const dragBox:Element = document.getElementById("dragBox"),
-                        element:HTMLElement = event.target as HTMLElement;
+                    const dragBox:HTMLElement = document.getElementById("dragBox"),
+                        element:HTMLElement = event.target;
                     if (dragBox !== null) {
                         if (event.ctrlKey === true) {
                             element.click();
@@ -1337,13 +1336,13 @@ const file_browser:module_fileBrowser = {
         /* Updates the address of a fileNavigate modal in both UI and state */
         modalAddress: function browser_content_fileBrowser_modalAddress(config:config_modalHistory):void {
             const modalData:config_modal = browser.data.modals[config.id],
-                modalItem:Element = document.getElementById(config.id),
+                modalItem:HTMLElement = document.getElementById(config.id),
                 lastHistory:string = modalData.history[modalData.history.length - 1],
                 windows:boolean = ((/^\w:/).test(config.address.replace(/\s+/, "")) || config.address === "\\");
             
             // if at root use the proper directory slash
             if (config.address === "**root**") {
-                const listItem:Element = modalItem.getElementsByClassName("fileList")[0].getElementsByTagName("li")[0];
+                const listItem:HTMLElement = modalItem.getElementsByClassName("fileList")[0].getElementsByTagName("li")[0];
                 if (listItem === undefined || listItem.getAttribute("class") === "empty-list") {
                     config.address = "/";
                 } else {
