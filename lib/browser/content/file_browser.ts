@@ -457,9 +457,12 @@ const file_browser:module_fileBrowser = {
                     modal = browser.data.modals[keys[keyLength]];
                     if (modal.type === "fileNavigate") {
                         if (
+                            // get modals from data.agentSource, this device, and targeted shares
                             (modal.agent === data.agentSource[modal.agentType] || (browser.device[modal.agent] !== undefined && browser.device[modal.agent].shares[data.agentSource.share] !== undefined)) &&
+                            // modals that match the data address posix (case sensitive) vs windows (case insensitive)
                             ((modal.text_value.charAt(0) === "/" && modal.text_value === data.agentSource.modalAddress) || (modal.text_value.charAt(0) !== "/" && modal.text_value.toLowerCase() === data.agentSource.modalAddress.toLowerCase())) &&
-                            ((search === false && modal.search[1] === "") || (search === true && modal.search[1] === searchFragment))
+                            // if the data is a search result then only populate modals containing the specific fragment
+                            ((search === false && modal.search[0] === "") || (search === true && modal.search[1] === searchFragment))
                         ) {
                             box = document.getElementById(keys[keyLength]);
                             statusBar = box.getElementsByClassName("status-bar")[0] as HTMLElement;
@@ -1332,14 +1335,14 @@ const file_browser:module_fileBrowser = {
             li.ontouchstart = file_browser.events.drag;
             return li;
         },
-    
+
         /* Updates the address of a fileNavigate modal in both UI and state */
         modalAddress: function browser_content_fileBrowser_modalAddress(config:config_modalHistory):void {
             const modalData:config_modal = browser.data.modals[config.id],
                 modalItem:HTMLElement = document.getElementById(config.id),
                 lastHistory:string = modalData.history[modalData.history.length - 1],
                 windows:boolean = ((/^\w:/).test(config.address.replace(/\s+/, "")) || config.address === "\\");
-            
+
             // if at root use the proper directory slash
             if (config.address === "**root**") {
                 const listItem:HTMLElement = modalItem.getElementsByClassName("fileList")[0].getElementsByTagName("li")[0];
@@ -1360,23 +1363,24 @@ const file_browser:module_fileBrowser = {
                     }
                 }
             }
-    
+
             // change the value in the modal settings
             modalData.text_value = config.address;
-    
+            modalData.search[0] = "";
+
             // change the value in modal history
             if (config.history === true && ((config.address !== lastHistory && windows === false) || (config.address.toLowerCase() !== lastHistory.toLowerCase() && windows === true))) {
                 modalData.history.push(config.address);
             }
-    
+
             // request new file system data for the new address
             if (config.payload !== null) {
                 network.send(config.payload, "file-system");
-    
+
                 // save state
                 network.configuration();
             }
-    
+
             // change the value in the html
             modalItem.getElementsByClassName("fileAddress")[0].getElementsByTagName("input")[0].value = config.address;
         }

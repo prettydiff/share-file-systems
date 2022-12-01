@@ -341,7 +341,7 @@ import disallowed from "../common/disallowed.js";
                                 });
                             } else {
                                 const agents:[fileAgent, fileAgent, fileAgent] = util.fileAgent(modalItem.content, null, modalItem.text_value),
-                                    action:actionFile = (modalItem.search[1] !== undefined && modalItem.search[1] !== "")
+                                    action:actionFile = (modalItem.search[1] !== undefined && modalItem.search[0] !== "" && modalItem.search[1] !== "")
                                         ? "fs-search"
                                         : "fs-directory",
                                     payload:service_fileSystem = {
@@ -378,7 +378,7 @@ import disallowed from "../common/disallowed.js";
                         const p:HTMLElement = document.createElement("p"),
                             modalData:config_modal = state.settings.configuration.modals[id],
                             restore = function browser_init_modalMedia_restore(event:MouseEvent):void {
-                                const element:Element = event.target as Element;
+                                const element:HTMLElement = event.target;
                                 body.onclick = null;
                                 element.removeChild(element.firstChild);
                                 element.appendChild(media.content(modalData.status_text as mediaType, modalData.height, modalData.width));
