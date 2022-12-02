@@ -38,7 +38,7 @@ import util from "../utilities/util.js";
  *     tools: {
  *         listFail    : (count:number, box:HTMLElement) => void; // Display status information when the Operating system locks files from access.
  *         listItem    : (item:directory_item, extraClass:string) => HTMLElement; // Generates the HTML content for a single file system artifacts that populates a file system list.
- *         modalAddress: (config:config_modalHistory) => void; // Updates the file system address of the current file navigate modal in response to navigating to different locations.
+ *         modalAddress: (event:FocusEvent|KeyboardEvent|MouseEvent, config:config_modalHistory) => void; // Updates the file system address of the current file navigate modal in response to navigating to different locations.
  *     };
  * }
  * type dragFlag = "" | "control" | "shift";
@@ -462,7 +462,7 @@ const file_browser:module_fileBrowser = {
                             // modals that match the data address posix (case sensitive) vs windows (case insensitive)
                             ((modal.text_value.charAt(0) === "/" && modal.text_value === data.agentSource.modalAddress) || (modal.text_value.charAt(0) !== "/" && modal.text_value.toLowerCase() === data.agentSource.modalAddress.toLowerCase())) &&
                             // if the data is a search result then only populate modals containing the specific fragment
-                            ((search === false && modal.search[0] === "") || (search === true && modal.search[1] === searchFragment))
+                            (search === false || (search === true && modal.search[0] === modal.text_value && modal.search[1] === searchFragment))
                         ) {
                             box = document.getElementById(keys[keyLength]);
                             statusBar = box.getElementsByClassName("status-bar")[0] as HTMLElement;
@@ -490,7 +490,7 @@ const file_browser:module_fileBrowser = {
                                 if (listData !== null) {
                                     body.appendChild(listData);
                                     if (Array.isArray(data.fileList) === true && search === false) {
-                                        file_browser.tools.modalAddress({
+                                        file_browser.tools.modalAddress(null, {
                                             address: data.fileList[0][0],
                                             history: false,
                                             id: keys[keyLength],
@@ -545,7 +545,7 @@ const file_browser:module_fileBrowser = {
                     name: ""
                 };
             event.preventDefault();
-            file_browser.tools.modalAddress({
+            file_browser.tools.modalAddress(event, {
                 address: path,
                 id: id,
                 history: true,
@@ -866,7 +866,7 @@ const file_browser:module_fileBrowser = {
             if (value === "\\" || value === "/") {
                 return false;
             }
-            file_browser.tools.modalAddress({
+            file_browser.tools.modalAddress(event, {
                 address: newAddress,
                 history: true,
                 id: id,
@@ -1201,7 +1201,7 @@ const file_browser:module_fileBrowser = {
                         location: [address],
                         name: ""
                     };
-                file_browser.tools.modalAddress({
+                file_browser.tools.modalAddress(event, {
                     address: address,
                     id: id,
                     history: history,
@@ -1210,7 +1210,6 @@ const file_browser:module_fileBrowser = {
             }
             return false;
         }
-
     },
 
     /* Stores whether Control or Shift keys were pressed when drag initiated */
@@ -1337,7 +1336,7 @@ const file_browser:module_fileBrowser = {
         },
 
         /* Updates the address of a fileNavigate modal in both UI and state */
-        modalAddress: function browser_content_fileBrowser_modalAddress(config:config_modalHistory):void {
+        modalAddress: function browser_content_fileBrowser_modalAddress(event:FocusEvent|KeyboardEvent|MouseEvent, config:config_modalHistory):void {
             const modalData:config_modal = browser.data.modals[config.id],
                 modalItem:HTMLElement = document.getElementById(config.id),
                 lastHistory:string = modalData.history[modalData.history.length - 1],
@@ -1366,7 +1365,9 @@ const file_browser:module_fileBrowser = {
 
             // change the value in the modal settings
             modalData.text_value = config.address;
-            modalData.search[0] = "";
+            if (event === null || event.target.getAttribute("class") !== "reloadDirectory") {
+                modalData.search[0] = "";
+            }
 
             // change the value in modal history
             if (config.history === true && ((config.address !== lastHistory && windows === false) || (config.address.toLowerCase() !== lastHistory.toLowerCase() && windows === true))) {

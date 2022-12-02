@@ -354,6 +354,11 @@ const transmit_ws:module_transmit_ws = {
                     return input;
                 },
                 payload:Buffer = (function terminal_server_transmission_transmitWs_listener_processor_payload():Buffer {
+                    // Payload processing must contend with these 4 constraints:
+                    // 1. Message Fragmentation - RFC6455 allows messages to be fragmented from a single transmission into multiple transmission frames independently sent and received.
+                    // 2. Header Separation     - Firefox sends frame headers separated from frame bodies.
+                    // 3. Node Concatenation    - If Node.js receives message frames too quickly the various binary buffers are concatenated into a single deliverable to the processing application.
+                    // 4. TLS Max Packet Size   - TLS forces a maximum payload size of 65536 bytes.
                     if (frame === null) {
                         return null;
                     }

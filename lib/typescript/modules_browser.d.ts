@@ -233,7 +233,7 @@ interface module_context {
  *     tools: {
  *         listFail    : (count:number, box:HTMLElement) => void; // Display status information when the Operating system locks files from access.
  *         listItem    : (item:directory_item, extraClass:string) => HTMLElement; // Generates the HTML content for a single file system artifacts that populates a file system list.
- *         modalAddress: (config:config_modalHistory) => void; // Updates the file system address of the current file navigate modal in response to navigating to different locations.
+ *         modalAddress: (event:FocusEvent|KeyboardEvent|MouseEvent, config:config_modalHistory) => void; // Updates the file system address of the current file navigate modal in response to navigating to different locations.
  *     };
  * }
  * type dragFlag = "" | "control" | "shift";
@@ -265,7 +265,7 @@ interface module_fileBrowser {
     tools: {
         listFail: (count:number, box:HTMLElement) => void;
         listItem: (item:directory_item, extraClass:string) => HTMLElement;
-        modalAddress: (config:config_modalHistory) => void;
+        modalAddress: (event:FocusEvent|KeyboardEvent|MouseEvent, config:config_modalHistory) => void;
     };
 }
 
