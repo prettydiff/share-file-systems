@@ -490,6 +490,8 @@ const file_browser:module_fileBrowser = {
                                 if (listData !== null) {
                                     body.appendChild(listData);
                                     if (Array.isArray(data.fileList) === true && search === false) {
+                                        // ensures modal address matches the addressed returned from the file system
+                                        // **root** pseudo address is converted to actual system address 
                                         file_browser.tools.modalAddress(null, {
                                             address: data.fileList[0][0],
                                             history: false,
@@ -1193,7 +1195,9 @@ const file_browser:module_fileBrowser = {
                 const id:string = box.getAttribute("id"),
                     agents:[fileAgent, fileAgent, fileAgent] = util.fileAgent(box, null, address),
                     payload:service_fileSystem = {
-                        action: "fs-directory",
+                        action: (event !== null && event.target.getAttribute("class") === "reloadDirectory" && browser.data.modals[id].search[0] !== "")
+                            ? "fs-search"
+                            : "fs-directory",
                         agentRequest: agents[0],
                         agentSource: agents[1],
                         agentWrite: null,

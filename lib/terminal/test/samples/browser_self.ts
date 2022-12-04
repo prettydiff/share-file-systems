@@ -4065,6 +4065,74 @@ const browserSelf:test_browserItem[] = [
             unit: []
         },
 
+        {
+            delay: {
+                node: [
+                    ["getModalsByModalType", "fileNavigate", 0],
+                    ["getElementsByClassName", "status-bar", 0],
+                    ["getElementsByTagName", "p", 0]
+                ],
+                qualifier: "begins",
+                target: ["innerHTML"],
+                type: "property",
+                value: "Directory regex search \"<em>/^age\\w+_\\w+\\./</em>\" returned <strong>22</strong> matches from"
+            },
+            interaction: [
+                {
+                    event: "click",
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 0],
+                        ["getElementsByClassName", "reloadDirectory", 0]
+                    ]
+                }
+            ],
+            machine: "self",
+            name: "Refresh modal with search results should retain location and search criteria",
+            unit: []
+        },
+
+        {
+            delay: {
+                node: [
+                    ["getModalsByModalType", "fileNavigate", 0],
+                    ["getElementsByClassName", "status-bar", 0],
+                    ["getElementsByTagName", "p", 0]
+                ],
+                qualifier: "ends",
+                target: ["innerHTML"],
+                type: "property",
+                value: "0 symbolic links, 0 errors"
+            },
+            interaction: [
+                {
+                    event: "click",
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 0],
+                        ["getElementsByTagName", "input", 0]
+                    ]
+                },
+                {
+                    event: "keydown",
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 0],
+                        ["getElementsByTagName", "input", 0]
+                    ],
+                    value: "Enter"
+                },
+                {
+                    event: "keyup",
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 0],
+                        ["getElementsByTagName", "input", 0]
+                    ],
+                    value: "Enter"
+                }
+            ],
+            machine: "self",
+            name: "Test that search criteria is not applied when typing a new address",
+            unit: []
+        },
+
         mainMenu("self"),
 
         // open the configuration modal
