@@ -113,7 +113,7 @@ body.default {
 .default #spaces .icon-fileNavigator{color:var(--green-button-text)}
 .default #spaces .icon-systemLog{color:var(--focus)}
 .default #spaces .icon-textPad{color:var(--orange-text)}
-.default #spaces .icon-console{color:var(--red-bright)}
+.default #spaces .icon-terminal{color:var(--red-bright)}
 .default #spaces .icon-export{color:var(--blue-hover)}
 .default #spaces .icon-invite{color:var(--parent-text)}
 .default #spaces .icon-delete{color:var(--red-bright)}

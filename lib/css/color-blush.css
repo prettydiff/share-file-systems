@@ -113,7 +113,7 @@ body.blush {
 .blush #spaces .icon-fileNavigator{color:var(--green-button-text)}
 .blush #spaces .icon-systemLog{color:var(--focus)}
 .blush #spaces .icon-textPad{color:var(--orange-text)}
-.blush #spaces .icon-console{color:var(--red-bright)}
+.blush #spaces .icon-terminal{color:var(--red-bright)}
 .blush #spaces .icon-export{color:var(--blue-hover)}
 .blush #spaces .icon-invite{color:var(--parent-text)}
 .blush #spaces .icon-delete{color:var(--red-bright)}

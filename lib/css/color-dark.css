@@ -91,7 +91,7 @@ body.dark{
 .dark #spaces .icon-fileNavigator{color:var(--icon-fileNavigate)}
 .dark #spaces .icon-systemLog{color:var(--blue-primary)}
 .dark #spaces .icon-textPad{color:var(--icon-textPad)}
-.dark #spaces .icon-console{color:var(--red-primary)}
+.dark #spaces .icon-terminal{color:var(--red-primary)}
 .dark #spaces .icon-export{color:var(--icon-export)}
 .dark #spaces .icon-invite{color:var(--green-primary)}
 .dark #spaces .icon-delete{color:var(--red-bright)}
