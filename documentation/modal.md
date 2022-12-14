@@ -92,7 +92,7 @@ type ui_input = "cancel" | "close" | "confirm" | "maximize" | "minimize" | "save
 
 ### type modal_types, The type of modal supported
 ```typescript
-type modalType = "agent-management" | "configuration" | "details" | "document" | "export" | "fileEdit" | "fileNavigate" | "invite-accept" | "message" | "shares" | "textPad";
+type modalType = "agent-management" | "configuration" | "console" | "details" | "document" | "export" | "fileEdit" | "fileNavigate" | "invite-accept" | "message" | "shares" | "textPad";
 ```
 
 * **agent-management** - Displays forms to invite new agents, rename existing agents, or delete agents.

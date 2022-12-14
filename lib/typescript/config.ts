@@ -408,7 +408,7 @@ declare global {
      *     zIndex?: number;
      * }
      * type modalStatus = "hidden" | "maximized" | "minimized" | "normal";
-     * type modalType = "agent-management" | "configuration" | "details" | "document" | "export" | "fileEdit" | "fileNavigate" | "invite-accept" | "media" | "message" | "shares" | "textPad";
+     * type modalType = "agent-management" | "configuration" | "details" | "document" | "export" | "fileEdit" | "fileNavigate" | "invite-accept" | "media" | "message" | "shares" | "terminal" | "textPad";
      * type ui_input = "cancel" | "close" | "confirm" | "maximize" | "minimize" | "save" | "text";
      * ``` */
     interface config_modal {

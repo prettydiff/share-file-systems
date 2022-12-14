@@ -42,6 +42,14 @@ interface TouchEvent {
     target: HTMLElement;
 }
 
+/**
+ * Manages population of agent hash from the login form
+ * ```typescript
+ * interface module_agentHash {
+ *     receive: (socketData:socketData) => void;
+ *     send: (nameDevice:HTMLInputElement, nameUser:HTMLInputElement) => void;
+ * }
+ * ``` */
 interface module_agentHash {
     receive: (socketData:socketData) => void;
     send: (nameDevice:HTMLInputElement, nameUser:HTMLInputElement) => void;
@@ -100,6 +108,21 @@ interface module_agentStatus {
     send: (data:socketData) => void;
     sock: websocket_local;
     start: (callback: () => void, hashDevice:string) => void;
+}
+
+/**
+ * Interaction methods for the command terminal in the browser.
+ * ```typescript
+ * interface module_browserTerminal {
+ *     populate: (element:HTMLElement, logs:string[]) => HTMLElement;
+ *     receive: (socketData:socketData) => void;
+ *     send: () => void;
+ * }
+ * ``` */
+interface module_browserTerminal {
+    populate: (element:HTMLElement, logs:string[]) => HTMLElement;
+    receive: (socketData:socketData) => void;
+    send: () => void;
 }
 
 /**
@@ -283,8 +306,9 @@ interface module_fileBrowser {
  *     modal: {
  *         agentManagement: (event:MouseEvent, config?:config_modal) => void;   // Displays agent management modal content from the main menu.
  *         configuration  : (event:MouseEvent) => void;                         // Displays a configuration modal from the main menu.
+ *         terminal       : (event:MouseEvent, config?:config_modal) => void;   // Displays a command terminal modal from the main menu.
  *         export         : (event:MouseEvent) => void;                         // Displays an Import/Export modal from the main menu.
- *         fileNavigate   : (Event:Event, config?: navConfig) => void;          // Displays a File Navigate modal from the main menu.
+ *         fileNavigate   : (Event:Event, config?:navConfig) => void;          // Displays a File Navigate modal from the main menu.
  *         textPad        : (event:KeyboardEvent|MouseEvent, config?:config_modal) => HTMLElement; // Displays a TextPad modal from the main menu.
  *     };
  *     shareAll: (event:MouseEvent) => void;     // Displays a Share modal associated with multiple agents.
@@ -302,8 +326,9 @@ interface module_globalEvents {
     modal: {
         agentManagement: (event:MouseEvent, config?:config_modal) => void;
         configuration: (event:MouseEvent) => void;
+        terminal: (event:MouseEvent, config?:config_modal) => void;
         export: (event:MouseEvent) => void;
-        fileNavigate: (Event:Event, config?: config_fileNavigate) => void;
+        fileNavigate: (Event:Event, config?:config_fileNavigate) => void;
         textPad: (event:KeyboardEvent|MouseEvent, config?:config_modal) => HTMLElement;
     };
     shareAll: (event:MouseEvent) => void;

@@ -9,6 +9,7 @@ import file_browser from "../content/file_browser.js";
 import message from "../content/message.js";
 import remote from "./remote.js";
 import share from "../content/share.js";
+import terminal from "../content/terminal.js";
 import webSocket from "./webSocket.js";
 
 /**
@@ -104,6 +105,7 @@ const network:module_network = {
                 "invite": agent_management.tools.inviteTransmissionReceipt,
                 "message": message.tools.receive,
                 "reload": reload,
+                "terminal-output": terminal.receive,
                 "test-browser": remote.receive
             },
             socketData:socketData = JSON.parse(dataString),

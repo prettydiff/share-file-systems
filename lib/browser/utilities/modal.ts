@@ -67,10 +67,8 @@ const modal:module_modal = {
                 el.onclick = config.event;
                 config.parent.appendChild(el);
             };
-        browser.data.zIndex = browser.data.zIndex + 1;
-        if (options.zIndex === undefined) {
-            options.zIndex = browser.data.zIndex;
-        }
+
+        // Uniqueness constraints
         if (browser.data.modalTypes.indexOf(options.type) > -1) {
             if (options.single === true) {
                 const keys:string[] = Object.keys(browser.data.modals),
@@ -90,7 +88,12 @@ const modal:module_modal = {
         } else {
             browser.data.modalTypes.push(options.type);
         }
-        options.id = id;
+
+        // Default values
+        browser.data.zIndex = browser.data.zIndex + 1;
+        if (options.zIndex === undefined) {
+            options.zIndex = browser.data.zIndex;
+        }
         if (options.left === undefined) {
             options.left = 200 + (modalCount * 10) - modalCount;
         }
@@ -106,7 +109,16 @@ const modal:module_modal = {
         if (options.status === undefined) {
             options.status = "normal";
         }
+        if (options.agent === undefined) {
+            options.agent = browser.data.hashDevice;
+        }
+        if (options.agentType === undefined) {
+            options.agentType = "device";
+        }
+        options.id = id;
         options.title = title;
+
+        // Title bar functionality
         titleButton.innerHTML = title;
         titleButton.onmousedown = modal.events.move;
         titleButton.ontouchstart = modal.events.move;
@@ -115,33 +127,31 @@ const modal:module_modal = {
         titleButton.onblur  = function browser_utilities_modal_content_blur():void {
             titleButton.onclick = null;
         };
-        box.setAttribute("id", id);
-        box.onmousedown = modal.events.zTop;
-        browser.data.modals[id] = options;
-        box.style.zIndex = browser.data.zIndex.toString();
-        box.setAttribute("class", "box");
-        if (options.agent === undefined) {
-            box.setAttribute("data-agent", browser.data.hashDevice);
-        } else {
-            box.setAttribute("data-agent", options.agent);
-        }
-        if (options.agentType === undefined) {
-            options.agentType = "device";
-        }
-        box.setAttribute("data-agenttype", options.agentType);
-        border.setAttribute("class", "border");
-        body.setAttribute("class", "body");
-        body.style.height = `${options.height / 10}em`;
-        body.style.width = `${options.width / 10}em`;
-        box.style.left = `${options.left / 10}em`;
-        box.style.top = `${options.top / 10}em`;
-        if (options.scroll === false) {
-            body.style.overflow = "hidden";
-        }
         section.appendChild(titleButton);
         section.setAttribute("class", "heading");
         border.appendChild(section);
+
+        // Box universal definitions
+        browser.data.modals[id] = options;
+        box.setAttribute("id", id);
+        box.onmousedown = modal.events.zTop;
+        box.setAttribute("class", "box");
+        box.setAttribute("data-agent", options.agent);
+        box.setAttribute("data-agenttype", options.agentType);
+        border.setAttribute("class", "border");
+        body.setAttribute("class", "body");
+        box.style.zIndex = browser.data.zIndex.toString();
+        box.style.left = `${options.left / 10}em`;
+        box.style.top = `${options.top / 10}em`;
+        body.style.height = `${options.height / 10}em`;
+        body.style.width = `${options.width / 10}em`;
+        if (options.scroll === false || options.type === "export" || options.type === "textPad") {
+            body.style.overflow = "hidden";
+        }
+
+        // Top input controls
         if (Array.isArray(options.inputs) === true) {
+            // Universal input controls
             if (options.inputs.indexOf("close") > -1 || options.inputs.indexOf("maximize") > -1 || options.inputs.indexOf("minimize") > -1) {
                 section = document.createElement("p");
                 section.setAttribute("class", "buttons");
@@ -189,7 +199,11 @@ const modal:module_modal = {
                 }
                 border.appendChild(section);
             }
-            border.getElementsByTagName("h2")[0].getElementsByTagName("button")[0].style.width = `${(options.width - (buttonCount * 50)) / 18}em`;
+
+            // Adjust titleButton width to compensate for the presence of universal input controls
+            titleButton.style.width = `${(options.width - (buttonCount * 50)) / 18}em`;
+
+            // Apply a text input control
             if (options.inputs.indexOf("text") > -1) {
                 const label:HTMLElement = document.createElement("label"),
                     span:HTMLElement = document.createElement("span");
@@ -273,11 +287,12 @@ const modal:module_modal = {
                 border.appendChild(extra);
             }
         }
-        border.appendChild(body);
+
+        // Append body content after top areas and before bottom areas
         body.appendChild(options.content);
-        if (options.type === "export" || options.type === "textPad") {
-            body.style.overflow = "hidden";
-        }
+        border.appendChild(body);
+
+        // Status bar
         if (options.status_bar === true) {
             height = height + 5;
             section = document.createElement("div");
@@ -292,6 +307,8 @@ const modal:module_modal = {
             section.appendChild(extra);
             border.appendChild(section);
         }
+
+        // Confirmation and text posting
         if (options.type === "message") {
             border.appendChild(message.content.footer(options.text_placeholder as messageMode, options.text_value));
         } else if (Array.isArray(options.inputs) === true && (options.inputs.indexOf("cancel") > -1 || options.inputs.indexOf("confirm") > -1 || options.inputs.indexOf("save") > -1)) {
@@ -335,6 +352,13 @@ const modal:module_modal = {
             section.appendChild(extra);
             border.appendChild(section);
         }
+
+        // Append modal
+        box.appendChild(border);
+        browser.content.appendChild(box);
+        footer = box.getElementsByClassName("footer")[0] as HTMLElement;
+
+        // Modal resize buttons in border
         if (options.resize !== false) {
             const borderButton = function browser_utilities_modal_content_borderButton(className:string, text:string):void {
                 const span:HTMLElement = document.createElement("span"),
@@ -344,7 +368,12 @@ const modal:module_modal = {
                 buttonElement.setAttribute("type", "button");
                 buttonElement.onmousedown = modal.events.resize;
                 if (className === "side-l" || className === "side-r") {
-                    buttonElement.style.height = `${(options.height / 10) + height}em`;
+                    // when there is a footer containing a textarea
+                    if (footer !== undefined && footer.getElementsByTagName("textarea")[0] !== undefined) {
+                        buttonElement.style.height = `${(footer.clientHeight + body.clientHeight + 51) / 10}em`;
+                    } else {
+                        buttonElement.style.height = `${(options.height / 10) + height}em`;
+                    }
                 }
                 buttonElement.appendChild(span);
                 border.appendChild(buttonElement);
@@ -358,16 +387,8 @@ const modal:module_modal = {
             borderButton("side-b", "resize box height");
             borderButton("side-l", "resize box width");
         }
-        box.appendChild(border);
-        browser.content.appendChild(box);
-        footer = box.getElementsByClassName("footer")[0] as HTMLElement;
-        if (footer !== undefined && footer.getElementsByTagName("textarea")[0] !== undefined) {
-            const sideL:HTMLElement = box.getElementsByClassName("side-l")[0] as HTMLElement,
-                sideR:HTMLElement = box.getElementsByClassName("side-r")[0] as HTMLElement,
-                height:string = `${(footer.clientHeight + body.clientHeight + 51) / 10}em`;
-            sideL.style.height = height;
-            sideR.style.height = height;
-        }
+
+        // Apply universal controls from saved state
         if (options.status === "minimized" && options.inputs.indexOf("minimize") > -1) {
             const minimize:HTMLElement = box.getElementsByClassName("minimize")[0] as HTMLElement;
             options.status = "normal";
@@ -384,6 +405,8 @@ const modal:module_modal = {
         if (browser.loading === false) {
             network.configuration();
         }
+
+        // return modal
         return box;
     },
 

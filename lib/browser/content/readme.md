@@ -12,4 +12,5 @@ The code libraries that execute in the web browser.
 * **[media.ts](media.ts)**                 - A library for executing audio/video calls.
 * **[message.ts](message.ts)**             - A library for executing the text messaging application.
 * **[share.ts](share.ts)**                 - The utilities that manage and coordinate changes to user share data.
+* **[terminal.ts](terminal.ts)**           - A library to process command terminal output in the browser.
 * **[tutorial.ts](tutorial.ts)**           - An interactive tutorial explaining the application.

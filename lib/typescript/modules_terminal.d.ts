@@ -267,6 +267,19 @@ declare global {
     }
 
     /**
+     * A library to relay terminal logging between devices for presentation to the user in the browser.
+     * ```typescript
+     * interface module_terminal {
+     *     input: (socketData:socketData) => void;
+     *     output: (socketData:socketData) => void;
+     * }
+     * ``` */
+    interface module_terminal {
+        input: (socketData:socketData) => void;
+        output: (socketData:socketData) => void;
+    }
+
+    /**
      * The global environmental variable available to all tasks, services,  and commands executed from the terminal.
      * ```typescript
      * interface module_terminalVariables {
@@ -276,6 +289,7 @@ declare global {
      *         domain      : string[];              // supported domains that resolves to a localhost IP
      *         git_hash    : string;                // dynamically populated static value of hash from prior git commit at latest build
      *         module_type : "commonjs" | "module"  // the type of module system the application is currently using
+     *         log         : string[]               // a storage of console.log items
      *         name        : string;                // a static name of the application
      *         startTime   : bigint;                // nanosecond precision time the application starts for measuring execution performance
      *         version     : string;                // dynamically populated static value of application version number string
@@ -340,6 +354,7 @@ declare global {
             date       : string;
             git_hash   : string;
             module_type: "commonjs" | "module";
+            log        : string[];
             name       : string;
             startTime  : bigint;
             version    : string;

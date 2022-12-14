@@ -7,6 +7,7 @@ import file_browser from "./file_browser.js";
 import modal from "../utilities/modal.js";
 import network from "../utilities/network.js";
 import share from "./share.js";
+import terminal from "./terminal.js";
 import util from "../utilities/util.js";
 
 /**
@@ -23,8 +24,9 @@ import util from "../utilities/util.js";
  *     modal: {
  *         agentManagement: (event:MouseEvent, config?:config_modal) => void;   // Displays agent management modal content from the main menu.
  *         configuration  : (event:MouseEvent) => void;                         // Displays a configuration modal from the main menu.
+ *         terminal       : (event:MouseEvent, config?:config_modal) => void;   // Displays a command terminal modal from the main menu.
  *         export         : (event:MouseEvent) => void;                         // Displays an Import/Export modal from the main menu.
- *         fileNavigate   : (Event:Event, config?: navConfig) => void;          // Displays a File Navigate modal from the main menu.
+ *         fileNavigate   : (Event:Event, config?:navConfig) => void;          // Displays a File Navigate modal from the main menu.
  *         textPad        : (event:KeyboardEvent|MouseEvent, config?:config_modal) => HTMLElement; // Displays a TextPad modal from the main menu.
  *     };
  *     shareAll: (event:MouseEvent) => void;     // Displays a Share modal associated with multiple agents.
@@ -252,6 +254,45 @@ const global_events:module_globalEvents = {
             global_events.menuBlur(event);
             network.send(payloadNetwork, "file-system");
             modal.content(payloadModal);
+            document.getElementById("menu").style.display = "none";
+        },
+
+        /* Creates a console modal */
+        terminal: function browser_content_global_terminal(event:MouseEvent, config?:config_modal):void {
+            let box:HTMLElement = null;
+            const element:HTMLElement = (event === null)
+                    ? null
+                    : event.target,
+                content:HTMLElement = terminal.populate(document.createElement("ol"), browser.terminalLogs),
+                agentName:string = (config === undefined)
+                    ? browser.data.hashDevice
+                    : config.agent,
+                agentType:agentType = (agentName === browser.data.hashDevice)
+                    ? "device"
+                    : config.agentType,
+                payloadModal:config_modal = (config === undefined)
+                    ? {
+                        agent: agentName,
+                        agentIdentity: false,
+                        agentType: agentType,
+                        content: content,
+                        id: (config === undefined)
+                            ? null
+                            : config.id,
+                        inputs: ["close", "maximize", "minimize"],
+                        read_only: false,
+                        title: document.getElementById("terminal").innerHTML,
+                        type: "terminal",
+                        width: 800
+                    }
+                    : config;
+            if (config !== undefined) {
+                config.content = content;
+            }
+            payloadModal.content.setAttribute("class", "terminal-list");
+            global_events.menuBlur(event);
+            box = modal.content(payloadModal);
+            box.getElementsByClassName("body")[0].scrollTo(0, box.getElementsByClassName("body")[0].scrollHeight);
             document.getElementById("menu").style.display = "none";
         },
 

@@ -31,6 +31,7 @@ const browser:browser = {
     pageBody: document.getElementsByTagName("body")[0],
     socket: null,
     style: document.createElement("style"),
+    terminalLogs: [],
     testBrowser: null,
     title: "",
     user: {},

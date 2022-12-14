@@ -14,6 +14,7 @@
  *     pageBody: HTMLElement;
  *     socket: WebSocket;
  *     style: HTMLStyleElement;
+ *     terminalLogs: string[];
  *     testBrowser: service_testBrowser;
  *     title: string;
  *     user: agents;
@@ -31,6 +32,7 @@ interface browser {
     pageBody: HTMLElement;
     socket: WebSocket;
     style: HTMLStyleElement;
+    terminalLogs: string[];
     testBrowser: service_testBrowser;
     title: string;
     user: agents;
@@ -42,12 +44,14 @@ interface browser {
  * ```typescript
  * interface browserState {
  *     addresses: localNetwork;
+ *     logs: string[];
  *     settings: settings_item;
  *     test: service_testBrowser;
  * }
  * ``` */
 interface browserState {
     addresses: localNetwork;
+    logs: string[];
     settings: settings_item;
     test: service_testBrowser;
 }

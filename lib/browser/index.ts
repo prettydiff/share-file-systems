@@ -75,7 +75,8 @@ import disallowed from "../common/disallowed.js";
             state:browserState = {
                 addresses: null,
                 settings: null,
-                test: null
+                test: null,
+                logs: null
             },
 
             // execute test automation following a page reload
@@ -180,6 +181,7 @@ import disallowed from "../common/disallowed.js";
                 document.getElementById("export").onclick           = global_events.modal.export;
                 document.getElementById("fileNavigator").onclick    = global_events.modal.fileNavigate;
                 document.getElementById("configuration").onclick    = global_events.modal.configuration;
+                document.getElementById("terminal").onclick         = global_events.modal.terminal;
                 document.getElementById("textPad").onclick          = global_events.modal.textPad;
                 document.getElementById("agent-management").onclick = global_events.modal.agentManagement;
                 document.onvisibilitychange                         = global_events.visibility;
@@ -402,6 +404,11 @@ import disallowed from "../common/disallowed.js";
                         };
                         share.tools.modal(modalItem.agent, agentType, modalItem);
                     },
+                    modalTerminal = function browser_init_modalTerminal(id:string):void {
+                        const modalItem:config_modal = state.settings.configuration.modals[id];
+                        global_events.modal.terminal(null, modalItem);
+                        z(id);
+                    },
                     modalText = function browser_init_modalText(id:string):void {
                         const modalItem:config_modal = state.settings.configuration.modals[id];
                         global_events.modal.textPad(null, modalItem);
@@ -439,6 +446,8 @@ import disallowed from "../common/disallowed.js";
                             modalDetails(value);
                         } else if (type === "media") {
                             modalMedia(value);
+                        } else if (type === "terminal") {
+                            modalTerminal(value);
                         } else {
                             modalGeneric(value);
                         }
@@ -459,6 +468,7 @@ import disallowed from "../common/disallowed.js";
             state.addresses = JSON.parse(stateItems[0].value);
             state.settings = JSON.parse(stateItems[1].value);
             state.test = JSON.parse(stateItems[2].value);
+            browser.terminalLogs = JSON.parse(stateItems[4].value);
             if (state.settings.configuration !== undefined) {
                 if (state.settings.configuration.hashDevice !== undefined) {
                     hashDevice = state.settings.configuration.hashDevice;

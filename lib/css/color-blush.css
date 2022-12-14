@@ -8,9 +8,11 @@ body.blush {
     --blue-button-text:#30c;
     --blue-hover:#00f;
     --blue-shadow:#66c;
+    --cyan-terminal:#36a;
     --green-button-background:#efd;
     --green-bright:#0f0;
     --green-button-text:#462;
+    --green-terminal:#0a0;
     --grey-dark:#222;
     --grey-medium:#666;
     --orange-background:#fdb;
@@ -42,7 +44,6 @@ body.blush {
     --focus:#39f;
     --icon-fileNavigate:#;
     --offline:#f66;
-    --outline:#c00;
     --parent-background:#fdc;
     --parent-text:#604;
     --selected-hover:#cde;
@@ -71,7 +72,7 @@ body.blush {
 .blush #spaces #title-bar .highlight::after,
 .blush #spaces #title-bar .highlight::before,
 .blush #spaces #content-area .highlight::after,
-.blush #spaces #content-area .highlight::before{box-shadow:inset 0 0 0 0.2em var(--outline)}
+.blush #spaces #content-area .highlight::before{box-shadow:inset 0 0 0 0.2em var(--red-primary)}
 
 /* Login prompt */
 .login #spaces #login{background:var(--background);border-color:var(--border);box-shadow:0.2em 0.2em 0.5em var(--shadow)}
@@ -112,7 +113,8 @@ body.blush {
 .blush #spaces .icon-fileNavigator{color:var(--green-button-text)}
 .blush #spaces .icon-systemLog{color:var(--focus)}
 .blush #spaces .icon-textPad{color:var(--orange-text)}
-.blush #spaces .icon-export{color:var(--grey-dark)}
+.blush #spaces .icon-console{color:var(--red-bright)}
+.blush #spaces .icon-export{color:var(--blue-hover)}
 .blush #spaces .icon-invite{color:var(--parent-text)}
 .blush #spaces .icon-delete{color:var(--red-bright)}
 .blush #spaces .icon-configuration{color:var(--grey-medium)}
@@ -228,6 +230,16 @@ body.blush {
 
 /* tutorial */
 .blush #tutorial-screen{background:var(--black)}
+
+/* terminal */
+.blush #spaces .terminal-list .black{color:var(--black)}
+.blush #spaces .terminal-list .red{color:var(--red-primary)}
+.blush #spaces .terminal-list .green{color:var(--green-terminal)}
+.blush #spaces .terminal-list .yellow{color:var(--yellow-border)}
+.blush #spaces .terminal-list .blue{color:var(--blue-hover)}
+.blush #spaces .terminal-list .purple{color:var(--parent-text)}
+.blush #spaces .terminal-list .cyan{color:var(--cyan-terminal)}
+.blush #spaces .terminal-list .white{color:var(--white)}
 
 /* scrollbars */
 .blush *::-webkit-scrollbar{background-color:var(--background-dark);border-color:var(--background-dark)}
