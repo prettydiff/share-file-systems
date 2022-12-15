@@ -259,11 +259,9 @@ const global_events:module_globalEvents = {
 
         /* Creates a console modal */
         terminal: function browser_content_global_terminal(event:MouseEvent, config?:config_modal):void {
-            let box:HTMLElement = null;
-            const element:HTMLElement = (event === null)
-                    ? null
-                    : event.target,
-                content:HTMLElement = terminal.populate(document.createElement("ol"), browser.terminalLogs),
+            let box:HTMLElement = null,
+                body:HTMLElement = null;
+            const content:HTMLElement = terminal.populate(document.createElement("ol"), browser.terminalLogs),
                 agentName:string = (config === undefined)
                     ? browser.data.hashDevice
                     : config.agent,
@@ -292,7 +290,8 @@ const global_events:module_globalEvents = {
             payloadModal.content.setAttribute("class", "terminal-list");
             global_events.menuBlur(event);
             box = modal.content(payloadModal);
-            box.getElementsByClassName("body")[0].scrollTo(0, box.getElementsByClassName("body")[0].scrollHeight);
+            body = box.getElementsByClassName("body")[0] as HTMLElement;
+            body.scrollTo(0, body.scrollHeight);
             document.getElementById("menu").style.display = "none";
         },
 

@@ -223,8 +223,10 @@ import disallowed from "../common/disallowed.js";
                             indexes.push([state.settings.configuration.modals[id].zIndex, id]);
                         }
                         if (count === modalKeys.length) {
-                            let cc:number = 0,
-                                len:number = indexes.length;
+                            let index:number = 0,
+                                len:number = indexes.length,
+                                uiModal:config_modal,
+                                modal:HTMLElement = null;
                             browser.data.zIndex = modalKeys.length;
                             indexes.sort(function browser_init_z_sort(aa:[number, string], bb:[number, string]):number {
                                 if (aa[0] < bb[0]) {
@@ -232,13 +234,16 @@ import disallowed from "../common/disallowed.js";
                                 }
                                 return 1;
                             });
+                            // apply z-index - depth and overlapping order
                             do {
-                                if (state.settings.configuration.modals[indexes[cc][1]] !== undefined && document.getElementById(indexes[cc][1]) !== null) {
-                                    state.settings.configuration.modals[indexes[cc][1]].zIndex = cc + 1;
-                                    document.getElementById(indexes[cc][1]).style.zIndex = `${cc + 1}`;
+                                uiModal = state.settings.configuration.modals[indexes[index][1]];
+                                modal = document.getElementById(indexes[index][1]);
+                                if (uiModal !== undefined && modal !== null) {
+                                    uiModal.zIndex = index + 1;
+                                    modal.style.zIndex = `${index + 1}`;
                                 }
-                                cc = cc + 1;
-                            } while (cc < len);
+                                index = index + 1;
+                            } while (index < len);
                             contentArea.style.display = "block";
                             loadComplete();
                         }
@@ -380,6 +385,7 @@ import disallowed from "../common/disallowed.js";
                     },
                     modalMedia = function browser_init_modalMedia(id:string):void {
                         const p:HTMLElement = document.createElement("p"),
+                            content:Node = document.createTextNode("Click to restore video."),
                             modalData:config_modal = state.settings.configuration.modals[id],
                             restore = function browser_init_modalMedia_restore(event:MouseEvent):void {
                                 const element:HTMLElement = event.target;
@@ -389,7 +395,7 @@ import disallowed from "../common/disallowed.js";
                                 element.setAttribute("class", "body");
                             };
                         let body:HTMLElement = null;
-                        p.innerHTML = "Click to restore video.";
+                        p.appendChild(content);
                         modalData.content = p;
                         body = modal.content(modalData).getElementsByClassName("body")[0] as HTMLElement;
                         body.setAttribute("class", "body media-restore");

@@ -213,9 +213,9 @@ body.login #spaces{padding:2.5em 0 0}
 #spaces .box .corner-bl{border-width:0.1em 0.1em 0 0;bottom:0;cursor:sw-resize;left:0}
 #spaces .box .corner-br{border-width:0.1em 0 0 0.1em;bottom:0;cursor:se-resize;right:0}
 #spaces .box .side-t{cursor:n-resize;left:2em;height:1em;top:0;width:100%}
-#spaces .box .side-r{cursor:e-resize;right:0;top:2em;width:1em}
+#spaces .box .side-r{cursor:e-resize;right:0;min-height:100%;top:2em;width:1em}
 #spaces .box .side-b{bottom:0;cursor:s-resize;left:2em;height:1em;width:100%}
-#spaces .box .side-l{cursor:w-resize;left:0;top:2em;width:1em}
+#spaces .box .side-l{cursor:w-resize;left:0;min-height:100%;top:2em;width:1em}
 #spaces .box .corner-tl span,
 #spaces .box .corner-tr span,
 #spaces .box .corner-bl span,
