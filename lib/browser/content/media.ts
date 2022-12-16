@@ -74,7 +74,7 @@ const media:module_media = {
                 }
             };
 
-        p.innerHTML = "Awaiting response from remote!";
+        p.appendText("Awaiting response from remote!");
         p.setAttribute("class", "media-primary");
 
         if (navigator.mediaDevices.getUserMedia !== undefined) {
@@ -86,7 +86,7 @@ const media:module_media = {
                     })
                     .catch(function browser_content_media_element_catch(error:Error):void {
                         failSelf = document.createElement("p");
-                        failSelf.innerHTML = `Video stream error: ${error.toString()}`;
+                        failSelf.appendText(`Video stream error: ${error.toString()}`);
                     });
             }
         }

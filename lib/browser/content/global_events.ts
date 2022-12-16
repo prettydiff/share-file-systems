@@ -61,7 +61,7 @@ const global_events:module_globalEvents = {
         let text:string = (document.fullscreenElement === null)
             ? "Toggle Fullscreen"
             : "Exit Fullscreen";
-        span.innerHTML = text;
+        span.appendText(text);
         button.title = text;
         button.firstChild.textContent = (document.fullscreenElement === null)
             ? "\u26f6"
@@ -184,7 +184,7 @@ const global_events:module_globalEvents = {
             global_events.menuBlur(event);
             textArea.onblur = modal.events.textSave;
             textArea.value = JSON.stringify(browser.data);
-            span.innerHTML = "Import/Export Settings";
+            span.appendText("Import/Export Settings");
             label.appendChild(span);
             label.appendChild(textArea);
             label.setAttribute("class", "textPad");
@@ -329,7 +329,7 @@ const global_events:module_globalEvents = {
                     : config;
             let box:HTMLElement;
             global_events.menuBlur(event);
-            span.innerHTML = "Text Pad";
+            span.appendText("Text Pad");
             label.setAttribute("class", "textPad");
             label.appendChild(span);
             label.appendChild(textArea);

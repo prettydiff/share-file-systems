@@ -49,7 +49,7 @@ const webSocket:module_browserSocket = {
                     }
                     browser.socket = null;
                     title.setAttribute("class", "title offline");
-                    title.getElementsByTagName("h1")[0].innerHTML = "Disconnected.";
+                    title.getElementsByTagName("h1")[0].appendText("Disconnected.", true);
                     webSocket.send = null;
                     if (device !== null) {
                         device.setAttribute("class", "offline");

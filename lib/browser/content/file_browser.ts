@@ -38,7 +38,7 @@ import util from "../utilities/util.js";
  *     tools: {
  *         listFail    : (count:number, box:HTMLElement) => void; // Display status information when the Operating system locks files from access.
  *         listItem    : (item:directory_item, extraClass:string) => HTMLElement; // Generates the HTML content for a single file system artifacts that populates a file system list.
- *         modalAddress: (event:FocusEvent|KeyboardEvent|MouseEvent, config:config_modalHistory) => void; // Updates the file system address of the current file navigate modal in response to navigating to different locations.
+ *         modalAddress: (event:FocusEvent|KeyboardEvent|MouseEvent, config:config_modal_history) => void; // Updates the file system address of the current file navigate modal in response to navigating to different locations.
  *     };
  * }
  * type dragFlag = "" | "control" | "shift";
@@ -64,7 +64,7 @@ const file_browser:module_fileBrowser = {
                 textArea = document.createElement("textarea");
                 label = document.createElement("label");
                 span = document.createElement("span");
-                span.innerHTML = "Text Pad";
+                span.appendText("Text Pad");
                 label.setAttribute("class", "textPad");
                 label.appendChild(span);
                 label.appendChild(textArea);
@@ -81,7 +81,7 @@ const file_browser:module_fileBrowser = {
                 }
                 browser.data.modals[data.files[a].id].text_value = data.files[a].content;
                 textArea.value = data.files[a].content;
-                body.innerHTML = "";
+                body.appendText("", true);
                 body.appendChild(label);
                 body.style.overflow = "hidden";
                 heading.style.width = `${(body.clientWidth - 50) / 18}em`;
@@ -114,8 +114,8 @@ const file_browser:module_fileBrowser = {
                     const tr:HTMLElement = document.createElement("tr"),
                         th:HTMLElement = document.createElement("th"),
                         td:HTMLElement = document.createElement("td");
-                    th.innerHTML = heading;
-                    td.innerHTML = cell;
+                    th.appendText(heading);
+                    td.appendText(cell);
                     tr.appendChild(th);
                     tr.appendChild(td);
                     tbody.appendChild(tr);
@@ -144,7 +144,7 @@ const file_browser:module_fileBrowser = {
             }
     
             output.setAttribute("class", "fileDetailOutput");
-            heading.innerHTML = `File System Details - ${common.commas(listLength)} item${plural}`;
+            heading.appendText(`File System Details - ${common.commas(listLength)} item${plural}`);
             output.appendChild(heading);
             row("Location", payload.dirs[0][0], tbody);
             row("Total Size", (details.size > 1024n)
@@ -155,10 +155,10 @@ const file_browser:module_fileBrowser = {
             output.appendChild(table);
     
             heading = document.createElement("h3");
-            heading.innerHTML = "Contains";
+            heading.appendText("Contains");
             output.appendChild(heading);
             p = document.createElement("p");
-            p.innerHTML = "Does not count read protected assets.";
+            p.appendText("Does not count read protected assets.");
             output.appendChild(p);
             table = document.createElement("table");
             tbody = document.createElement("tbody");
@@ -172,7 +172,7 @@ const file_browser:module_fileBrowser = {
             aTime = new Date(Number(list[0][5].atimeMs));
             cTime = new Date(Number(list[0][5].ctimeMs));
             heading = document.createElement("h3");
-            heading.innerHTML = "MAC";
+            heading.appendText("MAC");
             output.appendChild(heading);
             table = document.createElement("table");
             tbody = document.createElement("tbody");
@@ -206,11 +206,11 @@ const file_browser:module_fileBrowser = {
                     clickGenerator = function browser_content_fileBrowser_details_clickGenerator(sortName:"alpha"|"changed"|"largest"):void {
                         const p:HTMLElement = document.createElement("p"),
                             button:HTMLElement = document.createElement("button");
-                        button.innerHTML = (sortName === "alpha")
+                        button.appendText((sortName === "alpha")
                             ? "List all files alphabetically"
                             : (sortName === "changed")
                                 ? "List 100 most recently changed files"
-                                : "List 100 largest files";
+                                : "List 100 largest files");
                         button.onclick = function browser_content_fileBrowser_details_clickGenerator_click(event:MouseEvent):void {
                             if (sortName === "alpha") {
                                 fileList.sort(sortAlpha);
@@ -230,28 +230,28 @@ const file_browser:module_fileBrowser = {
                             let aa:number = 0,
                                 row:HTMLElement,
                                 cell:HTMLElement;
-                            p.innerHTML = (sortName === "alpha")
+                            p.appendText((sortName === "alpha")
                                 ? `All ${common.commas(dataLength)} files sorted alphabetically`
                                 : (sortName === "changed")
                                     ? `${hundred} most recently changed files`
-                                    : `${hundred} largest files`;
-                            tbody.innerHTML = "";
+                                    : `${hundred} largest files`);
+                            tbody.appendText("", true);
                             do {
                                 row = document.createElement("tr");
                                 cell = document.createElement("th");
                                 cell.setAttribute("class", "file");
-                                cell.innerHTML = fileList[aa][0];
+                                cell.appendText(fileList[aa][0]);
                                 row.appendChild(cell);
                                 cell = document.createElement("td");
-                                cell.innerHTML = (sortName === "alpha")
+                                cell.appendText((sortName === "alpha")
                                     ? fileList[aa][0]
                                     : (sortName === "changed")
                                         ? common.dateFormat(new Date(Number(fileList[aa][5].mtimeMs)))
-                                        : common.commas(fileList[aa][5].size);
+                                        : common.commas(fileList[aa][5].size));
                                 row.appendChild(cell);
                                 if (sortName === "largest") {
                                     cell = document.createElement("td");
-                                    cell.innerHTML = common.prettyBytes(fileList[aa][5].size);
+                                    cell.appendText(common.prettyBytes(fileList[aa][5].size));
                                     row.appendChild(cell);
                                 }
                                 tableBody.appendChild(row);
@@ -265,7 +265,7 @@ const file_browser:module_fileBrowser = {
                         output.appendChild(p);
                     };
                 heading = document.createElement("h3");
-                heading.innerHTML = "List files";
+                heading.appendText("List Files");
                 output.appendChild(heading);
                 clickGenerator("largest");
                 clickGenerator("changed");
@@ -285,7 +285,7 @@ const file_browser:module_fileBrowser = {
                 output.appendChild(table);
             }
     
-            body.innerHTML = "";
+            body.appendText("", true);
             body.appendChild(output);
         },
 
@@ -321,36 +321,36 @@ const file_browser:module_fileBrowser = {
 
             if (dirs === "missing" || dirs === "noShare" || dirs === "readOnly") {
                 const p:HTMLElement = document.createElement("p");
+                p.appendText((dirs === "missing")
+                    ? (message === "")
+                        ? "Error 404: Requested location is not available or machine is offline."
+                        : `Error 404: ${message}`
+                    : (dirs === "noShare")
+                        ? (message === "")
+                            ? "Error 403: Forbidden. Requested location is likely not shared."
+                            : `Error 403: ${message}`
+                        : (message === "")
+                            ? "Error 406: Not accepted. Read only shares cannot be modified."
+                            : `Error 406: ${message}`);
                 p.setAttribute("class", "error");
-                if (dirs === "missing") {
-                    if (message === "") {
-                        p.innerHTML = "Error 404: Requested location is not available or machine is offline.";
-                    } else {
-                        p.innerHTML = `Error 404: ${message}`;
-                    }
-                } else if (dirs === "noShare") {
-                    if (message === "") {
-                        p.innerHTML = "Error 403: Forbidden. Requested location is likely not shared.";
-                    } else {
-                        p.innerHTML = `Error 403: ${message}`;
-                    }
-                } else {
-                    if (message === "") {
-                        p.innerHTML = "Error 406: Not accepted. Read only shares cannot be modified.";
-                    } else {
-                        p.innerHTML = `Error 406: ${message}`;
-                    }
-                }
                 return p;
             }
 
             if (message.indexOf("execute-") === 0) {
-                const div:HTMLElement = document.createElement("div");
+                const div:HTMLElement = document.createElement("div"),
+                    em:HTMLElement = document.createElement("em"),
+                    strong:HTMLElement = document.createElement("strong");
                 let p:HTMLElement = document.createElement("p");
-                p.innerHTML = `Specified location <em>${dirs[0][0]}</em> is a <strong>file</strong>.`;
+                em.appendText(dirs[0][0]);
+                strong.appendText("file");
+                p.appendText("Specified location ");
+                p.appendChild(em);
+                p.appendText(" is a ");
+                p.appendChild(strong);
+                p.appendText(".");
                 div.appendChild(p);
                 p = document.createElement("p");
-                p.innerHTML = "To execute the file either double click it from the file list or select it from the file list and press the 'Enter' key.  To see file system details about the file right click on the file from the file list and choose 'Details'.";
+                p.appendText("To execute the file either double click it from the file list or select it from the file list and press the 'Enter' key.  To see file system details about the file right click on the file from the file list and choose 'Details'.");
                 div.appendChild(p);
                 return div;
             }
@@ -371,7 +371,7 @@ const file_browser:module_fileBrowser = {
                     input:HTMLInputElement = document.createElement("input"),
                     p:HTMLElement = document.createElement("p");
                 li.setAttribute("class", "empty-list");
-                label.innerHTML = "Empty list";
+                label.appendText("Empty list");
                 input.type = "checkbox";
                 label.appendChild(input);
                 p.appendChild(label);
@@ -440,13 +440,13 @@ const file_browser:module_fileBrowser = {
                     li:HTMLElement;
                 do {
                     li = document.createElement("li");
-                    li.innerHTML = failures[0][b];
+                    li.appendText(failures[0][b]);
                     fails.appendChild(li);
                     b = b + 1;
                 } while (b < failures[1]);
                 if (failures.length > 10) {
                     li = document.createElement("li");
-                    li.innerHTML = "more...";
+                    li.appendText("more...");
                     fails.appendChild(li);
                 }
             }
@@ -475,7 +475,7 @@ const file_browser:module_fileBrowser = {
                                 if (expandTest === true) {
                                     expand(box);
                                 } else {
-                                    p.innerHTML = data.message.replace(/((execute)|(search))-/, "");
+                                    p.appendText(data.message.replace(/((execute)|(search))-/, ""), true);
                                     p.setAttribute("aria-live", "polite");
                                     p.setAttribute("role", "status");
                                     if (list !== undefined) {
@@ -485,7 +485,7 @@ const file_browser:module_fileBrowser = {
                             }
                             if (data.fileList !== null && expandTest === false) {
                                 body = box.getElementsByClassName("body")[0] as HTMLElement;
-                                body.innerHTML = "";
+                                body.appendText("", true);
                                 listData = file_browser.content.list(data.agentSource.modalAddress, data.fileList, data.message);
                                 if (listData !== null) {
                                     body.appendChild(listData);
@@ -532,7 +532,7 @@ const file_browser:module_fileBrowser = {
                 box:HTMLElement = body.parentNode.parentNode,
                 path:string = (li.getAttribute("class") === "link-directory")
                     ? li.dataset.path
-                    : li.getElementsByTagName("label")[0].innerHTML,
+                    : li.getElementsByTagName("label")[0].firstChild.textContent,
                 id:string = box.getAttribute("id"),
                 agents:[fileAgent, fileAgent, fileAgent] = util.fileAgent(box, null, path),
                 payload:service_fileSystem = {
@@ -603,7 +603,7 @@ const file_browser:module_fileBrowser = {
                                 len:number = children.length;
                             let a:number = 0;
                             do {
-                                output.push(children[a].getElementsByTagName("label")[0].innerHTML);
+                                output.push(children[a].getElementsByTagName("label")[0].firstChild.textContent);
                                 a = a + 1;
                             } while (a < len);
                             return output;
@@ -759,7 +759,7 @@ const file_browser:module_fileBrowser = {
                     : element.getAncestor("li", "tag"),
                 path:string = (li.getAttribute("class") === "link-file")
                     ? li.dataset.path.replace(/&amp;/g, "&")
-                    : li.getElementsByTagName("label")[0].innerHTML.replace(/&amp;/g, "&"),
+                    : li.getElementsByTagName("label")[0].firstChild.textContent.replace(/&amp;/g, "&"),
                 box:HTMLElement = li.getAncestor("box", "class"),
                 agents:[fileAgent, fileAgent, fileAgent] = util.fileAgent(box, null),
                 payload:service_fileSystem = {
@@ -782,7 +782,7 @@ const file_browser:module_fileBrowser = {
                 box:HTMLElement = button.getAncestor("box", "class"),
                 li:HTMLElement = button.parentNode;
             button.focus();
-            if (button.innerHTML.indexOf("+") === 0) {
+            if (button.firstChild.textContent.indexOf("+") === 0) {
                 const agents:[fileAgent, fileAgent, fileAgent] = util.fileAgent(box, null),
                     payload:service_fileSystem = {
                         action: "fs-directory",
@@ -792,13 +792,19 @@ const file_browser:module_fileBrowser = {
                         depth: 2,
                         location: [li.firstChild.nextSibling.firstChild.textContent],
                         name : "expand"
-                    };
-                button.innerHTML = "-<span>Collapse this folder</span>";
+                    },
+                    span:HTMLElement = document.createElement("span");
+                span.appendText("Collapse this folder");
+                button.appendText("-", true);
+                button.appendChild(span);
                 button.setAttribute("title", "Collapse this folder");
                 network.send(payload, "file-system");
             } else {
-                const ul:HTMLCollectionOf<HTMLUListElement> = li.getElementsByTagName("ul");
-                button.innerHTML = "+<span>Expand this folder</span>";
+                const ul:HTMLCollectionOf<HTMLUListElement> = li.getElementsByTagName("ul"),
+                    span:HTMLElement = document.createElement("span");
+                span.appendText("Expand this folder");
+                button.appendText("+", true);
+                button.appendChild(span);
                 button.setAttribute("title", "Collapse this folder");
                 if (ul.length > 0) {
                     li.removeChild(li.getElementsByTagName("ul")[0]);
@@ -889,7 +895,7 @@ const file_browser:module_fileBrowser = {
                     field.onblur = null;
                     field.onkeyup = null;
                     label.removeChild(field);
-                    label.innerHTML = labelValue;
+                    label.appendText(labelValue);
                 },
                 action = function browser_content_fileBrowser_rename_action(action:KeyboardEvent):void {
                     const field:HTMLInputElement = action.target as HTMLInputElement;
@@ -900,7 +906,7 @@ const file_browser:module_fileBrowser = {
                     if (action.type === "blur" || (action.type === "keyup" && action.key === "Enter")) {
                         field.value = field.value.replace(/(\s+|\.)$/, "");
                         if (dir + field.value === text) {
-                            label.innerHTML = text;
+                            label.appendText(text);
                         } else {
                             const agents:[fileAgent, fileAgent, fileAgent] = util.fileAgent(box, null),
                                 payload:service_fileSystem = {
@@ -942,7 +948,7 @@ const file_browser:module_fileBrowser = {
             input.onblur = action as (event:Event) => void;
             input.onkeyup = action;
             dir = dirs.join(slash) + slash;
-            label.innerHTML = dir;
+            label.appendText(dir);
             label.appendChild(input);
             input.focus();
             context.element = null;
@@ -1002,7 +1008,7 @@ const file_browser:module_fileBrowser = {
                         location: [address],
                         name: value
                     };
-                body.innerHTML = "";
+                body.appendText("", true);
                 body.append(util.delay());
                 if (element.value.replace(/\s+/, "") === "") {
                     file_browser.events.text(event);
@@ -1229,9 +1235,9 @@ const file_browser:module_fileBrowser = {
                 statusBar.removeChild(ul);
             }
             if (count < 1) {
-                p.innerHTML = "";
+                p.appendText("", true);
             } else {
-                p.innerHTML = `${count} file${filePlural} in this query are restricted from reading by the operating system.`;
+                p.appendText(`${count} file${filePlural} in this query are restricted from reading by the operating system.`, true);
             }
         },
     
@@ -1272,9 +1278,12 @@ const file_browser:module_fileBrowser = {
                 li.onkeydown = file_browser.events.keyExecute;
             } else if (item[1] === "directory") {
                 if (item[4] > 0) {
-                    const button:HTMLElement = document.createElement("button");
+                    const button:HTMLElement = document.createElement("button"),
+                        span:HTMLElement = document.createElement("span");
                     button.setAttribute("class", "expansion");
-                    button.innerHTML = "+<span>Expand this folder</span>";
+                    span.appendText("Expand this folder");
+                    button.appendText("+", true);
+                    button.appendChild(span);
                     button.setAttribute("title", "Expand this folder");
                     button.setAttribute("type", "button");
                     button.onclick = file_browser.events.expand;
@@ -1305,7 +1314,7 @@ const file_browser:module_fileBrowser = {
             }
     
             // prepare the primary item text (address)
-            text.innerHTML = item[0];
+            text.appendText(item[0]);
             p.appendChild(text);
     
             // prepare the descriptive text
@@ -1318,7 +1327,7 @@ const file_browser:module_fileBrowser = {
             // prepare the checkbox that provides accessibility and click functionality
             input.type = "checkbox";
             input.checked = false;
-            label.innerHTML = "Selected";
+            label.appendText("Selected");
             label.appendChild(input);
             label.setAttribute("class", "selection");
             li.appendChild(label);
@@ -1336,7 +1345,7 @@ const file_browser:module_fileBrowser = {
         },
 
         /* Updates the address of a fileNavigate modal in both UI and state */
-        modalAddress: function browser_content_fileBrowser_modalAddress(event:FocusEvent|KeyboardEvent|MouseEvent, config:config_modalHistory):void {
+        modalAddress: function browser_content_fileBrowser_modalAddress(event:FocusEvent|KeyboardEvent|MouseEvent, config:config_modal_history):void {
             const modalData:config_modal = browser.data.modals[config.id],
                 modalItem:HTMLElement = document.getElementById(config.id),
                 lastHistory:string = modalData.history[modalData.history.length - 1],

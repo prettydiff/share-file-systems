@@ -195,25 +195,6 @@ interface modal_borderMethods {
 }
 
 /**
- * Input for generating and appending buttons to modals.
- * ```typescript
- * interface modal_button {
- *     class: string;
- *     event: (event:MouseEvent) => void;
- *     parent: Element;
- *     text: string;
- *     title: string;
- * }
- * ``` */
-interface modal_button {
-    class: string;
-    event: (event:MouseEvent) => void;
-    parent: Element;
-    text: string;
-    title: string;
-}
-
-/**
  * This generally describes the method list available to browser network receiver.
  * ```typescript
  * interface postActions {

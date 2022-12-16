@@ -48,8 +48,6 @@ const message:module_message = {
                 inputText:HTMLInputElement = document.createElement("input"),
                 labelCode:HTMLElement = document.createElement("label"),
                 labelText:HTMLElement = document.createElement("label"),
-                textCode:Text = document.createTextNode("Code Mode"),
-                textText:Text = document.createTextNode("Text Mode"),
                 name:string = `message-${Math.random()}-mode`;
             if (configuration === null) {
                 const identity:boolean = (agentFrom !== browser.data.hashDevice),
@@ -88,14 +86,14 @@ const message:module_message = {
             inputText.type = "radio";
             inputText.value = "text";
             labelText.appendChild(inputText);
-            labelText.appendChild(textText);
+            labelText.appendText("Text Mode");
             p.appendChild(labelText);
             inputCode.name = name;
             inputCode.onclick = message.events.modeToggle;
             inputCode.type = "radio";
             inputCode.value = "code";
             labelCode.appendChild(inputCode);
-            labelCode.appendChild(textCode);
+            labelCode.appendText("Code Mode");
             p.appendChild(labelCode);
             p.appendChild(span);
             footer = modalElement.getElementsByClassName("footer")[0] as HTMLElement;
@@ -124,10 +122,10 @@ const message:module_message = {
                 textArea.onkeyup = message.events.keySubmit;
             }
             label.setAttribute("class", "textPad");
-            span.innerHTML = "Write a message.";
+            span.appendText("Write a message.");
             label.appendChild(span);
             label.appendChild(textArea);
-            button.innerHTML = "✉ Send Message";
+            button.appendText("✉ Send Message");
             button.setAttribute("class", "confirm");
             button.setAttribute("type", "button");
             button.onclick = message.events.submit;
@@ -411,15 +409,37 @@ const message:module_message = {
                     messageText = strings.join("");
                 }
             }
-            messageCell.innerHTML = messageText;
+            messageCell.appendText(messageText);
             messageCell.setAttribute("class", item.mode);
             tr.setAttribute("data-agentFrom", item.agentFrom);
             if (item.agentType === "user" && item.agentFrom === browser.data.hashUser) {
-                meta.innerHTML = `<strong>${browser.data.nameUser}</strong> <em>${common.dateFormat(date)}</em>`;
+                const strong:HTMLElement = document.createElement("strong"),
+                    em:HTMLElement = document.createElement("em");
+                strong.appendText(browser.data.nameUser);
+                em.appendText(common.dateFormat(date));
+                meta.appendChild(strong);
+                meta.appendText(" ");
+                meta.appendChild(em);
             } else if (item.agentType === "device" && item.agentFrom === browser.data.hashDevice) {
-                meta.innerHTML = `<strong>${browser.data.nameDevice}</strong> <em>${common.dateFormat(date)}</em>`;
+                const strong:HTMLElement = document.createElement("strong"),
+                    em:HTMLElement = document.createElement("em");
+                strong.appendText(browser.data.nameDevice);
+                em.appendText(common.dateFormat(date));
+                meta.appendChild(strong);
+                meta.appendText(" ");
+                meta.appendChild(em);
             } else {
-                meta.innerHTML = `<span>${common.capitalize(item.agentType)}</span> <strong>${browser[item.agentType][item.agentFrom].name}</strong> <em>${common.dateFormat(date)}</em>`;
+                const strong:HTMLElement = document.createElement("strong"),
+                    em:HTMLElement = document.createElement("em"),
+                    span:HTMLElement = document.createElement("span");
+                span.appendText(common.capitalize(item.agentType));
+                strong.appendText(browser[item.agentType][item.agentFrom].name);
+                em.appendText(common.dateFormat(date));
+                meta.appendChild(span);
+                meta.appendText(" ");
+                meta.appendChild(strong);
+                meta.appendText(" ");
+                meta.appendChild(em);
             }
             tr.appendChild(meta);
             tr.appendChild(messageCell);
@@ -457,7 +477,7 @@ const message:module_message = {
                 target:messageTarget = ((agentType === "user" && agentFrom === browser.data.hashUser) || (agentType === "device" && agentFrom === browser.data.hashDevice))
                     ? "agentTo"
                     : "agentFrom";
-            document.getElementById("message-update").innerHTML = messageData[0].message;
+            document.getElementById("message-update").appendText(messageData[0].message, true);
             messageData.forEach(function browser_socketMessage_messagePost_each(item:message_item):void {
                 message.tools.post(item, target, "");
             });

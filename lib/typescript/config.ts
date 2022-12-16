@@ -446,16 +446,37 @@ declare global {
     }
 
     /**
+     * For buttons of modal.content of browser/utilities/modal.
+     * ```typescript
+     * interface config_modal_button {
+     *     class: string;
+     *     event: (event:MouseEvent) => void;
+     *     parent: Element;
+     *     spanText: string;
+     *     text: string;
+     *     title: string;
+     * }
+     * ``` */
+    interface config_modal_button {
+        class: string;
+        event: (event:MouseEvent) => void;
+        parent: Element;
+        spanText: string;
+        text: string;
+        title: string;
+    }
+
+    /**
      * For fileBrowser.modalAddress method of browser/content/file_browser.
      * ```typescript
-     * interface config_modalHistory {
+     * interface config_modal_history {
      *     address: string;
      *     history: boolean;
      *     id: string;
      *     payload: service_fileSystem;
      * }
      * ``` */
-    interface config_modalHistory {
+    interface config_modal_history {
         address: string;
         history: boolean;
         id: string;

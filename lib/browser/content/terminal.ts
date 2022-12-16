@@ -17,7 +17,8 @@ import util from "../utilities/util.js";
 const terminal:module_browserTerminal = {
     populate: function browser_content_terminalPopulate(element:HTMLElement, logs:string[]):HTMLElement {
         const each = function browser_content_terminalPopulate_each(logItem:string):void {
-                let count:number = 0;
+                let count:number = 0,
+                    text:Text;
                 const li:HTMLElement = document.createElement("li"),
                     names:stringStore = {
                         "1": "bold",
@@ -74,6 +75,8 @@ const terminal:module_browserTerminal = {
                 if (count > 0) {
                     logItem = logItem + "</span>";
                 }
+                //text = document.createTextNode(logItem);
+                //li.appendChild(text);
                 li.innerHTML = logItem;
                 element.appendChild(li);
             },

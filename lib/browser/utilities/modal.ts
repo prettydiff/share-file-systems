@@ -58,10 +58,15 @@ const modal:module_modal = {
             body:HTMLElement = document.createElement("div"),
             border:HTMLElement = document.createElement("div"),
             modalCount:number = Object.keys(browser.data.modals).length,
-            button = function browser_utilities_modal_content_fileNavigateButtons(config:modal_button):void {
+            button = function browser_utilities_modal_content_fileNavigateButtons(config:config_modal_button):void {
                 const el:HTMLButtonElement = document.createElement("button");
                 el.setAttribute("type", "button");
-                el.innerHTML = config.text;
+                el.appendText(config.text);
+                if (config.spanText !== null) {
+                    const span:HTMLElement = document.createElement("span");
+                    span.appendText(config.spanText);
+                    el.appendChild(span);
+                }
                 el.setAttribute("class", config.class);
                 el.setAttribute("title", config.title);
                 el.onclick = config.event;
@@ -164,7 +169,8 @@ const modal:module_modal = {
                             }
                             : modal.events.minimize,
                         parent: section,
-                        text: "↙ <span>Minimize</span>",
+                        spanText: "Minimize",
+                        text: "↙ ",
                         title: "Minimize"
                     });
                     buttonCount = buttonCount + 1;
@@ -178,7 +184,8 @@ const modal:module_modal = {
                             }
                             : modal.events.maximize,
                         parent: section,
-                        text: "⇱ <span>Maximize</span>",
+                        spanText: "Maximize",
+                        text: "⇱ ",
                         title: "Maximize"
                     });
                     buttonCount = buttonCount + 1;
@@ -192,7 +199,8 @@ const modal:module_modal = {
                                 ? agent_management.events.inviteDecline
                                 : modal.events.close,
                         parent: section,
-                        text: "✖ <span>close</span>",
+                        spanText: "Close",
+                        text: "✖ ",
                         title: "Close"
                     });
                     buttonCount = buttonCount + 1;
@@ -208,7 +216,7 @@ const modal:module_modal = {
                 const label:HTMLElement = document.createElement("label"),
                     span:HTMLElement = document.createElement("span");
                 height = height + 3.5;
-                span.innerHTML = "Text of file system address.";
+                span.appendText("Text of file system address.");
                 label.appendChild(span);
                 extra = document.createElement("p");
                 input = document.createElement("input");
@@ -230,7 +238,8 @@ const modal:module_modal = {
                 }
                 if (options.type === "fileNavigate") {
                     const searchLabel:HTMLElement = document.createElement("label"),
-                        search:HTMLInputElement = document.createElement("input");
+                        search:HTMLInputElement = document.createElement("input"),
+                        span:HTMLElement = document.createElement("span");
                     if (options.history === undefined) {
                         if (options.text_value === undefined) {
                             options.history = [];
@@ -243,21 +252,24 @@ const modal:module_modal = {
                         class: "backDirectory",
                         event: file_browser.events.back,
                         parent: extra,
-                        text: "◀<span>Previous address</span>",
+                        spanText: "Previous address",
+                        text: "◀ ",
                         title: "Back to previous address"
                     });
                     button({
                         class: "reloadDirectory",
                         event: file_browser.events.text,
                         parent: extra,
-                        text: "↺<span>Reload</span>",
+                        spanText: "Reload",
+                        text: "↺ ",
                         title: "Reload directory"
                     });
                     button({
                         class: "parentDirectory",
                         event: file_browser.events.parent,
                         parent: extra,
-                        text: "▲<span>Parent directory</span>",
+                        spanText: "Parent directory",
+                        text: "▲ ",
                         title: "Move to parent directory"
                     });
                     search.type = "text";
@@ -271,7 +283,8 @@ const modal:module_modal = {
                     } else {
                         browser.data.modals[id].search = ["", ""];
                     }
-                    searchLabel.innerHTML = "<span>Search for file system artifacts from this location. Searches starting with ! are negation searches and regular expressions are supported if the search starts and ends with a forward slash.</span>";
+                    span.appendText("Search for file system artifacts from this location. Searches starting with ! are negation searches and regular expressions are supported if the search starts and ends with a forward slash.");
+                    searchLabel.appendChild(span);
                     searchLabel.setAttribute("class", "fileSearch");
                     searchLabel.appendChild(search);
                     extra.setAttribute("class", "header");
@@ -302,7 +315,7 @@ const modal:module_modal = {
             extra.setAttribute("aria-live", "polite");
             extra.setAttribute("role", "status");
             if (options.status_text !== undefined && options.status_text !== null && options.status_text !== "") {
-                extra.innerHTML = options.status_text;
+                extra.appendText(options.status_text, true);
             }
             section.appendChild(extra);
             border.appendChild(section);
@@ -322,6 +335,7 @@ const modal:module_modal = {
                     class: "save",
                     event: file_browser.events.saveFile,
                     parent: extra,
+                    spanText: null,
                     text: "🖫 Save File",
                     title: "Save"
                 });
@@ -331,6 +345,7 @@ const modal:module_modal = {
                     class: "confirm",
                     event: modal.events.confirm,
                     parent: extra,
+                    spanText: null,
                     text: "✓ Confirm",
                     title: "Confirm"
                 });
@@ -342,6 +357,7 @@ const modal:module_modal = {
                         ? agent_management.events.inviteDecline
                         : modal.events.close,
                     parent: extra,
+                    spanText: null,
                     text: "🗙 Cancel",
                     title: "Cancel"
                 });
@@ -363,7 +379,7 @@ const modal:module_modal = {
             const borderButton = function browser_utilities_modal_content_borderButton(className:string, text:string):void {
                 const span:HTMLElement = document.createElement("span"),
                     buttonElement:HTMLElement = document.createElement("button");
-                span.innerHTML = text;
+                span.appendText(text);
                 buttonElement.setAttribute("class", className);
                 buttonElement.setAttribute("type", "button");
                 buttonElement.onmousedown = modal.events.resize;

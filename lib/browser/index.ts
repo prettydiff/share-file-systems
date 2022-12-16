@@ -102,11 +102,12 @@ import disallowed from "../common/disallowed.js";
                     read_only: false,
                     single: true,
                     status: "hidden",
-                    title: "",
+                    title: null,
                     type: "configuration"
                 };
                 // building configuration modal
                 if (document.getElementById("configuration-modal") === null) {
+                    const span:HTMLElement = document.createElement("span");
                     payloadModal.content = configuration.content();
                     payloadModal.inputs = ["close"];
                     payloadModal.title = document.getElementById("configuration").innerHTML;
@@ -385,17 +386,16 @@ import disallowed from "../common/disallowed.js";
                     },
                     modalMedia = function browser_init_modalMedia(id:string):void {
                         const p:HTMLElement = document.createElement("p"),
-                            content:Node = document.createTextNode("Click to restore video."),
                             modalData:config_modal = state.settings.configuration.modals[id],
                             restore = function browser_init_modalMedia_restore(event:MouseEvent):void {
                                 const element:HTMLElement = event.target;
                                 body.onclick = null;
-                                element.removeChild(element.firstChild);
+                                element.appendText("", true);
                                 element.appendChild(media.content(modalData.status_text as mediaType, modalData.height, modalData.width));
                                 element.setAttribute("class", "body");
                             };
                         let body:HTMLElement = null;
-                        p.appendChild(content);
+                        p.appendText("Click to restore video.");
                         modalData.content = p;
                         body = modal.content(modalData).getElementsByClassName("body")[0] as HTMLElement;
                         body.setAttribute("class", "body media-restore");

@@ -44,7 +44,7 @@ const configuration:module_configuration = {
                 const container:HTMLElement = document.createElement("div"),
                     h3:HTMLElement = document.createElement("h3");
                 container.setAttribute("class", "section");
-                h3.innerHTML = title;
+                h3.appendText(title);
                 container.appendChild(h3);
                 return container;
             },
@@ -52,7 +52,7 @@ const configuration:module_configuration = {
                 const ul:HTMLElement = document.createElement("ul");
                 section = createSection(`◩ ${common.capitalize(agentType)} Color Definitions`);
                 p = document.createElement("p");
-                p.innerHTML = "Accepted format is 3 or 6 digit hexadecimal (0-f)";
+                p.appendText("Accepted format is 3 or 6 digit hexadecimal (0-f)");
                 section.appendChild(p);
                 ul.setAttribute("class", `${agentType}-color-list`);
                 section.appendChild(ul);
@@ -72,14 +72,13 @@ const configuration:module_configuration = {
                 } else if (config.type === "select") {
                     p = document.createElement("p");
                     label = document.createElement("label");
-                    text = document.createTextNode(config.textLabel);
                     select = document.createElement("select");
                     {
                         const length:number = config.options.length;
                         let a:number = 0;
                         do {
                             option = document.createElement("option");
-                            option.innerHTML = config.options[a];
+                            option.appendText(config.options[a]);
                             option.value = config.options[a].toLowerCase().replace(/\s+/g, "-");
                             if (config.value === config.options[a].toLowerCase().replace(/\s+/g, "-")) {
                                 option.selected = true;
@@ -90,12 +89,11 @@ const configuration:module_configuration = {
                     }
                     select.onchange = configuration.events.configurationText;
                     label.appendChild(select);
-                    label.appendChild(text);
+                    label.appendText(config.textLabel);
                     p.appendChild(label);
                 } else if (config.type === "text") {
                     p = document.createElement("p");
                     label = document.createElement("label");
-                    text = document.createTextNode(config.textLabel);
                     input = document.createElement("input");
                     input.type = "text";
                     input.value = config.value;
@@ -103,7 +101,7 @@ const configuration:module_configuration = {
                     input.onkeyup = configuration.events.configurationText;
                     input.onblur = configuration.events.configurationText;
                     label.appendChild(input);
-                    label.appendChild(text);
+                    label.appendText(config.textLabel);
                     p.appendChild(label);
                 }
                 section.appendChild(p);
@@ -111,10 +109,10 @@ const configuration:module_configuration = {
                     p = document.createElement("p");
                     button = document.createElement("button");
                     button.onclick = configuration.events.detailsToggle;
-                    button.innerHTML = "More information ⇣";
+                    button.appendText("More information ⇣");
                     button.setAttribute("type", "button");
                     section.appendChild(button);
-                    p.innerHTML = config.textPara;
+                    p.appendText(config.textPara);
                     p.setAttribute("class", "configuration-details");
                     p.style.display = "none";
                     section.appendChild(p);
@@ -127,8 +125,7 @@ const configuration:module_configuration = {
             option:HTMLOptionElement,
             label:HTMLElement,
             input:HTMLInputElement,
-            button:HTMLElement,
-            text:Text;
+            button:HTMLElement;
         configurationBody.setAttribute("class", "configuration");
 
         // audio
@@ -373,10 +370,10 @@ const configuration:module_configuration = {
                 info:HTMLElement = parent.getElementsByClassName("configuration-details")[0] as HTMLElement;
             if (info.style.display === "none") {
                 info.style.display = "block";
-                element.innerHTML = "Less information ⇡";
+                element.appendText("Less information ⇡", true);
             } else {
                 info.style.display = "none";
-                element.innerHTML = "More information ⇣";
+                element.appendText("More information ⇣", true);
             }
         }
     },
@@ -390,9 +387,8 @@ const configuration:module_configuration = {
                 agentColor:[string, string] = browser.data.colors[type][agent];
             let span:HTMLElement,
                 label:HTMLElement,
-                input:HTMLInputElement,
-                text:Text;
-            p.innerHTML = browser[type][agent].name;
+                input:HTMLInputElement;
+            p.appendText(browser[type][agent].name);
             li.setAttribute("data-agent", agent);
             li.appendChild(p);
 
@@ -407,8 +403,7 @@ const configuration:module_configuration = {
             input.onblur = configuration.events.agentColor;
             input.onkeyup = configuration.events.agentColor;
             label.appendChild(input);
-            text = document.createTextNode("Body Color");
-            label.appendChild(text);
+            label.appendText("Body Color");
             li.appendChild(label);
 
             label = document.createElement("label");
@@ -422,8 +417,7 @@ const configuration:module_configuration = {
             input.onblur = configuration.events.agentColor;
             input.onkeyup = configuration.events.agentColor;
             label.appendChild(input);
-            text = document.createTextNode("Heading Color");
-            label.appendChild(text);
+            label.appendText("Heading Color");
             li.appendChild(label);
 
             ul.appendChild(li);
@@ -490,7 +484,7 @@ const configuration:module_configuration = {
             if (input.replace === true) {
                 if (input.colors[0] === "" && input.colors[1] === "") {
                     // removes an agent's colors
-                    browser.style.innerHTML = browser.style.innerHTML.replace(template.join(""), "");
+                    browser.style.appendText(browser.style.innerHTML.replace(template.join(""), ""), true);
                 } else {
                     const old:string = template.join("");
                     if (input.colors[0] !== "") {
@@ -500,7 +494,7 @@ const configuration:module_configuration = {
                         template[8] = input.colors[1];
                     }
                     // updates an agent's colors
-                    browser.style.innerHTML = browser.style.innerHTML.replace(old, template.join(""));
+                    browser.style.appendText(browser.style.innerHTML.replace(old, template.join("")), true);
                 }
             } else {
                 if (input.colors[0] !== "") {
@@ -510,7 +504,7 @@ const configuration:module_configuration = {
                     template[8] = input.colors[1];
                 }
                 // adds an agent's colors
-                browser.style.innerHTML = browser.style.innerHTML + template.join("");
+                browser.style.appendText(browser.style.innerHTML + template.join(""), true);
             }
         }
     }

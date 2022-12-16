@@ -52,36 +52,48 @@ const context:module_context = {
                 : "CTRL",
             functions:context_functions = {
                 base64: function browser_content_context_menu_base64():void {
-                    item = document.createElement("li");
-                    button = document.createElement("button");
-                    button.innerHTML = `Base64 <em>${command} + ALT + B</em>`;
+                    const item:HTMLElement = document.createElement("li"),
+                        button:HTMLElement = document.createElement("button"),
+                        em:HTMLElement = document.createElement("em");
+                    em.appendText(`${command} + ALT + B`);
+                    button.appendText("Base64 ");
+                    button.appendChild(em);
                     button.setAttribute("type", "button");
                     button.onclick = context.events.dataString;
                     item.appendChild(button);
                     itemList.push(item);
                 },
                 copy: function browser_content_context_menu_copy():void {
-                    item = document.createElement("li");
-                    button = document.createElement("button");
-                    button.innerHTML = `Copy <em>${command} + C</em>`;
+                    const item:HTMLElement = document.createElement("li"),
+                        button:HTMLElement = document.createElement("button"),
+                        em:HTMLElement = document.createElement("em");
+                    em.appendText(`${command} + C`);
+                    button.appendText("Copy ");
+                    button.appendChild(em);
                     button.setAttribute("type", "button");
                     button.onclick = context.events.copy;
                     item.appendChild(button);
                     itemList.push(item);
                 },
                 cut: function browser_content_context_menu_cut():void {
-                    item = document.createElement("li");
-                    button = document.createElement("button");
-                    button.innerHTML = `Cut <em>${command} + X</em>`;
+                    const item:HTMLElement = document.createElement("li"),
+                        button:HTMLElement = document.createElement("button"),
+                        em:HTMLElement = document.createElement("em");
+                    em.appendText(`${command} + X`);
+                    button.appendText("Cut ");
+                    button.appendChild(em);
                     button.setAttribute("type", "button");
                     button.onclick = context.events.copy;
                     item.appendChild(button);
                     itemList.push(item);
                 },
                 destroy: function browser_content_context_menu_destroy():void {
-                    item = document.createElement("li");
-                    button = document.createElement("button");
-                    button.innerHTML = "Destroy <em>DEL</em>";
+                    const item:HTMLElement = document.createElement("li"),
+                        button:HTMLButtonElement = document.createElement("button"),
+                        em:HTMLElement = document.createElement("em");
+                    em.appendText("DEL");
+                    button.appendText("Destroy ");
+                    button.appendChild(em);
                     button.setAttribute("type", "button");
                     button.setAttribute("class", "destroy");
                     if (root === true) {
@@ -93,58 +105,76 @@ const context:module_context = {
                     itemList.push(item);
                 },
                 details: function browser_content_context_menu_details():void {
-                    item = document.createElement("li");
-                    button = document.createElement("button");
-                    button.innerHTML = `Details <em>${command} + ALT + T</em>`;
+                    const item:HTMLElement = document.createElement("li"),
+                        button:HTMLElement = document.createElement("button"),
+                        em:HTMLElement = document.createElement("em");
+                    em.appendText(`${command} + ALT + T`);
+                    button.appendText("Details ");
+                    button.appendChild(em);
                     button.setAttribute("type", "button");
                     button.onclick = context.events.details;
                     item.appendChild(button);
                     itemList.push(item);
                 },
                 edit: function browser_content_context_menu_edit():void {
-                    item = document.createElement("li");
-                    button = document.createElement("button");
+                    const item:HTMLElement = document.createElement("li"),
+                        button:HTMLElement = document.createElement("button"),
+                        em:HTMLElement = document.createElement("em");
+                    em.appendText(`${command} + ALT + E`);
                     if (readOnly === true) {
-                        button.innerHTML = `Read File as Text <em>${command} + ALT + E</em>`;
+                        button.appendText("Read File as Text ");
                     } else {
-                        button.innerHTML = `Edit File as Text <em>${command} + ALT + E</em>`;
+                        button.appendText("Edit File as Text ");
                     }
+                    button.appendChild(em);
                     button.setAttribute("type", "button");
                     button.onclick = context.events.dataString;
                     item.appendChild(button);
                     itemList.push(item);
                 },
                 hash: function browser_content_context_menu_hash():void {
-                    item = document.createElement("li");
-                    button = document.createElement("button");
-                    button.innerHTML = `Hash <em>${command} + ALT + H</em>`;
+                    const item:HTMLElement = document.createElement("li"),
+                        button:HTMLElement = document.createElement("button"),
+                        em:HTMLElement = document.createElement("em");
+                    em.appendText(`${command} + ALT + H`);
+                    button.appendText("Hash ");
+                    button.appendChild(em);
                     button.setAttribute("type", "button");
                     button.onclick = context.events.dataString;
                     item.appendChild(button);
                     itemList.push(item);
                 },
                 newDirectory: function browser_content_context_menu_newDirectory():void {
-                    item = document.createElement("li");
-                    button = document.createElement("button");
-                    button.innerHTML = `New Directory <em>${command} + ALT + D</em>`;
+                    const item:HTMLElement = document.createElement("li"),
+                        button:HTMLElement = document.createElement("button"),
+                        em:HTMLElement = document.createElement("em");
+                    em.appendText(`${command} + ALT + D`);
+                    button.appendText("New Directory ");
+                    button.appendChild(em);
                     button.setAttribute("type", "button");
                     button.onclick = context.events.fsNew;
                     item.appendChild(button);
                     itemList.push(item);
                 },
                 newFile: function browser_content_context_menu_newFile():void {
-                    item = document.createElement("li");
-                    button = document.createElement("button");
-                    button.innerHTML = `New File <em>${command} + ALT + F</em>`;
+                    const item:HTMLElement = document.createElement("li"),
+                        button:HTMLElement = document.createElement("button"),
+                        em:HTMLElement = document.createElement("em");
+                    em.appendText(`${command} + ALT + F`);
+                    button.appendText("New File ");
+                    button.appendChild(em);
                     button.setAttribute("type", "button");
                     button.onclick = context.events.fsNew;
                     item.appendChild(button);
                     itemList.push(item);
                 },
                 paste: function browser_content_context_menu_paste():void {
-                    item = document.createElement("li");
-                    button = document.createElement("button");
-                    button.innerHTML = `Paste <em>${command} + V</em>`;
+                    const item:HTMLElement = document.createElement("li"),
+                        button:HTMLButtonElement = document.createElement("button"),
+                        em:HTMLElement = document.createElement("em");
+                    em.appendText(`${command} + V`);
+                    button.appendText("Paste ");
+                    button.appendChild(em);
                     button.setAttribute("type", "button");
                     button.onclick = context.events.paste;
                     if (context.clipboard === "" || (context.clipboard.indexOf("\"type\":") < 0 || context.clipboard.indexOf("\"data\":") < 0)) {
@@ -154,9 +184,12 @@ const context:module_context = {
                     itemList.push(item);
                 },
                 rename: function browser_content_context_menu_rename():void {
-                    item = document.createElement("li");
-                    button = document.createElement("button");
-                    button.innerHTML = `Rename <em>${command} + ALT + R</em>`;
+                    const item:HTMLElement = document.createElement("li"),
+                        button:HTMLButtonElement = document.createElement("button"),
+                        em:HTMLElement = document.createElement("em");
+                    em.appendText(`${command} + ALT + R`);
+                    button.appendText("Rename ");
+                    button.appendChild(em);
                     button.setAttribute("type", "button");
                     if (root === true) {
                         button.disabled = true;
@@ -167,9 +200,12 @@ const context:module_context = {
                     itemList.push(item);
                 },
                 share: function browser_content_context_menu_share():void {
-                    item = document.createElement("li");
-                    button = document.createElement("button");
-                    button.innerHTML = `Share <em>${command} + ALT + S</em>`;
+                    const item:HTMLElement = document.createElement("li"),
+                        button:HTMLElement = document.createElement("button"),
+                        em:HTMLElement = document.createElement("em");
+                    em.appendText(`${command} + ALT + S`);
+                    button.appendText("Share ");
+                    button.appendChild(em);
                     button.setAttribute("type", "button");
                     button.onclick = share.events.context;
                     item.appendChild(button);
@@ -177,9 +213,7 @@ const context:module_context = {
                 }
             },
             clientHeight:number = browser.content.clientHeight;
-        let item:HTMLElement,
-            button:HTMLButtonElement,
-            clientX:number,
+        let clientX:number,
             clientY:number,
             menuTop:number,
             box:HTMLElement = element.getAncestor("box", "class"),
@@ -371,7 +405,7 @@ const context:module_context = {
                     left: 0,
                     read_only: agency[1],
                     single: false,
-                    title: "",
+                    title: null,
                     top: 0,
                     type: "textPad",
                     width: 500
@@ -531,7 +565,7 @@ const context:module_context = {
                         if (value.replace(/\s+/, "") !== "") {
                             actionElement.onkeyup = null;
                             actionElement.onblur = null;
-                            actionParent.innerHTML = payload.location[0];
+                            actionParent.appendText(payload.location[0], true);
                             network.send(payload, "file-system");
                         }
                     } else {
@@ -562,7 +596,7 @@ const context:module_context = {
                                 };
                             actionElement.onkeyup = null;
                             actionElement.onblur = null;
-                            actionParent.innerHTML = payload.location[0];
+                            actionParent.appendText(payload.location[0], true);
                             network.send(payload, "file-system");
                         }
                     }
@@ -608,17 +642,17 @@ const context:module_context = {
                     }
                     input.type = "checkbox";
                     input.checked = false;
-                    label.innerHTML = "Selected";
+                    label.appendText("Selected");
                     label.appendChild(input);
                     label.setAttribute("class", "selection");
                     p.appendChild(text);
-                    spanInfo.innerHTML = (type === "file")
+                    spanInfo.appendText((type === "file")
                         ? "file - 0 bytes"
-                        : "directory - 0 items";
+                        : "directory - 0 items");
                     p.appendChild(spanInfo);
                     text.oncontextmenu = context.events.menu;
                     text.onclick = file_browser.events.select;
-                    text.innerHTML = path;
+                    text.appendText(path);
                     field.onkeyup = actionKeyboard;
                     field.onblur = actionBlur;
                     field.setAttribute("id", "newFileItem");
