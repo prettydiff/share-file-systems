@@ -124,6 +124,7 @@ const modal:module_modal = {
         options.title = title;
 
         // Title bar functionality
+        // eslint-disable-next-line
         titleButton.innerHTML = title;
         titleButton.onmousedown = modal.events.move;
         titleButton.ontouchstart = modal.events.move;

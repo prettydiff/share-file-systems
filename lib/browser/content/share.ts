@@ -214,7 +214,7 @@ const share:module_share = {
                         em.appendText(browser[agentNames.agentType][agentNames.agent].name);
                         p.appendText(`${common.capitalize(agentNames.agentType)} `);
                         p.appendChild(em);
-                        p.appendText(` has no shares.`);
+                        p.appendText(" has no shares.");
                         agent.appendChild(p);
                     }
 

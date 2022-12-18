@@ -107,7 +107,6 @@ import disallowed from "../common/disallowed.js";
                 };
                 // building configuration modal
                 if (document.getElementById("configuration-modal") === null) {
-                    const span:HTMLElement = document.createElement("span");
                     payloadModal.content = configuration.content();
                     payloadModal.inputs = ["close"];
                     payloadModal.title = document.getElementById("configuration").innerHTML;

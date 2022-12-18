@@ -29,6 +29,7 @@ const dom = function browser_utilities_dom():void {
             // eslint-disable-next-line
             const element:HTMLElement = this;
             if (empty === true) {
+                // eslint-disable-next-line
                 element.innerHTML = "";
             }
             if (text !== "") {
