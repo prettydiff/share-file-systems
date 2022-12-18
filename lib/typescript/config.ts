@@ -381,6 +381,7 @@ declare global {
      *     callback?: () => void;
      *     content: HTMLElement;
      *     focus?: HTMLElement;
+     *     footer?: HTMLElement;
      *     height?: number;
      *     history?: string[];
      *     id?: string;
@@ -395,8 +396,6 @@ declare global {
      *     share?: string;
      *     single?: boolean;
      *     status?: modalStatus;
-     *     status_bar?: boolean;
-     *     status_text?: string;
      *     text_event?: (event:KeyboardEvent|MouseEvent) => void;
      *     text_placeholder?: string;
      *     text_value?: string;
@@ -418,6 +417,7 @@ declare global {
         callback?: () => void;
         content: HTMLElement;
         focus?: HTMLElement;
+        footer?: HTMLElement;
         height?: number;
         history?: string[];
         id?: string;
@@ -432,8 +432,6 @@ declare global {
         share?: string;
         single?: boolean;
         status?: modalStatus;
-        status_bar?: boolean;
-        status_text?: string;
         text_event?: (event:KeyboardEvent|MouseEvent) => void;
         text_placeholder?: string;
         text_value?: string;

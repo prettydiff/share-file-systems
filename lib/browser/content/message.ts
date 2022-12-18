@@ -38,67 +38,92 @@ const message:module_message = {
     /* Render a message modal */
     content: {
         modal: function browser_content_message_content(configuration:config_modal, agentType:agentType, agentFrom:string):HTMLElement {
-            let modalElement:HTMLElement,
-                footer:HTMLElement;
             const content:HTMLElement = document.createElement("div"),
+                footer:HTMLElement = document.createElement("div"),
                 table:HTMLElement = document.createElement("table"),
-                p:HTMLElement = document.createElement("p"),
-                span:HTMLElement = document.createElement("span"),
-                inputCode:HTMLInputElement = document.createElement("input"),
-                inputText:HTMLInputElement = document.createElement("input"),
-                labelCode:HTMLElement = document.createElement("label"),
-                labelText:HTMLElement = document.createElement("label"),
-                name:string = `message-${Math.random()}-mode`;
-            if (configuration === null) {
-                const identity:boolean = (agentFrom !== browser.data.hashDevice),
-                    title:string = (identity === true)
-                        ? "💬 Text Message to"
-                        : `💬 Text Message to all ${agentType}s`;
-                configuration = {
-                    agent: agentFrom,
-                    agentIdentity: identity,
-                    agentType: agentType,
-                    content: null,
-                    inputs: ["close", "maximize", "minimize"],
-                    read_only: false,
-                    status_text: "",
-                    text_placeholder: "text",
-                    text_value: "",
-                    title: title,
-                    type: "message",
-                    width: 800
-                };
-            }
+                button:HTMLElement = document.createElement("button"),
+                pButton:HTMLElement = document.createElement("p"),
+                pToggle:HTMLElement = document.createElement("p"),
+                spanClear:HTMLElement = document.createElement("span"),
+                spanToggle:HTMLElement = document.createElement("span"),
+                spanTextArea:HTMLElement = document.createElement("span"),
+                textArea:HTMLTextAreaElement = document.createElement("textarea"),
+                label:HTMLElement = document.createElement("label"),
+                inputControl = function browser_content_message_content_input(type:"code"|"text"):void {
+                    const input:HTMLInputElement = document.createElement("input"),
+                        label:HTMLElement = document.createElement("label");
+                    if (modalConfig.text_placeholder === type) {
+                        input.checked = true;
+                    }
+                    input.name = name;
+                    input.onclick = message.events.modeToggle;
+                    input.type = "radio";
+                    input.value = type;
+                    label.appendChild(input);
+                    label.appendText(`${common.capitalize(type)} Mode`);
+                    pToggle.appendChild(label);
+                },
+                name:string = `message-${Math.random()}-mode`,
+                identity:boolean = (agentFrom !== browser.data.hashDevice),
+                modalConfig:config_modal = (configuration === null)
+                    ? {
+                        agent: agentFrom,
+                        agentIdentity: identity,
+                        agentType: agentType,
+                        content: null,
+                        footer: null,
+                        inputs: ["close", "maximize", "minimize"],
+                        read_only: false,
+                        text_placeholder: "text",
+                        text_value: "",
+                        title: (identity === true)
+                            ? "💬 Text Message to"
+                            : `💬 Text Message to all ${agentType}s`,
+                        type: "message",
+                        width: 800
+                    }
+                    : configuration;
+
             table.setAttribute("class", "message-content");
             table.appendChild(document.createElement("tbody"));
             content.appendChild(table);
-            configuration.content = content;
-            modalElement = modal.content(configuration);
 
-            p.setAttribute("class", "message-toggle");
-            if (configuration.text_placeholder === "text") {
-                inputText.checked = true;
+            inputControl("text");
+            inputControl("code");
+            pToggle.setAttribute("class", "message-toggle");
+            pToggle.appendChild(spanToggle);
+            footer.appendChild(pToggle);
+
+            textArea.onmouseup = modal.events.footerResize;
+            textArea.onblur = modal.events.textSave;
+            textArea.onkeyup = modal.events.textTimer;
+            textArea.placeholder = "Write a message.";
+            textArea.value = modalConfig.text_value;
+            textArea.setAttribute("class", modalConfig.text_placeholder);
+            if (modalConfig.text_placeholder === "code") {
+                textArea.onkeyup = null;
             } else {
-                inputCode.checked = true;
+                textArea.onkeyup = message.events.keySubmit;
             }
-            inputText.name = name;
-            inputText.onclick = message.events.modeToggle;
-            inputText.type = "radio";
-            inputText.value = "text";
-            labelText.appendChild(inputText);
-            labelText.appendText("Text Mode");
-            p.appendChild(labelText);
-            inputCode.name = name;
-            inputCode.onclick = message.events.modeToggle;
-            inputCode.type = "radio";
-            inputCode.value = "code";
-            labelCode.appendChild(inputCode);
-            labelCode.appendText("Code Mode");
-            p.appendChild(labelCode);
-            p.appendChild(span);
-            footer = modalElement.getElementsByClassName("footer")[0] as HTMLElement;
-            footer.insertBefore(p, footer.firstChild);
-            return modalElement;
+            label.setAttribute("class", "textPad");
+            spanTextArea.appendText("Write a message.");
+            label.appendChild(spanTextArea);
+            label.appendChild(textArea);
+            button.appendText("✉ Send Message");
+            button.setAttribute("class", "confirm");
+            button.setAttribute("type", "button");
+            button.onclick = message.events.submit;
+            pButton.appendChild(button);
+            pButton.setAttribute("class", "footer-buttons");
+            footer.setAttribute("class", "footer");
+            footer.appendChild(label);
+            footer.appendChild(pButton);
+            spanClear.setAttribute("class", "clear");
+            footer.appendChild(spanClear);
+
+            modalConfig.content = content;
+            modalConfig.footer = footer;
+            return modal.content(modalConfig);
         },
 
         /* Called from modal.create to supply the footer area modal content */
@@ -177,7 +202,7 @@ const message:module_message = {
                             step = step + 1;
                         } while (step < total && (browser.message[step].agentType !== agency[2] || browser.message[step].agentTo !== agency[0] || browser.message[step].agentFrom !== agentFrom));
                         if (step === total) {
-                            input.value = browser.data.modals[id].status_text;
+                            input.value = browser.data.modals[id].text_value;
                             browser.data.modals[id].timer = total;
                         } else if (browser.message[step].agentType === agency[2] && browser.message[step].agentTo === agency[0] && browser.message[step].agentFrom === agentFrom) {
                             input.value = browser.message[step].message;
@@ -186,7 +211,7 @@ const message:module_message = {
                     }
                 }
             } else {
-                browser.data.modals[id].status_text = input.value;
+                browser.data.modals[id].text_value = input.value;
             }
         },
 
@@ -198,7 +223,7 @@ const message:module_message = {
                 textarea:HTMLTextAreaElement = box.getElementsByClassName("footer")[0].getElementsByTagName("textarea")[0],
                 value:messageMode = element.value as messageMode;
             browser.data.modals[id].text_placeholder = value;
-            browser.data.modals[id].status_text = textarea.value;
+            browser.data.modals[id].text_value = textarea.value;
             configuration.tools.radio(element);
             if (value === "code") {
                 textarea.onkeyup = null;

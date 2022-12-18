@@ -178,7 +178,7 @@ const media:module_media = {
         kill: function browser_content_media_kill(modal:config_modal):void {
             if (modal !== undefined && modal.type === "media") {
                 const body:HTMLElement = document.getElementById(modal.id).getElementsByClassName("body")[0] as HTMLElement,
-                    media:HTMLCollectionOf<HTMLVideoElement> = body.getElementsByTagName(modal.status_text) as HTMLCollectionOf<HTMLVideoElement>,
+                    media:HTMLCollectionOf<HTMLVideoElement> = body.getElementsByTagName(modal.text_value) as HTMLCollectionOf<HTMLVideoElement>,
                     mediaLength:number = media.length,
                     stopTracks = function browser_content_media_kill_stopTracks(index:number):void {
                         const stream:MediaStream = media[index].srcObject as MediaStream;
@@ -213,7 +213,7 @@ const media:module_media = {
                 inputs: ["close", "maximize"],
                 read_only: true,
                 scroll: false,
-                status_text: mediaConfig.mediaType,
+                text_value: mediaConfig.mediaType,
                 title: `${common.capitalize(mediaConfig.mediaType)} Call`,
                 type: "media"
             });

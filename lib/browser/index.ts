@@ -390,7 +390,7 @@ import disallowed from "../common/disallowed.js";
                                 const element:HTMLElement = event.target;
                                 body.onclick = null;
                                 element.appendText("", true);
-                                element.appendChild(media.content(modalData.status_text as mediaType, modalData.height, modalData.width));
+                                element.appendChild(media.content(modalData.text_value as mediaType, modalData.height, modalData.width));
                                 element.setAttribute("class", "body");
                             };
                         let body:HTMLElement = null;

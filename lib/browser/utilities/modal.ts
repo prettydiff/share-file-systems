@@ -7,7 +7,6 @@ import common from "../../common/common.js";
 import file_browser from "../content/file_browser.js";
 import global_events from "../content/global_events.js";
 import media from "../content/media.js";
-import message from "../content/message.js";
 import network from "./network.js";
 
 // cspell:words agenttype
@@ -307,25 +306,12 @@ const modal:module_modal = {
         border.appendChild(body);
 
         // Status bar
-        if (options.status_bar === true) {
-            height = height + 5;
-            section = document.createElement("div");
-            section.setAttribute("class", "status-bar");
-            section.style.width = `${(options.width / 10) - 2}em`;
-            extra = document.createElement("p");
-            extra.setAttribute("aria-live", "polite");
-            extra.setAttribute("role", "status");
-            if (options.status_text !== undefined && options.status_text !== null && options.status_text !== "") {
-                extra.appendText(options.status_text, true);
-            }
-            section.appendChild(extra);
-            border.appendChild(section);
+        if (options.footer !== null && options.footer !== undefined) {
+            border.appendChild(options.footer);
         }
 
         // Confirmation and text posting
-        if (options.type === "message") {
-            border.appendChild(message.content.footer(options.text_placeholder as messageMode, options.text_value));
-        } else if (Array.isArray(options.inputs) === true && (options.inputs.indexOf("cancel") > -1 || options.inputs.indexOf("confirm") > -1 || options.inputs.indexOf("save") > -1)) {
+        if (Array.isArray(options.inputs) === true && (options.inputs.indexOf("cancel") > -1 || options.inputs.indexOf("confirm") > -1 || options.inputs.indexOf("save") > -1)) {
             height = height + 9.3;
             section = document.createElement("footer");
             section.setAttribute("class", "footer");
@@ -885,7 +871,7 @@ const modal:module_modal = {
                     settings.height = clientHeight - offsetHeight;
                     media.tools.kill(settings);
                     if (settings.type === "media") {
-                        body.appendChild(media.content(settings.status_text as mediaType, settings.height, settings.width));
+                        body.appendChild(media.content(settings.text_value as mediaType, settings.height, settings.width));
                     }
                     network.configuration();
                 },

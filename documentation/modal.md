@@ -1,4 +1,5 @@
 <!-- documentation/modal - Notes about modals and the graphic user interface that displays in the browser. -->
+<!-- cspell:words keyup -->
 
 # Share File Systems - Modals
 The modals are the central means of communicating specific content to the user in the browser.  They are designed to be fluid and flexible to visual users much like an OS graphic user interface without sacrificing keyboard access or accessibility.
@@ -51,8 +52,9 @@ interface ui_modal {
 * **agentType** - Whether the modal's agent is of type *device* or *user*.
 * **content** - A DOM node containing the modal's content that is appended to the modal's content body.
 * **focus** - The DOM element holding the current focus, similar to `document.activeElement` but can apply to elements that don't normally hold a focus.
+* **footer** - An optional custom content area separate from and following the modal's primary content area for us by things like a file navigate status bar or text message input area.
 * **history** - File Navigator type modal's retain a history of prior locations. This is necessary for the *back* button's operation.
-* **height** - Determines the height of the modal.  The default is 400, which is 400 pixels.
+* **height** - Determines the height of the modal's content area.  Optional footer elements generate height in addition to this value.  The default is 400, which is 400 pixels.
 * **id** - The unique identifier for the given modal.  This usually created dynamically as the modal is created unless the modal already exists upon page load.
 * **inputs** - An array of buttons to appear in the modal.  See the next section for a description of the buttons available.
 * **left** - The horizontal location of the modal as measured by the distance it's left side is offset from the left edge of the content area in pixels.
@@ -64,9 +66,6 @@ interface ui_modal {
 * **share** - If a modal is representative of a *share* that identifier is stored here.  This identity is necessary to ensure content shared by a user is accessible via the security model.
 * **single** - Whether only one instance of the given modal type may be available at a time or if many instances may be available.
 * **status** - The display state of the modal which is: *normal*, *minimized*, *maximized*.
-* **status_bar** - Whether a modal should generate with a status bar area at the bottom.
-* **status_text** - The text last written to the status bar is stored as a property so that when the application is closed this aspect of state is restored.
-<!-- cspell:disable-next-line -->
 * **text_event** - The event to execute on the *keyup* event of input type *text*.
 * **text_placeholder** - The default place holder text that is to appear in input type *text*.
 * **text_value** - A default or stored value that should be populated in input type *text*, if present.

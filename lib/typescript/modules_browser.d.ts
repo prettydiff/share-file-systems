@@ -115,15 +115,21 @@ interface module_agentStatus {
  * Interaction methods for the command terminal in the browser.
  * ```typescript
  * interface module_browserTerminal {
- *     populate: (element:HTMLElement, logs:string[]) => HTMLElement;
- *     receive: (socketData:socketData) => void;
- *     send: () => void;
+ *     content: () => HTMLElement;
+ *     events: {
+ *         receive: (socketData:socketData) => void;
+ *         send: () => void;
+ *     };
+ *     populate: (element:HTMLElement, logs:string[]) => void;
  * }
  * ``` */
 interface module_browserTerminal {
-    populate: (element:HTMLElement, logs:string[]) => HTMLElement;
-    receive: (socketData:socketData) => void;
-    send: () => void;
+    content: () => HTMLElement;
+    events: {
+        receive: (socketData:socketData) => void;
+        send: () => void;
+    };
+    populate: (element:HTMLElement, logs:string[]) => void;
 }
 
 /**

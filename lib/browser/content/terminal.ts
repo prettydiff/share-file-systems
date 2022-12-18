@@ -1,6 +1,7 @@
 
 /* lib/browser/content/terminal - A library to process command terminal output in the browser. */
 
+import browser from "../utilities/browser.js";
 import util from "../utilities/util.js";
 
 // cspell:words agenttype
@@ -9,13 +10,37 @@ import util from "../utilities/util.js";
  * Interaction methods for the command terminal in the browser.
  * ```typescript
  * interface module_browserTerminal {
- *     populate: (element:HTMLElement, logs:string[]) => HTMLElement;
- *     receive: (socketData:socketData) => void;
- *     send: () => void;
+ *     content: () => HTMLElement;
+ *     events: {
+ *         receive: (socketData:socketData) => void;
+ *         send: () => void;
+ *     };
+ *     populate: (element:HTMLElement, logs:string[]) => void;
  * }
  * ``` */
 const terminal:module_browserTerminal = {
-    populate: function browser_content_terminalPopulate(element:HTMLElement, logs:string[]):HTMLElement {
+    content: function browser_content_terminal_content():HTMLElement {
+        const div:HTMLElement = document.createElement("div"),
+            logs:HTMLElement = document.createElement("ol");
+        logs.setAttribute("class", "terminal-list");
+        terminal.populate(logs, browser.terminalLogs);
+        div.appendChild(logs);
+        return div;
+    },
+    events: {
+        receive: function browser_content_terminalReceive(socketData:socketData):void {
+            const data:service_terminal_output = socketData.data as service_terminal_output,
+                terminals:HTMLElement[] = document.getModalsByModalType("terminal"),
+                each = function browser_content_terminal_each(element:HTMLElement):void {
+                    if (element.dataset.agent === data.agentSource.agent && element.dataset.agenttype === data.agentSource.agentType) {
+                        terminal.populate(element.getElementsByClassName("body")[0].getElementsByTagName("ol")[0], data.logs);
+                    }
+                };
+            terminals.forEach(each);
+        },
+        send: function browser_content_terminalSend():void {}
+    },
+    populate: function browser_content_terminalPopulate(element:HTMLElement, logs:string[]):void {
         const each = function browser_content_terminalPopulate_each(logItem:string):void {
                 let count:number = 0;
                 const li:HTMLElement = document.createElement("li"),
@@ -84,19 +109,7 @@ const terminal:module_browserTerminal = {
         if (scrollBottom === true) {
             parent.scrollTo(0, parent.scrollHeight);
         }
-        return element;
-    },
-    receive: function browser_content_terminalReceive(socketData:socketData):void {
-        const data:service_terminal_output = socketData.data as service_terminal_output,
-            terminals:HTMLElement[] = document.getModalsByModalType("terminal"),
-            each = function browser_content_terminal_each(element:HTMLElement):void {
-                if (element.dataset.agent === data.agentSource.agent && element.dataset.agenttype === data.agentSource.agentType) {
-                    terminal.populate(element.getElementsByClassName("body")[0].getElementsByTagName("ol")[0], data.logs);
-                }
-            };
-        terminals.forEach(each);
-    },
-    send: function browser_content_terminalSend():void {}
+    }
 };
 
 export default terminal;

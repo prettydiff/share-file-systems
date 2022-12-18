@@ -210,6 +210,8 @@ const global_events:module_globalEvents = {
                 readOnlyString:string = (readOnly === true && agentType === "user")
                     ? "(Read Only) "
                     : "",
+                footer:HTMLElement = document.createElement("div"),
+                extra:HTMLElement = document.createElement("p"),
                 // agents not abstracted in order to make use of a config object for state restoration
                 payloadNetwork:service_fileSystem = {
                     action: "fs-directory",
@@ -239,11 +241,11 @@ const global_events:module_globalEvents = {
                     agentIdentity: true,
                     agentType: agentType,
                     content: util.delay(),
+                    footer: footer,
                     inputs: ["close", "maximize", "minimize", "text"],
                     read_only: readOnly,
                     selection: {},
                     share: share,
-                    status_bar: true,
                     text_event: file_browser.events.text,
                     text_placeholder: "Optionally type a file system address here.",
                     text_value: location,
@@ -251,6 +253,11 @@ const global_events:module_globalEvents = {
                     type: "fileNavigate",
                     width: 800
                 };
+            footer.setAttribute("class", "status-bar");
+            footer.style.width = `${(payloadModal.width / 10) - 2}em`;
+            extra.setAttribute("aria-live", "polite");
+            extra.setAttribute("role", "status");
+            footer.appendChild(extra);
             global_events.menuBlur(event);
             network.send(payloadNetwork, "file-system");
             modal.content(payloadModal);
@@ -261,7 +268,7 @@ const global_events:module_globalEvents = {
         terminal: function browser_content_global_terminal(event:MouseEvent, config?:config_modal):void {
             let box:HTMLElement = null,
                 body:HTMLElement = null;
-            const content:HTMLElement = terminal.populate(document.createElement("ol"), browser.terminalLogs),
+            const content:HTMLElement = terminal.content(),
                 agentName:string = (config === undefined)
                     ? browser.data.hashDevice
                     : config.agent,
@@ -287,7 +294,6 @@ const global_events:module_globalEvents = {
             if (config !== undefined) {
                 config.content = content;
             }
-            payloadModal.content.setAttribute("class", "terminal-list");
             global_events.menuBlur(event);
             box = modal.content(payloadModal);
             body = box.getElementsByClassName("body")[0] as HTMLElement;
