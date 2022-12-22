@@ -240,13 +240,6 @@ const modal:module_modal = {
                     const searchLabel:HTMLElement = document.createElement("label"),
                         search:HTMLInputElement = document.createElement("input"),
                         span:HTMLElement = document.createElement("span");
-                    if (options.history === undefined) {
-                        if (options.text_value === undefined) {
-                            options.history = [];
-                        } else {
-                            options.history = [options.text_value];
-                        }
-                    }
                     extra.style.paddingLeft = "15em";
                     button({
                         class: "backDirectory",
@@ -298,6 +291,17 @@ const modal:module_modal = {
                     extra.appendChild(label);
                 }
                 border.appendChild(extra);
+            }
+
+            // Apply history to those types that record a history state
+            if (options.type === "fileNavigate" || options.type == "terminal") {
+                if (options.history === undefined) {
+                    if (options.text_value === undefined) {
+                        options.history = [];
+                    } else {
+                        options.history = [options.text_value];
+                    }
+                }
             }
         }
 

@@ -95,7 +95,8 @@ const methodGET = function terminal_server_transmission_methodGET(request:Incomi
                                                     `<input type="hidden" value='${JSON.stringify(settingsData).replace(/'/g, "&#39;")}'/>`,
                                                     `<input type="hidden" value='${testBrowser}'/>`,
                                                     `<input type="hidden" value="${vars.environment.name}"/>`,
-                                                    `<input type="hidden" value='${JSON.stringify(vars.environment.log).replace(/'/g, "&#39;")}'/>`
+                                                    `<input type="hidden" value='${JSON.stringify(vars.environment.log).replace(/'/g, "&#39;")}'/>`,
+                                                    `<input type="hidden" value="${vars.path.project}"/>`
                                                 ];
                                             let dataString:string = Buffer.concat(dataStore).toString().replace("<!--stateString-->", storageString.join(""));
                                             if (settingsData.configuration.nameDevice !== "") {

@@ -115,19 +115,19 @@ interface module_agentStatus {
  * Interaction methods for the command terminal in the browser.
  * ```typescript
  * interface module_browserTerminal {
- *     content: () => HTMLElement;
+ *     content: () => [HTMLElement, HTMLElement];
  *     events: {
  *         receive: (socketData:socketData) => void;
- *         send: () => void;
+ *         send: (event:KeyboardEvent) => void;
  *     };
  *     populate: (element:HTMLElement, logs:string[]) => void;
  * }
  * ``` */
 interface module_browserTerminal {
-    content: () => HTMLElement;
+    content: () => [HTMLElement, HTMLElement];
     events: {
         receive: (socketData:socketData) => void;
-        send: () => void;
+        send: (event:KeyboardEvent) => void;
     };
     populate: (element:HTMLElement, logs:string[]) => void;
 }
@@ -240,6 +240,7 @@ interface module_context {
  *     content: {
  *         dataString: (socketData:socketData) => void; // Populate content into modals for string output operations, such as: Base64, Hash, File Read.
  *         details   : (socketData:socketData) => void; // Generates the contents of a details type modal.
+ *         footer    : (width:number) => HTMLElement;   // Generates the status bar content for the file browser modal.
  *         list      : (location:string, dirs:directory_response, message:string) => HTMLElement; // Generates the contents of a file system list for population into a file navigate modal.
  *         status    : (socketData:socketData) => void; // Translates messaging into file system lists for the appropriate modals.
  *     };
@@ -272,6 +273,7 @@ interface module_fileBrowser {
     content: {
         dataString: (socketData:socketData) => void;
         details: (socketData:socketData) => void;
+        footer: (width:number) => HTMLElement;
         list: (location:string, dirs:directory_response, message:string) => HTMLElement;
         status: (socketData:socketData) => void;
     };

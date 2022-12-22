@@ -14,6 +14,7 @@ import invite from "../services/invite.js";
 import message from "../services/message.js";
 import perf from "../../commands/library/perf.js";
 import settings from "../services/settings.js";
+import terminal from "../services/terminal.js";
 import vars from "../../utilities/vars.js";
 
 const receiver = function terminal_server_transmission_receiver(socketData:socketData, transmit:transmit_type):void {
@@ -39,6 +40,7 @@ const receiver = function terminal_server_transmission_receiver(socketData:socke
             "message": message,
             "perf-socket": perf.conclude.socket,
             "settings": settings,
+            "terminal-input": terminal.input,
             "test-browser": browser.methods.route
         };
     if (vars.test.type === "service") {

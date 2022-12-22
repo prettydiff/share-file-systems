@@ -384,6 +384,7 @@ declare global {
      *     footer?: HTMLElement;
      *     height?: number;
      *     history?: string[];
+     *     historyIndex?: number;
      *     id?: string;
      *     inputs?: ui_input[];
      *     left?: number;
@@ -420,6 +421,7 @@ declare global {
         footer?: HTMLElement;
         height?: number;
         history?: string[];
+        historyIndex?: number;
         id?: string;
         inputs?: ui_input[];
         left?: number;

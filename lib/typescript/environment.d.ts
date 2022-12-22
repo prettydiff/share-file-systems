@@ -12,6 +12,7 @@
  *     localNetwork: localNetwork;
  *     message: service_message;
  *     pageBody: HTMLElement;
+ *     projectPath: string;
  *     socket: WebSocket;
  *     style: HTMLStyleElement;
  *     terminalLogs: string[];
@@ -30,6 +31,7 @@ interface browser {
     message: service_message;
     network: localNetwork;
     pageBody: HTMLElement;
+    projectPath: string;
     socket: WebSocket;
     style: HTMLStyleElement;
     terminalLogs: string[];

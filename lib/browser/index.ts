@@ -339,6 +339,7 @@ import disallowed from "../common/disallowed.js";
                                 }
                             };
                         modalItem.content = delay;
+                        modalItem.footer  = file_browser.content.footer(modalItem.width);
                         modalItem.id = id;
                         modalItem.text_event = file_browser.events.text;
                         modalItem.callback = function browser_init_modalFile_callback():void {
@@ -477,6 +478,7 @@ import disallowed from "../common/disallowed.js";
             state.settings = JSON.parse(stateItems[1].value);
             state.test = JSON.parse(stateItems[2].value);
             browser.terminalLogs = JSON.parse(stateItems[4].value);
+            browser.projectPath = stateItems[5].value;
             if (state.settings.configuration !== undefined) {
                 if (state.settings.configuration.hashDevice !== undefined) {
                     hashDevice = state.settings.configuration.hashDevice;

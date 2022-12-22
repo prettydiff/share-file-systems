@@ -54,6 +54,7 @@ interface ui_modal {
 * **focus** - The DOM element holding the current focus, similar to `document.activeElement` but can apply to elements that don't normally hold a focus.
 * **footer** - An optional custom content area separate from and following the modal's primary content area for us by things like a file navigate status bar or text message input area.
 * **history** - File Navigator type modal's retain a history of prior locations. This is necessary for the *back* button's operation.
+* **historyIndex** - The current index of history when scrolling through the history property.
 * **height** - Determines the height of the modal's content area.  Optional footer elements generate height in addition to this value.  The default is 400, which is 400 pixels.
 * **id** - The unique identifier for the given modal.  This usually created dynamically as the modal is created unless the modal already exists upon page load.
 * **inputs** - An array of buttons to appear in the modal.  See the next section for a description of the buttons available.

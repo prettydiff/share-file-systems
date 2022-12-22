@@ -29,6 +29,7 @@ const browser:browser = {
     network: null,
     message: [],
     pageBody: document.getElementsByTagName("body")[0],
+    projectPath: "",
     socket: null,
     style: document.createElement("style"),
     terminalLogs: [],

@@ -317,12 +317,14 @@ interface service_settings {
  * interface service_console_input {
  *     agentRequest: agentNames;
  *     agentSource: agentNames;
+ *     directory: string;
  *     instruction: string;
  * }
  * ``` */
 interface service_terminal_input {
     agentRequest: agentNames;
     agentSource: agentNames;
+    directory: string;
     instruction: string;
 }
 

@@ -210,8 +210,6 @@ const global_events:module_globalEvents = {
                 readOnlyString:string = (readOnly === true && agentType === "user")
                     ? "(Read Only) "
                     : "",
-                footer:HTMLElement = document.createElement("div"),
-                extra:HTMLElement = document.createElement("p"),
                 // agents not abstracted in order to make use of a config object for state restoration
                 payloadNetwork:service_fileSystem = {
                     action: "fs-directory",
@@ -241,7 +239,7 @@ const global_events:module_globalEvents = {
                     agentIdentity: true,
                     agentType: agentType,
                     content: util.delay(),
-                    footer: footer,
+                    footer: file_browser.content.footer(800),
                     inputs: ["close", "maximize", "minimize", "text"],
                     read_only: readOnly,
                     selection: {},
@@ -253,11 +251,6 @@ const global_events:module_globalEvents = {
                     type: "fileNavigate",
                     width: 800
                 };
-            footer.setAttribute("class", "status-bar");
-            footer.style.width = `${(payloadModal.width / 10) - 2}em`;
-            extra.setAttribute("aria-live", "polite");
-            extra.setAttribute("role", "status");
-            footer.appendChild(extra);
             global_events.menuBlur(event);
             network.send(payloadNetwork, "file-system");
             modal.content(payloadModal);
@@ -268,7 +261,7 @@ const global_events:module_globalEvents = {
         terminal: function browser_content_global_terminal(event:MouseEvent, config?:config_modal):void {
             let box:HTMLElement = null,
                 body:HTMLElement = null;
-            const content:HTMLElement = terminal.content(),
+            const content:[HTMLElement, HTMLElement] = terminal.content(),
                 agentName:string = (config === undefined)
                     ? browser.data.hashDevice
                     : config.agent,
@@ -280,7 +273,8 @@ const global_events:module_globalEvents = {
                         agent: agentName,
                         agentIdentity: false,
                         agentType: agentType,
-                        content: content,
+                        content: content[0],
+                        footer: content[1],
                         id: (config === undefined)
                             ? null
                             : config.id,
@@ -292,7 +286,9 @@ const global_events:module_globalEvents = {
                     }
                     : config;
             if (config !== undefined) {
-                config.content = content;
+                content[1].getElementsByTagName("textarea")[0].value = config.text_value;
+                config.content = content[0];
+                config.footer = content[1];
             }
             global_events.menuBlur(event);
             box = modal.content(payloadModal);

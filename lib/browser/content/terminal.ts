@@ -2,30 +2,49 @@
 /* lib/browser/content/terminal - A library to process command terminal output in the browser. */
 
 import browser from "../utilities/browser.js";
+import modal from "../utilities/modal.js";
+import network from "../utilities/network.js";
 import util from "../utilities/util.js";
 
-// cspell:words agenttype
+// cspell:words agenttype, arrowdown, arrowup
 
 /**
  * Interaction methods for the command terminal in the browser.
  * ```typescript
  * interface module_browserTerminal {
- *     content: () => HTMLElement;
+ *     content: () => [HTMLElement, HTMLElement];
  *     events: {
  *         receive: (socketData:socketData) => void;
- *         send: () => void;
+ *         send: (event:KeyboardEvent) => void;
  *     };
  *     populate: (element:HTMLElement, logs:string[]) => void;
  * }
  * ``` */
 const terminal:module_browserTerminal = {
-    content: function browser_content_terminal_content():HTMLElement {
-        const div:HTMLElement = document.createElement("div"),
-            logs:HTMLElement = document.createElement("ol");
+    content: function browser_content_terminal_content():[HTMLElement, HTMLElement] {
+        const footer:HTMLElement = document.createElement("div"),
+            cwd:HTMLElement = document.createElement("p"),
+            logs:HTMLElement = document.createElement("ol"),
+            label:HTMLElement = document.createElement("label"),
+            span:HTMLElement = document.createElement("span"),
+            textArea:HTMLTextAreaElement = document.createElement("textarea");
         logs.setAttribute("class", "terminal-list");
+        cwd.setAttribute("class", "terminal-cwd");
+        footer.setAttribute("class", "footer");
+        label.setAttribute("class", "terminal");
+        textArea.setAttribute("wrap", "hard");
+        textArea.setAttribute("spellcheck", "false");
+        textArea.onkeyup = terminal.events.send;
+        textArea.onmouseup = modal.events.footerResize;
+        textArea.onblur = modal.events.textSave;
+        span.appendText("Terminal command input");
+        cwd.appendText(browser.projectPath);
+        label.appendChild(span);
+        label.appendChild(textArea);
+        footer.appendChild(cwd);
+        footer.appendChild(label);
         terminal.populate(logs, browser.terminalLogs);
-        div.appendChild(logs);
-        return div;
+        return [logs, footer];
     },
     events: {
         receive: function browser_content_terminalReceive(socketData:socketData):void {
@@ -38,7 +57,76 @@ const terminal:module_browserTerminal = {
                 };
             terminals.forEach(each);
         },
-        send: function browser_content_terminalSend():void {}
+        send: function browser_content_terminalSend(event:KeyboardEvent):void {
+            const key:string = event.key.toLowerCase(),
+                target:HTMLTextAreaElement = event.target as HTMLTextAreaElement,
+                value:string = target.value.replace(/^\s+/, "").replace(/\s+$/, ""),
+                box:HTMLElement = target.getAncestor("box", "class"),
+                id:string = box.getAttribute("id"),
+                history:string[] = browser.data.modals[id].history;
+            let index:number = (isNaN(browser.data.modals[id].historyIndex))
+                    ? browser.data.modals[id].history.length
+                    : browser.data.modals[id].historyIndex;
+            event.preventDefault();
+            if (key === "enter") {
+                if (value === "clear") {
+                    box.getElementsByClassName("body")[0].getElementsByTagName("ol")[0].appendText("", true);
+                } else {
+                    const agentType:agentType = box.dataset.agenttype as agentType,
+                        payload:service_terminal_input = {
+                            agentRequest: (agentType === "device")
+                                ? {
+                                    agent: browser.data.hashDevice,
+                                    agentType: "device"
+                                }
+                                : {
+                                    agent: browser.data.hashUser,
+                                    agentType: "user"
+                                },
+                            agentSource: {
+                                agent: box.dataset.agent,
+                                agentType: agentType
+                            },
+                            directory: target.parentNode.parentNode.getElementsByClassName("terminal-cwd")[0].innerHTML,
+                            instruction: value
+                        };
+                    network.send(payload, "terminal-input");
+                }
+                if (history[history.length - 1] !== value) {
+                    history.push(value);
+                }
+                browser.data.modals[id].text_value = "";
+                target.value = "";
+                network.configuration();
+                return;
+            }
+            if (key === "arrowup") {
+                if (index > 0) {
+                    index = index - 1;
+                    target.value = history[index];
+                    browser.data.modals[id].historyIndex = index;
+                    network.configuration();
+                }
+                return;
+            }
+            if (key === "arrowdown") {
+                if (index < history.length) {
+                    index = index + 1;
+                    if (index === history.length) {
+                        target.value = browser.data.modals[id].text_value;
+                    } else {
+                        target.value = history[index];
+                    }
+                    browser.data.modals[id].historyIndex = index;
+                    network.configuration();
+                }
+                return;
+            }
+            if (key === "tab") {
+                return;
+            }
+            modal.events.textTimer(event);
+        }
     },
     populate: function browser_content_terminalPopulate(element:HTMLElement, logs:string[]):void {
         const each = function browser_content_terminalPopulate_each(logItem:string):void {

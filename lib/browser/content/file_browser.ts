@@ -15,6 +15,7 @@ import util from "../utilities/util.js";
  *     content: {
  *         dataString: (socketData:socketData) => void; // Populate content into modals for string output operations, such as: Base64, Hash, File Read.
  *         details   : (socketData:socketData) => void; // Generates the contents of a details type modal.
+ *         footer    : (width:number) => HTMLElement;   // Generates the status bar content for the file browser modal.
  *         list      : (location:string, dirs:directory_response, message:string) => HTMLElement; // Generates the contents of a file system list for population into a file navigate modal.
  *         status    : (socketData:socketData) => void; // Translates messaging into file system lists for the appropriate modals.
  *     };
@@ -287,6 +288,18 @@ const file_browser:module_fileBrowser = {
     
             body.appendText("", true);
             body.appendChild(output);
+        },
+
+        /* generates the status bar content for the file navigate modal */
+        footer: function browser_content_fileBrowser_footer(width:number):HTMLElement {
+            const  footer:HTMLElement = document.createElement("div"),
+            extra:HTMLElement = document.createElement("p");
+            footer.setAttribute("class", "status-bar");
+            footer.style.width = `${(width / 10) - 2}em`;
+            extra.setAttribute("aria-live", "polite");
+            extra.setAttribute("role", "status");
+            footer.appendChild(extra);
+            return footer;
         },
 
         /* Builds the HTML file list */
