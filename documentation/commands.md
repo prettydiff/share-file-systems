@@ -71,17 +71,17 @@ Creates an HTTPS certificate and saves it in the local "certificate" directory.
 1. `share certificate location:"/file/path/to/save" days:365`
    - Specify the number of days until the certificate expires. The value must be an integer. The default value is 16384.
 1. `share certificate location:"/file/path/to/save" intermediate-fileName:"certificate"`
-   - The file name of the intermediate certificate and supporting files. The default value is "share-file-ca" if no name is provided. Do not provide a file extention in the file name value. An intermediate certificate can sign other certificates but is not self-signed.
+   - The file name of the intermediate certificate and supporting files. The default value is "share-file-ca" if no name is provided. Do not provide a file extension in the file name value. An intermediate certificate can sign other certificates but is not self-signed.
 1. `share certificate location:"/file/path/to/save" intermediate-domain:"my-domain"`
    - Specify a certificate domain. This is optional in create mode and defaults to "share-file-ca". This argument is required in remove mode on Windows as only certificates with a matching domain will be removed.
 1. `share certificate location:"/file/path/to/save" organization:"my-domain"`
    - Specify a certificate org value by providing an argument beginning 'organization:'. This is optional in create mode and defaults to "share-file". This argument is required in remove mode on Windows as certificates with a matching org value will be removed.
 1. `share certificate location:"/file/path/to/save" root-fileName:"certificate"`
-   - The file name of the self signed authority certificate and supporting files. The default value is "share-file-root" if no name is provided. Do not provide a file extention in the file name value. This is not used on self signed certificate mode.
+   - The file name of the self signed authority certificate and supporting files. The default value is "share-file-root" if no name is provided. Do not provide a file extension in the file name value. This is not used on self signed certificate mode.
 1. `share certificate location:"/file/path/to/save" root-domain:"my-domain"`
    - Specify a self-signed root certificate authority domain. This is optional and defaults to "share-file-root". This argument is ignored for certificates in self sign mode or if mode is remove.
 1. `share certificate location:"/file/path/to/save" server-fileName:"certificate"`
-   - The file name of a signed certificate and supporting files that cannot sign other certificates. The default value is "share-file" if no name is provided. Do not provide a file extention in the file name value.
+   - The file name of a signed certificate and supporting files that cannot sign other certificates. The default value is "share-file" if no name is provided. Do not provide a file extension in the file name value.
 1. `share certificate location:"/file/path/to/save" server-domain:"my-domain"`
    - Specify a certificate domain. This is optional in create mode and defaults to "share-file". This argument is required in remove mode on Windows as only certificates with a matching domain will be removed.
 

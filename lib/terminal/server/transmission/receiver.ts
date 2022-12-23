@@ -40,7 +40,7 @@ const receiver = function terminal_server_transmission_receiver(socketData:socke
             "message": message,
             "perf-socket": perf.conclude.socket,
             "settings": settings,
-            "terminal-input": terminal.input,
+            "terminal": terminal.input,
             "test-browser": browser.methods.route
         };
     if (vars.test.type === "service") {

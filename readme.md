@@ -1,9 +1,11 @@
 # Share File Systems
 
+<!-- cspell:words Tauri, Upspin -->
+
 ## Purpose
 **A fully decentralized social application built from the file system first.**  This application makes no use of blockchain or other crypto-coin technologies.
 
-Imagine your mom copy and paste a file from your computer to hers a hundren miles away using her web browser.  Openly share your hard drives with yourself and people you trust in as little or as much as you wish.  The application uses a familiar Windows/OSX like GUI experience in your web browser.  No cloud, no servers, no third party, or intermediary of any kind.
+Imagine your mom copy and paste a file from your computer to hers a hundred miles away using her web browser.  Openly share your hard drives with yourself and people you trust in as little or as much as you wish.  The application uses a familiar Windows/OSX like GUI experience in your web browser.  No cloud, no servers, no third party, or intermediary of any kind.
 
 This application seeks to be inherently private.  Everything is directly point to point to users and devices you invite and therefore end-to-end encrypted.
 
@@ -16,7 +18,7 @@ This application seeks to be inherently private.  Everything is directly point t
 
 ## Features
 * Point-to-point communications, no servers and no third party.
-* App loads a graphic user interface in the browser at under 0.2 seconds with full state restoration.
+* 0.2 seconds for graphic user interface to with full state restoration in Chrome.
 * End-to-end encryption.
 * Share anything you want and communicate between your personal devices or allow discretionary sharing with friends and family.
 * Works the same on Windows, Linux, and Mac OSX on modern terminals and modern browsers.
@@ -28,8 +30,7 @@ This application seeks to be inherently private.  Everything is directly point t
 * A robust security model.
 * File integrity checks via SHA3-512 hash.
 * A variety of tools optionally available via terminal commands.
-* For use with [Electron](https://www.electronjs.org/) or [Tauri](https://tauri.app/) see the [documenation](./documentation/electron_tauri.md). 
-<!-- cspell:disable-next-line -->
+* For use with [Electron](https://www.electronjs.org/) or [Tauri](https://tauri.app/) see the [documentation](./documentation/electron_tauri.md). 
 * Seeks to solve the same problem as [Upspin](https://upspin.googlesource.com/upspin/) but with privacy first, performance, and a GUI
 
 ## License
@@ -71,7 +72,7 @@ This application seeks to be inherently private.  Everything is directly point t
 In almost every case the reason why connections fail is because one of more computers have a firewall blocking traffic.
    1. To verify whether or not firewalls are the problem temporarily disable the firewalls at both ends and try to connect again.
    1. Ensure the firewall contains both an *inbound* and *outbound* rule for the exact version of Node.js.
-   1. These firewall rules must permit TCP traffic for private and public connections for atleast the ports used by the application, by default that is 443 and 444.
+   1. These firewall rules must permit TCP traffic for private and public connections for at least the ports used by the application, by default that is 443 and 444.
    1. It is also helpful to enable firewall rules for ICMPv6 to test if a remote agent is reachable over the network with a ping test.
    1. Windows users who use Windows Defender Firewall can solve for firewall concerns with this command: `share firewall`
 

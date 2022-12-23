@@ -271,12 +271,12 @@ declare global {
      * ```typescript
      * interface module_terminal {
      *     input: (socketData:socketData) => void;
-     *     output: (socketData:socketData) => void;
+     *     output: (data:service_terminal) => void;
      * }
      * ``` */
     interface module_terminal {
         input: (socketData:socketData) => void;
-        output: (socketData:socketData) => void;
+        output: (data:service_terminal) => void;
     }
 
     /**

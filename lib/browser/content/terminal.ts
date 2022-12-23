@@ -14,10 +14,11 @@ import util from "../utilities/util.js";
  * interface module_browserTerminal {
  *     content: () => [HTMLElement, HTMLElement];
  *     events: {
+ *         key: (event:KeyboardEvent) => void;
  *         receive: (socketData:socketData) => void;
- *         send: (event:KeyboardEvent) => void;
  *     };
  *     populate: (element:HTMLElement, logs:string[]) => void;
+ *     send: (box:HTMLElement, command:string) => void;
  * }
  * ``` */
 const terminal:module_browserTerminal = {
@@ -34,7 +35,7 @@ const terminal:module_browserTerminal = {
         label.setAttribute("class", "terminal");
         textArea.setAttribute("wrap", "hard");
         textArea.setAttribute("spellcheck", "false");
-        textArea.onkeyup = terminal.events.send;
+        textArea.onkeyup = terminal.events.key;
         textArea.onmouseup = modal.events.footerResize;
         textArea.onblur = modal.events.textSave;
         span.appendText("Terminal command input");
@@ -47,17 +48,7 @@ const terminal:module_browserTerminal = {
         return [logs, footer];
     },
     events: {
-        receive: function browser_content_terminalReceive(socketData:socketData):void {
-            const data:service_terminal_output = socketData.data as service_terminal_output,
-                terminals:HTMLElement[] = document.getModalsByModalType("terminal"),
-                each = function browser_content_terminal_each(element:HTMLElement):void {
-                    if (element.dataset.agent === data.agentSource.agent && element.dataset.agenttype === data.agentSource.agentType) {
-                        terminal.populate(element.getElementsByClassName("body")[0].getElementsByTagName("ol")[0], data.logs);
-                    }
-                };
-            terminals.forEach(each);
-        },
-        send: function browser_content_terminalSend(event:KeyboardEvent):void {
+        key: function browser_content_terminal_key(event:KeyboardEvent):void {
             const key:string = event.key.toLowerCase(),
                 target:HTMLTextAreaElement = event.target as HTMLTextAreaElement,
                 value:string = target.value.replace(/^\s+/, "").replace(/\s+$/, ""),
@@ -72,25 +63,7 @@ const terminal:module_browserTerminal = {
                 if (value === "clear") {
                     box.getElementsByClassName("body")[0].getElementsByTagName("ol")[0].appendText("", true);
                 } else {
-                    const agentType:agentType = box.dataset.agenttype as agentType,
-                        payload:service_terminal_input = {
-                            agentRequest: (agentType === "device")
-                                ? {
-                                    agent: browser.data.hashDevice,
-                                    agentType: "device"
-                                }
-                                : {
-                                    agent: browser.data.hashUser,
-                                    agentType: "user"
-                                },
-                            agentSource: {
-                                agent: box.dataset.agent,
-                                agentType: agentType
-                            },
-                            directory: target.parentNode.parentNode.getElementsByClassName("terminal-cwd")[0].innerHTML,
-                            instruction: value
-                        };
-                    network.send(payload, "terminal-input");
+                    terminal.send(box, value);
                 }
                 if (history[history.length - 1] !== value) {
                     history.push(value);
@@ -126,9 +99,24 @@ const terminal:module_browserTerminal = {
                 return;
             }
             modal.events.textTimer(event);
+        },
+        receive: function browser_content_terminal_receive(socketData:socketData):void {
+            const data:service_terminal = socketData.data as service_terminal;
+            if (data.id === "all") {
+                const terminals:HTMLElement[] = document.getModalsByModalType("terminal"),
+                    each = function browser_content_terminal_each(element:HTMLElement):void {
+                        if (element.dataset.agent === data.agentSource.agent && element.dataset.agenttype === data.agentSource.agentType) {
+                            terminal.populate(element.getElementsByClassName("body")[0].getElementsByTagName("ol")[0], data.logs);
+                        }
+                    };
+                terminals.forEach(each);
+            } else {
+                const box:HTMLElement = document.getElementById(data.id);
+                terminal.populate(box.getElementsByClassName("terminal-list")[0] as HTMLElement, data.logs);
+            }
         }
     },
-    populate: function browser_content_terminalPopulate(element:HTMLElement, logs:string[]):void {
+    populate: function browser_content_terminal_populate(element:HTMLElement, logs:string[]):void {
         const each = function browser_content_terminalPopulate_each(logItem:string):void {
                 let count:number = 0;
                 const li:HTMLElement = document.createElement("li"),
@@ -197,6 +185,30 @@ const terminal:module_browserTerminal = {
         if (scrollBottom === true) {
             parent.scrollTo(0, parent.scrollHeight);
         }
+    },
+    send: function browser_content_terminal_send(box:HTMLElement, command:string):void {
+        const agentType:agentType = box.dataset.agenttype as agentType,
+            payload:service_terminal = {
+                agentRequest: (agentType === "device")
+                    ? {
+                        agent: browser.data.hashDevice,
+                        agentType: "device",
+                        share: box.getAttribute("id")
+                    }
+                    : {
+                        agent: browser.data.hashUser,
+                        agentType: "user"
+                    },
+                agentSource: {
+                    agent: box.dataset.agent,
+                    agentType: agentType
+                },
+                directory: box.getElementsByClassName("terminal-cwd")[0].innerHTML,
+                id: box.getAttribute("id"),
+                instruction: command,
+                logs: []
+            };
+        network.send(payload, "terminal");
     }
 };
 

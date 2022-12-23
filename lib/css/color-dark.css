@@ -227,7 +227,7 @@ body.dark{
 .dark #spaces .terminal-list .cyan{color:var(--dragBox-border)}
 .dark #spaces .terminal-list .white{color:var(--white)}
 
-/* scrollbars */
+/* scroll bars */
 .dark *::-webkit-scrollbar{background-color:var(--background-dark);border-color:var(--background)}
 .dark textarea::-webkit-scrollbar{background-color:black}
 .dark *::-webkit-scrollbar-thumb{background-color:var(--background);border-color:black}

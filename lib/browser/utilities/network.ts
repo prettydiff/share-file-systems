@@ -105,7 +105,7 @@ const network:module_network = {
                 "invite": agent_management.tools.inviteTransmissionReceipt,
                 "message": message.tools.receive,
                 "reload": reload,
-                "terminal-output": terminal.events.receive,
+                "terminal": terminal.events.receive,
                 "test-browser": remote.receive
             },
             socketData:socketData = JSON.parse(dataString),

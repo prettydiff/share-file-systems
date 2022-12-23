@@ -117,19 +117,21 @@ interface module_agentStatus {
  * interface module_browserTerminal {
  *     content: () => [HTMLElement, HTMLElement];
  *     events: {
+ *         key: (event:KeyboardEvent) => void;
  *         receive: (socketData:socketData) => void;
- *         send: (event:KeyboardEvent) => void;
  *     };
  *     populate: (element:HTMLElement, logs:string[]) => void;
+ *     send: (box:HTMLElement, command:string) => void;
  * }
  * ``` */
 interface module_browserTerminal {
     content: () => [HTMLElement, HTMLElement];
     events: {
+        key: (event:KeyboardEvent) => void;
         receive: (socketData:socketData) => void;
-        send: (event:KeyboardEvent) => void;
     };
     populate: (element:HTMLElement, logs:string[]) => void;
+    send: (box:HTMLElement, command:string) => void;
 }
 
 /**
