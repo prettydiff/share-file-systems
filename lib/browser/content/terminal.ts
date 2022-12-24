@@ -18,7 +18,7 @@ import util from "../utilities/util.js";
  *         receive: (socketData:socketData) => void;
  *     };
  *     populate: (element:HTMLElement, logs:string[]) => void;
- *     send: (box:HTMLElement, command:string) => void;
+ *     send: (box:HTMLElement, command:string, autoComplete:boolean) => void;
  * }
  * ``` */
 const terminal:module_browserTerminal = {
@@ -53,6 +53,7 @@ const terminal:module_browserTerminal = {
                 target:HTMLTextAreaElement = event.target as HTMLTextAreaElement,
                 value:string = target.value.replace(/^\s+/, "").replace(/\s+$/, ""),
                 box:HTMLElement = target.getAncestor("box", "class"),
+                list:HTMLElement = box.getElementsByClassName("terminal-list")[0] as HTMLElement,
                 id:string = box.getAttribute("id"),
                 history:string[] = browser.data.modals[id].history;
             let index:number = (isNaN(browser.data.modals[id].historyIndex))
@@ -61,9 +62,11 @@ const terminal:module_browserTerminal = {
             event.preventDefault();
             if (key === "enter") {
                 if (value === "clear") {
-                    box.getElementsByClassName("body")[0].getElementsByTagName("ol")[0].appendText("", true);
+                    list.appendText("", true);
+                } else if (value === "") {
+                    terminal.populate(list, [""]);
                 } else {
-                    terminal.send(box, value);
+                    terminal.send(box, value, false);
                 }
                 if (history[history.length - 1] !== value) {
                     history.push(value);
@@ -95,24 +98,39 @@ const terminal:module_browserTerminal = {
                 }
                 return;
             }
-            if (key === "tab") {
+            if (key === "insert") {
+                terminal.send(box, value, true);
                 return;
             }
             modal.events.textTimer(event);
         },
         receive: function browser_content_terminal_receive(socketData:socketData):void {
-            const data:service_terminal = socketData.data as service_terminal;
+            const data:service_terminal = socketData.data as service_terminal,
+                write = function browser_content_terminal_receive_update(box:HTMLElement):void {
+                    if (box !== null) {
+                        terminal.populate(box.getElementsByClassName("terminal-list")[0] as HTMLElement, data.logs);
+                        box.getElementsByClassName("terminal-cwd")[0].appendText(data.directory, true);
+                    }
+                };
             if (data.id === "all") {
                 const terminals:HTMLElement[] = document.getModalsByModalType("terminal"),
                     each = function browser_content_terminal_each(element:HTMLElement):void {
                         if (element.dataset.agent === data.agentSource.agent && element.dataset.agenttype === data.agentSource.agentType) {
-                            terminal.populate(element.getElementsByClassName("body")[0].getElementsByTagName("ol")[0], data.logs);
+                            write(element);
                         }
                     };
                 terminals.forEach(each);
-            } else {
+            } else if (data.autoComplete > -1) {
                 const box:HTMLElement = document.getElementById(data.id);
-                terminal.populate(box.getElementsByClassName("terminal-list")[0] as HTMLElement, data.logs);
+                if (box !== null) {
+                    const textArea:HTMLTextAreaElement = box.getElementsByTagName("textarea")[0];
+                    textArea.value = data.instruction;
+                    textArea.selectionStart = data.autoComplete;
+                    textArea.selectionEnd = data.autoComplete;
+                }
+            } else {
+                const element:HTMLElement = document.getElementById(data.id);
+                write(element);
             }
         }
     },
@@ -186,7 +204,11 @@ const terminal:module_browserTerminal = {
             parent.scrollTo(0, parent.scrollHeight);
         }
     },
-    send: function browser_content_terminal_send(box:HTMLElement, command:string):void {
+    send: function browser_content_terminal_send(box:HTMLElement, command:string, autoComplete:boolean):void {
+
+        // send close signal on modal close
+        // capture c + ctrl - without alt or shift
+
         const agentType:agentType = box.dataset.agenttype as agentType,
             payload:service_terminal = {
                 agentRequest: (agentType === "device")
@@ -203,6 +225,9 @@ const terminal:module_browserTerminal = {
                     agent: box.dataset.agent,
                     agentType: agentType
                 },
+                autoComplete: (autoComplete === true)
+                    ? box.getElementsByTagName("textarea")[0].selectionStart
+                    : -1,
                 directory: box.getElementsByClassName("terminal-cwd")[0].innerHTML,
                 id: box.getAttribute("id"),
                 instruction: command,

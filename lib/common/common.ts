@@ -235,14 +235,14 @@ const common:module_common = {
             //kilobytes, megabytes, and so forth...
             unit    = [
                 "",
-                "KB",
-                "MB",
-                "GB",
-                "TB",
-                "PB",
-                "EB",
-                "ZB",
-                "YB"
+                "KiB",
+                "MiB",
+                "GiB",
+                "TiB",
+                "PiB",
+                "EiB",
+                "ZiB",
+                "YiB"
             ];
     
         if (typeof input !== "number" || Number.isNaN(input) === true || input < 0 || input % 1 > 0) {

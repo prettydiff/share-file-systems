@@ -317,6 +317,7 @@ interface service_settings {
  * interface service_terminal {
  *     agentRequest: agentNames;
  *     agentSource: agentNames;
+ *     autocomplete: number;
  *     directory: string;
  *     id: string;
  *     instruction: string;
@@ -326,6 +327,7 @@ interface service_settings {
 interface service_terminal {
     agentRequest: agentNames;
     agentSource: agentNames;
+    autoComplete: number;
     directory: string;
     id: string;
     instruction: string;

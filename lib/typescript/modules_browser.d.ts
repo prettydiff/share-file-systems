@@ -121,7 +121,7 @@ interface module_agentStatus {
  *         receive: (socketData:socketData) => void;
  *     };
  *     populate: (element:HTMLElement, logs:string[]) => void;
- *     send: (box:HTMLElement, command:string) => void;
+ *     send: (box:HTMLElement, command:string, autoComplete:boolean) => void;
  * }
  * ``` */
 interface module_browserTerminal {
@@ -131,7 +131,7 @@ interface module_browserTerminal {
         receive: (socketData:socketData) => void;
     };
     populate: (element:HTMLElement, logs:string[]) => void;
-    send: (box:HTMLElement, command:string) => void;
+    send: (box:HTMLElement, command:string, autoComplete:boolean) => void;
 }
 
 /**

@@ -2,10 +2,11 @@
 /* lib/terminal/server/services/terminal - Processes terminal console messaging for remote devices and display to the user in a browser. */
 
 import { ChildProcess, spawn } from "child_process";
+import { readdir, stat } from "fs";
+import { resolve } from "path";
 
 import sender from "../transmission/sender.js";
 import vars from "../../utilities/vars.js";
-import websocket from "../transmission/transmit_ws.js";
 
 /**
  * A library to relay terminal logging between devices for presentation to the user in the browser.
@@ -16,29 +17,138 @@ import websocket from "../transmission/transmit_ws.js";
  * }
  * ``` */
 const terminal:module_terminal = {
-    input: function terminal_server_services_terminalInput(socketData:socketData):void {
+    input: function terminal_server_services_terminal_input(socketData:socketData):void {
         const data:service_terminal = socketData.data as service_terminal,
-            sendOutput = function terminal_server_services_terminalInput_sendOutput():void {
+            autoComplete = function terminal_server_services_terminal_input_autoComplete(data:service_terminal):void {
+                let indexStart:number = data.autoComplete,
+                    indexEnd:number = data.autoComplete,
+                    last:string = "",
+                    fragment:string = (function terminal_server_services_terminal_input_autoComplete_fragment():string {
+                        let quote:string = "",
+                            space:number = -1;
+                        const len:number = data.instruction.length,
+                            escape:string = (process.platform === "win32")
+                                ? "`^"
+                                : "\\";
+                        if (indexStart > 0) {
+                            do {
+                                indexStart = indexStart - 1;
+                                if (space < 0 && (/\s/).test(data.instruction.charAt(indexStart - 1)) === true && escape.indexOf(data.instruction.charAt(indexStart - 2)) < 0) {
+                                    space = indexStart - 1;
+                                }
+                                if (data.instruction.charAt(indexStart - 1) === "\"" || data.instruction.charAt(indexStart - 1) === "'") {
+                                    quote = data.instruction.charAt(indexStart - 1);
+                                    break;
+                                }
+                            } while (indexStart > 0);
+                        }
+                        if (indexEnd < len) {
+                            do {
+                                if ((quote !== "" && data.instruction.charAt(indexEnd) === quote) || (quote === "" && (/\s/).test(data.instruction.charAt(indexEnd)) === true) && escape.indexOf(data.instruction.charAt(indexEnd - 1)) < 0) {
+                                    break;
+                                }
+                                indexEnd = indexEnd + 1;
+                            } while (indexEnd < len);
+                        }
+                        return resolve(data.instruction.slice(indexStart, indexEnd));
+                    }());
+                const complete = function terminal_server_services_terminal_input_autoComplete_complete():void {
+                        const slashFix = function terminal_server_services_terminal_input_autoComplete_complete_slashFix(str:string):string {
+                                return str.replace(/\\+/, "\\");
+                            },
+                            fragmentStart:string = data.instruction.slice(0, indexStart) + fragment.replace(/^\w:\\+/, slashFix);
+                        data.instruction = fragmentStart + data.instruction.slice(indexEnd);
+                        data.autoComplete = fragmentStart.length;
+                        terminal.output(data);
+                    },
+                    dirCallback = function terminal_server_services_terminal_input_autoComplete_dirCallback(err:NodeJS.ErrnoException, dirs:string[]):void {
+                        if (err === null) {
+                            let index:number = 0;
+                            const len:number = dirs.length;
+                            do {
+                                if ((process.platform === "win32" && dirs[index].toLowerCase().indexOf(last) === 0) || ((process.platform !== "win32" && dirs[index].indexOf(last) === 0))) {
+                                    fragment = fragment + vars.path.sep + dirs[index];
+                                    complete();
+                                    return;
+                                }
+                                index = index + 1;
+                            } while (index < len);
+                        }
+                    },
+                    statCallback = function terminal_server_services_terminal_input_autoComplete_statCallback(err:NodeJS.ErrnoException):void {
+                        if (err === null) {
+                            if (last === "") {
+                                complete();
+                            } else {
+                                readdir(fragment, dirCallback);
+                            }
+                        } else {
+                            const fragments:string[] = fragment.split(vars.path.sep);
+                            last = (process.platform === "win32")
+                                ? fragments.pop().toLowerCase()
+                                : fragments.pop();
+                            fragment = fragments.join(vars.path.sep);
+                            if (fragment.charAt(fragment.length - 1) === ":") {
+                                fragment = fragment + vars.path.sep;
+                            }
+                            stat(fragment, statCallback);
+                        }
+                    };
+                stat(fragment, statCallback);
+            },
+            changeDirectory = function terminal_server_services_terminal_input_changeDirectory():void {
+                let address:string = data.instruction.replace(/cd\s+/, "");
+                if ((address.charAt(0) === "\"" || address.charAt(0) === "'") && address.slice(1).indexOf(address.charAt(0)) > 0) {
+                    const quote:string = address.charAt(0);
+                    address = address.slice(1);
+                    address = address.slice(0, address.indexOf(quote));
+                } else if ((/\s/).test(address) === true) {
+                    const space:string = (/\s/).exec(address)[0];
+                    address = address.slice(0, address.indexOf(space));
+                }
+                address = resolve(address);
+                stat(address, function terminal_server_services_terminal_input_stat(err:NodeJS.ErrnoException):void {
+                    if (err === null) {
+                        data.directory = address;
+                    } else {
+                        data.logs = [
+                            "No such file or directory",
+                            address
+                        ];
+                    }
+                    terminal.output(data);
+                });
+            },
+            sendOutput = function terminal_server_services_terminal_input_sendOutput():void {
                 data.logs = vars.environment.log,
                 terminal.output(data);
             };
         if (data.agentSource.agent === vars.settings.hashDevice && data.agentSource.agentType === "device") {
             // source - local device
             if (data.instruction === "") {
+                // empty instruction - respond with terminal logs
                 sendOutput();
+            } else if (data.autoComplete > -1) {
+                // file system auto completion
+                autoComplete(data);
+            } else if ((/^cd\s/).test(data.instruction) === true) {
+                // change directory
+                changeDirectory();
             } else {
+                // execute a command
                 const shell:ChildProcess = spawn(data.instruction, [], {
+                        cwd: data.directory,
                         shell: true
                     }),
-                    dataHandle = function terminal_server_osNotification_wsClients_getHandle_data(output:Buffer):void {
+                    dataHandle = function terminal_server_services_terminal_input_dataHandle(output:Buffer):void {
                         data.logs = output.toString().replace(/\r\n/g, "\n").split("\n");
                         terminal.output(data);
                     };
-                shell.on("close", function terminal_server_osNotification_wsClients_flash_close():void {
+                shell.on("close", function terminal_server_services_terminal_input_close():void {
                     shell.kill(0);
                 });
                 shell.stdout.on("data", dataHandle);
-                // shell.stdout.on("error", dataHandle);
+                shell.stderr.on("data", dataHandle);
             }
         } else {
 

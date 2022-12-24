@@ -284,12 +284,14 @@ const global_events:module_globalEvents = {
                         type: "terminal",
                         width: 800
                     }
-                    : config;
+                    : config,
+                textArea:HTMLTextAreaElement = content[1].getElementsByTagName("textarea")[0];
             if (config !== undefined) {
-                content[1].getElementsByTagName("textarea")[0].value = config.text_value;
+                textArea.value = config.text_value;
                 config.content = content[0];
                 config.footer = content[1];
             }
+            textArea.placeholder = "Type a command here. Press 'ins' key for file system auto-completion.";
             global_events.menuBlur(event);
             box = modal.content(payloadModal);
             body = box.getElementsByClassName("body")[0] as HTMLElement;
