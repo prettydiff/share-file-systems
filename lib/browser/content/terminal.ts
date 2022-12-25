@@ -101,6 +101,7 @@ const terminal:module_browserTerminal = {
             }
             if (key === "insert") {
                 terminal.send(box, value, true);
+                modal.events.textTimer(event);
                 return;
             }
             modal.events.textTimer(event);
@@ -109,8 +110,13 @@ const terminal:module_browserTerminal = {
             const data:service_terminal = socketData.data as service_terminal,
                 write = function browser_content_terminal_receive_update(box:HTMLElement):void {
                     if (box !== null) {
+                        const cwd:HTMLElement = box.getElementsByClassName("terminal-cwd")[0] as HTMLElement;
                         terminal.populate(box.getElementsByClassName("terminal-list")[0] as HTMLElement, data.logs);
-                        box.getElementsByClassName("terminal-cwd")[0].appendText(data.directory, true);
+                        if (cwd.firstChild.textContent !== data.directory && browser.data.modals[data.id] !== null) {
+                            browser.data.modals[data.id].text_placeholder = data.directory;
+                            network.configuration();
+                        }
+                        cwd.appendText(data.directory, true);
                     }
                 };
             if (data.id === "all") {

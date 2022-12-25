@@ -290,6 +290,9 @@ const global_events:module_globalEvents = {
                 textArea.value = config.text_value;
                 config.content = content[0];
                 config.footer = content[1];
+                if (typeof config.text_placeholder === "string" && config.text_placeholder !== "") {
+                    config.footer.getElementsByClassName("terminal-cwd")[0].appendText(config.text_placeholder, true);
+                }
             }
             textArea.placeholder = "Type a command here. Press 'ins' key for file system auto-completion.";
             global_events.menuBlur(event);
