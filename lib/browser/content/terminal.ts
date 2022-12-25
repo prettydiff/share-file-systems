@@ -72,6 +72,7 @@ const terminal:module_browserTerminal = {
                     history.push(value);
                 }
                 browser.data.modals[id].text_value = "";
+                browser.data.modals[id].historyIndex = browser.data.modals[id].history.length;
                 target.value = "";
                 network.configuration();
                 return;
