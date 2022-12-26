@@ -6,7 +6,7 @@ import modal from "../utilities/modal.js";
 import network from "../utilities/network.js";
 import util from "../utilities/util.js";
 
-// cspell:words agenttype, arrowdown, arrowup
+// cspell:words agenttype, arrowdown, arrowup, pagedown, pageup
 
 /**
  * Interaction methods for the command terminal in the browser.
@@ -57,12 +57,23 @@ const terminal:module_browserTerminal = {
             modal.events.close(event);
         },
         command: function browser_content_terminal_command(event:KeyboardEvent):void {
-            const key:string = event.key.toLowerCase();
+            const key:string = event.key.toLowerCase(),
+                target:HTMLTextAreaElement = event.target as HTMLTextAreaElement,
+                box:HTMLElement = target.getAncestor("box", "class"),
+                id:string = box.getAttribute("id"),
+                clearTarget = function browser_content_terminal_command():void {
+                    browser.data.modals[id].text_value = "";
+                    browser.data.modals[id].historyIndex = browser.data.modals[id].history.length;
+                    target.value = "";
+                    network.configuration();
+                };
+            if (key === "c" && event.ctrlKey === true) {
+                terminal.send(box, "close-modal", false);
+                clearTarget();
+                return;
+            }
             if (key === "enter" && event.shiftKey === false) {
-                const target:HTMLTextAreaElement = event.target as HTMLTextAreaElement,
-                    value:string = target.value,
-                    box:HTMLElement = target.getAncestor("box", "class"),
-                    id:string = box.getAttribute("id"),
+                const value:string = target.value,
                     history:string[] = browser.data.modals[id].history,
                     list:HTMLElement = box.getElementsByClassName("terminal-list")[0] as HTMLElement;
                 event.preventDefault();
@@ -76,10 +87,7 @@ const terminal:module_browserTerminal = {
                 if (history[history.length - 1] !== value) {
                     history.push(value);
                 }
-                browser.data.modals[id].text_value = "";
-                browser.data.modals[id].historyIndex = browser.data.modals[id].history.length;
-                target.value = "";
-                network.configuration();
+                clearTarget();
             }
         },
         key: function browser_content_terminal_key(event:KeyboardEvent):void {
@@ -115,9 +123,38 @@ const terminal:module_browserTerminal = {
                 }
                 return;
             }
+            if (key === "end") {
+                const list:HTMLElement = box.getElementsByClassName("terminal-list")[0] as HTMLElement,
+                    parent:HTMLElement = list.parentNode;
+                parent.scrollTo(parent.scrollLeft, parent.scrollHeight);
+                return;
+            }
+            if (key === "home") {
+                const list:HTMLElement = box.getElementsByClassName("terminal-list")[0] as HTMLElement,
+                    parent:HTMLElement = list.parentNode;
+                parent.scrollTo(parent.scrollLeft, 0);
+                return;
+            }
             if (key === "insert") {
                 terminal.send(box, value, true);
                 modal.events.textTimer(event);
+                return;
+            }
+            if (key === "pagedown") {
+                const list:HTMLElement = box.getElementsByClassName("terminal-list")[0] as HTMLElement,
+                    parent:HTMLElement = list.parentNode;
+                parent.scrollTo(parent.scrollLeft, parent.clientHeight + parent.scrollTop);
+                return;
+            }
+            if (key === "pageup") {
+                const list:HTMLElement = box.getElementsByClassName("terminal-list")[0] as HTMLElement,
+                    parent:HTMLElement = list.parentNode,
+                    height:number = parent.clientHeight,
+                    top:number = parent.scrollTop,
+                    vertical:number = (height > top)
+                        ? 0
+                        : top - height;
+                parent.scrollTo(parent.scrollLeft, vertical);
                 return;
             }
             modal.events.textTimer(event);
