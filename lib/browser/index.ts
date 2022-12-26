@@ -68,16 +68,11 @@ import disallowed from "../common/disallowed.js";
 
         let logInTest:boolean = false,
             hashDevice:string = "",
-            hashUser:string = "";
+            hashUser:string = "",
+            state:stateData = null;
         const testBrowser:boolean = (location.href.indexOf("?test_browser") > 0),
             agentList:HTMLElement = document.getElementById("agentList"),
-            stateItems:HTMLCollectionOf<HTMLInputElement> = document.getElementsByTagName("input"),
-            state:browserState = {
-                addresses: null,
-                settings: null,
-                test: null,
-                logs: null
-            },
+            stateItem:HTMLInputElement = document.getElementsByTagName("input")[0],
 
             // execute test automation following a page reload
             testBrowserLoad = function browser_init_testBrowserLoad(delay:number):void {
@@ -456,12 +451,10 @@ import disallowed from "../common/disallowed.js";
                 }
             };
         // set state from artifacts supplied to the page
-        if (stateItems[0].getAttribute("type") === "hidden") {
-            state.addresses = JSON.parse(stateItems[0].value);
-            state.settings = JSON.parse(stateItems[1].value);
-            state.test = JSON.parse(stateItems[2].value);
-            browser.terminalLogs = JSON.parse(stateItems[4].value);
-            browser.projectPath = stateItems[5].value;
+        if (stateItem.getAttribute("type") === "hidden") {
+            state = JSON.parse(stateItem.value);
+            browser.terminalLogs = state.log;
+            browser.projectPath = state.path;
             if (state.settings.configuration !== undefined) {
                 if (state.settings.configuration.hashDevice !== undefined) {
                     hashDevice = state.settings.configuration.hashDevice;
@@ -488,13 +481,13 @@ import disallowed from "../common/disallowed.js";
             return `${(width / 10)}em`;
         }());
 
-        browser.network = state.addresses;
+        browser.network = state.network;
         browser.loadComplete = loadComplete;
-        browser.title        = stateItems[3].value;
+        browser.title        = state.name;
         if (state.settings !== undefined && state.settings !== null && state.settings.message !== undefined) {
             browser.message = state.settings.message;
         }
-        if (stateItems.length > 2 && stateItems[2].value !== "{}" && testBrowser === true) {
+        if (state.test !== null && testBrowser === true) {
             // browser automation test
             if (state.test.test !== null && state.test.test.name === "refresh-complete") {
                 return;

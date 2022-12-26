@@ -42,23 +42,6 @@ interface browser {
 }
 
 /**
- * Stores state data embedded into the HTML code on page request.
- * ```typescript
- * interface browserState {
- *     addresses: localNetwork;
- *     logs: string[];
- *     settings: settings_item;
- *     test: service_testBrowser;
- * }
- * ``` */
-interface browserState {
-    addresses: localNetwork;
-    logs: string[];
-    settings: settings_item;
-    test: service_testBrowser;
-}
-
-/**
  * Local device network identity embedded in the page HTML on page request.
  * ```typescript
  * interface localNetwork {
@@ -69,6 +52,27 @@ interface browserState {
 interface localNetwork {
     addresses: transmit_addresses_IP;
     ports: ports;
+}
+
+/**
+ * The state management object implanted into the page.
+ * ```typescript
+ * interface stateData {
+ *     log: string[];
+ *     name: string;
+ *     network: localNetwork;
+ *     path: string;
+ *     settings: settings_item;
+ *     test: service_testBrowser;
+ * }
+ * ``` */
+interface stateData {
+    log: string[];
+    name: string;
+    network: localNetwork;
+    path: string;
+    settings: settings_item;
+    test: service_testBrowser;
 }
 
 /**

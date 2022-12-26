@@ -90,15 +90,21 @@ const methodGET = function terminal_server_transmission_methodGET(request:Incomi
                                             const testBrowser:string = (vars.test.browser !== null && request.url.indexOf("?test_browser") > 0)
                                                     ? JSON.stringify(vars.test.browser)
                                                     : "{}",
-                                                storageString:string[] = [
-                                                    `<input type="hidden" value='{"addresses":${JSON.stringify(vars.network.addresses)},"ports":${JSON.stringify(vars.network.ports)}}'/>`,
-                                                    `<input type="hidden" value='${JSON.stringify(settingsData).replace(/'/g, "&#39;")}'/>`,
-                                                    `<input type="hidden" value='${testBrowser}'/>`,
-                                                    `<input type="hidden" value="${vars.environment.name}"/>`,
-                                                    `<input type="hidden" value='${JSON.stringify(vars.environment.log).replace(/'/g, "&#39;")}'/>`,
-                                                    `<input type="hidden" value="${vars.path.project}"/>`
-                                                ];
-                                            let dataString:string = Buffer.concat(dataStore).toString().replace("<!--stateString-->", storageString.join(""));
+                                                state:stateData = {
+                                                    log: vars.environment.log,
+                                                    name: vars.environment.name,
+                                                    network: {
+                                                        addresses: vars.network.addresses,
+                                                        ports: vars.network.ports
+                                                    },
+                                                    path: vars.path.project,
+                                                    settings: settingsData,
+                                                    test: (vars.test.browser !== null && request.url.indexOf("?test_browser") > 0)
+                                                        ? vars.test.browser
+                                                        : null
+                                                },
+                                                storageString:string = `<input type="hidden" value='${JSON.stringify(state).replace(/'/g, "&#39;")}'/>`;
+                                            let dataString:string = Buffer.concat(dataStore).toString().replace("<!--stateString-->", storageString);
                                             if (settingsData.configuration.nameDevice !== "") {
                                                 dataString = dataString.replace("<body class=\"default login\">", "<body class=\"default\">");
                                             }
