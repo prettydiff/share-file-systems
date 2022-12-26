@@ -298,7 +298,6 @@ const global_events:module_globalEvents = {
             global_events.menuBlur(event);
             box = modal.content(payloadModal);
             body = box.getElementsByClassName("body")[0] as HTMLElement;
-            body.scrollTo(0, body.scrollHeight);
             document.getElementById("menu").style.display = "none";
         },
 

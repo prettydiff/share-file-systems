@@ -473,8 +473,8 @@ interface module_message {
  *         confirm       : (event:MouseEvent) => void;                  // Handling for an optional confirmation button.
  *         footerResize  : (event:MouseEvent) => void;                  // If a resizable textarea element is present in the modal outside the body this ensures the body is the correct size.
  *         importSettings: (event:MouseEvent) => void;                  // Handler for import/export modals that modify saved settings from an imported JSON string then reloads the page.
- *         maximize      : (event:MouseEvent, callback?:() => void) => void; // Maximizes a modal to fill the view port.
- *         minimize      : (event:MouseEvent, callback?:() => void) => void; // Minimizes a modal to the tray at the bottom of the page.
+ *         maximize      : (event:MouseEvent, callback?:() => void, target?:HTMLElement) => void; // Maximizes a modal to fill the view port.
+ *         minimize      : (event:MouseEvent, callback?:() => void, target?:HTMLElement) => void; // Minimizes a modal to the tray at the bottom of the page.
  *         move          : (event:MouseEvent|TouchEvent) => void;       // Allows dragging a modal around the screen.
  *         resize        : (event:MouseEvent|TouchEvent) => void;       // Resizes a modal respective to the event target, which could be any of 4 corners or 4 sides.
  *         textSave      : (event:Event) => void;                       // Handler to push the text content of a textPad modal into settings so that it is saved.
@@ -495,8 +495,8 @@ interface module_modal {
         confirm: (event:MouseEvent) => void;
         footerResize: (event:MouseEvent) => void;
         importSettings: (event:MouseEvent) => void;
-        maximize: (event:MouseEvent, callback?:() => void) => void;
-        minimize: (event:MouseEvent, callback?:() => void) => void;
+        maximize: (event:MouseEvent, callback?:() => void, target?:HTMLElement) => void;
+        minimize: (event:MouseEvent, callback?:() => void, target?:HTMLElement) => void;
         move: (event:MouseEvent|TouchEvent) => void;
         resize: (event:MouseEvent|TouchEvent) => void;
         textSave: (event:Event) => void;

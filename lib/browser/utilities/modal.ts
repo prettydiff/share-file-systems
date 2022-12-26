@@ -22,8 +22,8 @@ import network from "./network.js";
  *         confirm       : (event:MouseEvent) => void;                  // Handling for an optional confirmation button.
  *         footerResize  : (event:MouseEvent) => void;                  // If a resizable textarea element is present in the modal outside the body this ensures the body is the correct size.
  *         importSettings: (event:MouseEvent) => void;                  // Handler for import/export modals that modify saved settings from an imported JSON string then reloads the page.
- *         maximize      : (event:MouseEvent, callback?:() => void) => void; // Maximizes a modal to fill the view port.
- *         minimize      : (event:MouseEvent, callback?:() => void) => void; // Minimizes a modal to the tray at the bottom of the page.
+ *         maximize      : (event:MouseEvent, callback?:() => void, target?:HTMLElement) => void; // Maximizes a modal to fill the view port.
+ *         minimize      : (event:MouseEvent, callback?:() => void, target?:HTMLElement) => void; // Minimizes a modal to the tray at the bottom of the page.
  *         move          : (event:MouseEvent|TouchEvent) => void;       // Allows dragging a modal around the screen.
  *         resize        : (event:MouseEvent|TouchEvent) => void;       // Resizes a modal respective to the event target, which could be any of 4 corners or 4 sides.
  *         textSave      : (event:Event) => void;                       // Handler to push the text content of a textPad modal into settings so that it is saved.
@@ -163,11 +163,7 @@ const modal:module_modal = {
                 if (options.inputs.indexOf("minimize") > -1) {
                     button({
                         class: "minimize",
-                        event: (options.callback !== undefined && options.status === "minimized")
-                            ? function browser_utilities_modal_content_minimize(event:MouseEvent):void {
-                                modal.events.minimize(event, options.callback);
-                            }
-                            : modal.events.minimize,
+                        event: modal.events.minimize,
                         parent: section,
                         spanText: "Minimize",
                         text: "↙ ",
@@ -178,11 +174,7 @@ const modal:module_modal = {
                 if (options.inputs.indexOf("maximize") > -1) {
                     button({
                         class: "maximize",
-                        event: (options.callback !== undefined && options.status === "minimized")
-                            ? function browser_utilities_modal_content_maximize(event:MouseEvent):void {
-                                modal.events.maximize(event, options.callback);
-                            }
-                            : modal.events.maximize,
+                        event: modal.events.maximize,
                         parent: section,
                         spanText: "Maximize",
                         text: "⇱ ",
@@ -359,6 +351,9 @@ const modal:module_modal = {
         }
 
         // Append modal
+        if (options.status === "hidden") {
+            box.style.display = "none";
+        }
         box.appendChild(border);
         browser.content.appendChild(box);
         footer = box.getElementsByClassName("footer")[0] as HTMLElement;
@@ -372,14 +367,6 @@ const modal:module_modal = {
                 buttonElement.setAttribute("class", className);
                 buttonElement.setAttribute("type", "button");
                 buttonElement.onmousedown = modal.events.resize;
-                if (className === "side-l" || className === "side-r") {
-                    // when there is a footer containing a textarea
-                    if (footer !== undefined && footer.getElementsByTagName("textarea")[0] !== undefined) {
-                        buttonElement.style.height = `${(footer.clientHeight + body.clientHeight + 51) / 10}em`;
-                    } else {
-                        buttonElement.style.height = `${(options.height / 10) + height}em`;
-                    }
-                }
                 buttonElement.appendChild(span);
                 border.appendChild(buttonElement);
             };
@@ -394,16 +381,14 @@ const modal:module_modal = {
         }
 
         // Apply universal controls from saved state
-        if (options.status === "minimized" && options.inputs.indexOf("minimize") > -1) {
-            const minimize:HTMLElement = box.getElementsByClassName("minimize")[0] as HTMLElement;
-            options.status = "normal";
-            minimize.click();
-            minimize.onclick = modal.events.minimize;
-        } else if (options.status === "maximized" && options.inputs.indexOf("maximize") > -1) {
+        if (options.status === "maximized" && options.inputs.indexOf("maximize") > -1) {
             const maximize:HTMLElement = box.getElementsByClassName("maximize")[0] as HTMLElement;
-            options.status = "normal";
-            maximize.click();
-            maximize.onclick = modal.events.maximize;
+            browser.data.modals[options.id].status = "normal";
+            modal.events.maximize(null, options.callback, maximize);
+        } else if (options.status === "minimized" && options.inputs.indexOf("minimize") > -1) {
+            const minimize:HTMLElement = box.getElementsByClassName("minimize")[0] as HTMLElement;
+            browser.data.modals[options.id].status = "normal";
+            modal.events.minimize(null, options.callback, minimize);
         } else if (options.callback !== undefined) {
             options.callback();
         }
@@ -545,8 +530,10 @@ const modal:module_modal = {
         },
     
         /* The given modal consumes the entire view port of the content area */
-        maximize: function browser_utilities_modal_maximize(event:MouseEvent, callback?:() => void):void {
-            const element:HTMLElement = event.target,
+        maximize: function browser_utilities_modal_maximize(event:MouseEvent, callback?:() => void, target?:HTMLElement):void {
+            const element:HTMLElement = (event === null)
+                    ? target
+                    : event.target,
                 contentArea:HTMLElement = document.getElementById("content-area"),
                 box:HTMLElement = element.getAncestor("box", "class"),
                 id:string = box.getAttribute("id"),
@@ -619,8 +606,10 @@ const modal:module_modal = {
         },
     
         /* Visually minimize a modal to the tray at the bottom of the content area */
-        minimize: function browser_utilities_modal_minimize(event:MouseEvent, callback?:() => void):void {
-            const element:HTMLElement = event.target,
+        minimize: function browser_utilities_modal_minimize(event:MouseEvent, callback?:() => void, target?:HTMLElement):void {
+            const element:HTMLElement = (event === null)
+                    ? target
+                    : event.target,
                 border:HTMLElement = element.getAncestor("border", "class"),
                 box:HTMLElement = border.parentNode,
                 id:string = box.getAttribute("id"),

@@ -245,7 +245,6 @@ import disallowed from "../common/disallowed.js";
                                 }
                                 index = index + 1;
                             } while (index < len);
-                            contentArea.style.display = "block";
                             loadComplete();
                         }
                     },
@@ -288,6 +287,7 @@ import disallowed from "../common/disallowed.js";
                                 a = a + 1;
                             } while (a < length);
                         };
+                        modalItem.closeHandler = modal.events.closeEnduring;
                         modalItem.content = configuration.content();
                         modal.content(modalItem);
                         z(id);
@@ -377,10 +377,19 @@ import disallowed from "../common/disallowed.js";
                         modalItem.callback = function browser_init_modalGeneric_callback():void {
                             z(id);
                         };
-                        if (modalItem.type === "message") {
-                            message.content.modal(modalItem, modalItem.agentType, modalItem.agent);
-                        } else if (modalItem.type === "agent-management") {
+                        if (modalItem.type === "agent-management") {
                             global_events.modal.agentManagement(null, modalItem);
+                        } else if (modalItem.type === "export" || modalItem.type === "textPad") {
+                            global_events.modal.textPad(null, modalItem);
+                        } else if (modalItem.type === "message") {
+                            message.content.modal(modalItem, modalItem.agentType, modalItem.agent);
+                        } else if (modalItem.type === "shares") {
+                            const agentType:agentType|"" = (modalItem.title.indexOf("All Shares") > -1)
+                                ? ""
+                                : modalItem.agentType;
+                            share.tools.modal(modalItem.agent, agentType, modalItem);
+                        } else if (modalItem.type === "terminal") {
+                            global_events.modal.terminal(null, modalItem);
                         } else {
                             z(null);
                         }
@@ -402,26 +411,6 @@ import disallowed from "../common/disallowed.js";
                         body.setAttribute("class", "body media-restore");
                         body.onclick = restore;
                         z(id);
-                    },
-                    modalShares = function browser_init_modalShares(id:string):void {
-                        const modalItem:config_modal = state.settings.configuration.modals[id],
-                            agentType:agentType|"" = (modalItem.title.indexOf("All Shares") > -1)
-                            ? ""
-                            : modalItem.agentType;
-                        modalItem.callback = function browser_init_modalShares_callback():void {
-                            z(id);
-                        };
-                        share.tools.modal(modalItem.agent, agentType, modalItem);
-                    },
-                    modalTerminal = function browser_init_modalTerminal(id:string):void {
-                        const modalItem:config_modal = state.settings.configuration.modals[id];
-                        global_events.modal.terminal(null, modalItem);
-                        z(id);
-                    },
-                    modalText = function browser_init_modalText(id:string):void {
-                        const modalItem:config_modal = state.settings.configuration.modals[id];
-                        global_events.modal.textPad(null, modalItem);
-                        z(id);
                     };
                 logInTest = true;
                 browser.data.color = state.settings.configuration.color;
@@ -441,23 +430,16 @@ import disallowed from "../common/disallowed.js";
                 if (modalKeys.length < 1) {
                     loadComplete();
                 } else {
-                    contentArea.style.display = "none";
                     modalKeys.forEach(function browser_init_modalKeys(value:string) {
                         type = state.settings.configuration.modals[value].type;
-                        if (type === "export" || type === "textPad") {
-                            modalText(value);
-                        } else if (type === "fileNavigate") {
+                        if (type === "fileNavigate") {
                             modalFile(value);
                         } else if (type === "configuration") {
                             modalConfiguration(value);
-                        } else if (type === "shares") {
-                            modalShares(value);
                         } else if (type === "details") {
                             modalDetails(value);
                         } else if (type === "media") {
                             modalMedia(value);
-                        } else if (type === "terminal") {
-                            modalTerminal(value);
                         } else {
                             modalGeneric(value);
                         }
