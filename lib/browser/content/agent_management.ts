@@ -965,6 +965,7 @@ const agent_management = {
                     agent: browser.data.hashDevice,
                     agentIdentity: false,
                     agentType: "device",
+                    closeHandler: agent_management.events.inviteDecline,
                     content: content,
                     height: 300,
                     inputs: ["cancel", "confirm", "close"],

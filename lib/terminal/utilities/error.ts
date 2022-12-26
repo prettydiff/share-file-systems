@@ -80,7 +80,6 @@ const error = function terminal_utilities_error(errText:string[], noStack?:boole
             } else {
                 logger("```");
                 errText.forEach(function terminal_utilities_error_each(value:string):void {
-                    // eslint-disable-next-line
                     logger(value.replace(/\u001b/g, "\\u001b"));
                 });
                 logger("```");

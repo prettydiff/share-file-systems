@@ -14,6 +14,8 @@ import util from "../utilities/util.js";
  * interface module_browserTerminal {
  *     content: () => [HTMLElement, HTMLElement];
  *     events: {
+ *         close: (event:MouseEvent) => void;
+ *         command: (event:KeyboardEvent) => void;
  *         key: (event:KeyboardEvent) => void;
  *         receive: (socketData:socketData) => void;
  *     };
@@ -35,6 +37,7 @@ const terminal:module_browserTerminal = {
         label.setAttribute("class", "terminal");
         textArea.setAttribute("wrap", "hard");
         textArea.setAttribute("spellcheck", "false");
+        textArea.onkeydown = terminal.events.command;
         textArea.onkeyup = terminal.events.key;
         textArea.onmouseup = modal.events.footerResize;
         textArea.onblur = modal.events.textSave;
@@ -48,19 +51,21 @@ const terminal:module_browserTerminal = {
         return [logs, footer];
     },
     events: {
-        key: function browser_content_terminal_key(event:KeyboardEvent):void {
-            const key:string = event.key.toLowerCase(),
-                target:HTMLTextAreaElement = event.target as HTMLTextAreaElement,
-                value:string = target.value.replace(/^\s+/, "").replace(/\s+$/, ""),
-                box:HTMLElement = target.getAncestor("box", "class"),
-                list:HTMLElement = box.getElementsByClassName("terminal-list")[0] as HTMLElement,
-                id:string = box.getAttribute("id"),
-                history:string[] = browser.data.modals[id].history;
-            let index:number = (isNaN(browser.data.modals[id].historyIndex))
-                    ? browser.data.modals[id].history.length
-                    : browser.data.modals[id].historyIndex;
-            event.preventDefault();
-            if (key === "enter") {
+        close: function browser_content_terminal_close(event:MouseEvent):void {
+            const box:HTMLElement = event.target.getAncestor("box", "class");
+            terminal.send(box, "close-modal", false);
+            modal.events.close(event);
+        },
+        command: function browser_content_terminal_command(event:KeyboardEvent):void {
+            const key:string = event.key.toLowerCase();
+            if (key === "enter" && event.shiftKey === false) {
+                const target:HTMLTextAreaElement = event.target as HTMLTextAreaElement,
+                    value:string = target.value,
+                    box:HTMLElement = target.getAncestor("box", "class"),
+                    id:string = box.getAttribute("id"),
+                    history:string[] = browser.data.modals[id].history,
+                    list:HTMLElement = box.getElementsByClassName("terminal-list")[0] as HTMLElement;
+                event.preventDefault();
                 if (value === "clear") {
                     list.appendText("", true);
                 } else if (value === "") {
@@ -75,8 +80,19 @@ const terminal:module_browserTerminal = {
                 browser.data.modals[id].historyIndex = browser.data.modals[id].history.length;
                 target.value = "";
                 network.configuration();
-                return;
             }
+        },
+        key: function browser_content_terminal_key(event:KeyboardEvent):void {
+            const key:string = event.key.toLowerCase(),
+                target:HTMLTextAreaElement = event.target as HTMLTextAreaElement,
+                value:string = target.value.replace(/^\s+/, "").replace(/\s+$/, ""),
+                box:HTMLElement = target.getAncestor("box", "class"),
+                id:string = box.getAttribute("id"),
+                history:string[] = browser.data.modals[id].history;
+            let index:number = (isNaN(browser.data.modals[id].historyIndex))
+                    ? browser.data.modals[id].history.length
+                    : browser.data.modals[id].historyIndex;
+            event.preventDefault();
             if (key === "arrowup") {
                 if (index > 0) {
                     index = index - 1;

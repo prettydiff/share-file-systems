@@ -963,12 +963,10 @@ const transmit_ws:module_transmit_ws = {
                         type: "ws"
                     }).remote.address;
                     config.socket.on("close", function terminal_server_transmission_transmitWs_socketExtension_close():void {
-                        // eslint-disable-next-line
-                        const socketData:websocket_client = this,
-                            configData:config_websocket_openAgent = {
-                                agent: socketData.hash,
+                        const configData:config_websocket_openAgent = {
+                                agent: config.socket.hash,
                                 callback: null,
-                                type: socketData.type as agentType
+                                type: config.socket.type as agentType
                             },
                             delay = function terminal_server_transmission_transmitWs_socketExtension_close_delay():void {
                                 transmit_ws.open.agent(configData);
@@ -1012,20 +1010,18 @@ const transmit_ws:module_transmit_ws = {
                 transmit_ws.clientList.testRemote = config.socket;
             }
             config.socket.on("error", function terminal_server_transmission_transmitWs_socketExtension_socketError(errorMessage:NodeJS.ErrnoException):void {
-                // eslint-disable-next-line
-                const socket:websocket_client = this;
                 if (vars.settings.verbose === true) {
                     error([
-                        `Error on socket of type ${socket.type} at location ${socket.role} with identifier ${socket.hash}.`,
+                        `Error on socket of type ${config.socket.type} at location ${config.socket.role} with identifier ${config.socket.hash}.`,
                         JSON.stringify(errorMessage),
                         JSON.stringify(getAddress({
-                            socket: socket,
+                            socket: config.socket,
                             type: "ws"
                         }))
                     ]);
                 }
-                if (socket.type === "device" || socket.type === "user") {
-                    transmit_ws.agentClose(socket);
+                if (config.socket.type === "device" || config.socket.type === "user") {
+                    transmit_ws.agentClose(config.socket);
                 }
             });
             transmit_ws.listener(config.socket);

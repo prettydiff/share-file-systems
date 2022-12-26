@@ -379,6 +379,7 @@ declare global {
      *     agentIdentity: boolean;
      *     agentType: agentType;
      *     callback?: () => void;
+     *     closeHandler?: (event:MouseEvent) => void;
      *     content: HTMLElement;
      *     focus?: HTMLElement;
      *     footer?: HTMLElement;
@@ -416,6 +417,7 @@ declare global {
         agentIdentity: boolean;
         agentType: agentType;
         callback?: () => void;
+        closeHandler?: (event:MouseEvent) => void;
         content: HTMLElement;
         focus?: HTMLElement;
         footer?: HTMLElement;

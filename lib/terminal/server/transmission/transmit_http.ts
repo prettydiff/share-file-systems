@@ -721,11 +721,11 @@ const transmit_http:module_transmit_http = {
                                 ? ""
                                 : `:${portWeb}`;
                     };
-    
+
                 if (process.cwd() !== vars.path.project) {
                     process.chdir(vars.path.project);
                 }
-    
+
                 // start the service
                 server.on("error", serverError);
                 if (serverOptions.host === "") {

@@ -13,7 +13,11 @@ import vars from "../../utilities/vars.js";
  * ```typescript
  * interface module_terminal {
  *     input: (socketData:socketData) => void;
+ *     kill: (id:string) => void;
  *     output: (data:service_terminal) => void;
+ *     processes: {
+ *         [key:string]: ChildProcess;
+ *     };
  * }
  * ``` */
 const terminal:module_terminal = {
@@ -119,13 +123,30 @@ const terminal:module_terminal = {
                     terminal.output(data);
                 });
             },
+            command = function terminal_server_services_terminal_input_command():void {
+                const shell:ChildProcess = spawn(data.instruction, [], {
+                        cwd: data.directory,
+                        shell: true
+                    }),
+                    dataHandle = function terminal_server_services_terminal_input_dataHandle(output:Buffer):void {
+                        data.logs = output.toString().replace(/\r\n/g, "\n").split("\n");
+                        terminal.output(data);
+                    };
+                terminal.processes[data.id] = shell;
+                shell.on("close", terminal.kill);
+                shell.stdout.on("data", dataHandle);
+                shell.stderr.on("data", dataHandle);
+            },
             sendOutput = function terminal_server_services_terminal_input_sendOutput():void {
                 data.logs = vars.environment.log,
                 terminal.output(data);
             };
         if (data.agentSource.agent === vars.settings.hashDevice && data.agentSource.agentType === "device") {
             // source - local device
-            if (data.instruction === "") {
+            if (data.instruction === "close-modal") {
+                // modal is closed - terminal any associated spawned process
+                terminal.kill(data.id);
+            } else if (data.instruction === "") {
                 // empty instruction - respond with terminal logs
                 sendOutput();
             } else if (data.autoComplete > -1) {
@@ -136,22 +157,25 @@ const terminal:module_terminal = {
                 changeDirectory();
             } else {
                 // execute a command
-                const shell:ChildProcess = spawn(data.instruction, [], {
-                        cwd: data.directory,
-                        shell: true
-                    }),
-                    dataHandle = function terminal_server_services_terminal_input_dataHandle(output:Buffer):void {
-                        data.logs = output.toString().replace(/\r\n/g, "\n").split("\n");
-                        terminal.output(data);
-                    };
-                shell.on("close", function terminal_server_services_terminal_input_close():void {
-                    shell.kill(0);
-                });
-                shell.stdout.on("data", dataHandle);
-                shell.stderr.on("data", dataHandle);
+                command();
             }
         } else {
 
+        }
+    },
+    kill: function terminal_server_services_terminal_kill(id:string):void {
+        const shell:ChildProcess = (terminal.processes[id] === undefined)
+            // eslint-disable-next-line
+            ? (this.stdout === undefined)
+                ? null
+                // eslint-disable-next-line
+                : this
+            : terminal.processes[id];
+        if (shell !== null) {
+            shell.kill(1);
+        }
+        if (id !== undefined) {
+            delete terminal.processes[id];
         }
     },
     output: function terminal_server_services_terminalOutput(data:service_terminal):void {
@@ -161,7 +185,8 @@ const terminal:module_terminal = {
                 service: "terminal"
             }, "browser");
         }
-    }
+    },
+    processes: {}
 };
 
 export default terminal;

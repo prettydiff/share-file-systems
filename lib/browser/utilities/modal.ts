@@ -193,11 +193,9 @@ const modal:module_modal = {
                 if (options.inputs.indexOf("close") > -1) {
                     button({
                         class: "close",
-                        event: (options.type === "configuration")
-                            ? modal.events.closeEnduring
-                            : (options.type === "invite-accept")
-                                ? agent_management.events.inviteDecline
-                                : modal.events.close,
+                        event: (typeof options.closeHandler === "function")
+                            ? options.closeHandler
+                            : modal.events.close,
                         parent: section,
                         spanText: "Close",
                         text: "✖ ",
@@ -294,7 +292,7 @@ const modal:module_modal = {
             }
 
             // Apply history to those types that record a history state
-            if (options.type === "fileNavigate" || options.type == "terminal") {
+            if (options.type === "fileNavigate" || options.type === "terminal") {
                 if (options.history === undefined) {
                     if (options.text_value === undefined) {
                         options.history = [];

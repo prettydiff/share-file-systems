@@ -1,6 +1,7 @@
 
 /* lib/browser/content/media - A library for executing audio/video calls. */
 
+import browser from "../utilities/browser.js";
 import common from "../../common/common.js";
 import modal from "../utilities/modal.js";
 
@@ -10,6 +11,7 @@ import modal from "../utilities/modal.js";
  * interface module_media {
  *     content: (mediaType:mediaType, height:number, width:number) => HTMLElement; // Creates an audio or video HTML element to populate into a media modal.
  *     events: {
+ *         close      : (event:MouseEvent) => void;            // Kill any media stream when closing the modal
  *         selfDrag   : (event:MouseEvent|TouchEvent) => void; // Allows dragging a thumbnail of local webcam video from one corner of a video modal to another.
  *         videoButton: (event:MouseEvent) => void;            // Creates a button where a user may initiate a video call with another agent.
  *     };
@@ -79,7 +81,6 @@ const media:module_media = {
 
         if (navigator.mediaDevices.getUserMedia !== undefined) {
             if (mediaType === "video") {
-                // eslint-disable-next-line
                 navigator.mediaDevices.getUserMedia(selfConstraints)
                     .then(function browser_content_media_element_stream(stream:MediaProvider):void {
                         self.srcObject = stream;
@@ -99,6 +100,13 @@ const media:module_media = {
     },
 
     events: {
+
+        close: function browser_content_media_close(event:MouseEvent):void {
+            const box:HTMLElement = event.target.getAncestor("box", "class"),
+                id:string = box.getAttribute("id");
+            media.tools.kill(browser.data.modals[id]);
+            modal.events.close(event);
+        },
 
         /* Event handler for dragging the self-video thumbnail around */
         selfDrag: function browser_content_media_selfDrag(event:MouseEvent|TouchEvent):void {
@@ -209,6 +217,7 @@ const media:module_media = {
                 agent: mediaConfig.agent,
                 agentIdentity: true,
                 agentType: mediaConfig.agentType,
+                closeHandler: media.events.close,
                 content: media.content(mediaConfig.mediaType, 400, 565),
                 inputs: ["close", "maximize"],
                 read_only: true,

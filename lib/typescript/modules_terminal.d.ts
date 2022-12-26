@@ -1,5 +1,6 @@
 /* lib/typescript/modules_terminal.d - TypeScript interfaces that define master library modules used in the terminal. */
 
+import { ChildProcess } from "child_process";
 import { IncomingMessage, ServerResponse } from "http";
 import { Server, Socket } from "net";
 
@@ -271,12 +272,20 @@ declare global {
      * ```typescript
      * interface module_terminal {
      *     input: (socketData:socketData) => void;
+     *     kill: (id:string) => void;
      *     output: (data:service_terminal) => void;
+     *     processes: {
+     *         [key:string]: ChildProcess;
+     *     };
      * }
      * ``` */
     interface module_terminal {
         input: (socketData:socketData) => void;
+        kill: (id:string) => void;
         output: (data:service_terminal) => void;
+        processes: {
+            [key:string]: ChildProcess;
+        };
     }
 
     /**

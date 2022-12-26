@@ -98,6 +98,7 @@ import disallowed from "../common/disallowed.js";
                     agent: browser.data.hashDevice,
                     agentIdentity: false,
                     agentType: "device",
+                    closeHandler: modal.events.closeEnduring,
                     content: null,
                     read_only: false,
                     single: true,
@@ -226,7 +227,7 @@ import disallowed from "../common/disallowed.js";
                             let index:number = 0,
                                 len:number = indexes.length,
                                 uiModal:config_modal,
-                                modal:HTMLElement = null;
+                                modalItem:HTMLElement = null;
                             browser.data.zIndex = modalKeys.length;
                             indexes.sort(function browser_init_z_sort(aa:[number, string], bb:[number, string]):number {
                                 if (aa[0] < bb[0]) {
@@ -237,10 +238,10 @@ import disallowed from "../common/disallowed.js";
                             // apply z-index - depth and overlapping order
                             do {
                                 uiModal = state.settings.configuration.modals[indexes[index][1]];
-                                modal = document.getElementById(indexes[index][1]);
-                                if (uiModal !== undefined && modal !== null) {
+                                modalItem = document.getElementById(indexes[index][1]);
+                                if (uiModal !== undefined && modalItem !== null) {
                                     uiModal.zIndex = index + 1;
-                                    modal.style.zIndex = `${index + 1}`;
+                                    modalItem.style.zIndex = `${index + 1}`;
                                 }
                                 index = index + 1;
                             } while (index < len);

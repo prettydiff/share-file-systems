@@ -117,6 +117,8 @@ interface module_agentStatus {
  * interface module_browserTerminal {
  *     content: () => [HTMLElement, HTMLElement];
  *     events: {
+ *         close: (event:MouseEvent) => void;
+ *         command: (event:KeyboardEvent) => void;
  *         key: (event:KeyboardEvent) => void;
  *         receive: (socketData:socketData) => void;
  *     };
@@ -127,6 +129,8 @@ interface module_agentStatus {
 interface module_browserTerminal {
     content: () => [HTMLElement, HTMLElement];
     events: {
+        close: (event:MouseEvent) => void;
+        command: (event:KeyboardEvent) => void;
         key: (event:KeyboardEvent) => void;
         receive: (socketData:socketData) => void;
     };
@@ -393,6 +397,7 @@ interface module_invite {
  * interface module_media {
  *     content: (mediaType:mediaType, height:number, width:number) => HTMLElement; // Creates an audio or video HTML element to populate into a media modal.
  *     events: {
+ *         close      : (event:MouseEvent) => void;            // Kill any media stream when closing the modal
  *         selfDrag   : (event:MouseEvent|TouchEvent) => void; // Allows dragging a thumbnail of local webcam video from one corner of a video modal to another.
  *         videoButton: (event:MouseEvent) => void;            // Creates a button where a user may initiate a video call with another agent.
  *     };
@@ -406,6 +411,7 @@ interface module_invite {
 interface module_media {
     content: (mediaType:mediaType, height:number, width:number) => HTMLElement;
     events: {
+        close: (event:MouseEvent) => void;
         selfDrag: (event:MouseEvent|TouchEvent) => void;
         videoButton: (event:MouseEvent) => void;
     };
