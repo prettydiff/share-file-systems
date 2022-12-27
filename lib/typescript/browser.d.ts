@@ -206,6 +206,19 @@ interface network_actions {
 }
 
 /**
+ * A means to step through entries to the browser terminal.
+ * ```typescript
+ * interface terminal_scroll {
+ *     position: number;
+ *     entries: number[]
+ * }
+ * ``` */
+interface terminal_scroll {
+    position: number;
+    entries: number[]
+}
+
+/**
  * A user step in the tutorial data.
  * ```typescript
  * interface tutorial_data {

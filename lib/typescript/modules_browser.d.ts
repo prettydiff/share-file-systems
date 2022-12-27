@@ -119,11 +119,15 @@ interface module_agentStatus {
  *     events: {
  *         close: (event:MouseEvent) => void;
  *         command: (event:KeyboardEvent) => void;
- *         key: (event:KeyboardEvent) => void;
+ *         keyInput: (event:KeyboardEvent) => void;
+ *         keyOutput: (event:KeyboardEvent) => void;
  *         receive: (socketData:socketData) => void;
  *     };
- *     populate: (element:HTMLElement, logs:string[]) => void;
- *     send: (box:HTMLElement, command:string, autoComplete:boolean) => void;
+ *     tools: {
+ *         controlKeys: (event:KeyboardEvent, list:HTMLElement) => void;
+ *         populate: (element:HTMLElement, logs:string[]) => void;
+ *         send: (box:HTMLElement, command:string, autoComplete:boolean) => void;
+ *     };
  * }
  * ``` */
 interface module_browserTerminal {
@@ -131,11 +135,15 @@ interface module_browserTerminal {
     events: {
         close: (event:MouseEvent) => void;
         command: (event:KeyboardEvent) => void;
-        key: (event:KeyboardEvent) => void;
+        keyInput: (event:KeyboardEvent) => void;
+        keyOutput: (event:KeyboardEvent) => void;
         receive: (socketData:socketData) => void;
     };
-    populate: (element:HTMLElement, logs:string[]) => void;
-    send: (box:HTMLElement, command:string, autoComplete:boolean) => void;
+    tools: {
+        controlKeys: (event:KeyboardEvent, list:HTMLElement) => void;
+        populate: (element:HTMLElement, logs:string[]) => void;
+        send: (box:HTMLElement, command:string, autoComplete:boolean) => void;
+    };
 }
 
 /**
