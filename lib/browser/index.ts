@@ -181,7 +181,6 @@ import disallowed from "../common/disallowed.js";
                 document.getElementById("textPad").onclick          = global_events.modal.textPad;
                 document.getElementById("agent-management").onclick = global_events.modal.agentManagement;
                 document.onvisibilitychange                         = global_events.visibility;
-                Notification.requestPermission();
                 if (document.fullscreenEnabled === true) {
                     document.onfullscreenchange                   = global_events.fullscreenChange;
                     document.getElementById("fullscreen").onclick = global_events.fullscreen;

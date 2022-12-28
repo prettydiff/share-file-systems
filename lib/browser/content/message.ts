@@ -83,7 +83,6 @@ const message:module_message = {
                         width: 800
                     }
                     : configuration;
-
             table.setAttribute("class", "message-content");
             table.appendChild(document.createElement("tbody"));
             content.appendChild(table);

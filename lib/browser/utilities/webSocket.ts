@@ -20,7 +20,7 @@ const webSocket:module_browserSocket = {
     }()),
     start: function browser_utilities_webSocket(callback:() => void, hashDevice:string):void {
         const title:HTMLElement = document.getElementById("title-bar"),
-            scheme:string = (location.protocol === "http:")
+            scheme:string = (location.protocol.toLowerCase() === "http:")
                 ? "ws"
                 : "wss",
             socket:WebSocket = new webSocket.sock(`${scheme}://localhost:${browser.network.ports.ws}/`, [`browser-${hashDevice}`]),
