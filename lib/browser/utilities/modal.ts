@@ -43,9 +43,7 @@ const modal:module_modal = {
         let buttonCount:number = 0,
             section:HTMLElement = document.createElement("h2"),
             input:HTMLInputElement,
-            extra:HTMLElement,
-            height:number = 1,
-            footer:HTMLElement;
+            extra:HTMLElement;
         const id:string = (options.type === "configuration")
                 ? "configuration-modal"
                 : (options.id || `${options.type}-${Math.random().toString() + browser.data.zIndex + 1}`),
@@ -205,7 +203,6 @@ const modal:module_modal = {
             if (options.inputs.indexOf("text") > -1) {
                 const label:HTMLElement = document.createElement("label"),
                     span:HTMLElement = document.createElement("span");
-                height = height + 3.5;
                 span.appendText("Text of file system address.");
                 label.appendChild(span);
                 extra = document.createElement("p");
@@ -306,7 +303,6 @@ const modal:module_modal = {
 
         // Confirmation and text posting
         if (Array.isArray(options.inputs) === true && (options.inputs.indexOf("cancel") > -1 || options.inputs.indexOf("confirm") > -1 || options.inputs.indexOf("save") > -1)) {
-            height = height + 9.3;
             section = document.createElement("footer");
             section.setAttribute("class", "footer");
             extra = document.createElement("p");
@@ -356,7 +352,6 @@ const modal:module_modal = {
         }
         box.appendChild(border);
         browser.content.appendChild(box);
-        footer = box.getElementsByClassName("footer")[0] as HTMLElement;
 
         // Modal resize buttons in border
         if (options.resize !== false) {

@@ -259,8 +259,6 @@ const global_events:module_globalEvents = {
 
         /* Creates a console modal */
         terminal: function browser_content_global_terminal(event:MouseEvent, config?:config_modal):void {
-            let box:HTMLElement = null,
-                body:HTMLElement = null;
             const content:[HTMLElement, HTMLElement] = terminal.content(),
                 agentName:string = (config === undefined)
                     ? browser.data.hashDevice
@@ -296,8 +294,7 @@ const global_events:module_globalEvents = {
             }
             textArea.placeholder = "Type a command here. Press 'ins' key for file system auto-completion.";
             global_events.menuBlur(event);
-            box = modal.content(payloadModal);
-            body = box.getElementsByClassName("body")[0] as HTMLElement;
+            modal.content(payloadModal);
             document.getElementById("menu").style.display = "none";
         },
 

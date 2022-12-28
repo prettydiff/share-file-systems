@@ -147,8 +147,7 @@ const terminal:module_browserTerminal = {
             modal.events.textTimer(event);
         },
         keyOutput: function browser_content_terminal_keyOutput(event:KeyboardEvent):void {
-            const key:string = event.key.toLowerCase(),
-                list:HTMLElement = event.target;
+            const list:HTMLElement = event.target;
             terminal.tools.controlKeys(event, list);
         },
         receive: function browser_content_terminal_receive(socketData:socketData):void {

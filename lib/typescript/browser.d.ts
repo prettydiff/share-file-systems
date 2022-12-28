@@ -215,7 +215,7 @@ interface network_actions {
  * ``` */
 interface terminal_scroll {
     position: number;
-    entries: number[]
+    entries: number[];
 }
 
 /**

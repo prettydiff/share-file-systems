@@ -211,7 +211,6 @@ import disallowed from "../common/disallowed.js";
                     count:number = 0;
                 const modalKeys:string[] = Object.keys(state.settings.configuration.modals),
                     indexes:[number, string][] = [],
-                    contentArea:HTMLElement = document.getElementById("content-area"),
                     // applies z-index to the modals in the proper sequence while restarting the value at 0
                     z = function browser_init_z(id:string):void {
                         count = count + 1;

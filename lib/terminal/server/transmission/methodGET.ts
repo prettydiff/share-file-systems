@@ -87,10 +87,7 @@ const methodGET = function terminal_server_transmission_methodGET(request:Incomi
                                                     source: vars.settings
                                                 });
                                             }
-                                            const testBrowser:string = (vars.test.browser !== null && request.url.indexOf("?test_browser") > 0)
-                                                    ? JSON.stringify(vars.test.browser)
-                                                    : "{}",
-                                                state:stateData = {
+                                            const state:stateData = {
                                                     log: vars.environment.log,
                                                     name: vars.environment.name,
                                                     network: {
