@@ -15,8 +15,8 @@ import util from "../utilities/util.js";
  * ```typescript
  * interface module_message {
  *     content: {
- *         footer: (mode:messageMode, value:string) => HTMLElement;                                    // Called from modal.create to supply the footer area modal content.
- *         modal : (configuration:config_modal, agentType:agentType, agentName:string) => HTMLElement; // Generates a message modal.
+ *         footer: (mode:messageMode, value:string) => HTMLElement;                              // Called from modal.create to supply the footer area modal content.
+ *         modal : (configuration:config_modal, agentType:agentType, agentName:string) => modal; // Generates a message modal.
  *     };
  *     events: {
  *         keySubmit  : (event:KeyboardEvent) => void;            // Submits a text message on key press, such as pressing the 'Enter' key.
@@ -37,7 +37,7 @@ const message:module_message = {
 
     /* Render a message modal */
     content: {
-        modal: function browser_content_message_content(configuration:config_modal, agentType:agentType, agentFrom:string):HTMLElement {
+        modal: function browser_content_message_content(configuration:config_modal, agentType:agentType, agentFrom:string):modal {
             const content:HTMLElement = document.createElement("div"),
                 footer:HTMLElement = document.createElement("div"),
                 table:HTMLElement = document.createElement("table"),
@@ -169,7 +169,7 @@ const message:module_message = {
         /* Submits a text message on key press, such as pressing the 'Enter' key. */
         keySubmit: function browser_content_message_keySubmit(event:KeyboardEvent):void {
             const input:HTMLTextAreaElement = event.target as HTMLTextAreaElement,
-                box:HTMLElement = input.getAncestor("box", "class"),
+                box:modal = input.getAncestor("box", "class"),
                 id:string = box.getAttribute("id"),
                 keyboardEvent:KeyboardEvent = window.event as KeyboardEvent,
                 key:string = keyboardEvent.key.toLowerCase();
@@ -181,10 +181,9 @@ const message:module_message = {
                     agentFrom:string = (agency[2] === "device")
                         ? browser.data.hashDevice
                         : browser.data.hashUser;
-                // using the modal's timer property to store scroll message history
-                let step:number = (browser.data.modals[id].timer === undefined)
+                let step:number = (browser.data.modals[id].historyIndex === undefined)
                     ? total
-                    : browser.data.modals[id].timer;
+                    : browser.data.modals[id].historyIndex;
                 if (key === "arrowup") {
                     if (step > 0) {
                         do {
@@ -192,7 +191,7 @@ const message:module_message = {
                         } while (step > -1 && (browser.message[step].agentType !== agency[2] || browser.message[step].agentTo !== agency[0] || browser.message[step].agentFrom !== agentFrom));
                         if (step > -1 && browser.message[step].agentType === agency[2] && browser.message[step].agentTo === agency[0] && browser.message[step].agentFrom === agentFrom) {
                             input.value = browser.message[step].message;
-                            browser.data.modals[id].timer = step;
+                            browser.data.modals[id].historyIndex = step;
                         }
                     }
                 } else {
@@ -202,10 +201,10 @@ const message:module_message = {
                         } while (step < total && (browser.message[step].agentType !== agency[2] || browser.message[step].agentTo !== agency[0] || browser.message[step].agentFrom !== agentFrom));
                         if (step === total) {
                             input.value = browser.data.modals[id].text_value;
-                            browser.data.modals[id].timer = total;
+                            browser.data.modals[id].historyIndex = total;
                         } else if (browser.message[step].agentType === agency[2] && browser.message[step].agentTo === agency[0] && browser.message[step].agentFrom === agentFrom) {
                             input.value = browser.message[step].message;
-                            browser.data.modals[id].timer = step;
+                            browser.data.modals[id].historyIndex = step;
                         }
                     }
                 }
@@ -217,7 +216,7 @@ const message:module_message = {
         /* Toggle message textarea input between text input and code input preferences */
         modeToggle: function browser_content_message_modeToggle(event:Event):void {
             const element:HTMLInputElement = event.target as HTMLInputElement,
-                box:HTMLElement = element.getAncestor("box", "class"),
+                box:modal = element.getAncestor("box", "class"),
                 id:string = box.getAttribute("id"),
                 textarea:HTMLTextAreaElement = box.getElementsByClassName("footer")[0].getElementsByTagName("textarea")[0],
                 value:messageMode = element.value as messageMode;
@@ -240,7 +239,7 @@ const message:module_message = {
                     ? element
                     : element.parentNode,
                 className:string = source.getAttribute("class"),
-                box:HTMLElement = element.getAncestor("box", "class"),
+                box:modal = element.getAncestor("box", "class"),
                 grandParent:HTMLElement = source.parentNode.parentNode,
                 agentAttribute:string = box.dataset.agent,
                 agentHash:string = (agentAttribute === "")
@@ -273,7 +272,7 @@ const message:module_message = {
         submit: function browser_content_message_submit(event:KeyboardEvent|MouseEvent):void {
             const element:HTMLElement = event.target,
                 agency:agency = util.getAgent(element),
-                box:HTMLElement = element.getAncestor("box", "class"),
+                box:modal = element.getAncestor("box", "class"),
                 footer:HTMLElement = element.getAncestor("footer", "class"),
                 textArea:HTMLTextAreaElement = footer.getElementsByTagName("textarea")[0],
                 payload:message_item = {
@@ -286,8 +285,7 @@ const message:module_message = {
                     message: textArea.value,
                     mode: textArea.getAttribute("class") as messageMode
                 };
-            // using timer property to store value scroll history, which doesn't need to be saved but does need to be voided on submission
-            delete browser.data.modals[box.getAttribute("id")].timer;
+            delete browser.data.modals[box.getAttribute("id")].historyIndex;
             if (agency[2] === "user" && agency[0] === browser.data.hashUser) {
                 payload.agentTo = "user";
             } else if (agency[2] === "device" && agency[0] === browser.data.hashDevice) {
@@ -359,7 +357,7 @@ const message:module_message = {
                     return String.fromCodePoint(Number(reference.replace("&#x", "0x").replace(";", "")));
                 },
                 // adds the constructed message to a message modal
-                writeMessage = function browser_content_message_post_writeMessage(box:HTMLElement):void {
+                writeMessage = function browser_content_message_post_writeMessage(box:modal):void {
                     const tbody:HTMLElement = box.getElementsByClassName("message-content")[0].getElementsByTagName("tbody")[0],
                         posts:HTMLCollectionOf<HTMLTableRowElement> = tbody.getElementsByTagName("tr"),
                         postsLength:number = posts.length;
@@ -397,14 +395,14 @@ const message:module_message = {
                 writeTest:boolean = (browser.loading === true || modalId !== ""),
                 modalAgent:string,
                 messageText:string = (item.mode === "code")
-                ? `<p>${item.message}</p>`
-                : `<p>${item.message
-                    .replace(/^\s+/, "")
-                    .replace(/\s+$/, "")
-                    .replace(/(?<!\\)(\\u[0-9a-f]{4})+/g, unicode)
-                    .replace(/&#\d+;/g, decimal)
-                    .replace(/&#x[0-9a-f]+;/, html)
-                    .replace(/(\r?\n)+/g, "</p><p>")}</p>`;
+                    ? `<p>${item.message}</p>`
+                    : `<p>${item.message
+                        .replace(/^\s+/, "")
+                        .replace(/\s+$/, "")
+                        .replace(/(?<!\\)(\\u[0-9a-f]{4})+/g, unicode)
+                        .replace(/&#\d+;/g, decimal)
+                        .replace(/&#x[0-9a-f]+;/, html)
+                        .replace(/(\r?\n)+/g, "</p><p>")}</p>`;
             if (item.mode === "text") {
                 const strings:string[] = messageText.split("http"),
                     stringsLength:number = strings.length;
@@ -433,7 +431,8 @@ const message:module_message = {
                     messageText = strings.join("");
                 }
             }
-            messageCell.appendText(messageText);
+            // eslint-disable-next-line
+            messageCell.innerHTML = messageText;
             messageCell.setAttribute("class", item.mode);
             tr.setAttribute("data-agentFrom", item.agentFrom);
             if (item.agentType === "user" && item.agentFrom === browser.data.hashUser) {
@@ -488,7 +487,7 @@ const message:module_message = {
     
             // creates a new message modal if none matched
             if (writeTest === false) {
-                const messageModal:HTMLElement = message.content.modal(null, item.agentType, item.agentFrom);
+                const messageModal:modal = message.content.modal(null, item.agentType, item.agentFrom);
                 writeMessage(messageModal);
             }
         },

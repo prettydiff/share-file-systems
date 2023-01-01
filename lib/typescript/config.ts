@@ -397,11 +397,11 @@ declare global {
      *     selection?: stringStore;
      *     share?: string;
      *     single?: boolean;
+     *     socket?: boolean;
      *     status?: modalStatus;
      *     text_event?: (event:KeyboardEvent|MouseEvent) => void;
      *     text_placeholder?: string;
      *     text_value?: string;
-     *     timer?: number;
      *     title: string;
      *     top?: number;
      *     type: modalType;
@@ -435,11 +435,11 @@ declare global {
         selection?: stringStore;
         share?: string;
         single?: boolean;
+        socket?: boolean;
         status?: modalStatus;
         text_event?: (event:KeyboardEvent|MouseEvent) => void;
         text_placeholder?: string;
         text_value?: string;
-        timer?: number;
         title: string;
         top?: number;
         type: modalType;

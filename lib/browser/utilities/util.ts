@@ -152,7 +152,7 @@ const util:module_util = {
         const element:HTMLElement = event.target,
             list:HTMLElement = element.getAncestor("fileList", "class"),
             body:HTMLElement = list.getAncestor("body", "class"),
-            box:HTMLElement = body.getAncestor("box", "class"),
+            box:modal = body.getAncestor("box", "class"),
             boxTop:number = box.offsetTop,
             boxLeft:number = box.offsetLeft,
             bodyTop:number = body.offsetTop,
@@ -375,7 +375,7 @@ const util:module_util = {
         if (element === null) {
             return [null, null, null];
         }
-        const box:HTMLElement = element.getAncestor("box", "class"),
+        const box:modal = element.getAncestor("box", "class"),
             agency:agency = util.getAgent(box),
             modalAddress:string = (address === null || address === undefined)
                 ? box.getElementsByClassName("fileAddress")[0].getElementsByTagName("input")[0].value
@@ -455,7 +455,7 @@ const util:module_util = {
 
     /* Get the agent of a given modal. */
     getAgent: function browser_utilities_util_getAgent(element:HTMLElement):agency {
-        const box:HTMLElement = element.getAncestor("box", "class"),
+        const box:modal = element.getAncestor("box", "class"),
             id:string = box.getAttribute("id");
         let agent:string = browser.data.modals[id].agent;
         if (agent === "" && browser.data.modals[id].type === "shares") {
@@ -660,7 +660,7 @@ const util:module_util = {
             itemParent:HTMLElement,
             classy:string,
             itemList:HTMLCollectionOf<Element>,
-            box:HTMLElement,
+            box:modal,
             dataModal:config_modal,
             addressItem:HTMLElement;
         if (element.lowName() !== "li") {
@@ -714,7 +714,7 @@ const util:module_util = {
 
     /* Remove selections of file system artifacts in a given fileNavigator modal. */
     selectNone: function browser_utilities_util_selectNone(element:HTMLElement):void {
-        const box:HTMLElement = element.getAncestor("box", "class"),
+        const box:modal = element.getAncestor("box", "class"),
             fileList:HTMLElement = box.getElementsByClassName("fileList")[0] as HTMLElement,
             child:HTMLElement = (fileList === undefined)
                 ? null

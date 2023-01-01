@@ -278,6 +278,8 @@ const global_events:module_globalEvents = {
                             : config.id,
                         inputs: ["close", "maximize", "minimize"],
                         read_only: false,
+                        socket: true,
+                        text_value: "",
                         title: document.getElementById("terminal").innerHTML,
                         type: "terminal",
                         width: 800
@@ -330,7 +332,7 @@ const global_events:module_globalEvents = {
                         width: 800
                     }
                     : config;
-            let box:HTMLElement;
+            let box:modal;
             global_events.menuBlur(event);
             span.appendText("Text Pad");
             label.setAttribute("class", "textPad");

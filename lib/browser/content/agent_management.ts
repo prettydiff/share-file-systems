@@ -118,7 +118,7 @@ const agent_management = {
                 separator:string = "|spaces|",
                 blur = function browser_content_agentManagement_inviteStart_blur(focusEvent:FocusEvent):void {
                     const element:HTMLElement = focusEvent.target,
-                        box:HTMLElement = element.getAncestor("box", "class"),
+                        box:modal = element.getAncestor("box", "class"),
                         id:string = box.getAttribute("id"),
                         inputs:HTMLCollectionOf<HTMLInputElement> = box.getElementsByTagName("input"),
                         textArea:HTMLTextAreaElement = box.getElementsByTagName("textarea")[0];
@@ -543,7 +543,7 @@ const agent_management = {
         },
 
         /* Processes agent termination from a delete-agents content of agent-management */
-        confirmDelete: function browser_content_agentManagement_confirmDelete(box:HTMLElement):void {
+        confirmDelete: function browser_content_agentManagement_confirmDelete(box:modal):void {
             const body:HTMLElement = box.getElementsByClassName("body")[0] as HTMLElement,
                 list:HTMLCollectionOf<Element> = body.getElementsByTagName("li"),
                 manage:service_agentManagement = {
@@ -601,7 +601,7 @@ const agent_management = {
                 port:string,
                 portNumber:number;
             const element:HTMLElement = event.target,
-                box:HTMLElement = element.getAncestor("box", "class"),
+                box:modal = element.getAncestor("box", "class"),
                 body:HTMLElement = box.getElementsByClassName("body")[0] as HTMLElement,
                 content:HTMLElement = body.getElementsByClassName("inviteAgent")[0] as HTMLElement,
                 input:HTMLElement = (function browser_content_agentManagement_confirmInvite_input():HTMLElement {
@@ -729,7 +729,7 @@ const agent_management = {
         /* Handle confirmation of changes to agent data. */
         confirmModify: function browser_content_agentManagement_confirmModify(event:MouseEvent):void {
             const target:HTMLElement = event.target,
-                box:HTMLElement = target.getAncestor("box", "class"),
+                box:modal = target.getAncestor("box", "class"),
                 boxes:HTMLCollectionOf<HTMLDivElement> = document.getElementsByClassName("box") as HTMLCollectionOf<HTMLDivElement>,
                 modify:HTMLElement = box.getElementsByClassName("modify-agents")[0] as HTMLElement,
                 inputs:HTMLCollectionOf<HTMLInputElement> = modify.getElementsByTagName("input"),
@@ -844,7 +844,7 @@ const agent_management = {
         deleteShare: function browser_content_agentManagement_deleteShare(event:MouseEvent):void {
             const element:HTMLElement = event.target,
                 parent:HTMLElement = element.parentNode,
-                box:HTMLElement = parent.getAncestor("box", "class"),
+                box:modal = parent.getAncestor("box", "class"),
                 agent:string = (function browser_content_agentManagement_deleteShare_agency():string {
                     const boxAgent:agency = util.getAgent(box);
                     if (boxAgent[0] === null || boxAgent[0] === "") {
@@ -901,7 +901,7 @@ const agent_management = {
         },
 
         /* Accept an invitation, handler on a modal's confirm button */
-        inviteAccept: function browser_content_agentManagement_inviteAccept(box:HTMLElement):void {
+        inviteAccept: function browser_content_agentManagement_inviteAccept(box:modal):void {
             const div:HTMLElement = box.getElementsByClassName("agentInvitation")[0] as HTMLElement,
                 invitation:service_invite = JSON.parse(div.dataset.invitation);
             invitation.action = "invite-response";

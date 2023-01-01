@@ -37,7 +37,7 @@ import util from "../utilities/util.js";
  *         text       : (event:FocusEvent|KeyboardEvent|MouseEvent) => void; // Allows changing file system location by changing the text address of the current location.
  *     };
  *     tools: {
- *         listFail    : (count:number, box:HTMLElement) => void; // Display status information when the Operating system locks files from access.
+ *         listFail    : (count:number, box:modal) => void; // Display status information when the Operating system locks files from access.
  *         listItem    : (item:directory_item, extraClass:string) => HTMLElement; // Generates the HTML content for a single file system artifacts that populates a file system list.
  *         modalAddress: (event:FocusEvent|KeyboardEvent|MouseEvent, config:config_modal_history) => void; // Updates the file system address of the current file navigate modal in response to navigating to different locations.
  *     };
@@ -416,7 +416,7 @@ const file_browser:module_fileBrowser = {
                     : "",
                 expandTest:boolean = (data.message.indexOf("expand-") === 0),
                 expandLocation:string = data.message.replace("expand-", ""),
-                expand = function browser_content_fileBrowser_status_expand(box:HTMLElement):void {
+                expand = function browser_content_fileBrowser_status_expand(box:modal):void {
                     const list:HTMLCollectionOf<Element> = box.getElementsByClassName("fileList")[0].getElementsByTagName("label"),
                         max:number = list.length;
                     let index:number = 0,
@@ -447,7 +447,7 @@ const file_browser:module_fileBrowser = {
                 list:HTMLElement,
                 p:HTMLElement,
                 modal:config_modal,
-                box:HTMLElement;
+                box:modal;
             if (failures[1] > 0) {
                 let b:number = 0,
                     li:HTMLElement;
@@ -488,7 +488,8 @@ const file_browser:module_fileBrowser = {
                                 if (expandTest === true) {
                                     expand(box);
                                 } else {
-                                    p.appendText(data.message.replace(/((execute)|(search))-/, ""), true);
+                                    // eslint-disable-next-line
+                                    p.innerHTML = data.message.replace(/((execute)|(search))-/, "");
                                     p.setAttribute("aria-live", "polite");
                                     p.setAttribute("role", "status");
                                     if (list !== undefined) {
@@ -524,7 +525,7 @@ const file_browser:module_fileBrowser = {
         /* step back through a modal's address history */
         back: function browser_content_fileBrowser_back(event:MouseEvent):void {
             const element:HTMLElement = event.target,
-                box:HTMLElement = element.getAncestor("box", "class"),
+                box:modal = element.getAncestor("box", "class"),
                 id:string = box.getAttribute("id"),
                 address:HTMLInputElement = box.getElementsByClassName("fileAddress")[0].getElementsByTagName("input")[0] as HTMLInputElement,
                 history = browser.data.modals[id].history;
@@ -542,7 +543,7 @@ const file_browser:module_fileBrowser = {
                     ? element
                     : element.getAncestor("li", "tag"),
                 body:HTMLElement = li.getAncestor("body", "class"),
-                box:HTMLElement = body.parentNode.parentNode,
+                box:modal = body.parentNode.parentNode,
                 path:string = (li.getAttribute("class") === "link-directory")
                     ? li.dataset.path
                     : li.getElementsByTagName("label")[0].firstChild.textContent,
@@ -582,7 +583,7 @@ const file_browser:module_fileBrowser = {
                 }()),
                 fileList:HTMLElement = element.getAncestor("div", "tag"),
                 body:HTMLElement = fileList.parentNode,
-                box:HTMLElement = body.getAncestor("box", "class"),
+                box:modal = body.getAncestor("box", "class"),
                 header:number = (box.getElementsByClassName("header")[0] === undefined)
                     ? 0
                     : box.getElementsByClassName("header")[0].clientHeight + 13,
@@ -773,7 +774,7 @@ const file_browser:module_fileBrowser = {
                 path:string = (li.getAttribute("class") === "link-file")
                     ? li.dataset.path.replace(/&amp;/g, "&")
                     : li.getElementsByTagName("label")[0].firstChild.textContent.replace(/&amp;/g, "&"),
-                box:HTMLElement = li.getAncestor("box", "class"),
+                box:modal = li.getAncestor("box", "class"),
                 agents:[fileAgent, fileAgent, fileAgent] = util.fileAgent(box, null),
                 payload:service_fileSystem = {
                     action: "fs-execute",
@@ -792,7 +793,7 @@ const file_browser:module_fileBrowser = {
         /* Shows child elements of a directory */
         expand: function browser_content_fileBrowser_expand(event:MouseEvent):void {
             const button:HTMLElement = event.target,
-                box:HTMLElement = button.getAncestor("box", "class"),
+                box:modal = button.getAncestor("box", "class"),
                 li:HTMLElement = button.parentNode;
             button.focus();
             if (button.firstChild.textContent.indexOf("+") === 0) {
@@ -861,7 +862,7 @@ const file_browser:module_fileBrowser = {
                     : "\\",
                 value:string = input.value,
                 bodyParent:HTMLElement = element.parentNode.parentNode,
-                box:HTMLElement = bodyParent.parentNode,
+                box:modal = bodyParent.parentNode,
                 id:string = box.getAttribute("id"),
                 newAddress:string = (function browser_content_fileBrowser_parent_newAddress():string {
                     if ((/^\w:\\$/).test(value) === true) {
@@ -898,7 +899,7 @@ const file_browser:module_fileBrowser = {
             const element:HTMLElement = (context.element === null)
                     ? event.target
                     : context.element,
-                box:HTMLElement = element.getAncestor("box", "class"),
+                box:modal = element.getAncestor("box", "class"),
                 input:HTMLInputElement = document.createElement("input"),
                 li:HTMLElement = element.getAncestor("li", "tag"),
                 menu:HTMLElement = document.getElementById("contextMenu"),
@@ -973,7 +974,7 @@ const file_browser:module_fileBrowser = {
         /* A service to write file changes to the file system */
         saveFile: function browser_content_fileBrowser_saveFile(event:MouseEvent):void {
             const element:HTMLElement = event.target,
-                box:HTMLElement = element.getAncestor("box", "class"),
+                box:modal = element.getAncestor("box", "class"),
                 content:string = box.getElementsByClassName("body")[0].getElementsByTagName("textarea")[0].value,
                 title:HTMLElement = box.getElementsByTagName("h2")[0].getElementsByTagName("button")[0],
                 location:string[] = title.innerHTML.split(" - "),
@@ -997,7 +998,7 @@ const file_browser:module_fileBrowser = {
                     ? event.target as HTMLInputElement
                     : searchElement,
                 value:string = element.value,
-                box:HTMLElement = element.getAncestor("box", "class"),
+                box:modal = element.getAncestor("box", "class"),
                 id:string = box.getAttribute("id"),
                 addressLabel:HTMLElement = element.parentNode.previousSibling as HTMLElement,
                 addressElement:HTMLInputElement = addressLabel.getElementsByTagName("input")[0],
@@ -1087,7 +1088,7 @@ const file_browser:module_fileBrowser = {
                 input:HTMLInputElement = parent.getElementsByTagName("input")[0];
             let state:boolean = input.checked,
                 body:HTMLElement = p,
-                box:HTMLElement,
+                box:modal,
                 modalData:config_modal;
             if (document.getElementById("newFileItem") === null) {
                 if (file_browser.dragFlag !== "") {
@@ -1189,7 +1190,7 @@ const file_browser:module_fileBrowser = {
     
         /* Requests file system data from a text field, such as manually typing an address */
         text: function browser_content_fileBrowser_text(event:FocusEvent|KeyboardEvent|MouseEvent):boolean {
-            let box:HTMLElement,
+            let box:modal,
                 history:boolean = true;
             const keyboardEvent:KeyboardEvent = event as KeyboardEvent,
                 element:HTMLInputElement = (function browser_content_fileBrowser_text_element():HTMLInputElement {
@@ -1237,7 +1238,7 @@ const file_browser:module_fileBrowser = {
     tools: {
     
         /* Display status information when the Operating system locks files from access */
-        listFail: function browser_content_fileBrowser_listFail(count:number, box:HTMLElement):void {
+        listFail: function browser_content_fileBrowser_listFail(count:number, box:modal):void {
             const statusBar:HTMLElement = box.getElementsByClassName("status-bar")[0] as HTMLElement,
                 p:HTMLElement = statusBar.getElementsByTagName("p")[0],
                 ul:HTMLElement = statusBar.getElementsByTagName("ul")[0],

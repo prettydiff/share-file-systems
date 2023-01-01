@@ -16,8 +16,8 @@ import modal from "../utilities/modal.js";
  *         videoButton: (event:MouseEvent) => void;            // Creates a button where a user may initiate a video call with another agent.
  *     };
  *     tools: {
- *         kill : (modal:config_modal) => void;               // Destroys a media stream to the local hardware and closes the corresponding modal.
- *         modal: (mediaConfig:config_mediaModal) => HTMLElement; // Creates a media modal populated with content from method *media.element*.
+ *         kill : (modal:config_modal) => void;             // Destroys a media stream to the local hardware and closes the corresponding modal.
+ *         modal: (mediaConfig:config_mediaModal) => modal; // Creates a media modal populated with content from method *media.element*.
  *     };
  * }
  * type mediaType = "audio" | "video";
@@ -102,7 +102,7 @@ const media:module_media = {
     events: {
 
         close: function browser_content_media_close(event:MouseEvent):void {
-            const box:HTMLElement = event.target.getAncestor("box", "class"),
+            const box:modal = event.target.getAncestor("box", "class"),
                 id:string = box.getAttribute("id");
             media.tools.kill(browser.data.modals[id]);
             modal.events.close(event);
@@ -212,7 +212,7 @@ const media:module_media = {
         },
 
         /* Start a media engagement and launch a media modal */
-        modal: function browser_content_media_modal(mediaConfig:config_mediaModal):HTMLElement {
+        modal: function browser_content_media_modal(mediaConfig:config_mediaModal):modal {
             return modal.content({
                 agent: mediaConfig.agent,
                 agentIdentity: true,

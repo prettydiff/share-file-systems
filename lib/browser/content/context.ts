@@ -216,7 +216,7 @@ const context:module_context = {
         let clientX:number,
             clientY:number,
             menuTop:number,
-            box:HTMLElement = element.getAncestor("box", "class"),
+            box:modal = element.getAncestor("box", "class"),
             readOnly:boolean = browser.data.modals[box.getAttribute("id")].read_only,
             reverse:boolean = false,
             a:number = 0;
@@ -321,7 +321,7 @@ const context:module_context = {
                     ? context.element
                     : context.element.getAncestor("li", "tag"),
                 menu:HTMLElement = document.getElementById("contextMenu"),
-                box:HTMLElement = element.getAncestor("box", "class"),
+                box:modal = element.getAncestor("box", "class"),
                 contextElement:HTMLElement = event.target as HTMLElement,
                 type:contextType = (context.type !== "")
                     ? context.type
@@ -378,7 +378,7 @@ const context:module_context = {
                             : "Hash",
                 menu:HTMLElement = document.getElementById("contextMenu"),
                 addresses:[string, fileType, string][] = util.selectedAddresses(element, "fileEdit"),
-                box:HTMLElement = element.getAncestor("box", "class"),
+                box:modal = element.getAncestor("box", "class"),
                 length:number = addresses.length,
                 agency:agency = util.getAgent(box),
                 agents:[fileAgent, fileAgent, fileAgent] = util.fileAgent(box, null),
@@ -412,7 +412,7 @@ const context:module_context = {
                 };
             let a:number = 0,
                 delay:HTMLElement,
-                modalInstance:HTMLElement;
+                modalInstance:modal;
             do {
                 if (addresses[a][1].indexOf("file") === 0) {
                     delay = util.delay();
@@ -439,7 +439,7 @@ const context:module_context = {
                     ? context.element
                     : context.element.getAncestor("li", "tag"),
                 selected:[string, fileType, string][],
-                box:HTMLElement = element.getAncestor("box", "class"),
+                box:modal = element.getAncestor("box", "class"),
                 menu:HTMLElement = document.getElementById("contextMenu"),
                 agents:[fileAgent, fileAgent, fileAgent] = util.fileAgent(box, null),
                 payload:service_fileSystem = {
@@ -474,7 +474,7 @@ const context:module_context = {
                     ? context.element
                     : context.element.getAncestor("li", "tag"),
                 div:HTMLElement = util.delay(),
-                box:HTMLElement = element.getAncestor("box", "class"),
+                box:modal = element.getAncestor("box", "class"),
                 agency:agency = util.getAgent(box),
                 menu:HTMLElement = document.getElementById("contextMenu"),
                 addressField:HTMLInputElement = box.getElementsByClassName("fileAddress")[0].getElementsByTagName("input")[0],
@@ -497,7 +497,7 @@ const context:module_context = {
                     type: "details",
                     width: 500
                 },
-                modalInstance:HTMLElement = modal.content(payloadModal),
+                modalInstance:modal = modal.content(payloadModal),
                 id:string = modalInstance.getAttribute("id"),
                 agents:[fileAgent, fileAgent, fileAgent] = util.fileAgent(box, null),
                 payloadNetwork:service_fileSystem = {
@@ -692,7 +692,7 @@ const context:module_context = {
     
         /* Prepare the network action to write files */
         paste: function browser_content_context_paste():void {
-            const box:HTMLElement = context.element.getAncestor("box", "class"),
+            const box:modal = context.element.getAncestor("box", "class"),
                 clipData:context_clipboard = (context.clipboard === "")
                     ? {}
                     : JSON.parse(context.clipboard),

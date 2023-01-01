@@ -397,7 +397,7 @@ const share:module_share = {
         /* Toggle a share between read only and full access. */
         readOnly: function browser_content_share_readOnly(event:MouseEvent):void {
             const element:HTMLElement = event.target,
-                box:HTMLElement = element.getAncestor("box", "class") ,
+                box:modal = element.getAncestor("box", "class") ,
                 boxHash:string = box.dataset.agent,
                 parent:HTMLElement = element.parentNode,
                 hashDevice:string = (boxHash === "")

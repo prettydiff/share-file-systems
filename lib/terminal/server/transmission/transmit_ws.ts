@@ -730,9 +730,9 @@ const transmit_ws:module_transmit_ws = {
                     handshake = function terminal_server_transmission_transmitWs_server_connection_handshake(data:Buffer):void {
                         let hashName:string = null,
                             type:socketType = null,
-                            hashKey:string = null;
-                        const browserNonce:string = `Sec-WebSocket-Protocol:browser-${vars.settings.hashDevice}`,
-                            testNonce:string = "Sec-WebSocket-Protocol:browser-test-browser",
+                            hashKey:string = null,
+                            nonceHeader:string = null;
+                        const testNonce:RegExp = (/^Sec-WebSocket-Protocol:\s*((browser)|(media)|(terminal))-/),
                             dataString:string = data.toString(),
                             headerList:string[] = dataString.split("\r\n"),
                             flags:flagList = {
@@ -749,11 +749,7 @@ const transmit_ws:module_transmit_ws = {
                                                 `Sec-WebSocket-Accept: ${hashKey}`
                                             ];
                                         if (type === "browser") {
-                                            if (vars.test.type.indexOf("browser_") === 0) {
-                                                headers.push(testNonce);
-                                            } else {
-                                                headers.push(browserNonce);
-                                            }
+                                            headers.push(nonceHeader);
                                         } else if (type === "test-browser") {
                                             headers.push(`hash: ${hashName}`);
                                         }
@@ -863,11 +859,12 @@ const transmit_ws:module_transmit_ws = {
                                     }
                                     flags.type = true;
                                     headers();
-                                } else if ((/^Sec-WebSocket-Protocol:\s*browser-/).test(header) === true) {
-                                    const noSpace:string = header.replace(/\s+/g, "");
-                                    if (noSpace === browserNonce || (noSpace === testNonce && vars.test.type.indexOf("browser_") === 0)) {
+                                } else if (testNonce.test(header) === true) {
+                                    const noSpace:string = header.replace(/\s+/g, "").replace(testNonce, "");
+                                    if (noSpace === vars.settings.hashDevice || (noSpace === "test-browser" && vars.test.type.indexOf("browser_") === 0)) {
                                         type = "browser";
                                         flags.type = true;
+                                        nonceHeader = header;
                                         headers();
                                     } else {
                                         socket.destroy();

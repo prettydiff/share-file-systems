@@ -23,7 +23,7 @@ import util from "../utilities/util.js";
  *     tools: {
  *         controlKeys: (event:KeyboardEvent, list:HTMLElement) => void;
  *         populate: (element:HTMLElement, logs:string[]) => void;
- *         send: (box:HTMLElement, command:string, autoComplete:boolean) => void;
+ *         send: (box:modal, command:string, autoComplete:boolean) => void;
  *     };
  * }
  * ``` */
@@ -62,14 +62,14 @@ const terminal:module_browserTerminal = {
     },
     events: {
         close: function browser_content_terminal_close(event:MouseEvent):void {
-            const box:HTMLElement = event.target.getAncestor("box", "class");
+            const box:modal = event.target.getAncestor("box", "class");
             terminal.tools.send(box, "close-modal", false);
             modal.events.close(event);
         },
         command: function browser_content_terminal_command(event:KeyboardEvent):void {
             const key:string = event.key.toLowerCase(),
                 target:HTMLTextAreaElement = event.target as HTMLTextAreaElement,
-                box:HTMLElement = target.getAncestor("box", "class"),
+                box:modal = target.getAncestor("box", "class"),
                 id:string = box.getAttribute("id"),
                 clearTarget = function browser_content_terminal_command():void {
                     browser.data.modals[id].text_value = "";
@@ -105,7 +105,7 @@ const terminal:module_browserTerminal = {
             const key:string = event.key.toLowerCase(),
                 target:HTMLTextAreaElement = event.target as HTMLTextAreaElement,
                 value:string = target.value.replace(/^\s+/, "").replace(/\s+$/, ""),
-                box:HTMLElement = target.getAncestor("box", "class"),
+                box:modal = target.getAncestor("box", "class"),
                 list:HTMLElement = box.getElementsByClassName("terminal-list")[0] as HTMLElement,
                 id:string = box.getAttribute("id"),
                 history:string[] = browser.data.modals[id].history;
@@ -152,7 +152,7 @@ const terminal:module_browserTerminal = {
         },
         receive: function browser_content_terminal_receive(socketData:socketData):void {
             const data:service_terminal = socketData.data as service_terminal,
-                write = function browser_content_terminal_receive_update(box:HTMLElement):void {
+                write = function browser_content_terminal_receive_update(box:modal):void {
                     if (box !== null) {
                         const cwd:HTMLElement = box.getElementsByClassName("terminal-cwd")[0] as HTMLElement;
                         terminal.tools.populate(box.getElementsByClassName("terminal-list")[0] as HTMLElement, data.logs);
@@ -172,7 +172,7 @@ const terminal:module_browserTerminal = {
                     };
                 terminals.forEach(each);
             } else if (data.autoComplete > -1) {
-                const box:HTMLElement = document.getElementById(data.id);
+                const box:modal = document.getElementById(data.id);
                 if (box !== null) {
                     const textArea:HTMLTextAreaElement = box.getElementsByTagName("textarea")[0];
                     textArea.value = data.instruction;
@@ -325,7 +325,7 @@ const terminal:module_browserTerminal = {
                 parent.scrollTo(0, parent.scrollHeight);
             }
         },
-        send: function browser_content_terminal_send(box:HTMLElement, command:string, autoComplete:boolean):void {
+        send: function browser_content_terminal_send(box:modal, command:string, autoComplete:boolean):void {
 
             // send close signal on modal close
             // capture c + ctrl - without alt or shift

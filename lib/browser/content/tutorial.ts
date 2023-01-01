@@ -461,7 +461,8 @@ const tutorial = function browser_content_tutorial():void {
                     if (value[1] === null) {
                         parent = el;
                     } else {
-                        el.appendText(value[1]);
+                        // eslint-disable-next-line
+                        el.innerHTML = value[1];
                     }
                 }
             });
@@ -483,7 +484,7 @@ const tutorial = function browser_content_tutorial():void {
             title: "🗎 Tutorial",
             type: "document"
         },
-        contentModal:HTMLElement = modal.content(modalConfig),
+        contentModal:modal = modal.content(modalConfig),
         close:HTMLElement = contentModal.getElementsByClassName("buttons")[0].getElementsByClassName("close")[0] as HTMLElement,
         body:HTMLElement = contentModal.getElementsByClassName("body")[0] as HTMLElement;
     contentModal.style.zIndex = "10001";

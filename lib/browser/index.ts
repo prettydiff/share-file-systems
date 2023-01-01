@@ -307,7 +307,7 @@ import disallowed from "../common/disallowed.js";
                         const modalItem:config_modal = state.settings.configuration.modals[id],
                             delay:HTMLElement = util.delay(),
                             selection = function browser_init_modalFile_selection(id:string):void {
-                                const box:HTMLElement = document.getElementById(id),
+                                const box:modal = document.getElementById(id),
                                     modalData:config_modal = browser.data.modals[id],
                                     keys:string[] = (modalData.selection === undefined)
                                         ? []

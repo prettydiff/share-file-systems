@@ -126,7 +126,7 @@ interface module_agentStatus {
  *     tools: {
  *         controlKeys: (event:KeyboardEvent, list:HTMLElement) => void;
  *         populate: (element:HTMLElement, logs:string[]) => void;
- *         send: (box:HTMLElement, command:string, autoComplete:boolean) => void;
+ *         send: (box:modal, command:string, autoComplete:boolean) => void;
  *     };
  * }
  * ``` */
@@ -142,7 +142,7 @@ interface module_browserTerminal {
     tools: {
         controlKeys: (event:KeyboardEvent, list:HTMLElement) => void;
         populate: (element:HTMLElement, logs:string[]) => void;
-        send: (box:HTMLElement, command:string, autoComplete:boolean) => void;
+        send: (box:modal, command:string, autoComplete:boolean) => void;
     };
 }
 
@@ -276,7 +276,7 @@ interface module_context {
  *         text       : (event:FocusEvent|KeyboardEvent|MouseEvent) => void; // Allows changing file system location by changing the text address of the current location.
  *     };
  *     tools: {
- *         listFail    : (count:number, box:HTMLElement) => void; // Display status information when the Operating system locks files from access.
+ *         listFail    : (count:number, box:modal) => void; // Display status information when the Operating system locks files from access.
  *         listItem    : (item:directory_item, extraClass:string) => HTMLElement; // Generates the HTML content for a single file system artifacts that populates a file system list.
  *         modalAddress: (event:FocusEvent|KeyboardEvent|MouseEvent, config:config_modal_history) => void; // Updates the file system address of the current file navigate modal in response to navigating to different locations.
  *     };
@@ -309,7 +309,7 @@ interface module_fileBrowser {
         text: (event:FocusEvent|KeyboardEvent|MouseEvent) => void;
     };
     tools: {
-        listFail: (count:number, box:HTMLElement) => void;
+        listFail: (count:number, box:modal) => void;
         listItem: (item:directory_item, extraClass:string) => HTMLElement;
         modalAddress: (event:FocusEvent|KeyboardEvent|MouseEvent, config:config_modal_history) => void;
     };
@@ -373,7 +373,7 @@ interface module_globalEvents {
  *         typeToggle    : (event:Event) => void;                       // Toggles informational text when the user clicks on an agent type radio button.
  *     },
  *     tools: {
- *         accept             : (box:HTMLElement) => void;           // Event handler for when a remote user accepts an invitation request.
+ *         accept             : (box:modal) => void;           // Event handler for when a remote user accepts an invitation request.
  *         complete           : (invitation:service_invite) => void; // Provides messaging at the final stage of the invitation process.
  *         receive            : (invitation:service_invite) => void; // Receives an invitation request at the remote agent.
  *         transmissionReceipt: (socketData:socketData) => void;     // Routes invitation message traffic from the network to the appropriate method.
@@ -392,7 +392,7 @@ interface module_invite {
         typeToggle: (event:Event) => void;
     };
     tools: {
-        accept: (box:HTMLElement) => void;
+        accept: (box:modal) => void;
         complete: (invitation:service_invite) => void;
         receive: (invitation:service_invite) => void;
         transmissionReceipt: (socketData:socketData) => void;
@@ -410,8 +410,8 @@ interface module_invite {
  *         videoButton: (event:MouseEvent) => void;            // Creates a button where a user may initiate a video call with another agent.
  *     };
  *     tools: {
- *         kill : (modal:config_modal) => void;               // Destroys a media stream to the local hardware and closes the corresponding modal.
- *         modal: (mediaConfig:config_mediaModal) => HTMLElement; // Creates a media modal populated with content from method *media.element*.
+ *         kill : (modal:config_modal) => void;             // Destroys a media stream to the local hardware and closes the corresponding modal.
+ *         modal: (mediaConfig:config_mediaModal) => modal; // Creates a media modal populated with content from method *media.element*.
  *     };
  * }
  * type mediaType = "audio" | "video";
@@ -425,7 +425,7 @@ interface module_media {
     };
     tools: {
         kill: (modal:config_modal) => void;
-        modal: (mediaConfig:config_mediaModal) => HTMLElement;
+        modal: (mediaConfig:config_mediaModal) => modal;
     };
 }
 
@@ -434,8 +434,8 @@ interface module_media {
  * ```typescript
  * interface module_message {
  *     content: {
- *         footer: (mode:messageMode, value:string) => HTMLElement;                                    // Called from modal.create to supply the footer area modal content.
- *         modal : (configuration:config_modal, agentType:agentType, agentName:string) => HTMLElement; // Generates a message modal.
+ *         footer: (mode:messageMode, value:string) => HTMLElement;                              // Called from modal.create to supply the footer area modal content.
+ *         modal : (configuration:config_modal, agentType:agentType, agentName:string) => modal; // Generates a message modal.
  *     };
  *     events: {
  *         keySubmit  : (event:KeyboardEvent) => void;            // Submits a text message on key press, such as pressing the 'Enter' key.
@@ -455,7 +455,7 @@ interface module_media {
 interface module_message {
     content: {
         footer: (mode:messageMode, value:string) => HTMLElement;
-        modal: (configuration:config_modal, agentType:agentType, agentName:string) => HTMLElement;
+        modal: (configuration:config_modal, agentType:agentType, agentName:string) => modal;
     };
     events: {
         keySubmit: (event:KeyboardEvent) => void;
@@ -474,7 +474,7 @@ interface module_message {
  * Provides generic modal specific interactions such as resize, move, generic modal buttons, and so forth.
  * ```typescript
  * interface module_modal {
- *     content: (options:config_modal) => HTMLElement; // Creates a new modal.
+ *     content: (options:config_modal) => modal; // Creates a new modal.
  *     events: {
  *         close         : (event:MouseEvent) => void;                  // Closes a modal by removing it from the DOM, removing it from state, and killing any associated media.
  *         closeEnduring : (event:MouseEvent) => void;                  // Modal types that are enduring are hidden, not destroyed, when closed.
@@ -496,7 +496,7 @@ interface module_message {
  * }
  * ``` */
 interface module_modal {
-    content: (options:config_modal) => HTMLElement;
+    content: (options:config_modal) => modal;
     events: {
         close: (event:MouseEvent) => void;
         closeEnduring: (event:MouseEvent) => void;

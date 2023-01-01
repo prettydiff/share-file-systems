@@ -8,6 +8,7 @@ import file_browser from "../content/file_browser.js";
 import global_events from "../content/global_events.js";
 import media from "../content/media.js";
 import network from "./network.js";
+import webSocket from "./webSocket.js";
 
 // cspell:words agenttype
 
@@ -15,7 +16,7 @@ import network from "./network.js";
  * Provides generic modal specific interactions such as resize, move, generic modal buttons, and so forth.
  * ```typescript
  * interface module_modal {
- *     content: (options:config_modal) => HTMLElement; // Creates a new modal.
+ *     content: (options:config_modal) => modal; // Creates a new modal.
  *     events: {
  *         close         : (event:MouseEvent) => void;                  // Closes a modal by removing it from the DOM, removing it from state, and killing any associated media.
  *         closeEnduring : (event:MouseEvent) => void;                  // Modal types that are enduring are hidden, not destroyed, when closed.
@@ -51,7 +52,7 @@ const modal:module_modal = {
                 ? `${options.title.split(" - ")[0].replace(/\s+$/, "")} - ${common.capitalize(options.agentType)}, ${browser[options.agentType][options.agent].name}`
                 : options.title,
             titleButton:HTMLButtonElement = document.createElement("button"),
-            box:HTMLElement = document.createElement("article"),
+            box:modal = document.createElement("article"),
             body:HTMLElement = document.createElement("div"),
             border:HTMLElement = document.createElement("div"),
             modalCount:number = Object.keys(browser.data.modals).length,
@@ -68,7 +69,13 @@ const modal:module_modal = {
                 el.setAttribute("title", config.title);
                 el.onclick = config.event;
                 config.parent.appendChild(el);
-            };
+            },
+            scheme:string = (location.protocol.toLowerCase() === "http:")
+                ? "ws"
+                : "wss",
+            socket:WebSocket = (options.socket === true)
+                ? new webSocket.sock(`${scheme}://localhost:${browser.network.ports.ws}/`, [`${options.type}-${browser.data.hashDevice}`])
+                : null;
 
         // Uniqueness constraints
         if (browser.data.modalTypes.indexOf(options.type) > -1) {
@@ -136,6 +143,7 @@ const modal:module_modal = {
 
         // Box universal definitions
         browser.data.modals[id] = options;
+        box.socket = socket;
         box.setAttribute("id", id);
         box.onmousedown = modal.events.zTop;
         box.setAttribute("class", "box");
@@ -402,7 +410,7 @@ const modal:module_modal = {
             const element:HTMLElement = event.target,
                 keys:string[] = Object.keys(browser.data.modals),
                 keyLength:number = keys.length,
-                box:HTMLElement = element.getAncestor("box", "class"),
+                box:modal = element.getAncestor("box", "class"),
                 id:string = box.getAttribute("id"),
                 type:modalType = (browser.data.modals[id] === undefined)
                     ? null
@@ -450,7 +458,7 @@ const modal:module_modal = {
     
         /* Modal types that are enduring are hidden, not destroyed, when closed */
         closeEnduring: function browser_utilities_modal_closeEnduring(event:MouseEvent):void {
-            let box:HTMLElement = event.target;
+            let box:modal = event.target;
             box = box.getAncestor("box", "class");
             if (box.getAttribute("class") === "box") {
                 box.style.display = "none";
@@ -463,9 +471,9 @@ const modal:module_modal = {
         /* Event handler for the modal's "Confirm" button */
         confirm: function browser_utilities_modal_confirm(event:MouseEvent):void {
             const element:HTMLElement = event.target,
-                box:HTMLElement = element.getAncestor("box", "class"),
+                box:modal = element.getAncestor("box", "class"),
                 id:string = box.getAttribute("id"),
-                options = browser.data.modals[id];
+                options:config_modal = browser.data.modals[id];
             if (options.type === "export") {
                 modal.events.importSettings(event);
             } else if (options.type === "invite-accept") {
@@ -491,7 +499,7 @@ const modal:module_modal = {
         /* If a resizable textarea element is present in the modal outside the body this ensures the body is the correct size. */
         footerResize: function browser_utilities_modal_footerResize(event:MouseEvent):void {
             const element:HTMLElement = event.target,
-                box:HTMLElement = element.getAncestor("box", "class"),
+                box:modal = element.getAncestor("box", "class"),
                 body:HTMLElement = box.getElementsByClassName("body")[0] as HTMLElement,
                 bottom:HTMLElement = box.getElementsByClassName("side-b")[0] as HTMLElement,
                 top:HTMLElement = box.getElementsByClassName("side-t")[0] as HTMLElement,
@@ -508,7 +516,7 @@ const modal:module_modal = {
         importSettings: function browser_utilities_modal_importSettings(event:MouseEvent):void {
             const element:HTMLElement = event.target,
                 dataString:string = JSON.stringify(browser.data),
-                box:HTMLElement = element.getAncestor("box", "class"),
+                box:modal = element.getAncestor("box", "class"),
                 button:HTMLButtonElement = document.getElementsByClassName("cancel")[0] as HTMLButtonElement,
                 textArea:HTMLTextAreaElement = box.getElementsByTagName("textarea")[0];
             if (textArea.value !== dataString) {
@@ -530,7 +538,7 @@ const modal:module_modal = {
                     ? target
                     : event.target,
                 contentArea:HTMLElement = document.getElementById("content-area"),
-                box:HTMLElement = element.getAncestor("box", "class"),
+                box:modal = element.getAncestor("box", "class"),
                 id:string = box.getAttribute("id"),
                 body:HTMLElement = box.getElementsByClassName("body")[0] as HTMLElement,
                 title:HTMLElement = box.getElementsByTagName("h2")[0],
@@ -606,7 +614,7 @@ const modal:module_modal = {
                     ? target
                     : event.target,
                 border:HTMLElement = element.getAncestor("border", "class"),
-                box:HTMLElement = border.parentNode,
+                box:modal = border.parentNode,
                 id:string = box.getAttribute("id"),
                 title:HTMLElement = border.getElementsByTagName("h2")[0],
                 titleButton:HTMLElement = title.getElementsByTagName("button")[0] as HTMLElement,
@@ -677,7 +685,7 @@ const modal:module_modal = {
         move: function browser_utilities_modal_move(event:MouseEvent|TouchEvent):void {
             const x:HTMLElement = event.target,
                 heading:HTMLElement = x.parentNode,
-                box:HTMLElement = heading.parentNode.parentNode,
+                box:modal = heading.parentNode.parentNode,
                 boxParent:HTMLElement = box.parentNode,
                 settings:config_modal = browser.data.modals[box.getAttribute("id")],
                 border:HTMLElement = box.getElementsByTagName("div")[0],
@@ -786,7 +794,7 @@ const modal:module_modal = {
             let clientWidth:number  = 0,
                 clientHeight:number = 0;
             const node:HTMLElement = event.target,
-                box:HTMLElement = node.getAncestor("box", "class"),
+                box:modal = node.getAncestor("box", "class"),
                 top:number = box.offsetTop,
                 left:number = box.offsetLeft,
                 body:HTMLElement = box.getElementsByClassName("body")[0] as HTMLElement,
@@ -1019,10 +1027,10 @@ const modal:module_modal = {
         /* Pushes the text content of a textPad modal into settings so that it is saved */
         textSave: function browser_utilities_modal_textSave(event:Event):void {
             const element:HTMLTextAreaElement = event.target as HTMLTextAreaElement,
-                box:HTMLElement = element.getAncestor("box", "class"),
+                box:modal = element.getAncestor("box", "class"),
                 data:config_modal = browser.data.modals[box.getAttribute("id")];
-            if (data.timer !== undefined) {
-                window.clearTimeout(data.timer);
+            if (box.timer !== undefined) {
+                window.clearTimeout(box.timer);
             }
             data.text_value = element.value;
             network.configuration();
@@ -1031,22 +1039,24 @@ const modal:module_modal = {
         /* An idle delay is a good time to save written notes */
         textTimer: function browser_utilities_modal_textTimer(event:KeyboardEvent):void {
             const element:HTMLTextAreaElement = event.target as HTMLTextAreaElement,
-                box:HTMLElement = element.getAncestor("box", "class"),
+                box:modal = element.getAncestor("box", "class"),
                 data:config_modal = browser.data.modals[box.getAttribute("id")];
-            if (data.timer !== undefined) {
-                window.clearTimeout(data.timer);
+            if (box.timer !== undefined) {
+                window.clearTimeout(box.timer);
             }
-            data.timer = window.setTimeout(function browser_utilities_modal_textTimer_delay() {
-                window.clearTimeout(data.timer);
-                data.text_value = element.value;
-                network.configuration();
+            box.timer = window.setTimeout(function browser_utilities_modal_textTimer_delay() {
+                window.clearTimeout(box.timer);
+                if (data.text_value !== element.value) {
+                    data.text_value = element.value;
+                    network.configuration();
+                }
             }, browser.data.statusTime);
         },
     
         /* Restore a minimized modal to its prior size and location */
         unMinimize: function browser_utilities_modal_unMinimize(event:MouseEvent):void {
             const element:HTMLElement = event.target,
-                box:HTMLElement = element.getAncestor("box", "class"),
+                box:modal = element.getAncestor("box", "class"),
                 boxParent:HTMLElement = box.parentNode;
             if (boxParent.lowName() === "li") {
                 modal.tools.forceMinimize(box.getAttribute("id"));
@@ -1059,8 +1069,8 @@ const modal:module_modal = {
                     ? event.target
                     : elementInput,
                 parent:HTMLElement = element.parentNode,
-                grandParent:HTMLElement = parent.parentNode;
-            let box:HTMLElement = element.getAncestor("box", "class");
+                grandParent:HTMLElement = parent.parentNode,
+                box:modal = element.getAncestor("box", "class");
             if ((parent.getAttribute("class") === "fileList" || grandParent.getAttribute("class") === "fileList") && event.shiftKey === true) {
                 event.preventDefault();
             }

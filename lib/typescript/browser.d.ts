@@ -169,6 +169,11 @@ interface invite_saved {
     type: agentType;
 }
 
+interface modal extends HTMLElement {
+    timer?: number;
+    socket?: WebSocket;
+}
+
 /**
  * A collection of methods for resizing a modal from different respective sides/corners.
  * ```typescript
