@@ -124,18 +124,22 @@ const terminal:module_terminal = {
                 });
             },
             command = function terminal_server_services_terminal_input_command():void {
-                const shell:ChildProcess = spawn(data.instruction, [], {
-                        cwd: data.directory,
-                        shell: true
-                    }),
-                    dataHandle = function terminal_server_services_terminal_input_dataHandle(output:Buffer):void {
-                        data.logs = output.toString().replace(/\r\n/g, "\n").split("\n");
-                        terminal.output(data);
-                    };
-                terminal.processes[data.id] = shell;
-                shell.on("close", terminal.kill);
-                shell.stdout.on("data", dataHandle);
-                shell.stderr.on("data", dataHandle);
+                if (terminal.processes[data.id] === undefined) {
+                    const shell:ChildProcess = spawn(data.instruction, [], {
+                            cwd: data.directory,
+                            shell: true
+                        }),
+                        dataHandle = function terminal_server_services_terminal_input_dataHandle(output:Buffer):void {
+                            data.logs = output.toString().replace(/\r\n/g, "\n").split("\n");
+                            terminal.output(data);
+                        };
+                    terminal.processes[data.id] = shell;
+                    shell.on("close", terminal.kill);
+                    shell.stdout.on("data", dataHandle);
+                    shell.stderr.on("data", dataHandle);
+                } else {
+                    terminal.processes[data.id].stdin.write(data.instruction);
+                }
             },
             sendOutput = function terminal_server_services_terminal_input_sendOutput():void {
                 data.logs = vars.environment.log,
