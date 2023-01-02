@@ -250,7 +250,8 @@ const terminal:module_browserTerminal = {
             }
         },
         populate: function browser_content_terminal_populate(element:HTMLElement, logs:string[]):void {
-            const each = function browser_content_terminalPopulate_each(logItem:string):void {
+            const items:number = element.getElementsByTagName("li").length,
+                each = function browser_content_terminalPopulate_each(logItem:string):void {
                     let count:number = 0;
                     const li:HTMLElement = document.createElement("li"),
                         names:stringStore = {
@@ -270,8 +271,9 @@ const terminal:module_browserTerminal = {
                             "37": "white",
                             "39": "no-color"
                         },
-                        list = function browser_content_terminalPopulate_list(result:string):string {
-                            let formatList = result.replace(/^\u001b\[/, "").replace(/m\u001b\[/g, "|").replace(/m$/, "").split("|"),
+                        ansi:RegExp = (/(\u001b\[\d{1,2}(;\d{1,2})*m)+/),
+                        list = function browser_content_terminalPopulate_list(result:string):string {console.log(result.split(""));
+                            let formatList = result.replace(/^\u001b\[/, "").replace(/m\u001b\[/g, "|").replace(/m$/, "").replace(/;/g, "|").split("|"),
                                 index:number = formatList.indexOf("0"),
                                 endString:string = "";
                             if (result === "\u001b[0m") {
@@ -285,7 +287,9 @@ const terminal:module_browserTerminal = {
                                         index = formatList.indexOf("0");
                                     } while (index === 0);
                                 }
-                                formatList = formatList.slice(0, index);
+                                if (index > 0) {
+                                    formatList = formatList.slice(0, index);
+                                }
                             }
                             formatList.forEach(function browser_Content_terminalPopulate_list_each(value:string, index:number, list:string[]):void {
                                 list[index] = names[value];
@@ -306,8 +310,8 @@ const terminal:module_browserTerminal = {
                         };
                     logItem = util.sanitizeHTML(logItem);
                     do {
-                        logItem = logItem.replace(/(\u001b\[\d{1,2}m)+/g, list).replace(/\u001b\[0m/g, end);
-                    } while ((/(\u001b\[\d{1,2}m)+/).test(logItem) === true);
+                        logItem = logItem.replace(ansi, list).replace(/\u001b\[0m/g, end);
+                    } while (ansi.test(logItem) === true);
                     if (count > 0) {
                         logItem = logItem + "</span>";
                     }
@@ -315,7 +319,6 @@ const terminal:module_browserTerminal = {
                     li.innerHTML = logItem;
                     element.appendChild(li);
                 },
-                items:number = element.getElementsByTagName("li").length,
                 oldScroll:terminal_scroll = JSON.parse(element.dataset.scroll),
                 scroll:terminal_scroll = {
                     position: oldScroll.entries.length,
