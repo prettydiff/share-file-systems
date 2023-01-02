@@ -172,7 +172,7 @@ const terminal:module_terminal = {
                 : this
             : terminal.processes[id];
         if (shell !== null) {
-            shell.kill(1);
+            shell.kill("SIGINT");
         }
         if (id !== undefined) {
             delete terminal.processes[id];

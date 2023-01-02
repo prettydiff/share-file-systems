@@ -71,6 +71,7 @@ const terminal:module_browserTerminal = {
                 target:HTMLTextAreaElement = event.target as HTMLTextAreaElement,
                 box:modal = target.getAncestor("box", "class"),
                 id:string = box.getAttribute("id"),
+                list:HTMLElement = box.getElementsByClassName("terminal-list")[0] as HTMLElement,
                 clearTarget = function browser_content_terminal_command():void {
                     browser.data.modals[id].text_value = "";
                     browser.data.modals[id].historyIndex = browser.data.modals[id].history.length;
@@ -79,23 +80,27 @@ const terminal:module_browserTerminal = {
                 };
             if (key === "c" && event.ctrlKey === true) {
                 terminal.tools.send(box, "close-modal", false);
+                terminal.tools.populate(list, [""]);
                 clearTarget();
                 return;
             }
             if (key === "enter" && event.shiftKey === false) {
                 const value:string = target.value,
-                    history:string[] = browser.data.modals[id].history,
-                    list:HTMLElement = box.getElementsByClassName("terminal-list")[0] as HTMLElement;
+                    history:string[] = browser.data.modals[id].history;
                 event.preventDefault();
                 if (value === "clear") {
+                    const scroll:terminal_scroll = {
+                        position: -1,
+                        entries: []
+                    };
                     list.appendText("", true);
-                    list.setAttribute("data-scroll", "0");
+                    list.setAttribute("data-scroll", JSON.stringify(scroll));
                 } else if (value === "") {
                     terminal.tools.populate(list, [""]);
                 } else {
                     terminal.tools.send(box, value, false);
                 }
-                if (history[history.length - 1] !== value) {
+                if (history[history.length - 1] !== value && value !== "") {
                     history.push(value);
                 }
                 clearTarget();
