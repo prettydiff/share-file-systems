@@ -68,15 +68,11 @@ import disallowed from "../common/disallowed.js";
 
         let logInTest:boolean = false,
             hashDevice:string = "",
-            hashUser:string = "";
+            hashUser:string = "",
+            state:stateData = null;
         const testBrowser:boolean = (location.href.indexOf("?test_browser") > 0),
             agentList:HTMLElement = document.getElementById("agentList"),
-            stateItems:HTMLCollectionOf<HTMLInputElement> = document.getElementsByTagName("input"),
-            state:browserState = {
-                addresses: null,
-                settings: null,
-                test: null
-            },
+            stateItem:HTMLInputElement = document.getElementsByTagName("input")[0],
 
             // execute test automation following a page reload
             testBrowserLoad = function browser_init_testBrowserLoad(delay:number):void {
@@ -97,11 +93,12 @@ import disallowed from "../common/disallowed.js";
                     agent: browser.data.hashDevice,
                     agentIdentity: false,
                     agentType: "device",
+                    closeHandler: modal.events.closeEnduring,
                     content: null,
                     read_only: false,
                     single: true,
                     status: "hidden",
-                    title: "",
+                    title: null,
                     type: "configuration"
                 };
                 // building configuration modal
@@ -180,10 +177,10 @@ import disallowed from "../common/disallowed.js";
                 document.getElementById("export").onclick           = global_events.modal.export;
                 document.getElementById("fileNavigator").onclick    = global_events.modal.fileNavigate;
                 document.getElementById("configuration").onclick    = global_events.modal.configuration;
+                document.getElementById("terminal").onclick         = global_events.modal.terminal;
                 document.getElementById("textPad").onclick          = global_events.modal.textPad;
                 document.getElementById("agent-management").onclick = global_events.modal.agentManagement;
                 document.onvisibilitychange                         = global_events.visibility;
-                Notification.requestPermission();
                 if (document.fullscreenEnabled === true) {
                     document.onfullscreenchange                   = global_events.fullscreenChange;
                     document.getElementById("fullscreen").onclick = global_events.fullscreen;
@@ -220,8 +217,10 @@ import disallowed from "../common/disallowed.js";
                             indexes.push([state.settings.configuration.modals[id].zIndex, id]);
                         }
                         if (count === modalKeys.length) {
-                            let cc:number = 0,
-                                len:number = indexes.length;
+                            let index:number = 0,
+                                len:number = indexes.length,
+                                uiModal:config_modal,
+                                modalItem:HTMLElement = null;
                             browser.data.zIndex = modalKeys.length;
                             indexes.sort(function browser_init_z_sort(aa:[number, string], bb:[number, string]):number {
                                 if (aa[0] < bb[0]) {
@@ -229,13 +228,16 @@ import disallowed from "../common/disallowed.js";
                                 }
                                 return 1;
                             });
+                            // apply z-index - depth and overlapping order
                             do {
-                                if (state.settings.configuration.modals[indexes[cc][1]] !== undefined && document.getElementById(indexes[cc][1]) !== null) {
-                                    state.settings.configuration.modals[indexes[cc][1]].zIndex = cc + 1;
-                                    document.getElementById(indexes[cc][1]).style.zIndex = `${cc + 1}`;
+                                uiModal = state.settings.configuration.modals[indexes[index][1]];
+                                modalItem = document.getElementById(indexes[index][1]);
+                                if (uiModal !== undefined && modalItem !== null) {
+                                    uiModal.zIndex = index + 1;
+                                    modalItem.style.zIndex = `${index + 1}`;
                                 }
-                                cc = cc + 1;
-                            } while (cc < len);
+                                index = index + 1;
+                            } while (index < len);
                             loadComplete();
                         }
                     },
@@ -278,6 +280,7 @@ import disallowed from "../common/disallowed.js";
                                 a = a + 1;
                             } while (a < length);
                         };
+                        modalItem.closeHandler = modal.events.closeEnduring;
                         modalItem.content = configuration.content();
                         modal.content(modalItem);
                         z(id);
@@ -304,7 +307,7 @@ import disallowed from "../common/disallowed.js";
                         const modalItem:config_modal = state.settings.configuration.modals[id],
                             delay:HTMLElement = util.delay(),
                             selection = function browser_init_modalFile_selection(id:string):void {
-                                const box:HTMLElement = document.getElementById(id),
+                                const box:modal = document.getElementById(id),
                                     modalData:config_modal = browser.data.modals[id],
                                     keys:string[] = (modalData.selection === undefined)
                                         ? []
@@ -330,6 +333,7 @@ import disallowed from "../common/disallowed.js";
                                 }
                             };
                         modalItem.content = delay;
+                        modalItem.footer  = file_browser.content.footer(modalItem.width);
                         modalItem.id = id;
                         modalItem.text_event = file_browser.events.text;
                         modalItem.callback = function browser_init_modalFile_callback():void {
@@ -366,10 +370,19 @@ import disallowed from "../common/disallowed.js";
                         modalItem.callback = function browser_init_modalGeneric_callback():void {
                             z(id);
                         };
-                        if (modalItem.type === "message") {
-                            message.content.modal(modalItem, modalItem.agentType, modalItem.agent);
-                        } else if (modalItem.type === "agent-management") {
+                        if (modalItem.type === "agent-management") {
                             global_events.modal.agentManagement(null, modalItem);
+                        } else if (modalItem.type === "export" || modalItem.type === "textPad") {
+                            global_events.modal.textPad(null, modalItem);
+                        } else if (modalItem.type === "message") {
+                            message.content.modal(modalItem, modalItem.agentType, modalItem.agent);
+                        } else if (modalItem.type === "shares") {
+                            const agentType:agentType|"" = (modalItem.title.indexOf("All Shares") > -1)
+                                ? ""
+                                : modalItem.agentType;
+                            share.tools.modal(modalItem.agent, agentType, modalItem);
+                        } else if (modalItem.type === "terminal") {
+                            global_events.modal.terminal(null, modalItem);
                         } else {
                             z(null);
                         }
@@ -380,31 +393,16 @@ import disallowed from "../common/disallowed.js";
                             restore = function browser_init_modalMedia_restore(event:MouseEvent):void {
                                 const element:HTMLElement = event.target;
                                 body.onclick = null;
-                                element.removeChild(element.firstChild);
-                                element.appendChild(media.content(modalData.status_text as mediaType, modalData.height, modalData.width));
+                                element.appendText("", true);
+                                element.appendChild(media.content(modalData.text_value as mediaType, modalData.height, modalData.width));
                                 element.setAttribute("class", "body");
                             };
                         let body:HTMLElement = null;
-                        p.innerHTML = "Click to restore video.";
+                        p.appendText("Click to restore video.");
                         modalData.content = p;
                         body = modal.content(modalData).getElementsByClassName("body")[0] as HTMLElement;
                         body.setAttribute("class", "body media-restore");
                         body.onclick = restore;
-                        z(id);
-                    },
-                    modalShares = function browser_init_modalShares(id:string):void {
-                        const modalItem:config_modal = state.settings.configuration.modals[id],
-                            agentType:agentType|"" = (modalItem.title.indexOf("All Shares") > -1)
-                            ? ""
-                            : modalItem.agentType;
-                        modalItem.callback = function browser_init_modalShares_callback():void {
-                            z(id);
-                        };
-                        share.tools.modal(modalItem.agent, agentType, modalItem);
-                    },
-                    modalText = function browser_init_modalText(id:string):void {
-                        const modalItem:config_modal = state.settings.configuration.modals[id];
-                        global_events.modal.textPad(null, modalItem);
                         z(id);
                     };
                 logInTest = true;
@@ -427,14 +425,10 @@ import disallowed from "../common/disallowed.js";
                 } else {
                     modalKeys.forEach(function browser_init_modalKeys(value:string) {
                         type = state.settings.configuration.modals[value].type;
-                        if (type === "export" || type === "textPad") {
-                            modalText(value);
-                        } else if (type === "fileNavigate") {
+                        if (type === "fileNavigate") {
                             modalFile(value);
                         } else if (type === "configuration") {
                             modalConfiguration(value);
-                        } else if (type === "shares") {
-                            modalShares(value);
                         } else if (type === "details") {
                             modalDetails(value);
                         } else if (type === "media") {
@@ -455,10 +449,10 @@ import disallowed from "../common/disallowed.js";
                 }
             };
         // set state from artifacts supplied to the page
-        if (stateItems[0].getAttribute("type") === "hidden") {
-            state.addresses = JSON.parse(stateItems[0].value);
-            state.settings = JSON.parse(stateItems[1].value);
-            state.test = JSON.parse(stateItems[2].value);
+        if (stateItem.getAttribute("type") === "hidden") {
+            state = JSON.parse(stateItem.value);
+            browser.terminalLogs = state.log;
+            browser.projectPath = state.path;
             if (state.settings.configuration !== undefined) {
                 if (state.settings.configuration.hashDevice !== undefined) {
                     hashDevice = state.settings.configuration.hashDevice;
@@ -485,13 +479,13 @@ import disallowed from "../common/disallowed.js";
             return `${(width / 10)}em`;
         }());
 
-        browser.network = state.addresses;
+        browser.network = state.network;
         browser.loadComplete = loadComplete;
-        browser.title        = stateItems[3].value;
+        browser.title        = state.name;
         if (state.settings !== undefined && state.settings !== null && state.settings.message !== undefined) {
             browser.message = state.settings.message;
         }
-        if (stateItems.length > 2 && stateItems[2].value !== "{}" && testBrowser === true) {
+        if (state.test !== null && testBrowser === true) {
             // browser automation test
             if (state.test.test !== null && state.test.test.name === "refresh-complete") {
                 return;

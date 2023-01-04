@@ -59,12 +59,88 @@ const util:module_util = {
     delay: function browser_utilities_util_delay():HTMLElement {
         const div:HTMLElement = document.createElement("div"),
             text:HTMLElement = document.createElement("p"),
-            svg:Element = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+            svg:Element = document.createElementNS("http://www.w3.org/2000/svg", "svg"),
+            g1:Element = document.createElementNS("http://www.w3.org/2000/svg", "g"),
+            g2:Element = document.createElementNS("http://www.w3.org/2000/svg", "g");
+        let circle:Element = document.createElementNS("http://www.w3.org/2000/svg", "circle"),
+            animate:Element = document.createElementNS("http://www.w3.org/2000/svg", "animate");
+        g1.setAttribute("fill", "none");
+        g1.setAttribute("fill-rule", "evenodd");
+        g2.setAttribute("transform", "translate(1 1)");
+        g2.setAttribute("stroke-width", "2");
+        circle.setAttribute("cx", "5");
+        circle.setAttribute("cy", "50");
+        circle.setAttribute("r", "5");
+        animate.setAttribute("attributeName", "cy");
+        animate.setAttribute("begin", "0s");
+        animate.setAttribute("dur", "2.2s");
+        animate.setAttribute("values", "50;5;50;50");
+        animate.setAttribute("calcMode", "linear");
+        animate.setAttribute("repeatCount", "indefinite");
+        circle.appendChild(animate);
+        animate = document.createElementNS("http://www.w3.org/2000/svg", "animate");
+        animate.setAttribute("attributeName", "cx");
+        animate.setAttribute("begin", "0s");
+        animate.setAttribute("dur", "2.2s");
+        animate.setAttribute("values", "5;27;49;5");
+        animate.setAttribute("calcMode", "linear");
+        animate.setAttribute("repeatCount", "indefinite");
+        circle.appendChild(animate);
+        g2.appendChild(circle);
+        circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+        animate = document.createElementNS("http://www.w3.org/2000/svg", "animate");
+        circle.setAttribute("cx", "27");
+        circle.setAttribute("cy", "5");
+        circle.setAttribute("r", "5");
+        animate.setAttribute("attributeName", "cy");
+        animate.setAttribute("begin", "0s");
+        animate.setAttribute("dur", "2.2s");
+        animate.setAttribute("from", "5");
+        animate.setAttribute("to", "5");
+        animate.setAttribute("values", "5;50;50;5");
+        animate.setAttribute("calcMode", "linear");
+        animate.setAttribute("repeatCount", "indefinite");
+        circle.appendChild(animate);
+        animate = document.createElementNS("http://www.w3.org/2000/svg", "animate");
+        animate.setAttribute("attributeName", "cx");
+        animate.setAttribute("begin", "0s");
+        animate.setAttribute("dur", "2.2s");
+        animate.setAttribute("from", "27");
+        animate.setAttribute("to", "27");
+        animate.setAttribute("values", "27;49;5;27");
+        animate.setAttribute("calcMode", "linear");
+        animate.setAttribute("repeatCount", "indefinite");
+        circle.appendChild(animate);
+        g2.appendChild(circle);
+        circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+        animate = document.createElementNS("http://www.w3.org/2000/svg", "animate");
+        circle.setAttribute("cx", "49");
+        circle.setAttribute("cy", "50");
+        circle.setAttribute("r", "5");
+        animate.setAttribute("attributeName", "cy");
+        animate.setAttribute("begin", "0s");
+        animate.setAttribute("dur", "2.2s");
+        animate.setAttribute("values", "50;50;5;50");
+        animate.setAttribute("calcMode", "linear");
+        animate.setAttribute("repeatCount", "indefinite");
+        circle.appendChild(animate);
+        animate = document.createElementNS("http://www.w3.org/2000/svg", "animate");
+        animate.setAttribute("attributeName", "cx");
+        animate.setAttribute("begin", "0s");
+        animate.setAttribute("dur", "2.2s");
+        animate.setAttribute("from", "49");
+        animate.setAttribute("to", "49");
+        animate.setAttribute("values", "49;5;27;49");
+        animate.setAttribute("calcMode", "linear");
+        animate.setAttribute("repeatCount", "indefinite");
+        circle.appendChild(animate);
+        g2.appendChild(circle);
+        g1.appendChild(g2);
+        svg.appendChild(g1);
         svg.setAttribute("viewBox", "0 0 57 57");
-        svg.innerHTML = "<g fill=\"none\" fill-rule=\"evenodd\"><g transform=\"translate(1 1)\" stroke-width=\"2\"><circle cx=\"5\" cy=\"50\" r=\"5\"><animate attributeName=\"cy\" begin=\"0s\" dur=\"2.2s\" values=\"50;5;50;50\" calcMode=\"linear\" repeatCount=\"indefinite\"/><animate attributeName=\"cx\" begin=\"0s\" dur=\"2.2s\" values=\"5;27;49;5\" calcMode=\"linear\" repeatCount=\"indefinite\"/></circle><circle cx=\"27\" cy=\"5\" r=\"5\"><animate attributeName=\"cy\" begin=\"0s\" dur=\"2.2s\" from=\"5\" to=\"5\" values=\"5;50;50;5\" calcMode=\"linear\" repeatCount=\"indefinite\"/><animate attributeName=\"cx\" begin=\"0s\" dur=\"2.2s\" from=\"27\" to=\"27\" values=\"27;49;5;27\" calcMode=\"linear\" repeatCount=\"indefinite\"/></circle><circle cx=\"49\" cy=\"50\" r=\"5\"><animate attributeName=\"cy\" begin=\"0s\" dur=\"2.2s\" values=\"50;50;5;50\" calcMode=\"linear\" repeatCount=\"indefinite\"/><animate attributeName=\"cx\" from=\"49\" to=\"49\" begin=\"0s\" dur=\"2.2s\" values=\"49;5;27;49\" calcMode=\"linear\" repeatCount=\"indefinite\"/></circle></g></g>";
-        //svg.setAttribute("viewBox", "0 0 44 44");
+        //svg.innerHTML = "<g fill=\"none\" fill-rule=\"evenodd\"><g transform=\"translate(1 1)\" stroke-width=\"2\"><circle cx=\"5\" cy=\"50\" r=\"5\"><animate attributeName=\"cy\" begin=\"0s\" dur=\"2.2s\" values=\"50;5;50;50\" calcMode=\"linear\" repeatCount=\"indefinite\"/><animate attributeName=\"cx\" begin=\"0s\" dur=\"2.2s\" values=\"5;27;49;5\" calcMode=\"linear\" repeatCount=\"indefinite\"/></circle><circle cx=\"27\" cy=\"5\" r=\"5\"><animate attributeName=\"cy\" begin=\"0s\" dur=\"2.2s\" from=\"5\" to=\"5\" values=\"5;50;50;5\" calcMode=\"linear\" repeatCount=\"indefinite\"/><animate attributeName=\"cx\" begin=\"0s\" dur=\"2.2s\" from=\"27\" to=\"27\" values=\"27;49;5;27\" calcMode=\"linear\" repeatCount=\"indefinite\"/></circle><circle cx=\"49\" cy=\"50\" r=\"5\"><animate attributeName=\"cy\" begin=\"0s\" dur=\"2.2s\" values=\"50;50;5;50\" calcMode=\"linear\" repeatCount=\"indefinite\"/><animate attributeName=\"cx\" from=\"49\" to=\"49\" begin=\"0s\" dur=\"2.2s\" values=\"49;5;27;49\" calcMode=\"linear\" repeatCount=\"indefinite\"/></circle></g></g>";
         //svg.innerHTML = "<g fill=\"none\" fill-rule=\"evenodd\" stroke-width=\"2\"><circle cx=\"22\" cy=\"22\" r=\"1\"><animate attributeName=\"r\" begin=\"0s\" dur=\"1.8s\" values=\"1; 20\" calcMode=\"spline\" keyTimes=\"0; 1\" keySplines=\"0.165, 0.84, 0.44, 1\" repeatCount=\"indefinite\"/><animate attributeName=\"stroke-opacity\" begin=\"0s\" dur=\"1.8s\" values=\"1; 0\" calcMode=\"spline\" keyTimes=\"0; 1\" keySplines=\"0.3, 0.61, 0.355, 1\" repeatCount=\"indefinite\"/></circle><circle cx=\"22\" cy=\"22\" r=\"1\"><animate attributeName=\"r\" begin=\"-0.9s\" dur=\"1.8s\" values=\"1; 20\" calcMode=\"spline\" keyTimes=\"0; 1\" keySplines=\"0.165, 0.84, 0.44, 1\" repeatCount=\"indefinite\"/><animate attributeName=\"stroke-opacity\" begin=\"-0.9s\" dur=\"1.8s\" values=\"1; 0\" calcMode=\"spline\" keyTimes=\"0; 1\" keySplines=\"0.3, 0.61, 0.355, 1\" repeatCount=\"indefinite\"/></circle></g>";
-        text.innerHTML = "Waiting on data. Please stand by.";
+        text.appendText("Waiting on data. Please stand by.");
         div.setAttribute("class", "delay");
         div.appendChild(svg);
         div.appendChild(text);
@@ -76,7 +152,7 @@ const util:module_util = {
         const element:HTMLElement = event.target,
             list:HTMLElement = element.getAncestor("fileList", "class"),
             body:HTMLElement = list.getAncestor("body", "class"),
-            box:HTMLElement = body.getAncestor("box", "class"),
+            box:modal = body.getAncestor("box", "class"),
             boxTop:number = box.offsetTop,
             boxLeft:number = box.offsetLeft,
             bodyTop:number = body.offsetTop,
@@ -299,7 +375,7 @@ const util:module_util = {
         if (element === null) {
             return [null, null, null];
         }
-        const box:HTMLElement = element.getAncestor("box", "class"),
+        const box:modal = element.getAncestor("box", "class"),
             agency:agency = util.getAgent(box),
             modalAddress:string = (address === null || address === undefined)
                 ? box.getElementsByClassName("fileAddress")[0].getElementsByTagName("input")[0].value
@@ -379,7 +455,7 @@ const util:module_util = {
 
     /* Get the agent of a given modal. */
     getAgent: function browser_utilities_util_getAgent(element:HTMLElement):agency {
-        const box:HTMLElement = element.getAncestor("box", "class"),
+        const box:modal = element.getAncestor("box", "class"),
             id:string = box.getAttribute("id");
         let agent:string = browser.data.modals[id].agent;
         if (agent === "" && browser.data.modals[id].type === "shares") {
@@ -535,7 +611,7 @@ const util:module_util = {
             input.type = "radio";
             input.value = config.list[index].toLowerCase().replace(/\s+/g, "_");
             input.onclick = click;
-            label.innerHTML = config.list[index];
+            label.appendText(config.list[index]);
             label.insertBefore(input, label.firstChild);
             li.appendChild(label);
             li.setAttribute("class", "list-radio");
@@ -584,7 +660,7 @@ const util:module_util = {
             itemParent:HTMLElement,
             classy:string,
             itemList:HTMLCollectionOf<Element>,
-            box:HTMLElement,
+            box:modal,
             dataModal:config_modal,
             addressItem:HTMLElement;
         if (element.lowName() !== "li") {
@@ -638,7 +714,7 @@ const util:module_util = {
 
     /* Remove selections of file system artifacts in a given fileNavigator modal. */
     selectNone: function browser_utilities_util_selectNone(element:HTMLElement):void {
-        const box:HTMLElement = element.getAncestor("box", "class"),
+        const box:modal = element.getAncestor("box", "class"),
             fileList:HTMLElement = box.getElementsByClassName("fileList")[0] as HTMLElement,
             child:HTMLElement = (fileList === undefined)
                 ? null

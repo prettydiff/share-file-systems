@@ -12,8 +12,10 @@
  *     localNetwork: localNetwork;
  *     message: service_message;
  *     pageBody: HTMLElement;
+ *     projectPath: string;
  *     socket: WebSocket;
  *     style: HTMLStyleElement;
+ *     terminalLogs: string[];
  *     testBrowser: service_testBrowser;
  *     title: string;
  *     user: agents;
@@ -29,27 +31,14 @@ interface browser {
     message: service_message;
     network: localNetwork;
     pageBody: HTMLElement;
+    projectPath: string;
     socket: WebSocket;
     style: HTMLStyleElement;
+    terminalLogs: string[];
     testBrowser: service_testBrowser;
     title: string;
     user: agents;
     visible: boolean;
-}
-
-/**
- * Stores state data embedded into the HTML code on page request.
- * ```typescript
- * interface browserState {
- *     addresses: localNetwork;
- *     settings: settings_item;
- *     test: service_testBrowser;
- * }
- * ``` */
-interface browserState {
-    addresses: localNetwork;
-    settings: settings_item;
-    test: service_testBrowser;
 }
 
 /**
@@ -63,6 +52,27 @@ interface browserState {
 interface localNetwork {
     addresses: transmit_addresses_IP;
     ports: ports;
+}
+
+/**
+ * The state management object implanted into the page.
+ * ```typescript
+ * interface stateData {
+ *     log: string[];
+ *     name: string;
+ *     network: localNetwork;
+ *     path: string;
+ *     settings: settings_item;
+ *     test: service_testBrowser;
+ * }
+ * ``` */
+interface stateData {
+    log: string[];
+    name: string;
+    network: localNetwork;
+    path: string;
+    settings: settings_item;
+    test: service_testBrowser;
 }
 
 /**

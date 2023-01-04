@@ -91,6 +91,7 @@ body.dark{
 .dark #spaces .icon-fileNavigator{color:var(--icon-fileNavigate)}
 .dark #spaces .icon-systemLog{color:var(--blue-primary)}
 .dark #spaces .icon-textPad{color:var(--icon-textPad)}
+.dark #spaces .icon-terminal{color:var(--red-primary)}
 .dark #spaces .icon-export{color:var(--icon-export)}
 .dark #spaces .icon-invite{color:var(--green-primary)}
 .dark #spaces .icon-delete{color:var(--red-bright)}
@@ -216,7 +217,17 @@ body.dark{
 /* tutorial */
 .dark #tutorial-screen{background:black}
 
-/* scrollbars */
+/* terminal */
+.dark #spaces .terminal-list .black{color:var(--black)}
+.dark #spaces .terminal-list .red{color:var(--red-primary)}
+.dark #spaces .terminal-list .green{color:var(--green-text)}
+.dark #spaces .terminal-list .yellow{color:var(--yellow-primary)}
+.dark #spaces .terminal-list .blue{color:var(--blue-primary)}
+.dark #spaces .terminal-list .purple{color:var(--parent-text)}
+.dark #spaces .terminal-list .cyan{color:var(--dragBox-border)}
+.dark #spaces .terminal-list .white{color:var(--white)}
+
+/* scroll bars */
 .dark *::-webkit-scrollbar{background-color:var(--background-dark);border-color:var(--background)}
 .dark textarea::-webkit-scrollbar{background-color:black}
 .dark *::-webkit-scrollbar-thumb{background-color:var(--background);border-color:black}

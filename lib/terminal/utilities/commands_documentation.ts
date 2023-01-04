@@ -115,7 +115,7 @@ const commands_documentation = function terminal_utility_commandsDocumentation(c
                 },
                 {
                     code: `${command}certificate location:"/file/path/to/save" intermediate-fileName:"certificate"`,
-                    defined: "The file name of the intermediate certificate and supporting files. The default value is \"share-file-ca\" if no name is provided. Do not provide a file extention in the file name value. An intermediate certificate can sign other certificates but is not self-signed."
+                    defined: "The file name of the intermediate certificate and supporting files. The default value is \"share-file-ca\" if no name is provided. Do not provide a file extension in the file name value. An intermediate certificate can sign other certificates but is not self-signed."
                 },
                 {
                     code: `${command}certificate location:"/file/path/to/save" intermediate-domain:"my-domain"`,
@@ -127,7 +127,7 @@ const commands_documentation = function terminal_utility_commandsDocumentation(c
                 },
                 {
                     code: `${command}certificate location:"/file/path/to/save" root-fileName:"certificate"`,
-                    defined: "The file name of the self signed authority certificate and supporting files. The default value is \"share-file-root\" if no name is provided. Do not provide a file extention in the file name value. This is not used on self signed certificate mode."
+                    defined: "The file name of the self signed authority certificate and supporting files. The default value is \"share-file-root\" if no name is provided. Do not provide a file extension in the file name value. This is not used on self signed certificate mode."
                 },
                 {
                     code: `${command}certificate location:"/file/path/to/save" root-domain:"my-domain"`,
@@ -135,7 +135,7 @@ const commands_documentation = function terminal_utility_commandsDocumentation(c
                 },
                 {
                     code: `${command}certificate location:"/file/path/to/save" server-fileName:"certificate"`,
-                    defined: "The file name of a signed certificate and supporting files that cannot sign other certificates. The default value is \"share-file\" if no name is provided. Do not provide a file extention in the file name value."
+                    defined: "The file name of a signed certificate and supporting files that cannot sign other certificates. The default value is \"share-file\" if no name is provided. Do not provide a file extension in the file name value."
                 },
                 {
                     code: `${command}certificate location:"/file/path/to/save" server-domain:"my-domain"`,

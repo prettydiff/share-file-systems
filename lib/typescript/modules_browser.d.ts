@@ -18,6 +18,7 @@ interface Document {
  */
 interface Element {
     addClass: (className:string) => void;
+    appendText: (text:string, empty?:boolean) => void;
     getAncestor: (identifier:string, selector:selector) => HTMLElement;
     getElementsByAttribute: (name:string, value:string) => HTMLElement[];
     getNodesByType: (typeValue:number | string) => Node[];
@@ -42,6 +43,14 @@ interface TouchEvent {
     target: HTMLElement;
 }
 
+/**
+ * Manages population of agent hash from the login form
+ * ```typescript
+ * interface module_agentHash {
+ *     receive: (socketData:socketData) => void;
+ *     send: (nameDevice:HTMLInputElement, nameUser:HTMLInputElement) => void;
+ * }
+ * ``` */
 interface module_agentHash {
     receive: (socketData:socketData) => void;
     send: (nameDevice:HTMLInputElement, nameUser:HTMLInputElement) => void;
@@ -100,6 +109,41 @@ interface module_agentStatus {
     send: (data:socketData) => void;
     sock: websocket_local;
     start: (callback: () => void, hashDevice:string) => void;
+}
+
+/**
+ * Interaction methods for the command terminal in the browser.
+ * ```typescript
+ * interface module_browserTerminal {
+ *     content: () => [HTMLElement, HTMLElement];
+ *     events: {
+ *         close: (event:MouseEvent) => void;
+ *         command: (event:KeyboardEvent) => void;
+ *         keyInput: (event:KeyboardEvent) => void;
+ *         keyOutput: (event:KeyboardEvent) => void;
+ *         receive: (socketData:socketData) => void;
+ *     };
+ *     tools: {
+ *         controlKeys: (event:KeyboardEvent, list:HTMLElement) => void;
+ *         populate: (element:HTMLElement, logs:string[]) => void;
+ *         send: (box:modal, command:string, autoComplete:boolean) => void;
+ *     };
+ * }
+ * ``` */
+interface module_browserTerminal {
+    content: () => [HTMLElement, HTMLElement];
+    events: {
+        close: (event:MouseEvent) => void;
+        command: (event:KeyboardEvent) => void;
+        keyInput: (event:KeyboardEvent) => void;
+        keyOutput: (event:KeyboardEvent) => void;
+        receive: (socketData:socketData) => void;
+    };
+    tools: {
+        controlKeys: (event:KeyboardEvent, list:HTMLElement) => void;
+        populate: (element:HTMLElement, logs:string[]) => void;
+        send: (box:modal, command:string, autoComplete:boolean) => void;
+    };
 }
 
 /**
@@ -210,6 +254,7 @@ interface module_context {
  *     content: {
  *         dataString: (socketData:socketData) => void; // Populate content into modals for string output operations, such as: Base64, Hash, File Read.
  *         details   : (socketData:socketData) => void; // Generates the contents of a details type modal.
+ *         footer    : (width:number) => HTMLElement;   // Generates the status bar content for the file browser modal.
  *         list      : (location:string, dirs:directory_response, message:string) => HTMLElement; // Generates the contents of a file system list for population into a file navigate modal.
  *         status    : (socketData:socketData) => void; // Translates messaging into file system lists for the appropriate modals.
  *     };
@@ -231,9 +276,9 @@ interface module_context {
  *         text       : (event:FocusEvent|KeyboardEvent|MouseEvent) => void; // Allows changing file system location by changing the text address of the current location.
  *     };
  *     tools: {
- *         listFail    : (count:number, box:HTMLElement) => void; // Display status information when the Operating system locks files from access.
+ *         listFail    : (count:number, box:modal) => void; // Display status information when the Operating system locks files from access.
  *         listItem    : (item:directory_item, extraClass:string) => HTMLElement; // Generates the HTML content for a single file system artifacts that populates a file system list.
- *         modalAddress: (event:FocusEvent|KeyboardEvent|MouseEvent, config:config_modalHistory) => void; // Updates the file system address of the current file navigate modal in response to navigating to different locations.
+ *         modalAddress: (event:FocusEvent|KeyboardEvent|MouseEvent, config:config_modal_history) => void; // Updates the file system address of the current file navigate modal in response to navigating to different locations.
  *     };
  * }
  * type dragFlag = "" | "control" | "shift";
@@ -242,6 +287,7 @@ interface module_fileBrowser {
     content: {
         dataString: (socketData:socketData) => void;
         details: (socketData:socketData) => void;
+        footer: (width:number) => HTMLElement;
         list: (location:string, dirs:directory_response, message:string) => HTMLElement;
         status: (socketData:socketData) => void;
     };
@@ -263,9 +309,9 @@ interface module_fileBrowser {
         text: (event:FocusEvent|KeyboardEvent|MouseEvent) => void;
     };
     tools: {
-        listFail: (count:number, box:HTMLElement) => void;
+        listFail: (count:number, box:modal) => void;
         listItem: (item:directory_item, extraClass:string) => HTMLElement;
-        modalAddress: (event:FocusEvent|KeyboardEvent|MouseEvent, config:config_modalHistory) => void;
+        modalAddress: (event:FocusEvent|KeyboardEvent|MouseEvent, config:config_modal_history) => void;
     };
 }
 
@@ -283,8 +329,9 @@ interface module_fileBrowser {
  *     modal: {
  *         agentManagement: (event:MouseEvent, config?:config_modal) => void;   // Displays agent management modal content from the main menu.
  *         configuration  : (event:MouseEvent) => void;                         // Displays a configuration modal from the main menu.
+ *         terminal       : (event:MouseEvent, config?:config_modal) => void;   // Displays a command terminal modal from the main menu.
  *         export         : (event:MouseEvent) => void;                         // Displays an Import/Export modal from the main menu.
- *         fileNavigate   : (Event:Event, config?: navConfig) => void;          // Displays a File Navigate modal from the main menu.
+ *         fileNavigate   : (Event:Event, config?:navConfig) => void;          // Displays a File Navigate modal from the main menu.
  *         textPad        : (event:KeyboardEvent|MouseEvent, config?:config_modal) => HTMLElement; // Displays a TextPad modal from the main menu.
  *     };
  *     shareAll: (event:MouseEvent) => void;     // Displays a Share modal associated with multiple agents.
@@ -302,8 +349,9 @@ interface module_globalEvents {
     modal: {
         agentManagement: (event:MouseEvent, config?:config_modal) => void;
         configuration: (event:MouseEvent) => void;
+        terminal: (event:MouseEvent, config?:config_modal) => void;
         export: (event:MouseEvent) => void;
-        fileNavigate: (Event:Event, config?: config_fileNavigate) => void;
+        fileNavigate: (Event:Event, config?:config_fileNavigate) => void;
         textPad: (event:KeyboardEvent|MouseEvent, config?:config_modal) => HTMLElement;
     };
     shareAll: (event:MouseEvent) => void;
@@ -325,7 +373,7 @@ interface module_globalEvents {
  *         typeToggle    : (event:Event) => void;                       // Toggles informational text when the user clicks on an agent type radio button.
  *     },
  *     tools: {
- *         accept             : (box:HTMLElement) => void;           // Event handler for when a remote user accepts an invitation request.
+ *         accept             : (box:modal) => void;           // Event handler for when a remote user accepts an invitation request.
  *         complete           : (invitation:service_invite) => void; // Provides messaging at the final stage of the invitation process.
  *         receive            : (invitation:service_invite) => void; // Receives an invitation request at the remote agent.
  *         transmissionReceipt: (socketData:socketData) => void;     // Routes invitation message traffic from the network to the appropriate method.
@@ -344,7 +392,7 @@ interface module_invite {
         typeToggle: (event:Event) => void;
     };
     tools: {
-        accept: (box:HTMLElement) => void;
+        accept: (box:modal) => void;
         complete: (invitation:service_invite) => void;
         receive: (invitation:service_invite) => void;
         transmissionReceipt: (socketData:socketData) => void;
@@ -357,12 +405,13 @@ interface module_invite {
  * interface module_media {
  *     content: (mediaType:mediaType, height:number, width:number) => HTMLElement; // Creates an audio or video HTML element to populate into a media modal.
  *     events: {
+ *         close      : (event:MouseEvent) => void;            // Kill any media stream when closing the modal
  *         selfDrag   : (event:MouseEvent|TouchEvent) => void; // Allows dragging a thumbnail of local webcam video from one corner of a video modal to another.
  *         videoButton: (event:MouseEvent) => void;            // Creates a button where a user may initiate a video call with another agent.
  *     };
  *     tools: {
- *         kill : (modal:config_modal) => void;               // Destroys a media stream to the local hardware and closes the corresponding modal.
- *         modal: (mediaConfig:config_mediaModal) => HTMLElement; // Creates a media modal populated with content from method *media.element*.
+ *         kill : (modal:config_modal) => void;             // Destroys a media stream to the local hardware and closes the corresponding modal.
+ *         modal: (mediaConfig:config_mediaModal) => modal; // Creates a media modal populated with content from method *media.element*.
  *     };
  * }
  * type mediaType = "audio" | "video";
@@ -370,12 +419,13 @@ interface module_invite {
 interface module_media {
     content: (mediaType:mediaType, height:number, width:number) => HTMLElement;
     events: {
+        close: (event:MouseEvent) => void;
         selfDrag: (event:MouseEvent|TouchEvent) => void;
         videoButton: (event:MouseEvent) => void;
     };
     tools: {
         kill: (modal:config_modal) => void;
-        modal: (mediaConfig:config_mediaModal) => HTMLElement;
+        modal: (mediaConfig:config_mediaModal) => modal;
     };
 }
 
@@ -384,8 +434,8 @@ interface module_media {
  * ```typescript
  * interface module_message {
  *     content: {
- *         footer: (mode:messageMode, value:string) => HTMLElement;                                    // Called from modal.create to supply the footer area modal content.
- *         modal : (configuration:config_modal, agentType:agentType, agentName:string) => HTMLElement; // Generates a message modal.
+ *         footer: (mode:messageMode, value:string) => HTMLElement;                              // Called from modal.create to supply the footer area modal content.
+ *         modal : (configuration:config_modal, agentType:agentType, agentName:string) => modal; // Generates a message modal.
  *     };
  *     events: {
  *         keySubmit  : (event:KeyboardEvent) => void;            // Submits a text message on key press, such as pressing the 'Enter' key.
@@ -405,7 +455,7 @@ interface module_media {
 interface module_message {
     content: {
         footer: (mode:messageMode, value:string) => HTMLElement;
-        modal: (configuration:config_modal, agentType:agentType, agentName:string) => HTMLElement;
+        modal: (configuration:config_modal, agentType:agentType, agentName:string) => modal;
     };
     events: {
         keySubmit: (event:KeyboardEvent) => void;
@@ -424,15 +474,15 @@ interface module_message {
  * Provides generic modal specific interactions such as resize, move, generic modal buttons, and so forth.
  * ```typescript
  * interface module_modal {
- *     content: (options:config_modal) => HTMLElement; // Creates a new modal.
+ *     content: (options:config_modal) => modal; // Creates a new modal.
  *     events: {
  *         close         : (event:MouseEvent) => void;                  // Closes a modal by removing it from the DOM, removing it from state, and killing any associated media.
  *         closeEnduring : (event:MouseEvent) => void;                  // Modal types that are enduring are hidden, not destroyed, when closed.
  *         confirm       : (event:MouseEvent) => void;                  // Handling for an optional confirmation button.
  *         footerResize  : (event:MouseEvent) => void;                  // If a resizable textarea element is present in the modal outside the body this ensures the body is the correct size.
  *         importSettings: (event:MouseEvent) => void;                  // Handler for import/export modals that modify saved settings from an imported JSON string then reloads the page.
- *         maximize      : (event:MouseEvent, callback?:() => void) => void; // Maximizes a modal to fill the view port.
- *         minimize      : (event:MouseEvent, callback?:() => void) => void; // Minimizes a modal to the tray at the bottom of the page.
+ *         maximize      : (event:MouseEvent, callback?:() => void, target?:HTMLElement) => void; // Maximizes a modal to fill the view port.
+ *         minimize      : (event:MouseEvent, callback?:() => void, target?:HTMLElement) => void; // Minimizes a modal to the tray at the bottom of the page.
  *         move          : (event:MouseEvent|TouchEvent) => void;       // Allows dragging a modal around the screen.
  *         resize        : (event:MouseEvent|TouchEvent) => void;       // Resizes a modal respective to the event target, which could be any of 4 corners or 4 sides.
  *         textSave      : (event:Event) => void;                       // Handler to push the text content of a textPad modal into settings so that it is saved.
@@ -446,15 +496,15 @@ interface module_message {
  * }
  * ``` */
 interface module_modal {
-    content: (options:config_modal) => HTMLElement;
+    content: (options:config_modal) => modal;
     events: {
         close: (event:MouseEvent) => void;
         closeEnduring: (event:MouseEvent) => void;
         confirm: (event:MouseEvent) => void;
         footerResize: (event:MouseEvent) => void;
         importSettings: (event:MouseEvent) => void;
-        maximize: (event:MouseEvent, callback?:() => void) => void;
-        minimize: (event:MouseEvent, callback?:() => void) => void;
+        maximize: (event:MouseEvent, callback?:() => void, target?:HTMLElement) => void;
+        minimize: (event:MouseEvent, callback?:() => void, target?:HTMLElement) => void;
         move: (event:MouseEvent|TouchEvent) => void;
         resize: (event:MouseEvent|TouchEvent) => void;
         textSave: (event:Event) => void;

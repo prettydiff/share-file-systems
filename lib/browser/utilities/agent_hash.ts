@@ -4,6 +4,14 @@ import agent_management from "../content/agent_management.js";
 import browser from "./browser.js";
 import network from "./network.js";
 
+/**
+ * Manages population of agent hash from the login form
+ * ```typescript
+ * interface module_agentHash {
+ *     receive: (socketData:socketData) => void;
+ *     send: (nameDevice:HTMLInputElement, nameUser:HTMLInputElement) => void;
+ * }
+ * ``` */
 const agent_hash:module_agentHash = {
     receive: function browser_utilities_agentHash_receive(socketData:socketData):void {
         const hashes:service_agentHash = socketData.data as service_agentHash;

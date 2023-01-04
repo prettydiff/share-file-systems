@@ -379,10 +379,13 @@ declare global {
      *     agentIdentity: boolean;
      *     agentType: agentType;
      *     callback?: () => void;
+     *     closeHandler?: (event:MouseEvent) => void;
      *     content: HTMLElement;
      *     focus?: HTMLElement;
+     *     footer?: HTMLElement;
      *     height?: number;
      *     history?: string[];
+     *     historyIndex?: number;
      *     id?: string;
      *     inputs?: ui_input[];
      *     left?: number;
@@ -394,13 +397,11 @@ declare global {
      *     selection?: stringStore;
      *     share?: string;
      *     single?: boolean;
+     *     socket?: boolean;
      *     status?: modalStatus;
-     *     status_bar?: boolean;
-     *     status_text?: string;
      *     text_event?: (event:KeyboardEvent|MouseEvent) => void;
      *     text_placeholder?: string;
      *     text_value?: string;
-     *     timer?: number;
      *     title: string;
      *     top?: number;
      *     type: modalType;
@@ -408,7 +409,7 @@ declare global {
      *     zIndex?: number;
      * }
      * type modalStatus = "hidden" | "maximized" | "minimized" | "normal";
-     * type modalType = "agent-management" | "configuration" | "details" | "document" | "export" | "fileEdit" | "fileNavigate" | "invite-accept" | "media" | "message" | "shares" | "textPad";
+     * type modalType = "agent-management" | "configuration" | "details" | "document" | "export" | "fileEdit" | "fileNavigate" | "invite-accept" | "media" | "message" | "shares" | "terminal" | "textPad";
      * type ui_input = "cancel" | "close" | "confirm" | "maximize" | "minimize" | "save" | "text";
      * ``` */
     interface config_modal {
@@ -416,10 +417,13 @@ declare global {
         agentIdentity: boolean;
         agentType: agentType;
         callback?: () => void;
+        closeHandler?: (event:MouseEvent) => void;
         content: HTMLElement;
         focus?: HTMLElement;
+        footer?: HTMLElement;
         height?: number;
         history?: string[];
+        historyIndex?: number;
         id?: string;
         inputs?: ui_input[];
         left?: number;
@@ -431,13 +435,11 @@ declare global {
         selection?: stringStore;
         share?: string;
         single?: boolean;
+        socket?: boolean;
         status?: modalStatus;
-        status_bar?: boolean;
-        status_text?: string;
         text_event?: (event:KeyboardEvent|MouseEvent) => void;
         text_placeholder?: string;
         text_value?: string;
-        timer?: number;
         title: string;
         top?: number;
         type: modalType;
@@ -446,16 +448,37 @@ declare global {
     }
 
     /**
+     * For buttons of modal.content of browser/utilities/modal.
+     * ```typescript
+     * interface config_modal_button {
+     *     class: string;
+     *     event: (event:MouseEvent) => void;
+     *     parent: Element;
+     *     spanText: string;
+     *     text: string;
+     *     title: string;
+     * }
+     * ``` */
+    interface config_modal_button {
+        class: string;
+        event: (event:MouseEvent) => void;
+        parent: Element;
+        spanText: string;
+        text: string;
+        title: string;
+    }
+
+    /**
      * For fileBrowser.modalAddress method of browser/content/file_browser.
      * ```typescript
-     * interface config_modalHistory {
+     * interface config_modal_history {
      *     address: string;
      *     history: boolean;
      *     id: string;
      *     payload: service_fileSystem;
      * }
      * ``` */
-    interface config_modalHistory {
+    interface config_modal_history {
         address: string;
         history: boolean;
         id: string;

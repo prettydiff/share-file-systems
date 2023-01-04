@@ -33,6 +33,7 @@ This is a dynamically compiled list of supporting code files that comprise this 
    - **[../lib/browser/content/media.ts](../lib/browser/content/media.ts)**                                                                             - A library for executing audio/video calls.
    - **[../lib/browser/content/message.ts](../lib/browser/content/message.ts)**                                                                         - A library for executing the text messaging application.
    - **[../lib/browser/content/share.ts](../lib/browser/content/share.ts)**                                                                             - The utilities that manage and coordinate changes to user share data.
+   - **[../lib/browser/content/terminal.ts](../lib/browser/content/terminal.ts)**                                                                       - A library to process command terminal output in the browser.
    - **[../lib/browser/content/tutorial.ts](../lib/browser/content/tutorial.ts)**                                                                       - An interactive tutorial explaining the application.
 * Directory *[../lib/browser/utilities](../lib/browser/utilities)*
    - **[../lib/browser/utilities/agent_hash.ts](../lib/browser/utilities/agent_hash.ts)**                                                               - Generates a local user identity.
@@ -106,6 +107,7 @@ This is a dynamically compiled list of supporting code files that comprise this 
    - **[../lib/terminal/server/services/invite.ts](../lib/terminal/server/services/invite.ts)**                                                         - Manages the order of invitation related processes for traffic across the internet.
    - **[../lib/terminal/server/services/message.ts](../lib/terminal/server/services/message.ts)**                                                       - Process and send text messages.
    - **[../lib/terminal/server/services/settings.ts](../lib/terminal/server/services/settings.ts)**                                                     - A library for writing data to settings.
+   - **[../lib/terminal/server/services/terminal.ts](../lib/terminal/server/services/terminal.ts)**                                                     - Processes terminal console messaging for remote devices and display to the user in a browser.
 * Directory *[../lib/terminal/server/transmission](../lib/terminal/server/transmission)*
    - **[../lib/terminal/server/transmission/ipResolve.ts](../lib/terminal/server/transmission/ipResolve.ts)**                                           - Tests connectivity to remote agents from among their known IP addresses.
    - **[../lib/terminal/server/transmission/methodGET.ts](../lib/terminal/server/transmission/methodGET.ts)**                                           - The library for handling all traffic related to HTTP requests with method GET.

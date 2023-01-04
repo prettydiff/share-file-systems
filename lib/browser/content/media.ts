@@ -1,6 +1,7 @@
 
 /* lib/browser/content/media - A library for executing audio/video calls. */
 
+import browser from "../utilities/browser.js";
 import common from "../../common/common.js";
 import modal from "../utilities/modal.js";
 
@@ -10,12 +11,13 @@ import modal from "../utilities/modal.js";
  * interface module_media {
  *     content: (mediaType:mediaType, height:number, width:number) => HTMLElement; // Creates an audio or video HTML element to populate into a media modal.
  *     events: {
+ *         close      : (event:MouseEvent) => void;            // Kill any media stream when closing the modal
  *         selfDrag   : (event:MouseEvent|TouchEvent) => void; // Allows dragging a thumbnail of local webcam video from one corner of a video modal to another.
  *         videoButton: (event:MouseEvent) => void;            // Creates a button where a user may initiate a video call with another agent.
  *     };
  *     tools: {
- *         kill : (modal:config_modal) => void;               // Destroys a media stream to the local hardware and closes the corresponding modal.
- *         modal: (mediaConfig:config_mediaModal) => HTMLElement; // Creates a media modal populated with content from method *media.element*.
+ *         kill : (modal:config_modal) => void;             // Destroys a media stream to the local hardware and closes the corresponding modal.
+ *         modal: (mediaConfig:config_mediaModal) => modal; // Creates a media modal populated with content from method *media.element*.
  *     };
  * }
  * type mediaType = "audio" | "video";
@@ -74,19 +76,18 @@ const media:module_media = {
                 }
             };
 
-        p.innerHTML = "Awaiting response from remote!";
+        p.appendText("Awaiting response from remote!");
         p.setAttribute("class", "media-primary");
 
         if (navigator.mediaDevices.getUserMedia !== undefined) {
             if (mediaType === "video") {
-                // eslint-disable-next-line
                 navigator.mediaDevices.getUserMedia(selfConstraints)
                     .then(function browser_content_media_element_stream(stream:MediaProvider):void {
                         self.srcObject = stream;
                     })
                     .catch(function browser_content_media_element_catch(error:Error):void {
                         failSelf = document.createElement("p");
-                        failSelf.innerHTML = `Video stream error: ${error.toString()}`;
+                        failSelf.appendText(`Video stream error: ${error.toString()}`);
                     });
             }
         }
@@ -99,6 +100,13 @@ const media:module_media = {
     },
 
     events: {
+
+        close: function browser_content_media_close(event:MouseEvent):void {
+            const box:modal = event.target.getAncestor("box", "class"),
+                id:string = box.getAttribute("id");
+            media.tools.kill(browser.data.modals[id]);
+            modal.events.close(event);
+        },
 
         /* Event handler for dragging the self-video thumbnail around */
         selfDrag: function browser_content_media_selfDrag(event:MouseEvent|TouchEvent):void {
@@ -178,7 +186,7 @@ const media:module_media = {
         kill: function browser_content_media_kill(modal:config_modal):void {
             if (modal !== undefined && modal.type === "media") {
                 const body:HTMLElement = document.getElementById(modal.id).getElementsByClassName("body")[0] as HTMLElement,
-                    media:HTMLCollectionOf<HTMLVideoElement> = body.getElementsByTagName(modal.status_text) as HTMLCollectionOf<HTMLVideoElement>,
+                    media:HTMLCollectionOf<HTMLVideoElement> = body.getElementsByTagName(modal.text_value) as HTMLCollectionOf<HTMLVideoElement>,
                     mediaLength:number = media.length,
                     stopTracks = function browser_content_media_kill_stopTracks(index:number):void {
                         const stream:MediaStream = media[index].srcObject as MediaStream;
@@ -204,16 +212,17 @@ const media:module_media = {
         },
 
         /* Start a media engagement and launch a media modal */
-        modal: function browser_content_media_modal(mediaConfig:config_mediaModal):HTMLElement {
+        modal: function browser_content_media_modal(mediaConfig:config_mediaModal):modal {
             return modal.content({
                 agent: mediaConfig.agent,
                 agentIdentity: true,
                 agentType: mediaConfig.agentType,
+                closeHandler: media.events.close,
                 content: media.content(mediaConfig.mediaType, 400, 565),
                 inputs: ["close", "maximize"],
                 read_only: true,
                 scroll: false,
-                status_text: mediaConfig.mediaType,
+                text_value: mediaConfig.mediaType,
                 title: `${common.capitalize(mediaConfig.mediaType)} Call`,
                 type: "media"
             });

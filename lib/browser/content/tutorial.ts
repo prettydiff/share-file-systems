@@ -399,7 +399,7 @@ const tutorial = function browser_content_tutorial():void {
         nextStep = function browser_content_tutorial_nextStep(node:HTMLElement):void {
             index = index + 1;
             network.configuration();
-            body.innerHTML = "";
+            body.appendText("", true);
             if (node !== undefined && node !== null && node.nodeType === 1) {
                 node.removeHighlight();
             }
@@ -413,9 +413,13 @@ const tutorial = function browser_content_tutorial():void {
             } else {
                 const div:HTMLElement = document.createElement("div"),
                     p:HTMLElement = document.createElement("p"),
-                    heading:HTMLElement = document.createElement("h3");
-                heading.innerHTML = "Tutorial complete!";
-                p.innerHTML = "Please <strong>click the red close button</strong> in the top left corner of this modal to exit the tutorial.";
+                    heading:HTMLElement = document.createElement("h3"),
+                    strong:HTMLElement = document.createElement("strong");
+                heading.appendText("Tutorial complete!");
+                strong.appendText("click the red close button");
+                p.appendText("Please ");
+                p.appendChild(strong);
+                p.appendText(" in the top left corner of this modal to exit the tutorial.");
                 div.appendChild(heading);
                 div.appendChild(p);
                 body.appendChild(div);
@@ -444,9 +448,9 @@ const tutorial = function browser_content_tutorial():void {
                 nextStep(node);
                 return null;
             }
-            heading.innerHTML = (index > 0)
+            heading.appendText((index > 0)
                 ? `Step ${index + 1} of ${dataLength}: ${dataItem.title}`
-                : dataItem.title;
+                : dataItem.title);
             wrapper.appendChild(heading);
             dataItem.description.forEach(function browser_content_tutorial_content_description(value:[string, string]):void {
                 if (value[0] === null) {
@@ -457,6 +461,7 @@ const tutorial = function browser_content_tutorial():void {
                     if (value[1] === null) {
                         parent = el;
                     } else {
+                        // eslint-disable-next-line
                         el.innerHTML = value[1];
                     }
                 }
@@ -479,7 +484,7 @@ const tutorial = function browser_content_tutorial():void {
             title: "🗎 Tutorial",
             type: "document"
         },
-        contentModal:HTMLElement = modal.content(modalConfig),
+        contentModal:modal = modal.content(modalConfig),
         close:HTMLElement = contentModal.getElementsByClassName("buttons")[0].getElementsByClassName("close")[0] as HTMLElement,
         body:HTMLElement = contentModal.getElementsByClassName("body")[0] as HTMLElement;
     contentModal.style.zIndex = "10001";

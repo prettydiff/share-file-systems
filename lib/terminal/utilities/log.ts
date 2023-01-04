@@ -5,8 +5,11 @@ import vars from "./vars.js";
 
 // verbose metadata printed to the shell about the application
 const log = function terminal_utilities_log(output:string[], end?:boolean):void {
-    // eslint-disable-next-line
-    const logger:(input:string) => void = console.log,
+    const logger:(input:string) => void = function terminal_utilities_log_logger(input:string):void {
+            vars.environment.log.push(input);
+            // eslint-disable-next-line
+            console.log(input);
+        },
         command:commands = vars.environment.command;
     if (vars.settings.verbose === true && (output.length > 1 || output[0] !== "")) {
         logger("");

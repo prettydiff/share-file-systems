@@ -1,6 +1,6 @@
 
 :root {
-    --fontMonospace:"Lucida Console", monospace;
+    --fontMonospace:"Consolas", "Courier New", "Lucida Console", monospace;
     --fontText:"Cloud","Lucida Sans Unicode","Helvetica","Arial",sans-serif;
     --textSize:1.4em;
 }
@@ -22,6 +22,16 @@ body.login #spaces{padding:2.5em 0 0}
 #spaces .clear{clear:both;display:block;height:0.001em}
 #spaces .warning{font-weight:bold}
 #spaces #message-update{position:absolute;height:0;left:-20em;top:-20em;width:0}
+
+/* Modal icons */
+#spaces .icon-fileNavigator,
+#spaces .icon-systemLog,
+#spaces .icon-textPad,
+#spaces .icon-terminal,
+#spaces .icon-export,
+#spaces .icon-invite,
+#spaces .icon-delete,
+#spaces .icon-configuration{display:inline-block;text-align:center;width:1em}
 
 /* Login prompt */
 .login #spaces #title-bar,
@@ -182,14 +192,30 @@ body.login #spaces{padding:2.5em 0 0}
 #spaces .box h2.heading button{background:transparent;border-style:none;box-shadow:none;cursor:move;display:block;font-size:1.8em;height:100%;margin:0;overflow:hidden;padding:0.25em 0 0 0.5em;text-align:left;text-overflow:ellipsis;white-space:nowrap;width:100%}
 #spaces .box .body{border-style:solid;border-width:0.1em;clear:both;display:block;height:20em;overflow:scroll;margin:0;padding:0;position:relative;right:0;top:0;width:75em;z-index:5}
 #spaces .box .border{border-style:solid;border-width:0.1em;padding:0.75em;position:relative}
-#spaces .box .corner-tl{background:transparent;border-style:solid;border-width:0 0.1em 0.1em 0;cursor:nw-resize;font-size:1em;height:2em;left:0;position:absolute;top:0;width:2em;z-index:3}
-#spaces .box .corner-tr{background:transparent;border-style:solid;border-width:0 0 0.1em 0.1em;cursor:ne-resize;font-size:1em;height:2em;position:absolute;right:0;top:0;width:2em;z-index:3}
-#spaces .box .corner-bl{background:transparent;border-style:solid;border-width:0.1em 0.1em 0 0;bottom:0;cursor:sw-resize;font-size:1em;height:2em;left:0;position:absolute;width:2em;z-index:3}
-#spaces .box .corner-br{background:transparent;border-style:solid;border-width:0.1em 0 0 0.1em;bottom:0;cursor:se-resize;font-size:1em;height:2em;position:absolute;right:0;width:2em;z-index:3}
-#spaces .box .side-t{background:transparent;border-style:none;cursor:n-resize;font-size:1em;left:2em;height:1em;position:absolute;top:0;z-index:2}
-#spaces .box .side-r{background:transparent;border-style:none;cursor:e-resize;font-size:1em;right:0;position:absolute;top:2em;width:1em;z-index:2}
-#spaces .box .side-b{background:transparent;border-style:none;bottom:0;cursor:s-resize;font-size:1em;left:2em;height:1em;position:absolute;z-index:2}
-#spaces .box .side-l{background:transparent;border-style:none;cursor:w-resize;font-size:1em;left:0;position:absolute;top:2em;width:1em;z-index:2}
+#spaces .box .corner-tl,
+#spaces .box .corner-tr,
+#spaces .box .corner-bl,
+#spaces .box .corner-br,
+#spaces .box .side-t,
+#spaces .box .side-r,
+#spaces .box .side-b,
+#spaces .box .side-l{background:transparent;font-size:1em;position:absolute}
+#spaces .box .corner-tl,
+#spaces .box .corner-tr,
+#spaces .box .corner-bl,
+#spaces .box .corner-br{border-style:solid;height:2em;width:2em;z-index:3}
+#spaces .box .side-t,
+#spaces .box .side-r,
+#spaces .box .side-b,
+#spaces .box .side-l{border-style:none;z-index:2}
+#spaces .box .corner-tl{border-width:0 0.1em 0.1em 0;cursor:nw-resize;left:0;top:0}
+#spaces .box .corner-tr{border-width:0 0 0.1em 0.1em;cursor:ne-resize;right:0;top:0}
+#spaces .box .corner-bl{border-width:0.1em 0.1em 0 0;bottom:0;cursor:sw-resize;left:0}
+#spaces .box .corner-br{border-width:0.1em 0 0 0.1em;bottom:0;cursor:se-resize;right:0}
+#spaces .box .side-t{cursor:n-resize;left:2em;height:1em;top:0;width:100%}
+#spaces .box .side-r{cursor:e-resize;right:0;min-height:100%;top:2em;width:1em}
+#spaces .box .side-b{bottom:0;cursor:s-resize;left:2em;height:1em;width:100%}
+#spaces .box .side-l{cursor:w-resize;left:0;min-height:100%;top:2em;width:1em}
 #spaces .box .corner-tl span,
 #spaces .box .corner-tr span,
 #spaces .box .corner-bl span,
@@ -197,7 +223,7 @@ body.login #spaces{padding:2.5em 0 0}
 #spaces .box .side-t span,
 #spaces .box .side-r span,
 #spaces .box .side-b span,
-#spaces .box .side-l span{top:-200em;position:absolute}
+#spaces .box .side-l span{position:absolute;top:-200em}
 #spaces .box .footer{border-style:none solid solid;border-width:0 0.1em 0.1em;bottom:0;display:block;margin:0;padding:2em;position:relative;z-index:4}
 #spaces .box .footer .footer-buttons{float:right}
 #spaces .box .footer button{border-width:0.05em;display:inline-block;font-weight:bold;margin:0 0 0 2em}
@@ -222,9 +248,11 @@ body.login #spaces{padding:2.5em 0 0}
 #spaces .box .delay{height:100%;width:100%}
 #spaces .box .delay svg{display:block;height:80%;margin:0 auto;width:50%}
 #spaces .box .delay p{font-size:2em;text-align:center}
+#spaces .box .footer .terminal span,
 #spaces .box .textPad span{display:block;position:absolute;text-indent:-2000em}
 #spaces .box .textPad textarea{border-style:none;display:block;font-size:var(--textSize);height:100%;margin:0;overflow:scroll;padding:0;resize:none;white-space:pre;width:100%}
-#spaces .footer .textPad textarea{border-style:solid;font-size:1.8em;height:5em;margin:0 0 1em;resize:both}
+#spaces .box .footer textarea{border-style:solid;font-size:1.8em;height:5em;margin:0;resize:both;width:100%}
+#spaces .footer .textPad textarea{margin:0 0 1em}
 #spaces #dragBox{border-style:solid;border-width:0.2em;opacity:0.5;position:absolute}
 #spaces .document{padding:1em}
 #spaces .document p,
@@ -392,6 +420,7 @@ body.login #spaces{padding:2.5em 0 0}
 #spaces .footer textarea{border-width:0.055em;display:block;font-size:1.8em;height:5em;margin:0 0 0.25em;resize:both;overflow-y:scroll;width:100%}
 #spaces .message-content td.code p,
 #spaces .footer textarea.code{font-family:var(--fontMonospace);white-space:pre}
+#spaces .footer .terminal textarea{font-family:var(--fontMonospace);white-space:pre-wrap}
 #spaces .footer textarea.code{overflow-x:scroll}
 #spaces .footer textarea.text{font-family:var(--fontText);overflow-x:hidden;white-space:break-spaces}
 #spaces .message-content .prior strong,
@@ -403,6 +432,14 @@ body.login #spaces{padding:2.5em 0 0}
 
 /* tutorial */
 #tutorial-screen{height:100%;left:0;opacity:0.7;position:absolute;top:0;width:100%;z-index:9999}
+
+/* terminal */
+#spaces .terminal-list{min-height:100%;margin:0;padding:0;width:100%}
+#spaces .terminal-list li{display:block;font-family:var(--fontMonospace);font-size:var(--textSize);height:1em;letter-spacing:0.1em;list-style:none;white-space:pre}
+#spaces .terminal-list .underline{text-decoration:underline}
+#spaces .terminal-list .bold{font-weight:bold;letter-spacing:0.1em}
+#spaces .terminal-list .italic{font-style:italic}
+#spaces .terminal-cwd{font-size:var(--textSize)}
 
 /* scrollbar - blink, webkit */
 #spaces *::-webkit-scrollbar-thumb{border-style:solid;border-width:0.1em}

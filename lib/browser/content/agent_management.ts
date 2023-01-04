@@ -20,8 +20,8 @@ const agent_management = {
             let li:HTMLElement,
                 input:HTMLInputElement,
                 label:HTMLElement,
-                text:Text,
                 p:HTMLElement,
+                strong:HTMLElement,
                 h4:HTMLElement,
                 names:string[],
                 length:number,
@@ -36,20 +36,19 @@ const agent_management = {
                         li.setAttribute("class", "summary");
                         label = document.createElement("label");
                         input = document.createElement("input");
-                        text = document.createTextNode(browser[agentNames.agentType][agentNames.agent].name);
                         input.type = "checkbox";
                         input.value = agentNames.agent;
                         input.setAttribute("data-type", agentNames.agentType);
                         input.onclick = agent_management.events.deleteToggle;
                         label.appendChild(input);
-                        label.appendChild(text);
+                        label.appendText(browser[agentNames.agentType][agentNames.agent].name);
                         li.appendChild(label);
                         ul.appendChild(li);
                     }
                 },
                 perAgentType: function browser_content_agentManagement_deleteAgents_perAgentType(agentNames:agentNames):void {
                     h4 = document.createElement("h4");
-                    h4.innerHTML = `${common.capitalize(agentNames.agentType)}s`;
+                    h4.appendText(`${common.capitalize(agentNames.agentType)}s`);
                     names = Object.keys(browser[agentNames.agentType]);
                     length = names.length;
                     content.appendChild(h4);
@@ -57,7 +56,7 @@ const agent_management = {
                     if ((agentNames.agentType === "device" && length < 2) || (agentNames.agentType !== "device" && length < 1)) {
                         p = document.createElement("p");
                         p.setAttribute("class", "summary");
-                        p.innerHTML = `No ${agentNames.agentType}s to delete.`;
+                        p.appendText(`No ${agentNames.agentType}s to delete.`);
                         content.appendChild(p);
                     } else {
                         ul = document.createElement("ul");
@@ -68,9 +67,12 @@ const agent_management = {
             });
             if (total > 1) {
                 p = document.createElement("p");
-                p.innerHTML = "<strong>Please be warned that confirming these change is permanent.</strong> Confirming any selected changes will remove the relationship both locally and on the remote devices/users.";
+                strong = document.createElement("strong");
+                strong.appendText("Please be warned that confirming these change is permanent.");
+                p.appendChild(strong);
+                p.appendText(" Confirming any selected changes will remove the relationship both locally and on the remote devices/users.");
                 content.insertBefore(p, content.firstChild);
-                h3.innerHTML = "Delete Agents";
+                h3.appendText("Delete Agents");
                 content.insertBefore(h3, content.firstChild);
             }
             return content;
@@ -80,6 +82,8 @@ const agent_management = {
         inviteRemote: function browser_content_agentManagement_inviteRemote(invitation:service_invite, name:string):HTMLElement {
             const div:HTMLElement = document.createElement("div"),
                 agentInvite:agentInvite = invitation.agentRequest,
+                strong:HTMLElement = document.createElement("strong"),
+                em:HTMLElement = document.createElement("em"),
                 ip:string = (agentInvite.ipSelected.indexOf(":") < 0)
                     ? `${agentInvite.ipSelected}:${agentInvite.ports.http}`
                     : `[${agentInvite.ipSelected}]:${agentInvite.ports.http}`;
@@ -88,16 +92,22 @@ const agent_management = {
                 textarea:HTMLTextAreaElement = document.createElement("textarea");
 
             div.setAttribute("class", "agentInvitation");
-            text.innerHTML = `${common.capitalize(invitation.type)} <strong>${name}</strong> from ${ip} is inviting you to share.`;
+            strong.appendText(name);
+            text.appendText(`${common.capitalize(invitation.type)} `);
+            text.appendChild(strong);
+            text.appendText(` from ${ip} is inviting you to share.`);
             div.appendChild(text);
             text = document.createElement("p");
-            label.innerHTML = `${name} said:`;
+            label.appendText(`${name} said:`);
             textarea.value = invitation.message;
             label.appendChild(textarea);
             text.appendChild(label);
             div.appendChild(text);
             text = document.createElement("p");
-            text.innerHTML = "Press the <em>Confirm</em> button to accept the invitation or close this modal to ignore it.";
+            em.appendText("Confirm");
+            text.appendText("Press the ");
+            text.appendChild(em);
+            text.appendText(" button to accept the invitation or close this modal to ignore it.");
             div.appendChild(text);
             return div;
         },
@@ -108,7 +118,7 @@ const agent_management = {
                 separator:string = "|spaces|",
                 blur = function browser_content_agentManagement_inviteStart_blur(focusEvent:FocusEvent):void {
                     const element:HTMLElement = focusEvent.target,
-                        box:HTMLElement = element.getAncestor("box", "class"),
+                        box:modal = element.getAncestor("box", "class"),
                         id:string = box.getAttribute("id"),
                         inputs:HTMLCollectionOf<HTMLInputElement> = box.getElementsByTagName("input"),
                         textArea:HTMLTextAreaElement = box.getElementsByTagName("textarea")[0];
@@ -122,7 +132,7 @@ const agent_management = {
                             ? document.createElement("textarea")
                             : document.createElement("input");
                     p = document.createElement("p");
-                    label.innerHTML = labelText;
+                    label.appendText(labelText);
                     input.setAttribute("type", "text");
                     input.onblur = blur;
                     input.setAttribute("class", (labelText.indexOf("Message") > 0)
@@ -139,11 +149,11 @@ const agent_management = {
                 h4:HTMLElement = document.createElement("h4"),
                 section:HTMLElement = document.createElement("div");
 
-            h3.innerHTML = "Invite An Agent";
+            h3.appendText("Invite An Agent");
             inviteElement.appendChild(h3);
 
             // Type
-            h4.innerHTML = "Connection Type";
+            h4.appendText("Connection Type");
             section.appendChild(h4);
             util.radioListItem({
                 defaultValue: "User",
@@ -157,14 +167,14 @@ const agent_management = {
             // type description text
             section.setAttribute("class", "section");
             p.setAttribute("class", "type-description");
-            p.innerHTML = "Including a user allows sharing with a different person and the devices they make available.";
+            p.appendText("Including a user allows sharing with a different person and the devices they make available.");
             section.appendChild(p);
             inviteElement.appendChild(section);
 
             section = document.createElement("div");
             section.setAttribute("class", "section");
             h4 = document.createElement("h4");
-            h4.innerHTML = "Connection Details";
+            h4.appendText("Connection Details");
             section.appendChild(h4);
 
             // IP address
@@ -189,9 +199,10 @@ const agent_management = {
                 //     const container:HTMLElement = document.createElement("div"),
                 //         heading:HTMLElement = document.createElement("h4"),
                 //         warning:HTMLElement = document.createElement("p"),
+                //         strong:HTMLElement = document.createElement("strong"),
                 //         list:HTMLElement = document.createElement("ul");
 
-                //     heading.innerHTML = "Display IP Address Information";
+                //     heading.appendText("Display IP Address Information");
                 //     util.radioListItem({
                 //         defaultValue: "No",
                 //         handler: agent_management.events.displayIP,
@@ -199,7 +210,8 @@ const agent_management = {
                 //         name: `agent-ip-display-${Math.random()}`,
                 //         parent: list
                 //     });
-                //     warning.innerHTML = "<strong>Manually modifying IP address data may result in an unrecoverable disconnection.</strong>";
+                //     strong.appendText("Manually modifying IP address data may result in an unrecoverable disconnection.");
+                //     warning.appendChild(strong);
                 //     container.appendChild(heading);
                 //     container.appendChild(warning);
                 //     container.appendChild(list);
@@ -221,7 +233,7 @@ const agent_management = {
                             const li = document.createElement("li");
 
                             // agent hash
-                            p.innerHTML = key;
+                            p.appendText(key);
                             p.setAttribute("class", "modify-agent-hash");
                             li.append(p);
 
@@ -231,7 +243,7 @@ const agent_management = {
                             input.value = browser[agentType][key].name;
                             input.setAttribute("data-agent", key);
                             input.setAttribute("data-type", agentType);
-                            label.innerHTML = "Name";
+                            label.appendText("Name");
                             label.appendChild(input);
                             p.appendChild(label);
                             li.appendChild(p);
@@ -240,7 +252,7 @@ const agent_management = {
                             // p = document.createElement("p");
                             // label = document.createElement("label");
                             // textArea.value = browser[agentType][key].ipAll.IPv6.join(",\n");
-                            // label.innerHTML = "IPv6 Addresses";
+                            // label.appendText("IPv6 Addresses");
                             // label.appendChild(textArea);
                             // p.appendChild(label);
                             // p.style.display = "none";
@@ -252,7 +264,7 @@ const agent_management = {
                             // label = document.createElement("label");
                             // textArea = document.createElement("textarea");
                             // textArea.value = browser[agentType][key].ipAll.IPv4.join(",\n");
-                            // label.innerHTML = "IPv4 Addresses";
+                            // label.appendText("IPv4 Addresses");
                             // label.appendChild(textArea);
                             // p.appendChild(label);
                             // p.style.display = "none";
@@ -261,9 +273,9 @@ const agent_management = {
 
                             return li;
                         };
-                    heading.innerHTML = common.capitalize(agentType);
+                    heading.appendText(common.capitalize(agentType));
                     if (len < 1) {
-                        list.innerHTML = `No agents of type ${agentType}.`;
+                        list.appendText(`No agents of type ${agentType}.`);
                     } else {
                         let index:number = 0;
                         do {
@@ -276,7 +288,7 @@ const agent_management = {
                     container.appendChild(list);
                     div.appendChild(container);
                 };
-            h3.innerHTML = "Edit Agent Names";
+            h3.appendText("Edit Agent Names");
             div.appendChild(h3);
             // div.appendChild(ipSection());
             section("device");
@@ -304,7 +316,7 @@ const agent_management = {
             });
             ul.setAttribute("class", "section");
 
-            h3.innerHTML = "Select An Action";
+            h3.appendText("Select An Action");
             div.appendChild(h3);
             div.appendChild(ul);
             if (view === "delete") {
@@ -395,14 +407,17 @@ const agent_management = {
             const element:HTMLInputElement = event.target as HTMLInputElement,
                 inviteAgent:HTMLElement = element.getAncestor("inviteAgent", "class"),
                 warning:HTMLElement = inviteAgent.getElementsByClassName("inviteWarning")[0] as HTMLElement,
-                description:HTMLElement = inviteAgent.getElementsByClassName("type-description")[0] as HTMLElement;
+                description:HTMLElement = inviteAgent.getElementsByClassName("type-description")[0] as HTMLElement,
+                strong:HTMLElement = document.createElement("strong");
             if (warning !== undefined) {
                 warning.parentNode.removeChild(warning);
             }
             if (element.value === "device") {
-                description.innerHTML = "<strong>Including a personal device will provide unrestricted access to and from that device.</strong> This username will be imposed upon that device.";
+                strong.appendText("Including a personal device will provide unrestricted access to and from that device.");
+                description.appendChild(strong);
+                description.appendText(" This username will be imposed upon that device.");
             } else {
-                description.innerHTML = "Including a user allows sharing with a different person and the devices they make available.";
+                description.appendText("Including a user allows sharing with a different person and the devices they make available.");
             }
             description.style.display = "block";
             configuration.tools.radio(element);
@@ -470,8 +485,20 @@ const agent_management = {
                         agentType:agentType = element.dataset.agenttype as agentType;
                     element = element.getAncestor("button", "tag");
                     share.tools.modal(agent, agentType, null);
+                },
+                status = function browser_content_agentManagement_addUser_status(status:activityStatus):HTMLElement {
+                    let em:HTMLElement = document.createElement("em"),
+                        span:HTMLElement = document.createElement("span");
+                    em.setAttribute("class", `status-${status}`);
+                    em.appendText("●");
+                    span.appendText(` ${common.capitalize(status)}`);
+                    em.appendChild(span);
+                    return em;
                 };
-            button.innerHTML = `<em class="status-active">●<span> Active</span></em><em class="status-idle">●<span> Idle</span></em><em class="status-offline">●<span> Offline</span></em> ${input.name}`;
+            button.appendChild(status("active"));
+            button.appendChild(status("idle"));
+            button.appendChild(status("offline"));
+            button.appendText(` ${input.name}`);
             if (input.hash === browser.data.hashDevice) {
                 button.setAttribute("class", "active");
             } else {
@@ -516,7 +543,7 @@ const agent_management = {
         },
 
         /* Processes agent termination from a delete-agents content of agent-management */
-        confirmDelete: function browser_content_agentManagement_confirmDelete(box:HTMLElement):void {
+        confirmDelete: function browser_content_agentManagement_confirmDelete(box:modal):void {
             const body:HTMLElement = box.getElementsByClassName("body")[0] as HTMLElement,
                 list:HTMLCollectionOf<Element> = body.getElementsByTagName("li"),
                 manage:service_agentManagement = {
@@ -546,7 +573,7 @@ const agent_management = {
                     parent = document.getElementById(hash).parentNode;
                     if (list[a].parentNode.childNodes.length < 2) {
                         subtitle = document.createElement("p");
-                        subtitle.innerHTML = `No ${type}s to delete.`;
+                        subtitle.appendText(`No ${type}s to delete.`);
                         subtitle.setAttribute("class", "summary");
                         list[a].parentNode.parentNode.insertBefore(subtitle, list[a].parentNode);
                         list[a].parentNode.parentNode.removeChild(list[a].parentNode);
@@ -574,7 +601,7 @@ const agent_management = {
                 port:string,
                 portNumber:number;
             const element:HTMLElement = event.target,
-                box:HTMLElement = element.getAncestor("box", "class"),
+                box:modal = element.getAncestor("box", "class"),
                 body:HTMLElement = box.getElementsByClassName("body")[0] as HTMLElement,
                 content:HTMLElement = body.getElementsByClassName("inviteAgent")[0] as HTMLElement,
                 input:HTMLElement = (function browser_content_agentManagement_confirmInvite_input():HTMLElement {
@@ -680,10 +707,12 @@ const agent_management = {
             network.configuration();
             if (input !== null) {
                 const p:HTMLElement = input.parentNode.parentNode,
-                    warning:HTMLElement = document.createElement("p");
+                    warning:HTMLElement = document.createElement("p"),
+                    strong:HTMLElement = document.createElement("strong");
                 p.setAttribute("class", "warning");
                 input.focus();
-                warning.innerHTML = "<strong>Please select an invitation type.</strong>";
+                strong.appendText("Please select an invitation type.");
+                warning.appendChild(strong);
                 warning.setAttribute("class", "inviteWarning");
                 p.parentNode.appendChild(warning);
                 return;
@@ -700,7 +729,7 @@ const agent_management = {
         /* Handle confirmation of changes to agent data. */
         confirmModify: function browser_content_agentManagement_confirmModify(event:MouseEvent):void {
             const target:HTMLElement = event.target,
-                box:HTMLElement = target.getAncestor("box", "class"),
+                box:modal = target.getAncestor("box", "class"),
                 boxes:HTMLCollectionOf<HTMLDivElement> = document.getElementsByClassName("box") as HTMLCollectionOf<HTMLDivElement>,
                 modify:HTMLElement = box.getElementsByClassName("modify-agents")[0] as HTMLElement,
                 inputs:HTMLCollectionOf<HTMLInputElement> = modify.getElementsByTagName("input"),
@@ -730,7 +759,7 @@ const agent_management = {
                             button = boxes[boxLen].getElementsByTagName("button")[0];
                             text = button.innerHTML;
                             text = text.slice(0, text.indexOf(typeString) + typeString.length) + name;
-                            button.innerHTML = text;
+                            button.appendText(text);
                             browser.data.modals[id].title = text;
                         }
                     } while (boxLen > 0);
@@ -815,7 +844,7 @@ const agent_management = {
         deleteShare: function browser_content_agentManagement_deleteShare(event:MouseEvent):void {
             const element:HTMLElement = event.target,
                 parent:HTMLElement = element.parentNode,
-                box:HTMLElement = parent.getAncestor("box", "class"),
+                box:modal = parent.getAncestor("box", "class"),
                 agent:string = (function browser_content_agentManagement_deleteShare_agency():string {
                     const boxAgent:agency = util.getAgent(box);
                     if (boxAgent[0] === null || boxAgent[0] === "") {
@@ -855,8 +884,12 @@ const agent_management = {
             } while (a < length);
             if (length === 1) {
                 const p:HTMLElement = document.createElement("p"),
-                    granny:HTMLElement = parent.parentNode;
-                p.innerHTML = `Device <em>${browser.device[agent].name}</em> has no shares.`;
+                    granny:HTMLElement = parent.parentNode,
+                    em:HTMLElement = document.createElement("em");
+                em.appendText(browser.device[agent].name);
+                p.appendText("Device ");
+                p.appendChild(em);
+                p.appendText(" has no shares.");
                 granny.parentNode.insertBefore(p, granny);
                 granny.parentNode.removeChild(granny);
             } else {
@@ -868,7 +901,7 @@ const agent_management = {
         },
 
         /* Accept an invitation, handler on a modal's confirm button */
-        inviteAccept: function browser_content_agentManagement_inviteAccept(box:HTMLElement):void {
+        inviteAccept: function browser_content_agentManagement_inviteAccept(box:modal):void {
             const div:HTMLElement = box.getElementsByClassName("agentInvitation")[0] as HTMLElement,
                 invitation:service_invite = JSON.parse(div.dataset.invitation);
             invitation.action = "invite-response";
@@ -893,14 +926,14 @@ const agent_management = {
                     inviteAgent:HTMLElement = modal.getElementsByClassName("inviteAgent")[0] as HTMLElement,
                     prepOutput = function browser_content_agentManagement_inviteComplete_prepOutput(output:HTMLElement):void {
                         if (invitation.status === "accepted") {
-                            output.innerHTML = "Invitation accepted!";
+                            output.appendText("Invitation accepted!", true);
                             output.setAttribute("class", "accepted");
                             util.audio("invite");
                         } else if (invitation.status === "declined") {
-                            output.innerHTML = "Invitation declined. :(";
+                            output.appendText("Invitation declined. :(", true);
                             output.setAttribute("class", "error");
                         } else if (invitation.status === "ignored") {
-                            output.innerHTML = "Invitation ignored.";
+                            output.appendText("Invitation ignored.", true);
                             output.setAttribute("class", "error");
                         }
                     };
@@ -932,6 +965,7 @@ const agent_management = {
                     agent: browser.data.hashDevice,
                     agentIdentity: false,
                     agentType: "device",
+                    closeHandler: agent_management.events.inviteDecline,
                     content: content,
                     height: 300,
                     inputs: ["cancel", "confirm", "close"],
@@ -1021,9 +1055,9 @@ const agent_management = {
                         if (shareLength > 0) {
                             do {
                                 shareLength = shareLength - 1;
-                                if ((shareModals[shareLength].dataset.agent === agentName && shareModals[shareLength].dataset.agenttype === agentType) || (agentType === "" && shareModals[shareLength].getElementsByTagName("button")[0].innerHTML === "⌘ All Shares")) {
+                                if ((shareModals[shareLength].dataset.agent === agentName && shareModals[shareLength].dataset.agenttype === agentType) || (agentType === "" && shareModals[shareLength].getElementsByTagName("button")[0].firstChild.textContent === "⌘ All Shares")) {
                                     body = shareModals[shareLength].getElementsByClassName("body")[0] as HTMLElement;
-                                    body.innerHTML = "";
+                                    body.appendText("", true);
                                     body.appendChild(share.content(agentName, agentType));
                                 }
                             } while (shareLength > 0);

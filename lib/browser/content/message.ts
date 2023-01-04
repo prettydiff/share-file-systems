@@ -15,8 +15,8 @@ import util from "../utilities/util.js";
  * ```typescript
  * interface module_message {
  *     content: {
- *         footer: (mode:messageMode, value:string) => HTMLElement;                                    // Called from modal.create to supply the footer area modal content.
- *         modal : (configuration:config_modal, agentType:agentType, agentName:string) => HTMLElement; // Generates a message modal.
+ *         footer: (mode:messageMode, value:string) => HTMLElement;                              // Called from modal.create to supply the footer area modal content.
+ *         modal : (configuration:config_modal, agentType:agentType, agentName:string) => modal; // Generates a message modal.
  *     };
  *     events: {
  *         keySubmit  : (event:KeyboardEvent) => void;            // Submits a text message on key press, such as pressing the 'Enter' key.
@@ -37,70 +37,92 @@ const message:module_message = {
 
     /* Render a message modal */
     content: {
-        modal: function browser_content_message_content(configuration:config_modal, agentType:agentType, agentFrom:string):HTMLElement {
-            let modalElement:HTMLElement,
-                footer:HTMLElement;
+        modal: function browser_content_message_content(configuration:config_modal, agentType:agentType, agentFrom:string):modal {
             const content:HTMLElement = document.createElement("div"),
+                footer:HTMLElement = document.createElement("div"),
                 table:HTMLElement = document.createElement("table"),
-                p:HTMLElement = document.createElement("p"),
-                span:HTMLElement = document.createElement("span"),
-                inputCode:HTMLInputElement = document.createElement("input"),
-                inputText:HTMLInputElement = document.createElement("input"),
-                labelCode:HTMLElement = document.createElement("label"),
-                labelText:HTMLElement = document.createElement("label"),
-                textCode:Text = document.createTextNode("Code Mode"),
-                textText:Text = document.createTextNode("Text Mode"),
-                name:string = `message-${Math.random()}-mode`;
-            if (configuration === null) {
-                const identity:boolean = (agentFrom !== browser.data.hashDevice),
-                    title:string = (identity === true)
-                        ? "💬 Text Message to"
-                        : `💬 Text Message to all ${agentType}s`;
-                configuration = {
-                    agent: agentFrom,
-                    agentIdentity: identity,
-                    agentType: agentType,
-                    content: null,
-                    inputs: ["close", "maximize", "minimize"],
-                    read_only: false,
-                    status_text: "",
-                    text_placeholder: "text",
-                    text_value: "",
-                    title: title,
-                    type: "message",
-                    width: 800
-                };
-            }
+                button:HTMLElement = document.createElement("button"),
+                pButton:HTMLElement = document.createElement("p"),
+                pToggle:HTMLElement = document.createElement("p"),
+                spanClear:HTMLElement = document.createElement("span"),
+                spanToggle:HTMLElement = document.createElement("span"),
+                spanTextArea:HTMLElement = document.createElement("span"),
+                textArea:HTMLTextAreaElement = document.createElement("textarea"),
+                label:HTMLElement = document.createElement("label"),
+                inputControl = function browser_content_message_content_input(type:"code"|"text"):void {
+                    const input:HTMLInputElement = document.createElement("input"),
+                        label:HTMLElement = document.createElement("label");
+                    if (modalConfig.text_placeholder === type) {
+                        input.checked = true;
+                    }
+                    input.name = name;
+                    input.onclick = message.events.modeToggle;
+                    input.type = "radio";
+                    input.value = type;
+                    label.appendChild(input);
+                    label.appendText(`${common.capitalize(type)} Mode`);
+                    pToggle.appendChild(label);
+                },
+                name:string = `message-${Math.random()}-mode`,
+                identity:boolean = (agentFrom !== browser.data.hashDevice),
+                modalConfig:config_modal = (configuration === null)
+                    ? {
+                        agent: agentFrom,
+                        agentIdentity: identity,
+                        agentType: agentType,
+                        content: null,
+                        footer: null,
+                        inputs: ["close", "maximize", "minimize"],
+                        read_only: false,
+                        text_placeholder: "text",
+                        text_value: "",
+                        title: (identity === true)
+                            ? "💬 Text Message to"
+                            : `💬 Text Message to all ${agentType}s`,
+                        type: "message",
+                        width: 800
+                    }
+                    : configuration;
             table.setAttribute("class", "message-content");
             table.appendChild(document.createElement("tbody"));
             content.appendChild(table);
-            configuration.content = content;
-            modalElement = modal.content(configuration);
 
-            p.setAttribute("class", "message-toggle");
-            if (configuration.text_placeholder === "text") {
-                inputText.checked = true;
+            inputControl("text");
+            inputControl("code");
+            pToggle.setAttribute("class", "message-toggle");
+            pToggle.appendChild(spanToggle);
+            footer.appendChild(pToggle);
+
+            textArea.onmouseup = modal.events.footerResize;
+            textArea.onblur = modal.events.textSave;
+            textArea.onkeyup = modal.events.textTimer;
+            textArea.placeholder = "Write a message.";
+            textArea.value = modalConfig.text_value;
+            textArea.setAttribute("class", modalConfig.text_placeholder);
+            if (modalConfig.text_placeholder === "code") {
+                textArea.onkeyup = null;
             } else {
-                inputCode.checked = true;
+                textArea.onkeyup = message.events.keySubmit;
             }
-            inputText.name = name;
-            inputText.onclick = message.events.modeToggle;
-            inputText.type = "radio";
-            inputText.value = "text";
-            labelText.appendChild(inputText);
-            labelText.appendChild(textText);
-            p.appendChild(labelText);
-            inputCode.name = name;
-            inputCode.onclick = message.events.modeToggle;
-            inputCode.type = "radio";
-            inputCode.value = "code";
-            labelCode.appendChild(inputCode);
-            labelCode.appendChild(textCode);
-            p.appendChild(labelCode);
-            p.appendChild(span);
-            footer = modalElement.getElementsByClassName("footer")[0] as HTMLElement;
-            footer.insertBefore(p, footer.firstChild);
-            return modalElement;
+            label.setAttribute("class", "textPad");
+            spanTextArea.appendText("Write a message.");
+            label.appendChild(spanTextArea);
+            label.appendChild(textArea);
+            button.appendText("✉ Send Message");
+            button.setAttribute("class", "confirm");
+            button.setAttribute("type", "button");
+            button.onclick = message.events.submit;
+            pButton.appendChild(button);
+            pButton.setAttribute("class", "footer-buttons");
+            footer.setAttribute("class", "footer");
+            footer.appendChild(label);
+            footer.appendChild(pButton);
+            spanClear.setAttribute("class", "clear");
+            footer.appendChild(spanClear);
+
+            modalConfig.content = content;
+            modalConfig.footer = footer;
+            return modal.content(modalConfig);
         },
 
         /* Called from modal.create to supply the footer area modal content */
@@ -124,10 +146,10 @@ const message:module_message = {
                 textArea.onkeyup = message.events.keySubmit;
             }
             label.setAttribute("class", "textPad");
-            span.innerHTML = "Write a message.";
+            span.appendText("Write a message.");
             label.appendChild(span);
             label.appendChild(textArea);
-            button.innerHTML = "✉ Send Message";
+            button.appendText("✉ Send Message");
             button.setAttribute("class", "confirm");
             button.setAttribute("type", "button");
             button.onclick = message.events.submit;
@@ -147,7 +169,7 @@ const message:module_message = {
         /* Submits a text message on key press, such as pressing the 'Enter' key. */
         keySubmit: function browser_content_message_keySubmit(event:KeyboardEvent):void {
             const input:HTMLTextAreaElement = event.target as HTMLTextAreaElement,
-                box:HTMLElement = input.getAncestor("box", "class"),
+                box:modal = input.getAncestor("box", "class"),
                 id:string = box.getAttribute("id"),
                 keyboardEvent:KeyboardEvent = window.event as KeyboardEvent,
                 key:string = keyboardEvent.key.toLowerCase();
@@ -159,10 +181,9 @@ const message:module_message = {
                     agentFrom:string = (agency[2] === "device")
                         ? browser.data.hashDevice
                         : browser.data.hashUser;
-                // using the modal's timer property to store scroll message history
-                let step:number = (browser.data.modals[id].timer === undefined)
+                let step:number = (browser.data.modals[id].historyIndex === undefined)
                     ? total
-                    : browser.data.modals[id].timer;
+                    : browser.data.modals[id].historyIndex;
                 if (key === "arrowup") {
                     if (step > 0) {
                         do {
@@ -170,7 +191,7 @@ const message:module_message = {
                         } while (step > -1 && (browser.message[step].agentType !== agency[2] || browser.message[step].agentTo !== agency[0] || browser.message[step].agentFrom !== agentFrom));
                         if (step > -1 && browser.message[step].agentType === agency[2] && browser.message[step].agentTo === agency[0] && browser.message[step].agentFrom === agentFrom) {
                             input.value = browser.message[step].message;
-                            browser.data.modals[id].timer = step;
+                            browser.data.modals[id].historyIndex = step;
                         }
                     }
                 } else {
@@ -179,28 +200,28 @@ const message:module_message = {
                             step = step + 1;
                         } while (step < total && (browser.message[step].agentType !== agency[2] || browser.message[step].agentTo !== agency[0] || browser.message[step].agentFrom !== agentFrom));
                         if (step === total) {
-                            input.value = browser.data.modals[id].status_text;
-                            browser.data.modals[id].timer = total;
+                            input.value = browser.data.modals[id].text_value;
+                            browser.data.modals[id].historyIndex = total;
                         } else if (browser.message[step].agentType === agency[2] && browser.message[step].agentTo === agency[0] && browser.message[step].agentFrom === agentFrom) {
                             input.value = browser.message[step].message;
-                            browser.data.modals[id].timer = step;
+                            browser.data.modals[id].historyIndex = step;
                         }
                     }
                 }
             } else {
-                browser.data.modals[id].status_text = input.value;
+                browser.data.modals[id].text_value = input.value;
             }
         },
 
         /* Toggle message textarea input between text input and code input preferences */
         modeToggle: function browser_content_message_modeToggle(event:Event):void {
             const element:HTMLInputElement = event.target as HTMLInputElement,
-                box:HTMLElement = element.getAncestor("box", "class"),
+                box:modal = element.getAncestor("box", "class"),
                 id:string = box.getAttribute("id"),
                 textarea:HTMLTextAreaElement = box.getElementsByClassName("footer")[0].getElementsByTagName("textarea")[0],
                 value:messageMode = element.value as messageMode;
             browser.data.modals[id].text_placeholder = value;
-            browser.data.modals[id].status_text = textarea.value;
+            browser.data.modals[id].text_value = textarea.value;
             configuration.tools.radio(element);
             if (value === "code") {
                 textarea.onkeyup = null;
@@ -218,7 +239,7 @@ const message:module_message = {
                     ? element
                     : element.parentNode,
                 className:string = source.getAttribute("class"),
-                box:HTMLElement = element.getAncestor("box", "class"),
+                box:modal = element.getAncestor("box", "class"),
                 grandParent:HTMLElement = source.parentNode.parentNode,
                 agentAttribute:string = box.dataset.agent,
                 agentHash:string = (agentAttribute === "")
@@ -251,7 +272,7 @@ const message:module_message = {
         submit: function browser_content_message_submit(event:KeyboardEvent|MouseEvent):void {
             const element:HTMLElement = event.target,
                 agency:agency = util.getAgent(element),
-                box:HTMLElement = element.getAncestor("box", "class"),
+                box:modal = element.getAncestor("box", "class"),
                 footer:HTMLElement = element.getAncestor("footer", "class"),
                 textArea:HTMLTextAreaElement = footer.getElementsByTagName("textarea")[0],
                 payload:message_item = {
@@ -264,8 +285,7 @@ const message:module_message = {
                     message: textArea.value,
                     mode: textArea.getAttribute("class") as messageMode
                 };
-            // using timer property to store value scroll history, which doesn't need to be saved but does need to be voided on submission
-            delete browser.data.modals[box.getAttribute("id")].timer;
+            delete browser.data.modals[box.getAttribute("id")].historyIndex;
             if (agency[2] === "user" && agency[0] === browser.data.hashUser) {
                 payload.agentTo = "user";
             } else if (agency[2] === "device" && agency[0] === browser.data.hashDevice) {
@@ -337,7 +357,7 @@ const message:module_message = {
                     return String.fromCodePoint(Number(reference.replace("&#x", "0x").replace(";", "")));
                 },
                 // adds the constructed message to a message modal
-                writeMessage = function browser_content_message_post_writeMessage(box:HTMLElement):void {
+                writeMessage = function browser_content_message_post_writeMessage(box:modal):void {
                     const tbody:HTMLElement = box.getElementsByClassName("message-content")[0].getElementsByTagName("tbody")[0],
                         posts:HTMLCollectionOf<HTMLTableRowElement> = tbody.getElementsByTagName("tr"),
                         postsLength:number = posts.length;
@@ -375,14 +395,14 @@ const message:module_message = {
                 writeTest:boolean = (browser.loading === true || modalId !== ""),
                 modalAgent:string,
                 messageText:string = (item.mode === "code")
-                ? `<p>${item.message}</p>`
-                : `<p>${item.message
-                    .replace(/^\s+/, "")
-                    .replace(/\s+$/, "")
-                    .replace(/(?<!\\)(\\u[0-9a-f]{4})+/g, unicode)
-                    .replace(/&#\d+;/g, decimal)
-                    .replace(/&#x[0-9a-f]+;/, html)
-                    .replace(/(\r?\n)+/g, "</p><p>")}</p>`;
+                    ? `<p>${item.message}</p>`
+                    : `<p>${item.message
+                        .replace(/^\s+/, "")
+                        .replace(/\s+$/, "")
+                        .replace(/(?<!\\)(\\u[0-9a-f]{4})+/g, unicode)
+                        .replace(/&#\d+;/g, decimal)
+                        .replace(/&#x[0-9a-f]+;/, html)
+                        .replace(/(\r?\n)+/g, "</p><p>")}</p>`;
             if (item.mode === "text") {
                 const strings:string[] = messageText.split("http"),
                     stringsLength:number = strings.length;
@@ -411,15 +431,38 @@ const message:module_message = {
                     messageText = strings.join("");
                 }
             }
+            // eslint-disable-next-line
             messageCell.innerHTML = messageText;
             messageCell.setAttribute("class", item.mode);
             tr.setAttribute("data-agentFrom", item.agentFrom);
             if (item.agentType === "user" && item.agentFrom === browser.data.hashUser) {
-                meta.innerHTML = `<strong>${browser.data.nameUser}</strong> <em>${common.dateFormat(date)}</em>`;
+                const strong:HTMLElement = document.createElement("strong"),
+                    em:HTMLElement = document.createElement("em");
+                strong.appendText(browser.data.nameUser);
+                em.appendText(common.dateFormat(date));
+                meta.appendChild(strong);
+                meta.appendText(" ");
+                meta.appendChild(em);
             } else if (item.agentType === "device" && item.agentFrom === browser.data.hashDevice) {
-                meta.innerHTML = `<strong>${browser.data.nameDevice}</strong> <em>${common.dateFormat(date)}</em>`;
+                const strong:HTMLElement = document.createElement("strong"),
+                    em:HTMLElement = document.createElement("em");
+                strong.appendText(browser.data.nameDevice);
+                em.appendText(common.dateFormat(date));
+                meta.appendChild(strong);
+                meta.appendText(" ");
+                meta.appendChild(em);
             } else {
-                meta.innerHTML = `<span>${common.capitalize(item.agentType)}</span> <strong>${browser[item.agentType][item.agentFrom].name}</strong> <em>${common.dateFormat(date)}</em>`;
+                const strong:HTMLElement = document.createElement("strong"),
+                    em:HTMLElement = document.createElement("em"),
+                    span:HTMLElement = document.createElement("span");
+                span.appendText(common.capitalize(item.agentType));
+                strong.appendText(browser[item.agentType][item.agentFrom].name);
+                em.appendText(common.dateFormat(date));
+                meta.appendChild(span);
+                meta.appendText(" ");
+                meta.appendChild(strong);
+                meta.appendText(" ");
+                meta.appendChild(em);
             }
             tr.appendChild(meta);
             tr.appendChild(messageCell);
@@ -444,7 +487,7 @@ const message:module_message = {
     
             // creates a new message modal if none matched
             if (writeTest === false) {
-                const messageModal:HTMLElement = message.content.modal(null, item.agentType, item.agentFrom);
+                const messageModal:modal = message.content.modal(null, item.agentType, item.agentFrom);
                 writeMessage(messageModal);
             }
         },
@@ -457,7 +500,7 @@ const message:module_message = {
                 target:messageTarget = ((agentType === "user" && agentFrom === browser.data.hashUser) || (agentType === "device" && agentFrom === browser.data.hashDevice))
                     ? "agentTo"
                     : "agentFrom";
-            document.getElementById("message-update").innerHTML = messageData[0].message;
+            document.getElementById("message-update").appendText(messageData[0].message, true);
             messageData.forEach(function browser_socketMessage_messagePost_each(item:message_item):void {
                 message.tools.post(item, target, "");
             });

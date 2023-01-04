@@ -17,6 +17,7 @@ let nameDevice:string;
  *         domain      : string[];              // supported domains that resolves to a localhost IP
  *         git_hash    : string;                // dynamically populated static value of hash from prior git commit at latest build
  *         module_type : "commonjs" | "module"  // the type of module system the application is currently using
+ *         log         : string[]               // a storage of console.log items
  *         name        : string;                // a static name of the application
  *         startTime   : bigint;                // nanosecond precision time the application starts for measuring execution performance
  *         version     : string;                // dynamically populated static value of application version number string
@@ -81,6 +82,7 @@ const vars:module_terminalVariables = {
         date: "",
         git_hash: "",
         module_type: "module",
+        log: [],
         name: "Share File Systems",
         startTime: process.hrtime.bigint(),
         version: ""

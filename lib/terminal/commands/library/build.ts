@@ -22,7 +22,7 @@ import testListRunner from "../../test/application/runner.js";
 import typescript from "./typescript.js";
 import vars from "../../utilities/vars.js";
 
-// cspell:words centos, certfile, certname, certutil, cygwin, eslintignore, gitignore, keychain, keychains, libcap, libnss, libnss3, npmignore, pacman, setcap
+// cspell:words centos, certfile, certname, certutil, cygwin, eslintignore, gitignore, keychain, keychains, libcap, libnss, libnss3, noconfirm, npmignore, pacman, setcap
 
 // build/test system
 const build = function terminal_commands_library_build(config:config_command_build, callback:commandCallback):void {
@@ -1218,7 +1218,7 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                             }
                                         });
                                     },
-                                    toolInstall = function terminal_commands_library_build_osSpecific_distribitions_toolInstall(toolName:"toolCAP"|"toolNSS"):void {
+                                    toolInstall = function terminal_commands_library_build_osSpecific_distributions_toolInstall(toolName:"toolCAP"|"toolNSS"):void {
                                         if (flags[toolName] === true) {
                                             error([`Error: Not able to download tool ${vars.text.angry + tools[toolName][dist] + vars.text.none}`]);
                                         } else {

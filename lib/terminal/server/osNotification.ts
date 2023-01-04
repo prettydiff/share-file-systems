@@ -16,7 +16,6 @@ const osNotification = function terminal_server_osNotification():void {
         // 3. If so then executes the flash on the window associated with that handle
         // 4. If not then resolves the parent process ID for the given process ID and then repeats steps 2 and 3
 
-        // eslint-disable-next-line
         keys.forEach(function terminal_server_osNotification_wsClients(agent:string):void {
             // this flash function stores the powershell instruction to flash a window in the task bar
             // * please note that this is a C# instruction passed through powershell as a template and powershell template instructions cannot be preceded by white space

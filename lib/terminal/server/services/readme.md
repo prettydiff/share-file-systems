@@ -17,3 +17,4 @@ These files are libraries that comprise */lib/terminal/server.ts* **which in tur
 * **[invite.ts](invite.ts)**                     - Manages the order of invitation related processes for traffic across the internet.
 * **[message.ts](message.ts)**                   - Process and send text messages.
 * **[settings.ts](settings.ts)**                 - A library for writing data to settings.
+* **[terminal.ts](terminal.ts)**                 - Processes terminal console messaging for remote devices and display to the user in a browser.

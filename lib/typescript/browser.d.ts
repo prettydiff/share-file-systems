@@ -169,6 +169,11 @@ interface invite_saved {
     type: agentType;
 }
 
+interface modal extends HTMLElement {
+    timer?: number;
+    socket?: WebSocket;
+}
+
 /**
  * A collection of methods for resizing a modal from different respective sides/corners.
  * ```typescript
@@ -195,25 +200,6 @@ interface modal_borderMethods {
 }
 
 /**
- * Input for generating and appending buttons to modals.
- * ```typescript
- * interface modal_button {
- *     class: string;
- *     event: (event:MouseEvent) => void;
- *     parent: Element;
- *     text: string;
- *     title: string;
- * }
- * ``` */
-interface modal_button {
-    class: string;
-    event: (event:MouseEvent) => void;
-    parent: Element;
-    text: string;
-    title: string;
-}
-
-/**
  * This generally describes the method list available to browser network receiver.
  * ```typescript
  * interface postActions {
@@ -222,6 +208,19 @@ interface modal_button {
  * ``` */
 interface network_actions {
     [key:string]: (socketData:socketData) => void;
+}
+
+/**
+ * A means to step through entries to the browser terminal.
+ * ```typescript
+ * interface terminal_scroll {
+ *     position: number;
+ *     entries: number[]
+ * }
+ * ``` */
+interface terminal_scroll {
+    position: number;
+    entries: number[];
 }
 
 /**

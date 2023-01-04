@@ -312,6 +312,28 @@ interface service_settings {
 }
 
 /**
+ * A console command to enter as input to an operating system command terminal.
+ * ```typescript
+ * interface service_terminal {
+ *     agentRequest: agentNames;
+ *     agentSource: agentNames;
+ *     autocomplete: number;
+ *     directory: string;
+ *     id: string;
+ *     instruction: string;
+ *     logs: string[];
+ * }
+ * ``` */
+interface service_terminal {
+    agentRequest: agentNames;
+    agentSource: agentNames;
+    autoComplete: number;
+    directory: string;
+    id: string;
+    instruction: string;
+    logs: string[];
+}
+/**
  * The data object for transferring browser test automation items across the network.
  * ```typescript
  * interface service_testBrowser {

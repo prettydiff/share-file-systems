@@ -730,9 +730,9 @@ const transmit_ws:module_transmit_ws = {
                     handshake = function terminal_server_transmission_transmitWs_server_connection_handshake(data:Buffer):void {
                         let hashName:string = null,
                             type:socketType = null,
-                            hashKey:string = null;
-                        const browserNonce:string = `Sec-WebSocket-Protocol:browser-${vars.settings.hashDevice}`,
-                            testNonce:string = "Sec-WebSocket-Protocol:browser-test-browser",
+                            hashKey:string = null,
+                            nonceHeader:string = null;
+                        const testNonce:RegExp = (/^Sec-WebSocket-Protocol:\s*((browser)|(media)|(terminal))-/),
                             dataString:string = data.toString(),
                             headerList:string[] = dataString.split("\r\n"),
                             flags:flagList = {
@@ -749,11 +749,7 @@ const transmit_ws:module_transmit_ws = {
                                                 `Sec-WebSocket-Accept: ${hashKey}`
                                             ];
                                         if (type === "browser") {
-                                            if (vars.test.type.indexOf("browser_") === 0) {
-                                                headers.push(testNonce);
-                                            } else {
-                                                headers.push(browserNonce);
-                                            }
+                                            headers.push(nonceHeader);
                                         } else if (type === "test-browser") {
                                             headers.push(`hash: ${hashName}`);
                                         }
@@ -863,11 +859,12 @@ const transmit_ws:module_transmit_ws = {
                                     }
                                     flags.type = true;
                                     headers();
-                                } else if ((/^Sec-WebSocket-Protocol:\s*browser-/).test(header) === true) {
-                                    const noSpace:string = header.replace(/\s+/g, "");
-                                    if (noSpace === browserNonce || (noSpace === testNonce && vars.test.type.indexOf("browser_") === 0)) {
+                                } else if (testNonce.test(header) === true) {
+                                    const noSpace:string = header.replace(/\s+/g, "").replace(testNonce, "");
+                                    if (noSpace === vars.settings.hashDevice || (noSpace === "test-browser" && vars.test.type.indexOf("browser_") === 0)) {
                                         type = "browser";
                                         flags.type = true;
+                                        nonceHeader = header;
                                         headers();
                                     } else {
                                         socket.destroy();
@@ -963,12 +960,10 @@ const transmit_ws:module_transmit_ws = {
                         type: "ws"
                     }).remote.address;
                     config.socket.on("close", function terminal_server_transmission_transmitWs_socketExtension_close():void {
-                        // eslint-disable-next-line
-                        const socketData:websocket_client = this,
-                            configData:config_websocket_openAgent = {
-                                agent: socketData.hash,
+                        const configData:config_websocket_openAgent = {
+                                agent: config.socket.hash,
                                 callback: null,
-                                type: socketData.type as agentType
+                                type: config.socket.type as agentType
                             },
                             delay = function terminal_server_transmission_transmitWs_socketExtension_close_delay():void {
                                 transmit_ws.open.agent(configData);
@@ -1012,20 +1007,18 @@ const transmit_ws:module_transmit_ws = {
                 transmit_ws.clientList.testRemote = config.socket;
             }
             config.socket.on("error", function terminal_server_transmission_transmitWs_socketExtension_socketError(errorMessage:NodeJS.ErrnoException):void {
-                // eslint-disable-next-line
-                const socket:websocket_client = this;
                 if (vars.settings.verbose === true) {
                     error([
-                        `Error on socket of type ${socket.type} at location ${socket.role} with identifier ${socket.hash}.`,
+                        `Error on socket of type ${config.socket.type} at location ${config.socket.role} with identifier ${config.socket.hash}.`,
                         JSON.stringify(errorMessage),
                         JSON.stringify(getAddress({
-                            socket: socket,
+                            socket: config.socket,
                             type: "ws"
                         }))
                     ]);
                 }
-                if (socket.type === "device" || socket.type === "user") {
-                    transmit_ws.agentClose(socket);
+                if (config.socket.type === "device" || config.socket.type === "user") {
+                    transmit_ws.agentClose(config.socket);
                 }
             });
             transmit_ws.listener(config.socket);

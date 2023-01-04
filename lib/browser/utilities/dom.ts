@@ -5,6 +5,7 @@ import browser from "./browser.js";
 
 const dom = function browser_utilities_dom():void {
     // addClass - adds a new class value to an element's class attribute if not already present
+    // * className:string - The name of the class to add.
     const addClass = function browser_utilities_dom_addClass(className:string):void {
             // eslint-disable-next-line
             const element:HTMLElement = this,
@@ -19,6 +20,20 @@ const dom = function browser_utilities_dom():void {
                 element.setAttribute("class", className);
             } else {
                 element.setAttribute("class", `${classy} ${className}`);
+            }
+        },
+        // add text to an DOM element
+        // * text: string - The text string to append.
+        // * empty: boolean (optional) - if true all child nodes will be removed before appending the text string.
+        appendText = function browser_utilities_dom_appendText(text:string, empty?:boolean):void {
+            // eslint-disable-next-line
+            const element:HTMLElement = this;
+            if (empty === true) {
+                // eslint-disable-next-line
+                element.innerHTML = "";
+            }
+            if (text !== "") {
+                element.appendChild(document.createTextNode(text));
             }
         },
         // getAncestor - A method to walk up the DOM towards the documentElement.
@@ -218,6 +233,7 @@ const dom = function browser_utilities_dom():void {
             return output;
         },
         // highlight - Adds a class name to an element where that class name results in a CSS animated outline and focuses the element
+        // * element: HTMLElement (optional) - A specified element to modify, default is the "this" value executed on an element.
         highlight = function browser_utilities_dom_highlight(element?:HTMLElement):void {
             // eslint-disable-next-line
             const item:HTMLElement = (this === document)
@@ -249,10 +265,13 @@ const dom = function browser_utilities_dom():void {
             }
             el.focus();
         },
+        // return a tag's lowercase name.  XML is case sensitive, but HTML returns uppercase tag names
         lowName = function browser_utilities_dom_lowName():string {
             // eslint-disable-next-line
             return this.tagName.toLowerCase();
         },
+        // removes a single class name from an element's class attribute value
+        // * className: string - The name of the class to remove.
         removeClass = function browser_utilities_dom_removeClass(className:string):void {
             // eslint-disable-next-line
             const element:HTMLElement = this,
@@ -271,6 +290,8 @@ const dom = function browser_utilities_dom():void {
                 element.setAttribute("class", classes.join(" "));
             }
         },
+        // removes the "highlight" class name from a given element
+        // * element: HTMLElement (optional) - A specified element to modify, default is the "this" value executed on an element.
         removeHighlight = function browser_utilities_dom_removeHighlight(element?:HTMLElement):void {
             // eslint-disable-next-line
             const item:HTMLElement = (this === document)
@@ -304,6 +325,7 @@ const dom = function browser_utilities_dom():void {
 
     // Ensure dynamically created elements get these methods too
     Element.prototype.addClass               = addClass;
+    Element.prototype.appendText             = appendText;
     Element.prototype.getAncestor            = getAncestor;
     Element.prototype.getElementsByAttribute = getElementsByAttribute;
     Element.prototype.getNodesByType         = getNodesByType;

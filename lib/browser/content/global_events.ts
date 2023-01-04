@@ -7,6 +7,7 @@ import file_browser from "./file_browser.js";
 import modal from "../utilities/modal.js";
 import network from "../utilities/network.js";
 import share from "./share.js";
+import terminal from "./terminal.js";
 import util from "../utilities/util.js";
 
 /**
@@ -23,8 +24,9 @@ import util from "../utilities/util.js";
  *     modal: {
  *         agentManagement: (event:MouseEvent, config?:config_modal) => void;   // Displays agent management modal content from the main menu.
  *         configuration  : (event:MouseEvent) => void;                         // Displays a configuration modal from the main menu.
+ *         terminal       : (event:MouseEvent, config?:config_modal) => void;   // Displays a command terminal modal from the main menu.
  *         export         : (event:MouseEvent) => void;                         // Displays an Import/Export modal from the main menu.
- *         fileNavigate   : (Event:Event, config?: navConfig) => void;          // Displays a File Navigate modal from the main menu.
+ *         fileNavigate   : (Event:Event, config?:navConfig) => void;          // Displays a File Navigate modal from the main menu.
  *         textPad        : (event:KeyboardEvent|MouseEvent, config?:config_modal) => HTMLElement; // Displays a TextPad modal from the main menu.
  *     };
  *     shareAll: (event:MouseEvent) => void;     // Displays a Share modal associated with multiple agents.
@@ -59,7 +61,7 @@ const global_events:module_globalEvents = {
         let text:string = (document.fullscreenElement === null)
             ? "Toggle Fullscreen"
             : "Exit Fullscreen";
-        span.innerHTML = text;
+        span.appendText(text);
         button.title = text;
         button.firstChild.textContent = (document.fullscreenElement === null)
             ? "\u26f6"
@@ -182,7 +184,7 @@ const global_events:module_globalEvents = {
             global_events.menuBlur(event);
             textArea.onblur = modal.events.textSave;
             textArea.value = JSON.stringify(browser.data);
-            span.innerHTML = "Import/Export Settings";
+            span.appendText("Import/Export Settings");
             label.appendChild(span);
             label.appendChild(textArea);
             label.setAttribute("class", "textPad");
@@ -237,11 +239,11 @@ const global_events:module_globalEvents = {
                     agentIdentity: true,
                     agentType: agentType,
                     content: util.delay(),
+                    footer: file_browser.content.footer(800),
                     inputs: ["close", "maximize", "minimize", "text"],
                     read_only: readOnly,
                     selection: {},
                     share: share,
-                    status_bar: true,
                     text_event: file_browser.events.text,
                     text_placeholder: "Optionally type a file system address here.",
                     text_value: location,
@@ -251,6 +253,49 @@ const global_events:module_globalEvents = {
                 };
             global_events.menuBlur(event);
             network.send(payloadNetwork, "file-system");
+            modal.content(payloadModal);
+            document.getElementById("menu").style.display = "none";
+        },
+
+        /* Creates a console modal */
+        terminal: function browser_content_global_terminal(event:MouseEvent, config?:config_modal):void {
+            const content:[HTMLElement, HTMLElement] = terminal.content(),
+                agentName:string = (config === undefined)
+                    ? browser.data.hashDevice
+                    : config.agent,
+                agentType:agentType = (agentName === browser.data.hashDevice)
+                    ? "device"
+                    : config.agentType,
+                payloadModal:config_modal = (config === undefined)
+                    ? {
+                        agent: agentName,
+                        agentIdentity: false,
+                        agentType: agentType,
+                        content: content[0],
+                        footer: content[1],
+                        id: (config === undefined)
+                            ? null
+                            : config.id,
+                        inputs: ["close", "maximize", "minimize"],
+                        read_only: false,
+                        socket: true,
+                        text_value: "",
+                        title: document.getElementById("terminal").innerHTML,
+                        type: "terminal",
+                        width: 800
+                    }
+                    : config,
+                textArea:HTMLTextAreaElement = content[1].getElementsByTagName("textarea")[0];
+            if (config !== undefined) {
+                textArea.value = config.text_value;
+                config.content = content[0];
+                config.footer = content[1];
+                if (typeof config.text_placeholder === "string" && config.text_placeholder !== "") {
+                    config.footer.getElementsByClassName("terminal-cwd")[0].appendText(config.text_placeholder, true);
+                }
+            }
+            textArea.placeholder = "Type a command here. Press 'ins' key for file system auto-completion.";
+            global_events.menuBlur(event);
             modal.content(payloadModal);
             document.getElementById("menu").style.display = "none";
         },
@@ -287,9 +332,9 @@ const global_events:module_globalEvents = {
                         width: 800
                     }
                     : config;
-            let box:HTMLElement;
+            let box:modal;
             global_events.menuBlur(event);
-            span.innerHTML = "Text Pad";
+            span.appendText("Text Pad");
             label.setAttribute("class", "textPad");
             label.appendChild(span);
             label.appendChild(textArea);

@@ -436,6 +436,39 @@ declare global {
     }
 
     /**
+     * Used for routing agent specific data through file system and copy related services.
+     * ```typescript
+     * interface fileAgent {
+     *     device: string;
+     *     modalAddress: string;
+     *     share: string;
+     *     type: agentType;
+     *     user: string;
+     * }
+     * ``` */
+    interface fileAgent {
+        device: string;
+        modalAddress: string;
+        share: string;
+        user: string;
+    }
+
+    /**
+     * Conveys data from reading one or more files.
+     * ```typescript
+     * interface fileRead {
+     *     content: string;
+     *     id: string;
+     *     path: string;
+     * }
+     * ``` */
+    interface fileRead {
+        content: string;
+        id: string;
+        path: string;
+    }
+
+    /**
      * The output structure of the *hash* command.
      * ```typescript
      * interface hash_output {

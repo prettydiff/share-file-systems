@@ -81,7 +81,7 @@ const share:module_share = {
             deviceButton = function browser_content_share_content_deviceButton():HTMLElement {
                 const button:HTMLElement = document.createElement("button");
                 button.setAttribute("class", "file-system-root");
-                button.innerHTML = "File System Root";
+                button.appendText("File System Root");
                 button.setAttribute("type", "button");
                 button.onclick = function browser_content_share_content_perAgent_fsRoot(event:MouseEvent):void {
                     const element:HTMLElement = event.target,
@@ -108,20 +108,20 @@ const share:module_share = {
                         const agentItem:HTMLElement = document.createElement("li"),
                             ul:HTMLElement = document.createElement("ul");
                         if (dataList === undefined) {
-                            agentItem.innerHTML = message;
+                            agentItem.appendText(message);
                         } else {
                             const len:number = dataList.length;
                             if (len === 0) {
                                 message = message + "[]";
-                                agentItem.innerHTML = message;
+                                agentItem.appendText(message);
                             } else if (len === 1) {
                                 message = message + dataList[0];
-                                agentItem.innerHTML = message;
+                                agentItem.appendText(message);
                             } else {
-                                agentItem.innerHTML = message;
+                                agentItem.appendText(message);
                                 dataList.forEach(function browser_content_share_content_agentDetails_createListItem_each(value:string):void {
                                     const li:HTMLElement = document.createElement("li");
-                                    li.innerHTML = value;
+                                    li.appendText(value);
                                     ul.appendChild(li);
                                 });
                                 agentItem.appendChild(ul);
@@ -157,7 +157,7 @@ const share:module_share = {
                         // videoButton:HTMLElement = document.createElement("button"),
                         subTitle = function browser_content_share_content_perAgent_subTitle(text:string):void {
                             const subTitleElement:HTMLElement = document.createElement("h5");
-                            subTitleElement.innerHTML = `${browser[agentNames.agentType][agentNames.agent].name} ${text}`;
+                            subTitleElement.appendText(`${browser[agentNames.agentType][agentNames.agent].name} ${text}`);
                             agent.appendChild(subTitleElement);
                         };
                     let li:HTMLElement;
@@ -166,7 +166,7 @@ const share:module_share = {
                     agent = document.createElement("div");
 
                     // title
-                    title.innerHTML = browser[agentNames.agentType][agentNames.agent].name;
+                    title.appendText(browser[agentNames.agentType][agentNames.agent].name);
                     agent.appendChild(title);
 
                     // tool list
@@ -179,8 +179,11 @@ const share:module_share = {
                     }
                     if (agentNames.agentType !== "device" || (agentNames.agentType === "device" && agentNames.agent !== browser.data.hashDevice)) {
                         // text button
+                        const span:HTMLElement = document.createElement("span");
+                        span.appendText("Text");
                         li = document.createElement("li");
-                        messageButton.innerHTML = `<span>Text</span> ${browser[agentNames.agentType][agentNames.agent].name}`;
+                        messageButton.appendChild(span);
+                        messageButton.appendText(` ${browser[agentNames.agentType][agentNames.agent].name}`);
                         messageButton.setAttribute("class", "text-button-agent");
                         messageButton.setAttribute("type", "button");
                         messageButton.onclick = message.events.shareButton;
@@ -189,7 +192,10 @@ const share:module_share = {
 
                         // video button
                         // li = document.createElement("li");
-                        // videoButton.innerHTML = `<span>Video Call</span> ${browser[agentNames.agentType][agentNames.agent].name}`;
+                        // span = document.createElement("span");
+                        // span.appendText("Video Call");
+                        // videoButton.appendChild(span);
+                        // videoButton.appendText(` ${browser[agentNames.agentType][agentNames.agent].name}`);
                         // videoButton.setAttribute("class", "video-button-agent");
                         // videoButton.setAttribute("type", "button");
                         // videoButton.onclick = media.videoButton;
@@ -203,8 +209,12 @@ const share:module_share = {
                     if (Object.keys(browser[agentNames.agentType][agentNames.agent].shares).length > 0) {
                         agent.appendChild(shareListUL);
                     } else {
-                        const p:HTMLElement = document.createElement("p");
-                        p.innerHTML = `${common.capitalize(agentNames.agentType)} <em>${browser[agentNames.agentType][agentNames.agent].name}</em> has no shares.`;
+                        const p:HTMLElement = document.createElement("p"),
+                            em:HTMLElement = document.createElement("em");
+                        em.appendText(browser[agentNames.agentType][agentNames.agent].name);
+                        p.appendText(`${common.capitalize(agentNames.agentType)} `);
+                        p.appendChild(em);
+                        p.appendText(" has no shares.");
                         agent.appendChild(p);
                     }
 
@@ -222,6 +232,7 @@ const share:module_share = {
                 if (agentName === "" && (agentType === "" || agentType === type)) {
                     const title:HTMLElement = document.createElement("h3"),
                         span:HTMLElement = document.createElement("span"),
+                        strong:HTMLElement = document.createElement("strong"),
                         list:string[] = Object.keys(browser[type]),
                         listLength:number = list.length,
                         plural:string = (listLength === 1)
@@ -234,10 +245,13 @@ const share:module_share = {
                             ? "available"
                             : "shared",
                         messageButton:HTMLElement = document.createElement("button");
-                    span.innerHTML = `There ${verb} ${listLength} <strong>${type + plural}</strong> ${adjective}.`;
+                    strong.appendText(type + plural);
+                    span.appendText(`There ${verb} ${listLength} `);
+                    span.appendChild(strong);
+                    span.appendText(` ${adjective}.`);
                     title.appendChild(span);
                     title.setAttribute("class", "agent-list-heading");
-                    messageButton.innerHTML = `Text all ${type}s`;
+                    messageButton.appendText(`Text all ${type}s`);
                     messageButton.setAttribute("class", `text-button-${type}`);
                     messageButton.setAttribute("type", "button");
                     messageButton.onclick = message.events.shareButton;
@@ -258,13 +272,13 @@ const share:module_share = {
                     shareItem:agentShare = browser[agentNames.agentType][agentNames.agent].shares[agentNames.share],
                     shareType:string = shareItem.type;
                 button.setAttribute("class", `${agentNames.agentType}-share`);
-                span.innerHTML = shareItem.name;
+                span.appendText(shareItem.name);
                 button.appendChild(span);
                 button.setAttribute("type", "button");
                 status.setAttribute("class", "read-only-status");
-                status.innerHTML = (shareItem.readOnly === true)
+                status.appendText((shareItem.readOnly === true)
                     ? "(Read Only)"
-                    : "(Full Access)";
+                    : "(Full Access)");
                 button.appendChild(status);
                 if (shareType === "directory" || shareType === "file" || shareType === "link") {
                     button.onclick = fileNavigate;
@@ -273,21 +287,24 @@ const share:module_share = {
                 if (agentNames.agentType === "device" && (agentNames.agent === agentName || agentName === "") && (agentType === "device" || agentType === "")) {
                     const del:HTMLElement = document.createElement("button"),
                         readOnly:HTMLButtonElement = document.createElement("button"),
-                        span:HTMLElement = document.createElement("span");
+                        span:HTMLElement = document.createElement("span"),
+                        span1:HTMLElement = document.createElement("span");
                     if (shareItem.readOnly === true) {
                         li.setAttribute("class", "share");
                         readOnly.setAttribute("class", "grant-full-access");
-                        readOnly.innerHTML = ("Grant Full Access");
+                        readOnly.appendText("Grant Full Access");
                     } else {
                         li.setAttribute("class", "share full-access");
                         readOnly.setAttribute("class", "make-read-only");
-                        readOnly.innerHTML = ("Make Read Only");
+                        readOnly.appendText("Make Read Only");
                     }
                     readOnly.setAttribute("type", "button");
                     readOnly.onclick = share.events.readOnly;
                     del.setAttribute("class", "delete");
                     del.setAttribute("title", "Delete this share");
-                    del.innerHTML = "\u2718<span>Delete this share</span>";
+                    span1.appendText("Delete this share");
+                    del.appendText("\u2718");
+                    del.appendChild(span1);
                     del.setAttribute("type", "button");
                     del.onclick = agent_management.tools.deleteShare;
                     span.setAttribute("class", "clear");
@@ -314,8 +331,12 @@ const share:module_share = {
             source: browser
         });
         if (user === false) {
-            const title:HTMLElement = document.createElement("h3");
-            title.innerHTML = "There are <strong>0 users</strong> available.";
+            const title:HTMLElement = document.createElement("h3"),
+                strong:HTMLElement = document.createElement("strong");
+            strong.appendText("0 users");
+            title.appendText("There are ");
+            title.appendChild(strong);
+            title.appendText(" available.");
             sections.user.appendChild(title);
             sections.user.setAttribute("class", "agentList");
             all.appendChild(sections.user);
@@ -376,7 +397,7 @@ const share:module_share = {
         /* Toggle a share between read only and full access. */
         readOnly: function browser_content_share_readOnly(event:MouseEvent):void {
             const element:HTMLElement = event.target,
-                box:HTMLElement = element.getAncestor("box", "class") ,
+                box:modal = element.getAncestor("box", "class") ,
                 boxHash:string = box.dataset.agent,
                 parent:HTMLElement = element.parentNode,
                 hashDevice:string = (boxHash === "")
@@ -515,7 +536,7 @@ const share:module_share = {
                                 }
                                 agent = item.agent;
                             }
-                            body.innerHTML = "";
+                            body.appendText("", true);
                             body.appendChild(share.content(agent, agentType));
                         }
                     } else if (item.type === "agent-management") {
