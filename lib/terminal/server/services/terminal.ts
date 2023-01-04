@@ -1,5 +1,5 @@
 
-/* lib/terminal/server/services/terminal - Processes terminal console messaging for remote devices and display to the user in a browser. */
+/* lib/terminal/server/services/terminal - Processes terminal messaging for remote devices and display to the user in a browser. */
 
 import { ChildProcess, spawn } from "child_process";
 import { readdir, stat } from "fs";
@@ -124,7 +124,7 @@ const terminal:module_terminal = {
                 });
             },
             command = function terminal_server_services_terminal_input_command():void {
-                if (terminal.processes[data.id] === undefined) {
+                const spawnChild = function terminal_server_services_terminal_input_command_spawnChild():void {
                     const shell:ChildProcess = spawn(data.instruction, [], {
                             cwd: data.directory,
                             shell: true
@@ -137,6 +137,13 @@ const terminal:module_terminal = {
                     shell.on("close", terminal.kill);
                     shell.stdout.on("data", dataHandle);
                     shell.stderr.on("data", dataHandle);
+                };
+                data.instruction = data.instruction.replace(/\u001b/g, "");
+                if (terminal.processes[data.id] === undefined) {
+                    spawnChild();
+                } else if (terminal.processes[data.id].exitCode !== null) {
+                    terminal.kill(data.id);
+                    spawnChild();
                 } else {
                     terminal.processes[data.id].stdin.write(data.instruction);
                 }
