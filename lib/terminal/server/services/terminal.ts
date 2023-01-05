@@ -135,6 +135,7 @@ const terminal:module_terminal = {
                         };
                     terminal.processes[data.id] = shell;
                     shell.on("close", terminal.kill);
+                    shell.on("message", dataHandle);
                     shell.stdout.on("data", dataHandle);
                     shell.stderr.on("data", dataHandle);
                 };

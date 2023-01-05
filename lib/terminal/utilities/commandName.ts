@@ -15,7 +15,7 @@ const commandName = function terminal_utilities_command(globalName:string):strin
         let index:number = process.argv.length;
         do {
             index = index - 1;
-            if ((/((-+)|\$)?no(-|_)?color/).test(process.argv[index].toLowerCase()) === true) {
+            if ((/((-+)|\$)?no(-|_)?color/).test(process.argv[index].toLowerCase()) === true || process.stdout.isTTY === false) {
                 const keys:string[] = Object.keys(vars.text);
                 let keyLen:number = keys.length;
                 do {
