@@ -1175,7 +1175,7 @@ const browserSelf:test_browserItem[] = [
                     qualifier: "is",
                     target: ["class"],
                     type: "attribute",
-                    value: "file-system-root"
+                    value: "share-tool-fileNavigate"
                 },
                 {
                     // get text of the first share button

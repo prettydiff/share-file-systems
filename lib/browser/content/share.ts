@@ -77,25 +77,22 @@ const share:module_share = {
                         : ""
                 });
             },
-            // open a file navigate modal to root for devices
-            deviceButton = function browser_content_share_content_deviceButton():HTMLElement {
-                const button:HTMLElement = document.createElement("button");
-                button.setAttribute("class", "file-system-root");
-                button.appendText("File System Root");
+            toolButton = function browser_content_share_content_toolButton(config:config_share_tool):void {
+                const li:HTMLElement = document.createElement("li"),
+                    button:HTMLElement = document.createElement("button");
+                button.setAttribute("class", config.className);
+                if (config.identity === null) {
+                    button.appendText(config.text);
+                } else {
+                    const span:HTMLElement = document.createElement("span");
+                    span.appendText(config.text);
+                    button.appendChild(span);
+                    button.appendText(config.identity);
+                }
                 button.setAttribute("type", "button");
-                button.onclick = function browser_content_share_content_perAgent_fsRoot(event:MouseEvent):void {
-                    const element:HTMLElement = event.target,
-                        ancestor:HTMLElement = element.getAncestor("div", "tag"),
-                        agent:string = ancestor.dataset.hash;
-                    global_events.modal.fileNavigate(event, {
-                        agentName: agent,
-                        agentType: "device",
-                        path: "**root**",
-                        readOnly: false,
-                        share: ""
-                    });
-                };
-                return button;
+                button.onclick = config.handler;
+                li.appendChild(button);
+                config.list.appendChild(li);
             },
             // hardware and OS details about a device
             agentDetails = function browser_content_share_content_agentDetails(type:agentType, agentString:string):HTMLElement {
@@ -153,14 +150,11 @@ const share:module_share = {
                 if ((agentName === "" || agentName === agentNames.agent) && (agentType === "" || agentType === agentNames.agentType)) {
                     const title:HTMLElement = document.createElement("h4"),
                         toolList:HTMLElement = document.createElement("ul"),
-                        messageButton:HTMLElement = document.createElement("button"),
-                        // videoButton:HTMLElement = document.createElement("button"),
                         subTitle = function browser_content_share_content_perAgent_subTitle(text:string):void {
                             const subTitleElement:HTMLElement = document.createElement("h5");
                             subTitleElement.appendText(`${browser[agentNames.agentType][agentNames.agent].name} ${text}`);
                             agent.appendChild(subTitleElement);
                         };
-                    let li:HTMLElement;
                     shareListUL = document.createElement("ul");
                     shareListUL.setAttribute("class", "shares");
                     agent = document.createElement("div");
@@ -173,34 +167,42 @@ const share:module_share = {
                     subTitle("tools");
                     toolList.setAttribute("class", "tools");
                     if (agentNames.agentType === "device") {
-                        li = document.createElement("li");
-                        li.appendChild(deviceButton());
-                        toolList.appendChild(li);
+                        // file navigate button
+                        toolButton({
+                            className: "share-tool-fileNavigate",
+                            handler: global_events.modal.fileNavigate,
+                            identity: null,
+                            list: toolList,
+                            text: "File System Root"
+                        });
+
+                        // command terminal button
+                        toolButton({
+                            className: "share-tool-terminal",
+                            handler: global_events.modal.terminal,
+                            identity: null,
+                            list: toolList,
+                            text: "Command Terminal"
+                        });
                     }
                     if (agentNames.agentType !== "device" || (agentNames.agentType === "device" && agentNames.agent !== browser.data.hashDevice)) {
                         // text button
-                        const span:HTMLElement = document.createElement("span");
-                        span.appendText("Text");
-                        li = document.createElement("li");
-                        messageButton.appendChild(span);
-                        messageButton.appendText(` ${browser[agentNames.agentType][agentNames.agent].name}`);
-                        messageButton.setAttribute("class", "text-button-agent");
-                        messageButton.setAttribute("type", "button");
-                        messageButton.onclick = message.events.shareButton;
-                        li.appendChild(messageButton);
-                        toolList.appendChild(li);
+                        toolButton({
+                            className: "share-tool-message",
+                            handler: message.events.shareButton,
+                            identity: ` ${browser[agentNames.agentType][agentNames.agent].name}`,
+                            list: toolList,
+                            text: "Text"
+                        });
 
                         // video button
-                        // li = document.createElement("li");
-                        // span = document.createElement("span");
-                        // span.appendText("Video Call");
-                        // videoButton.appendChild(span);
-                        // videoButton.appendText(` ${browser[agentNames.agentType][agentNames.agent].name}`);
-                        // videoButton.setAttribute("class", "video-button-agent");
-                        // videoButton.setAttribute("type", "button");
-                        // videoButton.onclick = media.videoButton;
-                        // li.appendChild(videoButton);
-                        // toolList.appendChild(li);
+                        // toolButton({
+                        //     className: "video-button-agent",
+                        //     handler: media.videoButton,
+                        //     identity: ` ${browser[agentNames.agentType][agentNames.agent].name}`,
+                        //     list: toolList,
+                        //     text: "Video Call"
+                        // });
                     }
                     agent.appendChild(toolList);
 

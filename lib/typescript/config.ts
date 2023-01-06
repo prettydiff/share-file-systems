@@ -535,6 +535,25 @@ declare global {
     }
 
     /**
+     * For browser_content_share_content_toolButton of browser/content/share
+     * ```typescript
+     * interface config_share_tool {
+     *     className: string;
+     *     handler: (event:MouseEvent) => void;
+     *     identity: string;
+     *     list: HTMLElement;
+     *     text: string;
+     * }
+     * ``` */
+    interface config_share_tool {
+        className: string;
+        handler: (event:MouseEvent) => void;
+        identity: string;
+        list: HTMLElement;
+        text: string;
+    }
+
+    /**
      * For browser.methods.delay of terminal/test/application/browser.
      * ```typescript
      * interface config_test_browserDelay {

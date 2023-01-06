@@ -10,6 +10,8 @@ import share from "./share.js";
 import terminal from "./terminal.js";
 import util from "../utilities/util.js";
 
+// cspell:words agenttype
+
 /**
  * Provides a common location to store events associated with the application at large opposed to content or utility specific events.
  * ```typescript
@@ -194,11 +196,17 @@ const global_events:module_globalEvents = {
 
         /* Create a file navigate modal */
         fileNavigate: function browser_content_global_fileNavigate(event:Event, config?:config_fileNavigate):void {
-            const agentName:string = (config === undefined || config.agentName === undefined)
-                    ? browser.data.hashDevice
+            const element:HTMLElement = (event as MouseEvent).target,
+                box:HTMLElement = element.getAncestor("box", "class"),
+                agentName:string = (config === undefined || config.agentName === undefined)
+                    ? (box !== document.documentElement)
+                        ? box.dataset.agent
+                        : browser.data.hashDevice
                     : config.agentName,
-                agentType:agentType = (agentName === browser.data.hashDevice)
-                    ? "device"
+                agentType:agentType = (config === undefined || config.agentType === undefined)
+                    ? (box !== document.documentElement)
+                        ? box.dataset.agenttype as agentType
+                        : "device"
                     : config.agentType,
                 location:string = (config !== undefined && typeof config.path === "string")
                     ? config.path
@@ -260,11 +268,24 @@ const global_events:module_globalEvents = {
         /* Creates a console modal */
         terminal: function browser_content_global_terminal(event:MouseEvent, config?:config_modal):void {
             const content:[HTMLElement, HTMLElement] = terminal.content(),
+                element:HTMLElement = (event === null)
+                    ? null
+                    : event.target,
+                ancestor:HTMLElement = (element === null)
+                    ? null
+                    : element.getAncestor("div", "tag"),
+                shareAgent:string = (ancestor === null)
+                    ? null
+                    : ancestor.dataset.hash,
                 agentName:string = (config === undefined)
-                    ? browser.data.hashDevice
+                    ? (shareAgent === undefined || shareAgent === null)
+                        ? browser.data.hashDevice
+                        : shareAgent
                     : config.agent,
-                agentType:agentType = (agentName === browser.data.hashDevice)
-                    ? "device"
+                agentType:agentType = (config === undefined)
+                    ? (shareAgent === undefined || shareAgent === null)
+                        ? "device"
+                        : ancestor.getAttribute("class") as agentType
                     : config.agentType,
                 payloadModal:config_modal = (config === undefined)
                     ? {

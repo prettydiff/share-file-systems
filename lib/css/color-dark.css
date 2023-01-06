@@ -176,12 +176,12 @@ body.dark{
 .dark #spaces .agentList button{color:var(--blue-primary)}
 .dark #spaces .agentList .read-only-status{color:var(--text-heading)}
 .dark #spaces .agentList li{border-color:var(--border)}
-.dark #spaces .agentList .text-button-agent,
-.dark #spaces .agentList .video-button-agent,
+.dark #spaces .agentList .share-tool-message,
+.dark #spaces .agentList .share-tool-video,
 .dark #spaces .text-button-device,
 .dark #spaces .make-read-only,
 .dark #spaces .text-button-user{background:var(--maximize-background);border-color:var(--blue-primary);color:var(--blue-primary)}
-.dark #spaces .agentList .file-system-root{background:var(--minimize-background);border-color:var(--minimize-text);color:var(--minimize-text)}
+.dark #spaces .agentList .share-tool-fileNavigate{background:var(--minimize-background);border-color:var(--minimize-text);color:var(--minimize-text)}
 .dark #spaces .agentList h4{background:var(--button)}
 .dark #spaces .agentList .device,
 .dark #spaces .agentList .user{border-color:var(--border)}
