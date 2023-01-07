@@ -193,6 +193,7 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                     if (data.type === "device") {
                         vars.settings.hashUser = data[typeRemote].hashUser;
                         vars.settings.nameUser = data[typeRemote].nameUser;
+                        data.agentResponse.devices[vars.settings.hashDevice].queue = [];
                     }
                     addAgent(typeRemote, null);
                 }
@@ -202,6 +203,9 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                 // stage 1 - on start terminal to remote terminal, from start browser
                 data.action = "invite-request";
                 vars.settings.device[vars.settings.hashDevice].ipSelected = data.agentRequest.ipSelected;
+                if (data.type === "device") {
+                    data.agentRequest.devices[vars.settings.hashDevice].queue = [];
+                }
                 inviteHttp();
             }
         };

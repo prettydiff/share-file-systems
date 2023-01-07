@@ -2283,6 +2283,58 @@ const browserSelf:test_browserItem[] = [
         
         mainMenu("self"),
 
+        // open terminal
+        {
+            delay: {
+                node: [
+                    ["getModalsByModalType", "terminal", 0],
+                    ["getElementsByClassName", "terminal-list", 0],
+                    ["getElementsByTagName", "li", null]
+                ],
+                qualifier: "greater",
+                target: ["length"],
+                type: "property",
+                value: 20
+            },
+            interaction: [
+                {
+                    event: "click",
+                    node: [
+                        ["getElementById", "menu", null],
+                        ["getElementsByTagName", "li", 2],
+                        ["getElementsByTagName", "button", 0]
+                    ]
+                }
+            ],
+            machine: "self",
+            name: "Open export modal",
+            unit: [
+                {
+                    node: [
+                        ["getModalsByModalType", "terminal", 0],
+                        ["getElementsByClassName", "terminal-list", 0],
+                        ["getElementsByTagName", "li", 2]
+                    ],
+                    qualifier: "is",
+                    target: ["innerHTML"],
+                    type: "property",
+                    value: "<span class=\"cyan bold underline\">Share File Systems - Browser Tests - self</span>"
+                },
+                {
+                    node: [
+                        ["getModalsByModalType", "terminal", 0],
+                        ["getElementsByClassName", "terminal-list", 0]
+                    ],
+                    qualifier: "is",
+                    target: ["dataset", "scroll"],
+                    type: "property",
+                    value: "{\"position\":0,\"entries\":[22]}"
+                }
+            ]
+        },
+        
+        mainMenu("self"),
+
         // open text pad
         {
             delay: {
@@ -2456,7 +2508,7 @@ const browserSelf:test_browserItem[] = [
                     event: "click",
                     node: [
                         ["getElementById", "menu", null],
-                        ["getElementsByTagName", "li", 2],
+                        ["getElementsByTagName", "li", 3],
                         ["getElementsByTagName", "button", 0]
                     ]
                 }
@@ -2546,7 +2598,7 @@ const browserSelf:test_browserItem[] = [
                     qualifier: "ends",
                     target: ["value"],
                     type: "property",
-                    value: `,"left":236,"top":236,"height":400,"status":"normal","text_value":"God bless kittens"}},"modalTypes":["configuration","fileNavigate","shares","textPad"],"nameDevice":"Primary Device","nameUser":"Primary User","statusTime":15000,"storage":"${filePathEncode("absolute", "lib/storage/", true)}","tutorial":true,"zIndex":5}`
+                    value: `,"left":245,"top":245,"height":400,"status":"normal","text_value":"God bless kittens"}},"modalTypes":["configuration","fileNavigate","shares","terminal","textPad"],"nameDevice":"Primary Device","nameUser":"Primary User","statusTime":15000,"storage":"${filePathEncode("absolute", "lib/storage/", true)}","tutorial":true,"zIndex":6}`
                 }
             ]
         },

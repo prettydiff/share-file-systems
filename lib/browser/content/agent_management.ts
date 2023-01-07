@@ -408,7 +408,6 @@ const agent_management:module_agentManagement = {
                 body:HTMLElement = box.getElementsByClassName("body")[0] as HTMLElement,
                 content:HTMLElement = body.getElementsByClassName("inviteAgent")[0] as HTMLElement,
                 input:HTMLElement = (function browser_content_agentManagement_confirmInvite_input():HTMLElement {
-    
                     // value attainment and form validation
                     const inputs:HTMLCollectionOf<HTMLInputElement> = content.getElementsByTagName("input"),
                         length = inputs.length,
@@ -729,10 +728,11 @@ const agent_management:module_agentManagement = {
             }
             if (element.value === "device") {
                 strong.appendText("Including a personal device will provide unrestricted access to and from that device.");
+                description.appendText("", true);
                 description.appendChild(strong);
                 description.appendText(" This username will be imposed upon that device.");
             } else {
-                description.appendText("Including a user allows sharing with a different person and the devices they make available.");
+                description.appendText("Including a user allows sharing with a different person and the devices they make available.", true);
             }
             description.style.display = "block";
             configuration.tools.radio(element);

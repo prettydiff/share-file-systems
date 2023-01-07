@@ -23,6 +23,7 @@ const sender:module_sender = {
         } else if (vars.test.type === "" && (type === "device" || type === "user") && vars.settings[type][agent] !== undefined) {
             const service_exclusions: service_type[] = [
                 "agent-hash",
+                "agent-management",
                 "agent-online",
                 "agent-status",
                 "copy-list-request",
