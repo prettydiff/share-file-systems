@@ -133,7 +133,7 @@ const sender:module_sender = {
     // send a specified data package to a specified agent
     send: function terminal_server_transmission_sender_send(data:socketData, agents:transmit_agents):void {
         if (agents !== null && agents.user === "browser") {
-            transmit_ws.queue(data, transmit_ws.clientList.browser[agents.device], 1);
+            sender.broadcast(data, "browser");
         } else if (agents !== null) {
             if (agents.user === vars.settings.hashUser) {
                 if (agents.device.length === 141) {
