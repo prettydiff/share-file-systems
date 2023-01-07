@@ -60,15 +60,67 @@ interface module_agentHash {
  * Manages agent data in the browser.
  * ```typescript
  * interface module_agentManagement {
- *     addAgent   : (input:agentManagement_addAgent) => void; // Adds an agent into the browser user interface whether the agent is new or the page is loading.
- *     deleteShare: (event:MouseEvent) => void;               // Removes a share from a device of the local user.
- *     receive    : (socketData:socketData) => void;          // Receives agent data from the terminal for processing in the browser.
+ *     content: {
+ *         deleteAgents: () => HTMLElement;
+ *         inviteRemote: (invitation:service_invite, name:string) => HTMLElement;
+ *         inviteStart: () => HTMLElement;
+ *         modifyAgents: () => HTMLElement;
+ *         menu: (view:"delete"|"edit_names"|"invite") => HTMLElement;
+ *     };
+ *     events: {
+ *         confirm: (event:MouseEvent) => void;
+ *         confirmInvite: (event:MouseEvent, options:config_modal) => void;
+ *         confirmModify: (event:MouseEvent) => void;
+ *         deleteShare: (event:MouseEvent) => void;
+ *         deleteToggle: (event:MouseEvent) => void;
+ *         displayIP: (event:MouseEvent) => void;
+ *         inviteDecline: (event:MouseEvent) => void;
+ *         invitePortValidation: (event:Event) => void;
+ *         inviteTypeToggle: (event:MouseEvent) => void;
+ *         modeToggle: (event:MouseEvent) => void;
+ *     };
+ *     tools: {
+ *         addAgent: (input:agentManagement_addAgent) => void;
+ *         confirmDelete: (box:modal) => void;
+ *         deleteAgent: (agent:string, agentType:agentType) => void;
+ *         inviteAccept: (box:modal) => void;
+ *         inviteComplete: (invitation:service_invite) => void;
+ *         inviteReceive: (invitation:service_invite) => void;
+ *         inviteTransmissionReceipt: (socketData:socketData) => void;
+ *         modifyReceive: (socketData:socketData) => void;
+ *     };
  * }
  * ``` */
 interface module_agentManagement {
-    addAgent: (input:agentManagement_addAgent) => void;
-    deleteShare: (event:MouseEvent) => void;
-    receive: (socketData:socketData) => void;
+    content: {
+        deleteAgents: () => HTMLElement;
+        inviteRemote: (invitation:service_invite, name:string) => HTMLElement;
+        inviteStart: () => HTMLElement;
+        modifyAgents: () => HTMLElement;
+        menu: (view:"delete"|"edit_names"|"invite") => HTMLElement;
+    };
+    events: {
+        confirm: (event:MouseEvent) => void;
+        confirmInvite: (event:MouseEvent, options:config_modal) => void;
+        confirmModify: (event:MouseEvent) => void;
+        deleteShare: (event:MouseEvent) => void;
+        deleteToggle: (event:MouseEvent) => void;
+        displayIP: (event:MouseEvent) => void;
+        inviteDecline: (event:MouseEvent) => void;
+        invitePortValidation: (event:Event) => void;
+        inviteTypeToggle: (event:MouseEvent) => void;
+        modeToggle: (event:MouseEvent) => void;
+    };
+    tools: {
+        addAgent: (input:agentManagement_addAgent) => void;
+        confirmDelete: (box:modal) => void;
+        deleteAgent: (agent:string, agentType:agentType) => void;
+        inviteAccept: (box:modal) => void;
+        inviteComplete: (invitation:service_invite) => void;
+        inviteReceive: (invitation:service_invite) => void;
+        inviteTransmissionReceipt: (socketData:socketData) => void;
+        modifyReceive: (socketData:socketData) => void;
+    };
 }
 
 /**

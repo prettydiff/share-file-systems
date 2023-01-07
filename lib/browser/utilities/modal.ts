@@ -488,7 +488,7 @@ const modal:module_modal = {
                         break;
                     }
                 } while (a > 0);
-                agent_management.tools.confirm(event);
+                agent_management.events.confirm(event);
                 if (inputs[a].value === "invite" && inputs[a].checked === true) {
                     return;
                 }

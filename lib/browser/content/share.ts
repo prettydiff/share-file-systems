@@ -308,7 +308,7 @@ const share:module_share = {
                     del.appendText("\u2718");
                     del.appendChild(span1);
                     del.setAttribute("type", "button");
-                    del.onclick = agent_management.tools.deleteShare;
+                    del.onclick = agent_management.events.deleteShare;
                     span.setAttribute("class", "clear");
                     li.appendChild(del);
                     li.appendChild(button);
