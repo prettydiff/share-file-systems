@@ -290,7 +290,7 @@ const global_events:module_globalEvents = {
                 payloadModal:config_modal = (config === undefined)
                     ? {
                         agent: agentName,
-                        agentIdentity: false,
+                        agentIdentity: true,
                         agentType: agentType,
                         content: content[0],
                         footer: content[1],

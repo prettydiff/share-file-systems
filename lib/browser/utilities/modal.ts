@@ -683,8 +683,8 @@ const modal:module_modal = {
     
         /* Drag and drop interaction for modals */
         move: function browser_utilities_modal_move(event:MouseEvent|TouchEvent):void {
-            const x:HTMLElement = event.target,
-                heading:HTMLElement = x.parentNode,
+            const element:HTMLElement = event.target,
+                heading:HTMLElement = element.parentNode,
                 box:modal = heading.parentNode.parentNode,
                 boxParent:HTMLElement = box.parentNode,
                 settings:config_modal = browser.data.modals[box.getAttribute("id")],
@@ -775,6 +775,7 @@ const modal:module_modal = {
             if (browser.data.modals[box.getAttribute("id")].status === "maximized") {
                 return;
             }
+            element.focus();
             event.preventDefault();
             border.style.opacity = "0.5";
             box.style.height   = "0.1em";

@@ -181,7 +181,8 @@ body.dark{
 .dark #spaces .text-button-device,
 .dark #spaces .make-read-only,
 .dark #spaces .text-button-user{background:var(--maximize-background);border-color:var(--blue-primary);color:var(--blue-primary)}
-.dark #spaces .agentList .share-tool-fileNavigate{background:var(--minimize-background);border-color:var(--minimize-text);color:var(--minimize-text)}
+.dark #spaces .agentList .share-tool-fileNavigate,
+.dark #spaces .agentList .share-tool-terminal{background:var(--minimize-background);border-color:var(--minimize-text);color:var(--minimize-text)}
 .dark #spaces .agentList h4{background:var(--button)}
 .dark #spaces .agentList .device,
 .dark #spaces .agentList .user{border-color:var(--border)}

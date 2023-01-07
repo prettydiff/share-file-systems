@@ -80,7 +80,7 @@ const share:module_share = {
             toolButton = function browser_content_share_content_toolButton(config:config_share_tool):void {
                 const li:HTMLElement = document.createElement("li"),
                     button:HTMLElement = document.createElement("button");
-                button.setAttribute("class", config.className);
+                button.setAttribute("class", `share-tool-${config.className}`);
                 if (config.identity === null) {
                     button.appendText(config.text);
                 } else {
@@ -169,7 +169,7 @@ const share:module_share = {
                     if (agentNames.agentType === "device") {
                         // file navigate button
                         toolButton({
-                            className: "share-tool-fileNavigate",
+                            className: "fileNavigate",
                             handler: global_events.modal.fileNavigate,
                             identity: null,
                             list: toolList,
@@ -178,7 +178,7 @@ const share:module_share = {
 
                         // command terminal button
                         toolButton({
-                            className: "share-tool-terminal",
+                            className: "terminal",
                             handler: global_events.modal.terminal,
                             identity: null,
                             list: toolList,
@@ -188,7 +188,7 @@ const share:module_share = {
                     if (agentNames.agentType !== "device" || (agentNames.agentType === "device" && agentNames.agent !== browser.data.hashDevice)) {
                         // text button
                         toolButton({
-                            className: "share-tool-message",
+                            className: "message",
                             handler: message.events.shareButton,
                             identity: ` ${browser[agentNames.agentType][agentNames.agent].name}`,
                             list: toolList,
@@ -197,7 +197,7 @@ const share:module_share = {
 
                         // video button
                         // toolButton({
-                        //     className: "video-button-agent",
+                        //     className: "video",
                         //     handler: media.videoButton,
                         //     identity: ` ${browser[agentNames.agentType][agentNames.agent].name}`,
                         //     list: toolList,

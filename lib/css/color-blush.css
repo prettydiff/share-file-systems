@@ -195,7 +195,8 @@ body.blush {
 .blush #spaces .agentList .share-tool-video,
 .blush #spaces .text-button-device,
 .blush #spaces .text-button-user{background:var(--blue-button-background);border-color:var(--blue-button-text);color:var(--blue-button-text)}
-.blush #spaces .agentList .share-tool-fileNavigate{background:var(--yellow-bright);border-color:var(--yellow-border);color:var(--yellow-dark)}
+.blush #spaces .agentList .share-tool-fileNavigate,
+.blush #spaces .agentList .share-tool-terminal{background:var(--yellow-bright);border-color:var(--yellow-border);color:var(--yellow-dark)}
 .blush #spaces .agentList h4{background:white}
 .blush #spaces .agentList .device,
 .blush #spaces .agentList .user{border-color:var(--shadow)}
