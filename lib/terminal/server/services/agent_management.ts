@@ -135,7 +135,6 @@ const agent_management = function terminal_server_services_agentManagement(socke
                         ipSelected: "",
                         name: vars.settings.nameUser,
                         ports: vars.network.ports,
-                        queue: [],
                         shares: userData[0],
                         status: "active"
                     };

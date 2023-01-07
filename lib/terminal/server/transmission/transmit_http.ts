@@ -604,7 +604,7 @@ const transmit_http:module_transmit_http = {
                                 if (vars.test.type === "service" || vars.test.type.indexOf("browser_") === 0) {
                                     logOutput();
                                 } else {
-                                    readStorage(function terminal_server_transmission_transmitHttp_server_start_listen_websocketCallback_readComplete(storage:settings_item):void {
+                                    readStorage(true, function terminal_server_transmission_transmitHttp_server_start_listen_websocketCallback_readComplete(storage:settings_item):void {
                                         vars.settings.brotli = storage.configuration.brotli;
                                         vars.settings.device = storage.device;
                                         vars.settings.fileSort = storage.configuration.fileSort;

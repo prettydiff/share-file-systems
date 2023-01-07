@@ -40,16 +40,16 @@ const sender:module_sender = {
                 "test-browser"
             ];
             if (service_exclusions.indexOf(payload.service) < 0) {
-                if (vars.settings[type][agent].queue === undefined) {
-                    vars.settings[type][agent].queue = [];
+                if (vars.settings.queue[type][agent] === undefined) {
+                    vars.settings.queue[type][agent] = [];
                 }
-                if (vars.settings[type][agent].queue.length > 0 && JSON.stringify(vars.settings[type][agent].queue[vars.settings[type][agent].queue.length - 1]) === JSON.stringify(payload)) {
+                if (vars.settings.queue[type][agent].length > 0 && JSON.stringify(vars.settings.queue[type][agent][vars.settings.queue[type][agent].length - 1]) === JSON.stringify(payload)) {
                     return;
                 }
-                vars.settings[type][agent].queue.push(payload);
+                vars.settings.queue[type][agent].push(payload);
                 const settingsData:service_settings = {
-                    settings: vars.settings[type],
-                    type: type
+                    settings: vars.settings.queue,
+                    type: "queue"
                 };
                 settings({
                     data: settingsData,

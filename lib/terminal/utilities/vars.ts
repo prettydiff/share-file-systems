@@ -170,21 +170,35 @@ const vars:module_terminalVariables = {
         settings: ""
     },
     settings: {
+        audio: true,
         brotli: 7,
+        color: "default",
+        colors: {
+            device: {},
+            user: {}
+        },
         device: {},
         fileSort: "file-system-type",
         hashDevice: "",
         hashType: "sha3-512",
         hashUser: "",
         message: [],
+        modals: {},
+        modalTypes: [],
         nameDevice: nameDevice,
         nameUser: "",
+        queue: {
+            device: {},
+            user: {}
+        },
         secure: true,
         status: "idle",
         statusTime: 15000,
         storage: "",
+        tutorial: true,
         user: {},
-        verbose: false
+        verbose: false,
+        zIndex: 0
     },
     terminal: {
         arguments: process.argv.join(" "),

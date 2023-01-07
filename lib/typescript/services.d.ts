@@ -302,12 +302,12 @@ interface service_invite {
  * Saves user generated data and configurations to a file.
  * ```typescript
  * interface service_settings {
- *     settings: agents | service_message | ui_data;
+ *     settings: agents | service_message | transmit_queue | ui_data;
  *     type: settingsType;
  * }
  * ``` */
 interface service_settings {
-    settings: agents | service_message | ui_data;
+    settings: agents | service_message | transmit_queue | ui_data;
     type: settingsType;
 }
 

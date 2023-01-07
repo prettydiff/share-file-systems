@@ -102,6 +102,7 @@ const methodGET = function terminal_server_transmission_methodGET(request:Incomi
                                                 },
                                                 storageString:string = `<input type="hidden" value='${JSON.stringify(state).replace(/'/g, "&#39;")}'/>`;
                                             let dataString:string = Buffer.concat(dataStore).toString().replace("<!--stateString-->", storageString);
+                                            settingsData.queue = null;
                                             if (settingsData.configuration.nameDevice !== "") {
                                                 dataString = dataString.replace("<body class=\"default login\">", "<body class=\"default\">");
                                             }
@@ -124,7 +125,7 @@ const methodGET = function terminal_server_transmission_methodGET(request:Incomi
                                             }, true, request.url);
                                         };
                                     tool = true;
-                                    readStorage(appliedData);
+                                    readStorage(false, appliedData);
                                 };
     
                             if (localPath.indexOf(".js") === localPath.length - 3) {

@@ -704,18 +704,15 @@ const transmit_ws:module_transmit_ws = {
     // push an offline agent message queue into the transmission queue
     queueSend: function terminal_server_transmission_transmitWs_queueSend(socket:websocket_client):void {
         const type:agentType = socket.type as agentType,
-            queue:socketData[] = vars.settings[type][socket.hash].queue;
-        if (queue === undefined || queue === null) {
-            vars.settings[type][socket.hash].queue = [];
-        }
-        if (queue.length > 0 && vars.test.type === "") {
+            queue:socketData[] = vars.settings.queue[type][socket.hash];
+        if (queue !== undefined && queue.length > 0 && vars.test.type === "") {
             do {
                 transmit_ws.queue(queue[0], socket, 1);
                 queue.splice(0, 1);
             } while (queue.length > 0);
             const settingsData:service_settings = {
-                settings: vars.settings[type],
-                type: type
+                settings: vars.settings.queue,
+                type: "queue"
             };
             settings({
                 data: settingsData,

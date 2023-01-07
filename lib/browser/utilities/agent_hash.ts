@@ -23,7 +23,6 @@ const agent_hash:module_agentHash = {
             ipSelected: "",
             name: browser.data.nameDevice,
             ports: browser.network.ports,
-            queue: [],
             shares: {},
             status: "idle"
         };

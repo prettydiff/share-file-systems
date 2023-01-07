@@ -10,7 +10,7 @@ import vars from "../../utilities/vars.js";
 const agentOnline = function terminal_commands_library_agentOnline(callback:commandCallback):void {
     vars.settings.verbose = true;
 
-    readStorage(function terminal_commands_library_agentOnline_readStorage(settings:settings_item):void {
+    readStorage(true, function terminal_commands_library_agentOnline_readStorage(settings:settings_item):void {
         const arg:string = process.argv[0],
             type:agentType = (settings.device[arg] === undefined)
                 ? "user"
@@ -130,10 +130,6 @@ const agentOnline = function terminal_commands_library_agentOnline(callback:comm
                 callback(title, [`The requested agent is this local device.  ${vars.text.angry}No connectivity test performed.${vars.text.none}`], null);
                 return;
             }
-
-            vars.settings.hashDevice = settings.configuration.hashDevice;
-            vars.settings.device = settings.device;
-            vars.settings.user = settings.user;
             ipResolve(arg, type, report);
         }
     });
