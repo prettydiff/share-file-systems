@@ -201,7 +201,7 @@ const browserDevice:test_browserItem[] = [
                 qualifier: "begins",
                 target: ["innerHTML"],
                 type: "property",
-                value: "There is 1 <strong>user</strong> shared."
+                value: "<span>There is 1 <strong>user</strong> shared.</span>"
             }
         ]
     },
@@ -274,7 +274,7 @@ const browserDevice:test_browserItem[] = [
                 qualifier: "begins",
                 target: ["innerHTML"],
                 type: "property",
-                value: "There is 1 <strong>user</strong> shared."
+                value: "<span>There is 1 <strong>user</strong> shared.</span>"
             }
         ]
     },

@@ -22,7 +22,7 @@ const inviteAccept = function terminal_test_application_browserUtilities_inviteA
             qualifier: "begins",
             target: ["innerHTML"],
             type: "property",
-            value: `${common.capitalize(type)} ${fromName} from`
+            value: `${common.capitalize(type)} <strong>${fromName}</strong> from`
         },
         interaction: [
             {

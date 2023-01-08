@@ -200,14 +200,18 @@ const global_events:module_globalEvents = {
                 box:HTMLElement = element.getAncestor("box", "class"),
                 agentName:string = (config === undefined || config.agentName === undefined)
                     ? (box !== document.documentElement)
-                        ? box.dataset.agent
-                        : browser.data.hashDevice
-                    : config.agentName,
+                        ? (box.dataset.agent === undefined || box.dataset.agent === "")
+                            ? element.getAncestor("div", "tag").dataset.hash // multi-agent share modals not bound to one agent
+                            : box.dataset.agent                              // modals bound to an agent
+                        : browser.data.hashDevice                            // when not coming from a modal (assume local device)
+                    : config.agentName,                                      // state restoration
                 agentType:agentType = (config === undefined || config.agentType === undefined)
                     ? (box !== document.documentElement)
-                        ? box.dataset.agenttype as agentType
-                        : "device"
-                    : config.agentType,
+                        ? (box.dataset.agent === undefined || box.dataset.agent === "")
+                            ? element.getAttribute("class") as agentType     // multi-agent share modals not bound to one agent
+                            : box.dataset.agenttype as agentType             // modals bound to an agent
+                        : "device"                                           // when not coming from a modal (assume local device)
+                    : config.agentType,                                      // state restoration
                 location:string = (config !== undefined && typeof config.path === "string")
                     ? config.path
                     : "**root**",

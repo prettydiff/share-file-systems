@@ -353,80 +353,80 @@ const defaultCommand:commands = vars.environment.command,
                 }
             },
             reset: function terminal_test_application_browser_reset():void {
-                const start = function terminal_test_application_browser_reset_readdir_start():void {
-                        let timeStore:[string, number] = time("Resetting Test Environment", false, 0);
-                        const browserLaunch = function terminal_test_application_browser_reset_readdir_browserLaunch():void {
-                            const keyword:string = (process.platform === "darwin")
-                                    ? "open"
-                                    : (process.platform === "win32")
-                                        ? "start"
-                                        : "xdg-open",
-                                port:string = (vars.network.ports.http === 443)
-                                    ? ""
-                                    : `:${String(vars.network.ports.http)}`,
-                                verboseFlag:string = (browser.args.mode !== "remote" && vars.settings.verbose === true)
-                                    ? "test_browser_verbose"
-                                    : "test_browser",
-                                path:string = `https://${vars.network.domain[0] + port}/?${verboseFlag}`,
-                                // execute a browser by file path to the browser binary
-                                browserCommand:string = (process.argv.length > 0 && (process.argv[0].indexOf("\\") > -1 || process.argv[0].indexOf("/") > -1))
-                                    ? (function terminal_test_application_browser_reset_readdir_browserLaunch_browserCommand():string {
-                                        if (process.platform === "win32") {
-                                            // yes, this is ugly.  Windows old cmd shell doesn't play well with file paths
-                                            process.argv[0] = `${process.argv[0].replace(/\\/g, "\"\\\"").replace("\"\\", "\\") + "\""}`;
-                                        } else {
-                                            process.argv[0] = `"${process.argv[0]}"`;
-                                        }
-                                        if (process.argv.length > 1) {
-                                            return `${keyword} ${process.argv[0]} ${path} "${process.argv.slice(1).join(" ")}"`;
-                                        }
-                                        return `${keyword} ${process.argv[0]} ${path}`;
-                                    }())
-                                    : `${keyword} ${path}`,
-                                child = function terminal_test_application_browser_reset_readdir_browserLaunch_child(errs:Error, stdout:string, stderr:Buffer | string):void {
-                                    if (errs !== null) {
-                                        error([errs.toString()]);
-                                        return;
+                let timeStore:[string, number] = time("Resetting Test Environment", false, 0);
+                const launch = function terminal_test_application_browser_reset_start_launch():void {
+                    const start = function terminal_test_application_browser_reset_readdir_browserLaunch():void {
+                        const keyword:string = (process.platform === "darwin")
+                                ? "open"
+                                : (process.platform === "win32")
+                                    ? "start"
+                                    : "xdg-open",
+                            port:string = (vars.network.ports.http === 443)
+                                ? ""
+                                : `:${String(vars.network.ports.http)}`,
+                            verboseFlag:string = (browser.args.mode !== "remote" && vars.settings.verbose === true)
+                                ? "test_browser_verbose"
+                                : "test_browser",
+                            path:string = `https://${vars.network.domain[0] + port}/?${verboseFlag}`,
+                            // execute a browser by file path to the browser binary
+                            browserCommand:string = (process.argv.length > 0 && (process.argv[0].indexOf("\\") > -1 || process.argv[0].indexOf("/") > -1))
+                                ? (function terminal_test_application_browser_reset_readdir_browserLaunch_browserCommand():string {
+                                    if (process.platform === "win32") {
+                                        // yes, this is ugly.  Windows old cmd shell doesn't play well with file paths
+                                        process.argv[0] = `${process.argv[0].replace(/\\/g, "\"\\\"").replace("\"\\", "\\") + "\""}`;
+                                    } else {
+                                        process.argv[0] = `"${process.argv[0]}"`;
                                     }
-                                    if (stdout !== "") {
-                                        log([stdout]);
+                                    if (process.argv.length > 1) {
+                                        return `${keyword} ${process.argv[0]} ${path} "${process.argv.slice(1).join(" ")}"`;
                                     }
-                                    if (stderr !== "") {
-                                        log([stderr.toString()]);
-                                    }
-                                };
-                            exec(browserCommand, {
-                                cwd: vars.path.project
-                            }, child);
+                                    return `${keyword} ${process.argv[0]} ${path}`;
+                                }())
+                                : `${keyword} ${path}`,
+                            child = function terminal_test_application_browser_reset_readdir_browserLaunch_child(errs:Error, stdout:string, stderr:Buffer | string):void {
+                                if (errs !== null) {
+                                    error([errs.toString()]);
+                                    return;
+                                }
+                                if (stdout !== "") {
+                                    log([stdout]);
+                                }
+                                if (stderr !== "") {
+                                    log([stderr.toString()]);
+                                }
+                            };
+                        exec(browserCommand, {
+                            cwd: vars.path.project
+                        }, child);
+                    };
+                    log(["", "", timeStore[0]]);
+                    vars.settings.device = {};
+                    vars.settings.user = {};
+                    if (browser.args.mode === "remote") {
+                        const close:service_testBrowser = {
+                            action: "close",
+                            exit: "",
+                            index: -1,
+                            result: [],
+                            test: {
+                                interaction: null,
+                                machine: browser.name,
+                                name: "reset-request",
+                                unit: null
+                            }
                         };
-                        log(["", "", timeStore[0]]);
-                        vars.settings.device = {};
-                        vars.settings.user = {};
-                        remove(vars.path.settings, [`${vars.path.settings}temp.txt`], browserLaunch);
-                    };
-                if (browser.args.mode === "remote") {
-                    const close:service_testBrowser = {
-                        action: "close",
-                        exit: "",
-                        index: -1,
-                        result: [],
-                        test: {
-                            interaction: null,
-                            machine: browser.name,
-                            name: "reset-request",
-                            unit: null
-                        }
-                    };
-                    browser.methods.send(close);
-                    browser.methods.delay({
-                        action: start,
-                        browser: false,
-                        delay: 2000,
-                        message: "Delaying to close any open browsers."
-                    });
-                } else {
-                    start();
-                }
+                        browser.methods.send(close);
+                        browser.methods.delay({
+                            action: start,
+                            browser: false,
+                            delay: 2000,
+                            message: "Delaying to close any open browsers."
+                        });
+                    } else {
+                        start();
+                    }
+                };
+                remove(vars.path.settings, [`${vars.path.settings}temp.txt`], launch);
             },
             "reset-complete": function terminal_test_application_browser_resetComplete(item:service_testBrowser):void {
                 browser.remote.count = browser.remote.count + 1;
