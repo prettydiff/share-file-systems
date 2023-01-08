@@ -198,20 +198,21 @@ const global_events:module_globalEvents = {
         fileNavigate: function browser_content_global_fileNavigate(event:Event, config?:config_fileNavigate):void {
             const element:HTMLElement = (event as MouseEvent).target,
                 box:HTMLElement = element.getAncestor("box", "class"),
+                div:HTMLElement = element.getAncestor("div", "tag"),
                 agentName:string = (config === undefined || config.agentName === undefined)
                     ? (box !== document.documentElement)
                         ? (box.dataset.agent === undefined || box.dataset.agent === "")
-                            ? element.getAncestor("div", "tag").dataset.hash // multi-agent share modals not bound to one agent
-                            : box.dataset.agent                              // modals bound to an agent
-                        : browser.data.hashDevice                            // when not coming from a modal (assume local device)
-                    : config.agentName,                                      // state restoration
+                            ? div.dataset.hash                       // multi-agent share modals not bound to one agent
+                            : box.dataset.agent                      // modals bound to an agent
+                        : browser.data.hashDevice                    // when not coming from a modal (assume local device)
+                    : config.agentName,                              // state restoration
                 agentType:agentType = (config === undefined || config.agentType === undefined)
                     ? (box !== document.documentElement)
                         ? (box.dataset.agent === undefined || box.dataset.agent === "")
-                            ? element.getAttribute("class") as agentType     // multi-agent share modals not bound to one agent
-                            : box.dataset.agenttype as agentType             // modals bound to an agent
-                        : "device"                                           // when not coming from a modal (assume local device)
-                    : config.agentType,                                      // state restoration
+                            ? div.getAttribute("class") as agentType // multi-agent share modals not bound to one agent
+                            : box.dataset.agenttype as agentType     // modals bound to an agent
+                        : "device"                                   // when not coming from a modal (assume local device)
+                    : config.agentType,                              // state restoration
                 location:string = (config !== undefined && typeof config.path === "string")
                     ? config.path
                     : "**root**",
