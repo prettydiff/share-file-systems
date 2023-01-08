@@ -75,17 +75,6 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                     ? vars.settings.hashUser
                     : null
             };
-            if (data.type === "device") {
-                const keys:string[] = Object.keys(addAgentData.agents.device);
-                keys.forEach(function terminal_server_services_invite_addAgent_deviceIP(hash:string):void {
-                    const device:agent = addAgentData.agents.device[hash];
-                    device.ipSelected = (device.ipAll.IPv4.indexOf(addresses.remote.address) > -1 || device.ipAll.IPv6.indexOf(addresses.remote.address) > -1)
-                        ? addresses.remote.address
-                        : (device.ipAll.IPv6.length > 0)
-                            ? device.ipAll.IPv6[0]
-                            : device.ipAll.IPv4[0];
-                });
-            }
             if (vars.test.type !== "service") {
                 agent_management({
                     data: addAgentData,
@@ -95,6 +84,19 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
 
             if (callback !== null) {
                 callback(addAgentData.agents[data.type]);
+            }
+        },
+        deviceIPSelected= function terminal_server_services_invite_deviceIPSelected(type:inviteAgentType):void {
+            if (data.type === "device") {
+                const keys:string[] = Object.keys(data[type].devices);
+                keys.forEach(function terminal_server_services_invite_addAgent_deviceIP(hash:string):void {
+                    const device:agent = data[type].devices[hash];
+                    device.ipSelected = (device.ipAll.IPv4.indexOf(addresses.remote.address) > -1 || device.ipAll.IPv6.indexOf(addresses.remote.address) > -1)
+                        ? addresses.remote.address
+                        : (device.ipAll.IPv6.length > 0)
+                            ? device.ipAll.IPv6[0]
+                            : device.ipAll.IPv4[0];
+                });
             }
         },
         /**
@@ -121,10 +123,9 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                         service: "invite"
                     });
                 } else {
-                    const typeLocal:inviteAgentType = "agentRequest",
-                        typeRemote:inviteAgentType = "agentResponse";
-                    if (data.status === "accepted" && (data[typeLocal].hashDevice === vars.settings.hashDevice || data[typeLocal].hashUser === vars.settings.hashUser)) {
-                        addAgent(typeRemote, function terminal_server_services_invite_inviteComplete_addAgent(agents:agents):void {
+                    if (data.status === "accepted" && (data.agentRequest.hashDevice === vars.settings.hashDevice || data.agentRequest.hashUser === vars.settings.hashUser)) {
+                        deviceIPSelected("agentResponse");
+                        addAgent("agentResponse", function terminal_server_services_invite_inviteComplete_addAgent(agents:agents):void {
                             const keys:string[] = Object.keys(agents);
                             if (data.type === "device") {
                                 keys.forEach(function terminal_server_services_invite_inviteComplete_addAgent_each(device:string):void {
@@ -174,9 +175,7 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                     shares: userData[0]
                 };
                 data.agentRequest.ipSelected = addresses.remote.address;
-                if (data.type === "device") {
-                    data.agentRequest.devices[data.agentRequest.hashDevice].ipSelected = addresses.remote.address;
-                }
+                deviceIPSelected("agentRequest");
                 if (agent === undefined) {
                     sender.broadcast({
                         data: data,
@@ -191,18 +190,16 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                 }
             },
             "invite-response": function terminal_server_services_invite_inviteResponse():void {
-                const typeLocal:inviteAgentType = "agentResponse",
-                    typeRemote:inviteAgentType = "agentRequest",
-                    respond:string = ` invitation response processed at responding terminal ${addresses.local.address} and sent to requesting terminal ${addresses.remote.address}.`;
+                const respond:string = ` invitation response processed at responding terminal ${addresses.local.address} and sent to requesting terminal ${addresses.remote.address}.`;
                 // stage 3 - on remote terminal to start terminal, from remote browser
                 data.message = common.capitalize(data.status) + respond;
                 data.action = "invite-complete";
-                if (data.status === "accepted" && (data[typeLocal].hashDevice === vars.settings.hashDevice || data[typeLocal].hashUser === vars.settings.hashUser)) {
+                if (data.status === "accepted" && (data.agentResponse.hashDevice === vars.settings.hashDevice || data.agentResponse.hashUser === vars.settings.hashUser)) {
                     if (data.type === "device") {
-                        vars.settings.hashUser = data[typeRemote].hashUser;
-                        vars.settings.nameUser = data[typeRemote].nameUser;
+                        vars.settings.hashUser = data.agentRequest.hashUser;
+                        vars.settings.nameUser = data.agentRequest.nameUser;
                     }
-                    addAgent(typeRemote, null);
+                    addAgent("agentRequest", null);
                 }
                 inviteHttp();
             },
