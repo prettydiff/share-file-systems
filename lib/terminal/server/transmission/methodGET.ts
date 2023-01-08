@@ -74,6 +74,7 @@ const methodGET = function terminal_server_transmission_methodGET(request:Incomi
                                 type:mimeType;
                             const pageState = function terminal_server_transmission_methodGET_readCallback_pageState(xml:boolean):void {
                                     const appliedData = function terminal_server_transmission_methodGET_readCallback_pageState_appliedData(settingsData:settings_item):void {
+                                            settingsData.queue = null;
                                             if (settingsData.configuration.hashDevice === "") {
                                                 settingsData.configuration.hashDevice = vars.settings.hashDevice;
                                             } else {
@@ -102,7 +103,6 @@ const methodGET = function terminal_server_transmission_methodGET(request:Incomi
                                                 },
                                                 storageString:string = `<input type="hidden" value='${JSON.stringify(state).replace(/'/g, "&#39;")}'/>`;
                                             let dataString:string = Buffer.concat(dataStore).toString().replace("<!--stateString-->", storageString);
-                                            settingsData.queue = null;
                                             if (settingsData.configuration.nameDevice !== "") {
                                                 dataString = dataString.replace("<body class=\"default login\">", "<body class=\"default\">");
                                             }

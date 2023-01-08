@@ -299,7 +299,7 @@ const global_events:module_globalEvents = {
                             : config.id,
                         inputs: ["close", "maximize", "minimize"],
                         read_only: false,
-                        socket: true,
+                        socket: false,
                         text_value: "",
                         title: document.getElementById("terminal").innerHTML,
                         type: "terminal",

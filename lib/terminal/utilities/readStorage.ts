@@ -64,8 +64,10 @@ const readStorage = function terminal_utilities_readStorage(fromFile:boolean, ca
                     vars.settings.message = settings.message;
                     vars.settings.queue = settings.queue;
                     vars.settings.user = settings.user;
-                    vars.settings.device[vars.settings.hashDevice].ipAll = vars.network.addresses;
-                    vars.settings.device[vars.settings.hashDevice].ports = vars.network.ports;
+                    if (vars.settings.hashDevice !== undefined && vars.settings.hashDevice !== "") {
+                        vars.settings.device[vars.settings.hashDevice].ipAll = vars.network.addresses;
+                        vars.settings.device[vars.settings.hashDevice].ports = vars.network.ports;
+                    }
                     callback(settings);
                 },
                 read = function terminal_utilities_readStorage_readdir_read(fileName:string):void {

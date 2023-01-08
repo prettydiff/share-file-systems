@@ -605,18 +605,6 @@ const transmit_http:module_transmit_http = {
                                     logOutput();
                                 } else {
                                     readStorage(true, function terminal_server_transmission_transmitHttp_server_start_listen_websocketCallback_readComplete(storage:settings_item):void {
-                                        vars.settings.brotli = storage.configuration.brotli;
-                                        vars.settings.device = storage.device;
-                                        vars.settings.fileSort = storage.configuration.fileSort;
-                                        vars.settings.hashDevice = storage.configuration.hashDevice;
-                                        vars.settings.hashType = storage.configuration.hashType;
-                                        vars.settings.hashUser = storage.configuration.hashUser;
-                                        vars.settings.message = storage.message;
-                                        vars.settings.nameDevice = storage.configuration.nameDevice;
-                                        vars.settings.nameUser = storage.configuration.nameUser;
-                                        vars.settings.user = storage.user;
-                                        vars.settings.device[vars.settings.hashDevice].ipAll = vars.network.addresses;
-                                        vars.settings.device[vars.settings.hashDevice].ports = vars.network.ports;
                                         stat(storage.configuration.storage, function terminal_server_transmission_transmitHttp_server_start_listen_websocketCallback_readComplete_storageStat(storageError:NodeJS.ErrnoException):void {
                                             if (storageError === null) {
                                                 vars.settings.storage = storage.configuration.storage;

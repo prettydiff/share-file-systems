@@ -29,22 +29,20 @@ const settings = function terminal_server_services_settings(dataPackage:socketDa
         writeCallback = function terminal_server_services_settings_writeCallback(erSettings:Error):void {
             if (erSettings === null) {
                 if (data.type === "configuration") {
-                    if (vars.test.type === "") {
-                        const configs:string[] = Object.keys(settingsData);
-                        let keyLength:number = configs.length;
-                        do {
-                            keyLength = keyLength - 1;
-                            if (configs[keyLength] !== "hashUser" && configs[keyLength] !== "nameUser" && configs[keyLength] !== "hashDevice" && configs[keyLength] !== "nameDevice") {
-                                // @ts-ignore - The following line forces an implicit any, but in this dynamic assignment is lower risk than type analysis
-                                vars.settings[configs[keyLength]] = settingsData[configs[keyLength]];
-                            }
-                        } while (keyLength > 0);
-                        if (vars.settings.hashDevice === "") {
-                            vars.settings.hashUser = settingsData.hashUser;
-                            vars.settings.nameUser = settingsData.nameUser;
-                            vars.settings.hashDevice = settingsData.hashDevice;
-                            vars.settings.nameDevice = settingsData.nameDevice;
+                    const configs:string[] = Object.keys(settingsData);
+                    let keyLength:number = configs.length;
+                    do {
+                        keyLength = keyLength - 1;
+                        if (configs[keyLength] !== "hashUser" && configs[keyLength] !== "nameUser" && configs[keyLength] !== "hashDevice" && configs[keyLength] !== "nameDevice") {
+                            // @ts-ignore - The following line forces an implicit any, but in this dynamic assignment is lower risk than type analysis
+                            vars.settings[configs[keyLength]] = settingsData[configs[keyLength]];
                         }
+                    } while (keyLength > 0);
+                    if (vars.settings.hashDevice === "") {
+                        vars.settings.hashUser = settingsData.hashUser;
+                        vars.settings.nameUser = settingsData.nameUser;
+                        vars.settings.hashDevice = settingsData.hashDevice;
+                        vars.settings.nameDevice = settingsData.nameDevice;
                     }
                 } else if (vars.test.type === "" && (data.type === "device" || data.type === "user")) {
                     const agents:agents = data.settings as agents;

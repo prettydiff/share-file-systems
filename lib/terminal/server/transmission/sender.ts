@@ -133,19 +133,21 @@ const sender:module_sender = {
 
     // send a specified data package to a specified agent
     send: function terminal_server_transmission_sender_send(data:socketData, agents:transmit_agents):void {
-        if (agents !== null && agents.user === "browser") {
-            sender.broadcast(data, "browser");
-        } else if (agents !== null) {
-            if (agents.user === vars.settings.hashUser) {
-                if (agents.device.length === 141) {
-                    deviceMask.unmask(agents.device, function terminal_server_transmission_sender_send_unmask(actualDevice:string):void {
-                        sender.agentQueue("device", actualDevice, data);
-                    });
-                } else {
-                    sender.agentQueue("device", agents.device, data);
-                }
+        if (agents !== null) {
+            if (agents.user === "browser") {
+                sender.broadcast(data, "browser");
             } else {
-                sender.agentQueue("user", agents.user, data);
+                if (agents.user === vars.settings.hashUser) {
+                    if (agents.device.length === 141) {
+                        deviceMask.unmask(agents.device, function terminal_server_transmission_sender_send_unmask(actualDevice:string):void {
+                            sender.agentQueue("device", actualDevice, data);
+                        });
+                    } else {
+                        sender.agentQueue("device", agents.device, data);
+                    }
+                } else {
+                    sender.agentQueue("user", agents.user, data);
+                }
             }
         }
     }
