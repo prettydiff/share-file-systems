@@ -663,13 +663,17 @@ const transmit_http:module_transmit_http = {
                                                             let a:number = (type === "device")
                                                                 ? totalDevice
                                                                 : totalUser;
-                                                            const keys:string[] = (type === "device")
-                                                                ? keysDevice
-                                                                : keysUser;
+                                                            const self:agent = vars.settings.device[vars.settings.hashDevice],
+                                                                keys:string[] = (type === "device")
+                                                                    ? keysDevice
+                                                                    : keysUser;
                                                             if (a > 0) {
                                                                 do {
                                                                     a = a - 1;
                                                                     if (type === "device" && keys[a] === vars.settings.hashDevice) {
+                                                                        complete();
+                                                                    } else if (self.ipAll.IPv4.indexOf(vars.settings[type][keys[a]].ipSelected) > -1 || self.ipAll.IPv6.indexOf(vars.settings[type][keys[a]].ipSelected) > -1) {
+                                                                        error([`Selected IP ${vars.settings[type][keys[a]].ipSelected} of ${type} ${keys[a]} is an IP assigned to this local device.`]);
                                                                         complete();
                                                                     } else {
                                                                         vars.settings[type][keys[a]].status = "offline";

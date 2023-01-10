@@ -651,27 +651,6 @@ declare global {
     }
 
     /**
-     * For transmit_ws.agentUpdate of terminal/server/transmission/transmit_ws.
-     * ```typescript
-     * interface config_websocket_agentUpdate {
-     *     hash: string;
-     *     ip: transmit_addresses_IP;
-     *     ipSelected: string;
-     *     shares: agentShares;
-     *     status: activityStatus;
-     *     type: agentType;
-     * }
-     * ``` */
-    interface config_websocket_agentUpdate {
-        hash: string;
-        ip: transmit_addresses_IP;
-        ipSelected: string;
-        shares: agentShares;
-        status: activityStatus;
-        type: agentType;
-    }
-
-    /**
      * For transmit_ws.createSocket of terminal/server/transmission/transmit_ws.
      * ```typescript
      * interface config_websocket_create {
@@ -704,7 +683,6 @@ declare global {
      *     role: "client"|"server";
      *     socket: websocket_client;
      *     type: socketType;
-     *     update: Buffer;
      * }
      * ``` */
     interface config_websocket_extensions {
@@ -714,7 +692,6 @@ declare global {
         role: "client"|"server";
         socket: websocket_client;
         type: socketType;
-        update: Buffer;
     }
 
     /**
