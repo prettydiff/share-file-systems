@@ -2328,7 +2328,7 @@ const browserSelf:test_browserItem[] = [
                     qualifier: "is",
                     target: ["dataset", "scroll"],
                     type: "property",
-                    value: "{\"position\":0,\"entries\":[22]}"
+                    value: "{\"position\":0,\"entries\":[57]}"
                 }
             ]
         },
