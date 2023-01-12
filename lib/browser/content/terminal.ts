@@ -159,7 +159,7 @@ const terminal:module_browserTerminal = {
                     if (box !== null) {
                         const cwd:HTMLElement = box.getElementsByClassName("terminal-cwd")[0] as HTMLElement;
                         terminal.tools.populate(box.getElementsByClassName("terminal-list")[0] as HTMLElement, data.logs);
-                        if (cwd.firstChild.textContent !== data.directory && browser.data.modals[data.id] !== null) {
+                        if (browser.data.modals[data.id] !== null && browser.data.modals[data.id].text_placeholder !== data.directory) {
                             browser.data.modals[data.id].text_placeholder = data.directory;
                             network.configuration();
                         }

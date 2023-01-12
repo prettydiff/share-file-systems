@@ -18,7 +18,6 @@ import vars from "../../utilities/vars.js";
  *     processes: {
  *         [key:string]: ChildProcess;
  *     };
- *     transmit: (data:service_terminal) => void;
  * }
  * ``` */
 const terminal:module_terminal = {
@@ -182,7 +181,7 @@ const terminal:module_terminal = {
                 command();
             }
         } else {
-            terminal.transmit(data);
+            terminal.output(data);
         }
     },
     kill: function terminal_server_services_terminal_kill(id:string):void {
@@ -207,25 +206,22 @@ const terminal:module_terminal = {
                 service: "terminal"
             }, "browser");
         } else {
-            terminal.transmit(data);
+            const agents:transmit_agents = (data[data.target].agentType === "device")
+                ? {
+                    device: data[data.target].agent,
+                    user: vars.settings.hashUser
+                }
+                : {
+                    device: null,
+                    user: data[data.target].agent
+                };
+            sender.send({
+                data: data,
+                service: "terminal"
+            }, agents);
         }
     },
-    processes: {},
-    transmit: function terminal_server_services_terminalTransmit(data:service_terminal):void {
-        const agents:transmit_agents = (data[data.target].agentType === "device")
-        ? {
-            device: data[data.target].agent,
-            user: vars.settings.hashUser
-        }
-        : {
-            device: null,
-            user: data[data.target].agent
-        };
-        sender.send({
-            data: data,
-            service: "terminal"
-        }, agents);
-    }
+    processes: {}
 };
 
 export default terminal;

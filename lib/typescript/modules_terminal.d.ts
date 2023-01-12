@@ -277,7 +277,6 @@ declare global {
      *     processes: {
      *         [key:string]: ChildProcess;
      *     };
-     *     transmit: (data:service_terminal) => void;
      * }
      * ``` */
     interface module_terminal {
@@ -287,7 +286,6 @@ declare global {
         processes: {
             [key:string]: ChildProcess;
         };
-        transmit: (data:service_terminal) => void;
     }
 
     /**
