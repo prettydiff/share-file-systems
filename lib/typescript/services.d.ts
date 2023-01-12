@@ -279,7 +279,7 @@ interface service_hashShare {
  * interface service_invite {
  *     action: inviteAction;
  *     agentRequest: agentInvite;
- *     agentResponse: agentInvite;
+ *     agentSource: agentInvite;
  *     message: string;
  *     modal: string;
  *     shares:
@@ -292,7 +292,7 @@ interface service_hashShare {
 interface service_invite {
     action: inviteAction;
     agentRequest: agentInvite;
-    agentResponse: agentInvite;
+    agentSource: agentInvite;
     message: string;
     status: inviteStatus;
     type: agentType;
@@ -322,6 +322,7 @@ interface service_settings {
  *     id: string;
  *     instruction: string;
  *     logs: string[];
+ *     target: agentTransmit;
  * }
  * ``` */
 interface service_terminal {
@@ -332,6 +333,7 @@ interface service_terminal {
     id: string;
     instruction: string;
     logs: string[];
+    target: agentTransmit;
 }
 /**
  * The data object for transferring browser test automation items across the network.

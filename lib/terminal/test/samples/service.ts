@@ -169,7 +169,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                         },
                         shares: {}
                     },
-                    agentResponse: {
+                    agentSource: {
                         devices: {},
                         hashDevice: "",
                         hashUser: "",
@@ -1649,7 +1649,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     },
                     shares: {}
                 },
-                agentResponse: {
+                agentSource: {
                     hashDevice: "",
                     hashUser: "",
                     ipAll: null,
@@ -1825,7 +1825,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     },
                     shares: {}
                 },
-                agentResponse: {
+                agentSource: {
                     devices: {
                         "7f22346707be198af81ac14d5f718875ba67f67fb94bd2256c226fb8c676301f153bdd972818bc5b00aab7ee38190e9374d8e75e600ed5bbbddf4dbc5d5ca594": {
                             deviceData: {
@@ -2005,7 +2005,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     },
                     shares: {}
                 },
-                agentResponse: {
+                agentSource: {
                     devices: {},
                     hashDevice: "",
                     hashUser: "",
@@ -2182,7 +2182,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     },
                     shares: {}
                 },
-                agentResponse: {
+                agentSource: {
                     devices: {},
                     hashDevice: "",
                     hashUser: "",
@@ -2226,7 +2226,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     },
                     shares: {}
                 },
-                agentResponse: {
+                agentSource: {
                     devices: {},
                     hashDevice: "",
                     hashUser: "",
@@ -2273,7 +2273,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     },
                     shares: {}
                 },
-                agentResponse: {
+                agentSource: {
                     devices: {},
                     hashDevice: "",
                     hashUser: "",
@@ -2320,7 +2320,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     },
                     shares: {}
                 },
-                agentResponse: {
+                agentSource: {
                     devices: {},
                     hashDevice: "",
                     hashUser: "",
@@ -2367,7 +2367,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     },
                     shares: {}
                 },
-                agentResponse: {
+                agentSource: {
                     devices: {},
                     hashDevice: "",
                     hashUser: "",
@@ -2414,7 +2414,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     },
                     shares: {}
                 },
-                agentResponse: {
+                agentSource: {
                     devices: {},
                     hashDevice: "",
                     hashUser: "",

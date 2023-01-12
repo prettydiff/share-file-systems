@@ -18,7 +18,7 @@ import vars from "../../utilities/vars.js";
  *     processes: {
  *         [key:string]: ChildProcess;
  *     };
- *     transmit: (data:service_terminal, type:"agentRequest"|"agentSource") => void;
+ *     transmit: (data:service_terminal) => void;
  * }
  * ``` */
 const terminal:module_terminal = {
@@ -133,8 +133,13 @@ const terminal:module_terminal = {
                         dataHandle = function terminal_server_services_terminal_input_dataHandle(output:Buffer):void {
                             data.logs = output.toString().replace(/\r\n/g, "\n").split("\n");
                             terminal.output(data);
+                        },
+                        errorHandle = function terminal_server_services_terminal_input_errorHandle(errorMessage:NodeJS.ErrnoException):void {
+                            data.logs = JSON.stringify(errorMessage).split("\n");
+                            terminal.output(data);
                         };
                     terminal.processes[data.id] = shell;
+                    shell.on("error", errorHandle);
                     shell.on("close", terminal.kill);
                     shell.on("message", dataHandle);
                     shell.stdout.on("data", dataHandle);
@@ -151,10 +156,14 @@ const terminal:module_terminal = {
                 }
             },
             sendOutput = function terminal_server_services_terminal_input_sendOutput():void {
-                data.logs = vars.environment.log,
+                data.logs = vars.environment.log;
+                if (data.directory === "") {
+                    data.directory = vars.path.project;
+                }
                 terminal.output(data);
             };
-        if (data.agentSource.agent === vars.settings.hashDevice && data.agentSource.agentType === "device") {
+        if (data.target === "agentSource" && data.agentSource.agent === vars.settings.hashDevice && data.agentSource.agentType === "device") {
+            data.target = "agentRequest";
             // source - local device
             if (data.instruction === "close-modal") {
                 // modal is closed - terminal any associated spawned process
@@ -173,7 +182,7 @@ const terminal:module_terminal = {
                 command();
             }
         } else {
-            terminal.transmit(data, "agentSource");
+            terminal.transmit(data);
         }
     },
     kill: function terminal_server_services_terminal_kill(id:string):void {
@@ -192,25 +201,25 @@ const terminal:module_terminal = {
         }
     },
     output: function terminal_server_services_terminalOutput(data:service_terminal):void {
-        if (data.agentRequest.agent === vars.settings.hashDevice && data.agentRequest.agentType === "device") {
+        if (data[data.target].agent === vars.settings.hashDevice && data[data.target].agentType === "device") {
             sender.broadcast({
                 data: data,
                 service: "terminal"
             }, "browser");
         } else {
-            terminal.transmit(data, "agentRequest");
+            terminal.transmit(data);
         }
     },
     processes: {},
-    transmit: function terminal_server_services_terminalTransmit(data:service_terminal, type:"agentRequest"|"agentSource"):void {
-        const agents:transmit_agents = (data[type].agentType === "device")
+    transmit: function terminal_server_services_terminalTransmit(data:service_terminal):void {
+        const agents:transmit_agents = (data[data.target].agentType === "device")
         ? {
-            device: data[type].agent,
-            user: null
+            device: data[data.target].agent,
+            user: vars.settings.hashUser
         }
         : {
             device: null,
-            user: data[type].agent
+            user: data[data.target].agent
         };
         sender.send({
             data: data,

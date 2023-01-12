@@ -11,13 +11,13 @@ import vars from "../../utilities/vars.js";
  * interface module_sender {
  *     agentQueue: (type:socketType, agent:string, payload:socketData) => void;  // If the agent is offline the message will be queued.
  *     broadcast : (payload:socketData, listType:agentType | "browser") => void; // Send a specified ata package to all agents of a given agent type.
- *     route     : (destination:copyAgent, socketData:socketData, callback:(socketData:socketData) => void) => void; // Automation to redirect data packages to a specific agent examination of a service identifier and agent data.
+ *     route     : (destination:agentCopy, socketData:socketData, callback:(socketData:socketData) => void) => void; // Automation to redirect data packages to a specific agent examination of a service identifier and agent data.
  *     send      : (data:socketData, agents:transmit_agents) => void;            // Send a specified data package to a specified agent
  * }
  * ``` */
 const sender:module_sender = {
     agentQueue: function terminal_server_transmission_sender_agentQueue(type:socketType, agent:string, payload:socketData) {
-        const socket:websocket_client = transmit_ws.clientList[type as agentType][agent];
+        const socket:websocket_client = transmit_ws.clientList[type as agentType][agent];//console.log(type+" "+agent+" "+payload.service+" "+(socket===undefined?undefined:socket.status));
         if (socket !== undefined && socket !== null && (socket.status === "open" || socket.status === "pending")) {
             transmit_ws.queue(payload, socket, 1);
         } else if (vars.test.type === "" && (type === "device" || type === "user") && vars.settings[type][agent] !== undefined) {
@@ -78,7 +78,7 @@ const sender:module_sender = {
     },
 
     // direct a data payload to a specific agent as determined by the service name and the agent details in the data payload
-    route: function terminal_server_transmission_sender_route(destination:copyAgent, socketData:socketData, callback:(socketData:socketData) => void):void {
+    route: function terminal_server_transmission_sender_route(destination:agentCopy, socketData:socketData, callback:(socketData:socketData) => void):void {
         const payload:service_copy = socketData.data as service_copy,
             agent:fileAgent = payload[destination];
         if (agent.user === vars.settings.hashUser) {
@@ -112,7 +112,7 @@ const sender:module_sender = {
                         });
                     }
                 },
-                agentSelf = function terminal_server_transmission_sender_route_agentSelf(type:copyAgent):void {
+                agentSelf = function terminal_server_transmission_sender_route_agentSelf(type:agentCopy):void {
                     if (payload[type] !== null && payload[type] !== undefined && payload[type].user === vars.settings.hashUser) {
                         if (payload[type].share === "") {
                             deviceMask.mask(payload[type], maskCallback);
@@ -124,7 +124,7 @@ const sender:module_sender = {
                         maskCallback();
                     }
                 },
-                copyAgents:copyAgent[] = ["agentRequest", "agentSource", "agentWrite"];
+                copyAgents:agentCopy[] = ["agentRequest", "agentSource", "agentWrite"];
             copyAgents.splice(copyAgents.indexOf(destination), 1);
             agentSelf(copyAgents[0]);
             agentSelf(copyAgents[1]);

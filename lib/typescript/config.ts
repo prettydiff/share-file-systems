@@ -218,7 +218,7 @@ declare global {
      *     callback: () => void;
      *     change: boolean;
      *     location: string;
-     *     self: copyAgent;
+     *     self: agentCopy;
      * }
      * ``` */
     interface config_copy_security {
@@ -228,7 +228,7 @@ declare global {
         callback: () => void;
         change: boolean;
         location: string;
-        self: copyAgent;
+        self: agentCopy;
     }
 
     /**

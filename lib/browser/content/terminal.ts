@@ -52,12 +52,10 @@ const terminal:module_browserTerminal = {
         textArea.onmouseup = modal.events.footerResize;
         textArea.onblur = modal.events.textSave;
         span.appendText("Terminal command input");
-        cwd.appendText(browser.projectPath);
         label.appendChild(span);
         label.appendChild(textArea);
         footer.appendChild(cwd);
         footer.appendChild(label);
-        terminal.tools.populate(logs, browser.terminalLogs);
         return [logs, footer];
     },
     events: {
@@ -360,7 +358,8 @@ const terminal:module_browserTerminal = {
                     directory: box.getElementsByClassName("terminal-cwd")[0].innerHTML,
                     id: box.getAttribute("id"),
                     instruction: command,
-                    logs: []
+                    logs: [],
+                    target: "agentSource"
                 };
             network.send(payload, "terminal");
         }

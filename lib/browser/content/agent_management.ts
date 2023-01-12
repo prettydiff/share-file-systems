@@ -486,7 +486,7 @@ const agent_management:module_agentManagement = {
                         ports: browser.network.ports,
                         shares: userData[0]
                     },
-                    agentResponse: {
+                    agentSource: {
                         devices: null,
                         hashDevice: "",
                         hashUser: "",
@@ -1023,7 +1023,7 @@ const agent_management:module_agentManagement = {
                 }
                 a = a + 1;
             } while (a < length);
-            invitation.agentResponse.modal = modal.content(payloadModal).getAttribute("id");
+            invitation.agentSource.modal = modal.content(payloadModal).getAttribute("id");
             content.setAttribute("data-invitation", JSON.stringify(invitation));
             util.audio("invite");
         },

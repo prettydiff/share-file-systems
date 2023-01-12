@@ -89,13 +89,11 @@ const methodGET = function terminal_server_transmission_methodGET(request:Incomi
                                                 });
                                             }
                                             const state:stateData = {
-                                                    log: vars.environment.log,
                                                     name: vars.environment.name,
                                                     network: {
                                                         addresses: vars.network.addresses,
                                                         ports: vars.network.ports
                                                     },
-                                                    path: vars.path.project,
                                                     settings: settingsData,
                                                     test: (vars.test.browser !== null && request.url.indexOf("?test_browser") > 0)
                                                         ? vars.test.browser
