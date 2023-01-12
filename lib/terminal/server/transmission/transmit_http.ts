@@ -604,19 +604,7 @@ const transmit_http:module_transmit_http = {
                                 if (vars.test.type === "service" || vars.test.type.indexOf("browser_") === 0) {
                                     logOutput();
                                 } else {
-                                    readStorage(function terminal_server_transmission_transmitHttp_server_start_listen_websocketCallback_readComplete(storage:settings_item):void {
-                                        vars.settings.brotli = storage.configuration.brotli;
-                                        vars.settings.device = storage.device;
-                                        vars.settings.fileSort = storage.configuration.fileSort;
-                                        vars.settings.hashDevice = storage.configuration.hashDevice;
-                                        vars.settings.hashType = storage.configuration.hashType;
-                                        vars.settings.hashUser = storage.configuration.hashUser;
-                                        vars.settings.message = storage.message;
-                                        vars.settings.nameDevice = storage.configuration.nameDevice;
-                                        vars.settings.nameUser = storage.configuration.nameUser;
-                                        vars.settings.user = storage.user;
-                                        vars.settings.device[vars.settings.hashDevice].ipAll = vars.network.addresses;
-                                        vars.settings.device[vars.settings.hashDevice].ports = vars.network.ports;
+                                    readStorage(true, function terminal_server_transmission_transmitHttp_server_start_listen_websocketCallback_readComplete(storage:settings_item):void {
                                         stat(storage.configuration.storage, function terminal_server_transmission_transmitHttp_server_start_listen_websocketCallback_readComplete_storageStat(storageError:NodeJS.ErrnoException):void {
                                             if (storageError === null) {
                                                 vars.settings.storage = storage.configuration.storage;
@@ -675,13 +663,17 @@ const transmit_http:module_transmit_http = {
                                                             let a:number = (type === "device")
                                                                 ? totalDevice
                                                                 : totalUser;
-                                                            const keys:string[] = (type === "device")
-                                                                ? keysDevice
-                                                                : keysUser;
+                                                            const self:agent = vars.settings.device[vars.settings.hashDevice],
+                                                                keys:string[] = (type === "device")
+                                                                    ? keysDevice
+                                                                    : keysUser;
                                                             if (a > 0) {
                                                                 do {
                                                                     a = a - 1;
                                                                     if (type === "device" && keys[a] === vars.settings.hashDevice) {
+                                                                        complete();
+                                                                    } else if (self.ipAll.IPv4.indexOf(vars.settings[type][keys[a]].ipSelected) > -1 || self.ipAll.IPv6.indexOf(vars.settings[type][keys[a]].ipSelected) > -1) {
+                                                                        error([`Selected IP ${vars.settings[type][keys[a]].ipSelected} of ${type} ${keys[a]} is an IP assigned to this local device.`]);
                                                                         complete();
                                                                     } else {
                                                                         vars.settings[type][keys[a]].status = "offline";

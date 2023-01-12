@@ -18,7 +18,7 @@ This application seeks to be inherently private.  Everything is directly point t
 
 ## Features
 * Point-to-point communications, no servers and no third party.
-* 0.3 seconds for graphic user interface to with full state restoration in Chrome.
+* Less than 150ms to fully load graphic user interface in the browser with full state restoration.
 * End-to-end encryption.
 * Share anything you want and communicate between your personal devices or allow discretionary sharing with friends and family.
 * Works the same on Windows, Linux, and Mac OSX on modern terminals and modern browsers.
@@ -37,7 +37,7 @@ This application seeks to be inherently private.  Everything is directly point t
 [AGPLv3](https://www.gnu.org/licenses/agpl-3.0.en.html)
 
 ## Version
-0.2.13
+0.2.22
 
 ## Build and execute on desktop
 ### First build

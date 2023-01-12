@@ -602,16 +602,18 @@ declare global {
      * A means of organizing all stored data types into a single object for portability.
      * ```typescript
      * interface settings_item {
+     *     configuration: ui_data;
      *     device: agents;
      *     message: service_message;
-     *     configuration: ui_data;
+     *     queue: transmit_queue;
      *     user: agents;
      * }
      * ``` */
     interface settings_item {
+        configuration: ui_data;
         device: agents;
         message: service_message;
-        configuration: ui_data;
+        queue: transmit_queue;
         user: agents;
     }
 
@@ -664,6 +666,27 @@ declare global {
     interface transmit_agents {
         device: string;
         user: string;
+    }
+
+    /**
+     * A message queue store.
+     * ```typescript
+     * interface transmit_queue {
+     *     device: {
+     *         [key:string]: socketData[];
+     *     };
+     *     user: {
+     *         [key:string]: socketData[];
+     *     };
+     * }
+     * ``` */
+    interface transmit_queue {
+        device: {
+            [key:string]: socketData[];
+        };
+        user: {
+            [key:string]: socketData[];
+        };
     }
 
     /**

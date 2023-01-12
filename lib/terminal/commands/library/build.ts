@@ -345,7 +345,7 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                 if (vars.environment.module_type === "module") {
                                     storageCallback(null);
                                 } else {
-                                    readStorage(storageCallback);
+                                    readStorage(true, storageCallback);
                                 }
                             } else {
                                 errorOut("Error reading file in bundleJS step of build.", readError);

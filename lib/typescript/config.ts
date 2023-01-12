@@ -218,7 +218,7 @@ declare global {
      *     callback: () => void;
      *     change: boolean;
      *     location: string;
-     *     self: copyAgent;
+     *     self: agentCopy;
      * }
      * ``` */
     interface config_copy_security {
@@ -228,7 +228,7 @@ declare global {
         callback: () => void;
         change: boolean;
         location: string;
-        self: copyAgent;
+        self: agentCopy;
     }
 
     /**
@@ -535,6 +535,25 @@ declare global {
     }
 
     /**
+     * For browser_content_share_content_toolButton of browser/content/share
+     * ```typescript
+     * interface config_share_tool {
+     *     className: string;
+     *     handler: (event:MouseEvent) => void;
+     *     identity: string;
+     *     list: HTMLElement;
+     *     text: string;
+     * }
+     * ``` */
+    interface config_share_tool {
+        className: string;
+        handler: (event:MouseEvent) => void;
+        identity: string;
+        list: HTMLElement;
+        text: string;
+    }
+
+    /**
      * For browser.methods.delay of terminal/test/application/browser.
      * ```typescript
      * interface config_test_browserDelay {
@@ -632,27 +651,6 @@ declare global {
     }
 
     /**
-     * For transmit_ws.agentUpdate of terminal/server/transmission/transmit_ws.
-     * ```typescript
-     * interface config_websocket_agentUpdate {
-     *     hash: string;
-     *     ip: transmit_addresses_IP;
-     *     ipSelected: string;
-     *     shares: agentShares;
-     *     status: activityStatus;
-     *     type: agentType;
-     * }
-     * ``` */
-    interface config_websocket_agentUpdate {
-        hash: string;
-        ip: transmit_addresses_IP;
-        ipSelected: string;
-        shares: agentShares;
-        status: activityStatus;
-        type: agentType;
-    }
-
-    /**
      * For transmit_ws.createSocket of terminal/server/transmission/transmit_ws.
      * ```typescript
      * interface config_websocket_create {
@@ -685,7 +683,6 @@ declare global {
      *     role: "client"|"server";
      *     socket: websocket_client;
      *     type: socketType;
-     *     update: Buffer;
      * }
      * ``` */
     interface config_websocket_extensions {
@@ -695,7 +692,6 @@ declare global {
         role: "client"|"server";
         socket: websocket_client;
         type: socketType;
-        update: Buffer;
     }
 
     /**

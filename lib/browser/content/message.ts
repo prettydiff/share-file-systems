@@ -243,12 +243,12 @@ const message:module_message = {
                 grandParent:HTMLElement = source.parentNode.parentNode,
                 agentAttribute:string = box.dataset.agent,
                 agentHash:string = (agentAttribute === "")
-                    ? (className === "text-button-agent")
+                    ? (className === "share-tool-message")
                         ? grandParent.dataset.hash
                         : browser.data.hashDevice
                     : agentAttribute,
                 agentType:agentType = (agentAttribute === "")
-                    ? (className === "text-button-agent")
+                    ? (className === "share-tool-message")
                         ? grandParent.getAttribute("class") as agentType
                         : source.getAttribute("class").replace("text-button-", "") as agentType
                     : box.dataset.agenttype as agentType,

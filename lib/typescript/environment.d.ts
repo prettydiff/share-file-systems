@@ -12,10 +12,8 @@
  *     localNetwork: localNetwork;
  *     message: service_message;
  *     pageBody: HTMLElement;
- *     projectPath: string;
  *     socket: WebSocket;
  *     style: HTMLStyleElement;
- *     terminalLogs: string[];
  *     testBrowser: service_testBrowser;
  *     title: string;
  *     user: agents;
@@ -31,10 +29,8 @@ interface browser {
     message: service_message;
     network: localNetwork;
     pageBody: HTMLElement;
-    projectPath: string;
     socket: WebSocket;
     style: HTMLStyleElement;
-    terminalLogs: string[];
     testBrowser: service_testBrowser;
     title: string;
     user: agents;
@@ -58,19 +54,15 @@ interface localNetwork {
  * The state management object implanted into the page.
  * ```typescript
  * interface stateData {
- *     log: string[];
  *     name: string;
  *     network: localNetwork;
- *     path: string;
  *     settings: settings_item;
  *     test: service_testBrowser;
  * }
  * ``` */
 interface stateData {
-    log: string[];
     name: string;
     network: localNetwork;
-    path: string;
     settings: settings_item;
     test: service_testBrowser;
 }
@@ -105,39 +97,59 @@ interface terminalVariables_networkCount {
  * Stores settings related data for global access.
  * ```typescript
  * interface terminalVariables_settings {
+ *     audio     : boolean;
  *     brotli    : brotli;
+ *     color     : string;
+ *     colors    : browser_colors;
  *     device    : agents;
  *     fileSort  : fileSort;
  *     hashDevice: string;
  *     hashType  : hash;
  *     hashUser  : string;
  *     message   : service_message;
+ *     modals    : {
+ *         [key:string]: config_modal;
+ *     };
+ *     modalTypes: modalType[];
  *     nameDevice: string;
  *     nameUser  : string;
+ *     queue     : transmit_queue;
  *     secure    : boolean;
  *     status    : activityStatus;
  *     statusTime: number;
  *     storage   : string;
+ *     tutorial  : boolean;
  *     user      : agents;
  *     verbose   : boolean;
+ *     zIndex    : number;
  * }
  * ``` */
 interface terminalVariables_settings {
+    audio     : boolean;
     brotli    : brotli;
+    color     : string;
+    colors    : browser_colors;
     device    : agents;
     fileSort  : fileSort;
     hashDevice: string;
     hashType  : hash;
     hashUser  : string;
     message   : service_message;
+    modals    : {
+        [key:string]: config_modal;
+    };
+    modalTypes: modalType[];
     nameDevice: string;
     nameUser  : string;
+    queue     : transmit_queue;
     secure    : boolean;
     status    : activityStatus;
     statusTime: number;
     storage   : string;
+    tutorial  : boolean;
     user      : agents;
     verbose   : boolean;
+    zIndex    : number;
 }
 
 /**

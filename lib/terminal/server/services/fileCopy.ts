@@ -661,8 +661,8 @@ const fileCopy:module_fileCopy = {
                 message: "Security violation from attempted copy/cut."
             },
             self:fileAgent = config[config.self],
-            others:copyAgent[] = (function terminal_server_services_fileCopy_security_others():copyAgent[] {
-                const agents:copyAgent[] = ["agentRequest", "agentSource", "agentWrite"];
+            others:agentCopy[] = (function terminal_server_services_fileCopy_security_others():agentCopy[] {
+                const agents:agentCopy[] = ["agentRequest", "agentSource", "agentWrite"];
                 agents.splice(agents.indexOf(config.self), 1);
                 return agents;
             }()),
@@ -733,7 +733,7 @@ const fileCopy:module_fileCopy = {
                     allResolved();
                 }
             },
-            resolve = function terminal_server_services_fileCopy_security_resolve(type:copyAgent):void {
+            resolve = function terminal_server_services_fileCopy_security_resolve(type:agentCopy):void {
                 if (config[type].user === vars.settings.hashUser) {
                     if (config[type].share !== "" && config[type].device === "") {
                         config[type].device = deviceMask.resolve(config[type]);

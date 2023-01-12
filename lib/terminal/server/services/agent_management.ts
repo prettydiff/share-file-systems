@@ -15,33 +15,37 @@ const agent_management = function terminal_server_services_agentManagement(socke
                     : Object.keys(data.agents[type]),
                 lengthKeys:number = keys.length;
             if (lengthKeys > 0) {
-                let a = 0;
+                let a:number = 0,
+                    count:number = 0;
                 do {
                     if (vars.settings[type][keys[a]] === undefined) {
                         vars.settings[type][keys[a]] = data.agents[type][keys[a]];
+                        count = count + 1;
                     }
                     a = a + 1;
                 } while (a < lengthKeys);
-                settings({
-                    data: {
-                        settings: vars.settings[type],
-                        type: type
-                    },
-                    service: "settings"
-                });
+                if (count > 0) {
+                    settings({
+                        data: {
+                            settings: vars.settings[type],
+                            type: type
+                        },
+                        service: "settings"
+                    });
+                    if (data.agentFrom === vars.settings.hashDevice) {
+                        sender.broadcast({
+                            data: data,
+                            service: "agent-management"
+                        }, "device");
+                    } else if (vars.settings.device[data.agentFrom] !== undefined && data.deviceUser !== null && data.deviceUser.length === 128) {
+                        vars.settings.hashUser = data.deviceUser;
+                    }
+                    sender.broadcast(socketData, "browser");
+                }
             }
         };
         addAgents("device");
         addAgents("user");
-        if (data.agentFrom === vars.settings.hashDevice) {
-            sender.broadcast({
-                data: data,
-                service: "agent-management"
-            }, "device");
-        } else if (vars.settings.device[data.agentFrom] !== undefined && data.deviceUser !== null && data.deviceUser.length === 128) {
-            vars.settings.hashUser = data.deviceUser;
-        }
-        sender.broadcast(socketData, "browser");
     } else if (data.action === "delete") {
         const deleteAgents = function terminal_server_services_agentManagement_deleteAgents(type:agentType):void {
             const keys:string[] = (data.agents[type] === null)
@@ -131,7 +135,6 @@ const agent_management = function terminal_server_services_agentManagement(socke
                         ipSelected: "",
                         name: vars.settings.nameUser,
                         ports: vars.network.ports,
-                        queue: [],
                         shares: userData[0],
                         status: "active"
                     };

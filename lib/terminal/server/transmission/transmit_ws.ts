@@ -23,7 +23,6 @@ import vars from "../../utilities/vars.js";
  * ```typescript
  * interface transmit_ws {
  *     agentClose      : (socket:websocket_client) => void;                                    // A uniform way to notify browsers when a remote agent goes offline
- *     agentUpdate     : (update:config_websocket_agentUpdate) => void;                        // Processes agent data received on socket establishment
  *     clientList: {
  *         browser   : socketList;
  *         device    : socketList;
@@ -74,50 +73,6 @@ const transmit_ws:module_transmit_ws = {
         socket.status = "closed";
         socket.destroy();
         delete transmit_ws.clientList[type][socket.hash];
-    },
-    // updates a remote agent on socket connection using data provided by that remote agent
-    agentUpdate: function terminal_server_transmission_transmitWs_agentUpdate(update:config_websocket_agentUpdate):void {
-        if (update !== null && update !== undefined && update.ip !== null && update.ip !== undefined) {
-            if ((update.type === "device" || update.type === "user") && vars.settings[update.type][update.hash] !== undefined && Array.isArray(update.ip.IPv4) === true && Array.isArray(update.ip.IPv6) === true) {
-                const agent:agent = vars.settings[update.type][update.hash],
-                    status:service_agentStatus = {
-                        agent: update.hash,
-                        agentType: update.type,
-                        broadcast: true,
-                        respond: false,
-                        status: "idle"
-                    };
-                agent_status({
-                    data: status,
-                    service: "agent-status"
-                });
-                if (JSON.stringify(agent.ipAll) !== JSON.stringify(update.ip) || JSON.stringify(agent.shares) !== JSON.stringify(update.shares) || agent.ipSelected !== update.ipSelected) {
-                    const management:service_agentManagement = {
-                            action: "modify",
-                            agents: {
-                                device: (update.type === "device")
-                                    ? {[update.hash]: vars.settings.device[update.hash]}
-                                    : {},
-                                user: (update.type === "user")
-                                    ? {[update.hash]: vars.settings.user[update.hash]}
-                                    : {}
-                            },
-                            agentFrom: update.hash,
-                            deviceUser: null
-                        };
-
-                    // transmit agent data changes
-                    agent.ipAll = update.ip;
-                    agent.ipSelected = update.ipSelected;
-                    agent.shares = update.shares;
-                    agent.status = update.status;
-                    agent_management({
-                        data: management,
-                        service: "agent-management"
-                    });
-                }
-            }
-        }
     },
     // a list of connected clients
     clientList: {
@@ -184,7 +139,7 @@ const transmit_ws:module_transmit_ws = {
                         a = a + 1;
                     } while (a < len);
                 }
-                client.on("error", function terminal_server_transmission_transmitWs_createSocket_hash_error(errorMessage:NodeJS.ErrnoException):void {
+                client.once("error", function terminal_server_transmission_transmitWs_createSocket_hash_error(errorMessage:NodeJS.ErrnoException):void {
                     if (config.type === "device" || config.type === "user") {
                         transmit_ws.ipAttempts[config.type][config.hash].push(config.ip);
                         client.hash = config.hash;
@@ -203,26 +158,11 @@ const transmit_ws:module_transmit_ws = {
                         ]);
                     }
                 });
-                client.on("end", function terminal_server_transmission_transmitWs_createSocket_hash_end():void {
-                    client.status = "end";
-                });
                 client.once("ready", function terminal_server_transmission_transmitWs_createSocket_hash_ready():void {
-                    if (config.type === "device" || config.type === "user") {
-                        const userData:userData = common.userData(vars.settings.device, config.type, config.hash),
-                            update:config_websocket_agentUpdate = {
-                                hash: config.hash,
-                                ip: userData[1],
-                                ipSelected: getAddress({socket: client, type: "ws"}).local.address,
-                                shares: userData[0],
-                                status: "active",
-                                type: config.type
-                            };
-                        header.push(`agent: ${JSON.stringify(update)}`);
-                    }
                     header.push("");
                     header.push("");
                     client.write(header.join("\r\n"));
-                    client.once("data", function terminal_server_transmission_transmitWs_createSocket_hash_ready_data(data:Buffer):void {
+                    client.once("data", function terminal_server_transmission_transmitWs_createSocket_hash_ready_data():void {
                         if (config.type === "device" || config.type === "user") {
                             transmit_ws.ipAttempts[config.type][config.hash] = [];
                         }
@@ -232,8 +172,7 @@ const transmit_ws:module_transmit_ws = {
                             identifier: config.hash,
                             role: "client",
                             socket: client,
-                            type: config.type,
-                            update: data
+                            type: config.type
                         });
                     });
                 });
@@ -704,18 +643,15 @@ const transmit_ws:module_transmit_ws = {
     // push an offline agent message queue into the transmission queue
     queueSend: function terminal_server_transmission_transmitWs_queueSend(socket:websocket_client):void {
         const type:agentType = socket.type as agentType,
-            queue:socketData[] = vars.settings[type][socket.hash].queue;
-        if (queue === undefined || queue === null) {
-            vars.settings[type][socket.hash].queue = [];
-        }
-        if (queue.length > 0 && vars.test.type === "") {
+            queue:socketData[] = vars.settings.queue[type][socket.hash];
+        if (queue !== undefined && queue.length > 0 && vars.test.type === "") {
             do {
                 transmit_ws.queue(queue[0], socket, 1);
                 queue.splice(0, 1);
             } while (queue.length > 0);
             const settingsData:service_settings = {
-                settings: vars.settings[type],
-                type: type
+                settings: vars.settings.queue,
+                type: "queue"
             };
             settings({
                 data: settingsData,
@@ -752,6 +688,19 @@ const transmit_ws:module_transmit_ws = {
                                             headers.push(nonceHeader);
                                         } else if (type === "test-browser") {
                                             headers.push(`hash: ${hashName}`);
+                                        } else if (socket.type === "device" || socket.type === "user") {
+                                            const agent = vars.settings[socket.type][hashName];
+                                            if (agent === undefined || agent === null) {
+                                                socket.destroy();
+                                                return;
+                                            }
+                                            // process offline message queues
+                                            transmit_ws.queueSend(socket);
+
+                                            // provide all manners of notification
+                                            if (vars.settings.verbose === true) {
+                                                log([`Server-side socket ${vars.text.green + vars.text.bold}established${vars.text.none} for ${vars.text.underline + type + vars.text.none} ${vars.text.cyan + agent.name + vars.text.none}.`]);
+                                            }
                                         }
                                         headers.push("");
                                         headers.push("");
@@ -760,47 +709,6 @@ const transmit_ws:module_transmit_ws = {
                                     testReset = function terminal_serveR_transmission_transmitWs_server_connection_handshake_headers_testReset():void {
                                         socket.write(hashName);
                                         browser.methods.reset();
-                                    },
-                                    agentTypes = function terminal_server_transmission_transmitWs_server_connection_handshake_headers_agentTypes(socketItem:websocket_client):void {
-                                        const type:agentType = socketItem.type as agentType;
-                                        if (vars.settings[type][hashName] === undefined) {
-                                            socketItem.destroy();
-                                        } else {
-                                            const userData:userData = common.userData(vars.settings.device, type, vars.settings.hashDevice),
-                                                status:activityStatus = (function terminal_server_transmission_transmitWs_server_connection_handshake_headers_agentTypes_status():activityStatus {
-                                                    const keys:string[] = Object.keys(vars.settings.device);
-                                                    let index:number = keys.length;
-                                                    do {
-                                                        index = index - 1;
-                                                        if (vars.settings.device[keys[index]].status === "active") {
-                                                            return "active";
-                                                        }
-                                                    } while (index > 0);
-                                                    return "idle";
-                                                }()),
-                                                agent:agent = vars.settings[type][hashName],
-                                                update:config_websocket_agentUpdate = {
-                                                    hash: (type === "device")
-                                                        ? vars.settings.hashDevice
-                                                        : vars.settings.hashUser,
-                                                    ip: userData[1],
-                                                    ipSelected: getAddress({socket: socketItem, type: "ws"}).local.address,
-                                                    shares: userData[0],
-                                                    status: status,
-                                                    type: type
-                                                };
-
-                                            // send the opening response to the client
-                                            socketItem.write(JSON.stringify(update));
-
-                                            // process offline message queues
-                                            transmit_ws.queueSend(socketItem);
-
-                                            // provide all manners of notification
-                                            if (vars.settings.verbose === true && agent !== null && agent !== undefined) {
-                                                log([`Server-side socket ${vars.text.green + vars.text.bold}established${vars.text.none} for ${vars.text.underline + type + vars.text.none} ${vars.text.cyan + agent.name + vars.text.none}.`]);
-                                            }
-                                        }
                                     };
                                 // some complexity is present because browsers will not have a "hash" heading
                                 if (flags.type === true && flags.key === true && (type === "browser" || flags.hash === true)) {
@@ -815,18 +723,18 @@ const transmit_ws:module_transmit_ws = {
                                     const identifier:string = (type === "browser")
                                         ? hashKey
                                         : hashName;
+                                    if ((type === "device" || type === "user") && transmit_ws.clientList[type][identifier] !== undefined) {
+                                        transmit_ws.agentClose(transmit_ws.clientList[type][identifier]);
+                                    }
                                     transmit_ws.socketExtensions({
-                                        callback: (type === "device" || type === "user")
-                                            ? agentTypes
-                                            : (type === "test-browser")
-                                                ? testReset
-                                                : clientRespond,
+                                        callback: (type === "test-browser")
+                                            ? testReset
+                                            : clientRespond,
                                         handler: transmit_ws.clientReceiver,
                                         identifier: identifier,
                                         role: "server",
                                         socket: socket,
-                                        type: type,
-                                        update: data
+                                        type: type
                                     });
                                 }
                             },
@@ -904,7 +812,7 @@ const transmit_ws:module_transmit_ws = {
     socketExtensions: function terminal_server_transmission_transmitWs_socketExtension(config:config_websocket_extensions):void {
         if (
             (config.type === "test-browser" && vars.test.type.indexOf("browser_") === 0) ||
-            (transmit_ws.clientList[config.type as agentType | "browser"] !== undefined && transmit_ws.clientList[config.type as agentType | "browser"][config.identifier] === undefined) ||
+            transmit_ws.clientList[config.type as agentType | "browser"][config.identifier] === undefined ||
             (config.type === "perf" && (config.socket.remoteAddress === "::1" || config.socket.remoteAddress.replace("::ffff:", "") === "127.0.0.1"))
         ) {
             const ping = function terminal_server_transmission_transmitWs_socketExtension_ping(ttl:number, callback:(err:NodeJS.ErrnoException, roundtrip:bigint) => void):void {
@@ -970,20 +878,6 @@ const transmit_ws:module_transmit_ws = {
                             };
                         setTimeout(delay, 15000);
                     });
-                    if (config.update !== null) {
-                        const str:string = config.update.toString().replace(/^\r\nagent:\s+/, "").replace(/\s+$/, ""),
-                            indexOpen:number = str.indexOf("{"),
-                            indexEnd:number = str.lastIndexOf("}"),
-                            jsonStr:string = (indexOpen > -1 && indexEnd > indexOpen && str.split("{").length === str.split("}").length)
-                                ? str.slice(indexOpen, indexEnd + 1)
-                                : null,
-                            update:config_websocket_agentUpdate = (str === null)
-                                ? null
-                                : JSON.parse(jsonStr);
-                        if (update !== null && update.ip !== null && update.ip !== undefined && Array.isArray(update.ip.IPv4) === true && Array.isArray(update.ip.IPv6) === true) {
-                            transmit_ws.agentUpdate(update);
-                        }
-                    }
                     if (config.type === "user") {
                         const management:service_agentManagement = {
                             action: "modify",
@@ -1006,6 +900,9 @@ const transmit_ws:module_transmit_ws = {
             } else if (config.type === "test-browser") {
                 transmit_ws.clientList.testRemote = config.socket;
             }
+            config.socket.on("end", function terminal_server_transmission_transmitWs_socketExtension_socketEnd():void {
+                config.socket.status = "end";
+            });
             config.socket.on("error", function terminal_server_transmission_transmitWs_socketExtension_socketError(errorMessage:NodeJS.ErrnoException):void {
                 if (vars.settings.verbose === true) {
                     error([

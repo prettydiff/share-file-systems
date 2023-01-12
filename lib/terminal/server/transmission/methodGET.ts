@@ -74,6 +74,7 @@ const methodGET = function terminal_server_transmission_methodGET(request:Incomi
                                 type:mimeType;
                             const pageState = function terminal_server_transmission_methodGET_readCallback_pageState(xml:boolean):void {
                                     const appliedData = function terminal_server_transmission_methodGET_readCallback_pageState_appliedData(settingsData:settings_item):void {
+                                            settingsData.queue = null;
                                             if (settingsData.configuration.hashDevice === "") {
                                                 settingsData.configuration.hashDevice = vars.settings.hashDevice;
                                             } else {
@@ -88,13 +89,11 @@ const methodGET = function terminal_server_transmission_methodGET(request:Incomi
                                                 });
                                             }
                                             const state:stateData = {
-                                                    log: vars.environment.log,
                                                     name: vars.environment.name,
                                                     network: {
                                                         addresses: vars.network.addresses,
                                                         ports: vars.network.ports
                                                     },
-                                                    path: vars.path.project,
                                                     settings: settingsData,
                                                     test: (vars.test.browser !== null && request.url.indexOf("?test_browser") > 0)
                                                         ? vars.test.browser
@@ -124,7 +123,7 @@ const methodGET = function terminal_server_transmission_methodGET(request:Incomi
                                             }, true, request.url);
                                         };
                                     tool = true;
-                                    readStorage(appliedData);
+                                    readStorage(false, appliedData);
                                 };
     
                             if (localPath.indexOf(".js") === localPath.length - 3) {

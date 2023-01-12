@@ -191,11 +191,12 @@ body.blush {
 .blush #spaces .agentList .full-access .read-only-status{color:var(--grey-medium)}
 .blush #spaces .agentList li{border-color:var(--shadow-bright)}
 .blush #spaces .agentList li.share-agent-details{opacity:1}
-.blush #spaces .agentList .text-button-agent,
-.blush #spaces .agentList .video-button-agent,
+.blush #spaces .agentList .share-tool-message,
+.blush #spaces .agentList .share-tool-video,
 .blush #spaces .text-button-device,
 .blush #spaces .text-button-user{background:var(--blue-button-background);border-color:var(--blue-button-text);color:var(--blue-button-text)}
-.blush #spaces .agentList .file-system-root{background:var(--yellow-bright);border-color:var(--yellow-border);color:var(--yellow-dark)}
+.blush #spaces .agentList .share-tool-fileNavigate,
+.blush #spaces .agentList .share-tool-terminal{background:var(--yellow-bright);border-color:var(--yellow-border);color:var(--yellow-dark)}
 .blush #spaces .agentList h4{background:white}
 .blush #spaces .agentList .device,
 .blush #spaces .agentList .user{border-color:var(--shadow)}

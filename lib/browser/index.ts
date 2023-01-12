@@ -451,8 +451,6 @@ import disallowed from "../common/disallowed.js";
         // set state from artifacts supplied to the page
         if (stateItem.getAttribute("type") === "hidden") {
             state = JSON.parse(stateItem.value);
-            browser.terminalLogs = state.log;
-            browser.projectPath = state.path;
             if (state.settings.configuration !== undefined) {
                 if (state.settings.configuration.hashDevice !== undefined) {
                     hashDevice = state.settings.configuration.hashDevice;

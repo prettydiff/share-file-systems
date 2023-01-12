@@ -97,24 +97,14 @@ const loopback:string = "127.0.0.1",
                         source: vars.settings
                     });
                 },
-                settingsComplete = function terminal_test_application_services_addServers_settingsComplete(settings:settings_item):void {
-                    vars.settings.brotli = settings.configuration.brotli;
-                    vars.settings.hashDevice = settings.configuration.hashDevice;
-                    vars.settings.hashType = settings.configuration.hashType;
-                    vars.settings.hashUser = settings.configuration.hashUser;
-                    vars.settings.nameDevice = settings.configuration.nameDevice;
-                    vars.settings.nameUser = settings.configuration.nameUser;
-                    vars.settings.device = settings.device;
-                    vars.settings.message = settings.message;
-                    vars.settings.user = settings.user;
-        
+                settingsComplete = function terminal_test_application_services_addServers_settingsComplete():void {
                     flags.settings = true;
                     if (flags.removal === true) {
                         servers();
                     }
                 };
             vars.path.settings = `${projectPath}lib${sep}terminal${sep}test${sep}storageTest${sep}`;
-            readStorage(settingsComplete);
+            readStorage(true, settingsComplete);
             remove(removePath, [`${removePath + vars.path.sep}temp.txt`], function terminal_test_application_services_addServers_storageRemoval():void {
                 flags.removal = true;
                 if (flags.settings === true) {

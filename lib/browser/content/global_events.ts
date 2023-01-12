@@ -10,6 +10,8 @@ import share from "./share.js";
 import terminal from "./terminal.js";
 import util from "../utilities/util.js";
 
+// cspell:words agenttype
+
 /**
  * Provides a common location to store events associated with the application at large opposed to content or utility specific events.
  * ```typescript
@@ -194,12 +196,23 @@ const global_events:module_globalEvents = {
 
         /* Create a file navigate modal */
         fileNavigate: function browser_content_global_fileNavigate(event:Event, config?:config_fileNavigate):void {
-            const agentName:string = (config === undefined || config.agentName === undefined)
-                    ? browser.data.hashDevice
-                    : config.agentName,
-                agentType:agentType = (agentName === browser.data.hashDevice)
-                    ? "device"
-                    : config.agentType,
+            const element:HTMLElement = (event as MouseEvent).target,
+                box:HTMLElement = element.getAncestor("box", "class"),
+                div:HTMLElement = element.getAncestor("div", "tag"),
+                agentName:string = (config === undefined || config.agentName === undefined)
+                    ? (box !== document.documentElement)
+                        ? (box.dataset.agent === undefined || box.dataset.agent === "")
+                            ? div.dataset.hash                       // multi-agent share modals not bound to one agent
+                            : box.dataset.agent                      // modals bound to an agent
+                        : browser.data.hashDevice                    // when not coming from a modal (assume local device)
+                    : config.agentName,                              // state restoration
+                agentType:agentType = (config === undefined || config.agentType === undefined)
+                    ? (box !== document.documentElement)
+                        ? (box.dataset.agent === undefined || box.dataset.agent === "")
+                            ? div.getAttribute("class") as agentType // multi-agent share modals not bound to one agent
+                            : box.dataset.agenttype as agentType     // modals bound to an agent
+                        : "device"                                   // when not coming from a modal (assume local device)
+                    : config.agentType,                              // state restoration
                 location:string = (config !== undefined && typeof config.path === "string")
                     ? config.path
                     : "**root**",
@@ -259,17 +272,31 @@ const global_events:module_globalEvents = {
 
         /* Creates a console modal */
         terminal: function browser_content_global_terminal(event:MouseEvent, config?:config_modal):void {
+            let box:modal = null;
             const content:[HTMLElement, HTMLElement] = terminal.content(),
+                element:HTMLElement = (event === null)
+                    ? null
+                    : event.target,
+                ancestor:HTMLElement = (element === null)
+                    ? null
+                    : element.getAncestor("div", "tag"),
+                shareAgent:string = (ancestor === null)
+                    ? null
+                    : ancestor.dataset.hash,
                 agentName:string = (config === undefined)
-                    ? browser.data.hashDevice
+                    ? (shareAgent === undefined || shareAgent === null)
+                        ? browser.data.hashDevice
+                        : shareAgent
                     : config.agent,
-                agentType:agentType = (agentName === browser.data.hashDevice)
-                    ? "device"
+                agentType:agentType = (config === undefined)
+                    ? (shareAgent === undefined || shareAgent === null)
+                        ? "device"
+                        : ancestor.getAttribute("class") as agentType
                     : config.agentType,
                 payloadModal:config_modal = (config === undefined)
                     ? {
                         agent: agentName,
-                        agentIdentity: false,
+                        agentIdentity: true,
                         agentType: agentType,
                         content: content[0],
                         footer: content[1],
@@ -278,7 +305,7 @@ const global_events:module_globalEvents = {
                             : config.id,
                         inputs: ["close", "maximize", "minimize"],
                         read_only: false,
-                        socket: true,
+                        socket: false,
                         text_value: "",
                         title: document.getElementById("terminal").innerHTML,
                         type: "terminal",
@@ -296,7 +323,8 @@ const global_events:module_globalEvents = {
             }
             textArea.placeholder = "Type a command here. Press 'ins' key for file system auto-completion.";
             global_events.menuBlur(event);
-            modal.content(payloadModal);
+            box = modal.content(payloadModal);
+            terminal.tools.send(box, "", false);
             document.getElementById("menu").style.display = "none";
         },
 

@@ -3,15 +3,17 @@
 
 const login = function terminal_test_application_browserUtilities_login(machine:string):test_browserItem {
     return {
-        delay: {
-            // that class is removed from body
+        delay: 
+        {
+            // that a local user button is present and active
             node: [
-                ["getElementsByTagName", "body", 0]
+                ["getElementById", "device", null],
+                ["getElementsByTagName", "button", 1]
             ],
             qualifier: "is",
             target: ["class"],
             type: "attribute",
-            value: "default"
+            value: "active"
         },
         interaction: [
             {
@@ -48,15 +50,14 @@ const login = function terminal_test_application_browserUtilities_login(machine:
         name: `On ${machine} complete login form`,
         unit: [
             {
-                // that a local user button is present and active
+                // that class is removed from body
                 node: [
-                    ["getElementById", "device", null],
-                    ["getElementsByTagName", "button", 1]
+                    ["getElementsByTagName", "body", 0]
                 ],
                 qualifier: "is",
                 target: ["class"],
                 type: "attribute",
-                value: "active"
+                value: "default"
             },
             {
                 // that the login messaging is not visible

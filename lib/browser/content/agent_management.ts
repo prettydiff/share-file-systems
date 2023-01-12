@@ -11,7 +11,42 @@ import util from "../utilities/util.js";
 
 // cspell:words agenttype
 
-const agent_management = {
+/**
+ * Manages agent data in the browser.
+ * ```typescript
+ * interface module_agentManagement {
+ *     content: {
+ *         deleteAgents: () => HTMLElement;
+ *         inviteRemote: (invitation:service_invite, name:string) => HTMLElement;
+ *         inviteStart: () => HTMLElement;
+ *         modifyAgents: () => HTMLElement;
+ *         menu: (view:"delete"|"edit_names"|"invite") => HTMLElement;
+ *     };
+ *     events: {
+ *         confirm: (event:MouseEvent) => void;
+ *         confirmInvite: (event:MouseEvent, options:config_modal) => void;
+ *         confirmModify: (event:MouseEvent) => void;
+ *         deleteShare: (event:MouseEvent) => void;
+ *         deleteToggle: (event:MouseEvent) => void;
+ *         displayIP: (event:MouseEvent) => void;
+ *         inviteDecline: (event:MouseEvent) => void;
+ *         invitePortValidation: (event:Event) => void;
+ *         inviteTypeToggle: (event:MouseEvent) => void;
+ *         modeToggle: (event:MouseEvent) => void;
+ *     };
+ *     tools: {
+ *         addAgent: (input:agentManagement_addAgent) => void;
+ *         confirmDelete: (box:modal) => void;
+ *         deleteAgent: (agent:string, agentType:agentType) => void;
+ *         inviteAccept: (box:modal) => void;
+ *         inviteComplete: (invitation:service_invite) => void;
+ *         inviteReceive: (invitation:service_invite) => void;
+ *         inviteTransmissionReceipt: (socketData:socketData) => void;
+ *         modifyReceive: (socketData:socketData) => void;
+ *     };
+ * }
+ * ``` */
+const agent_management:module_agentManagement = {
     content: {
         /* Modal content for the agent delete list. */
         deleteAgents: function browser_content_agentManagement_deleteAgents():HTMLElement {
@@ -191,6 +226,45 @@ const agent_management = {
             return inviteElement;
         },
 
+        /* The radio buttons at the top of the modal content. */
+        menu: function browser_content_agentManagement_menu(view:"delete"|"edit_names"|"invite"):HTMLElement {
+            const div:HTMLElement = document.createElement("div"),
+                ul:HTMLElement = document.createElement("ul"),
+                h3:HTMLElement = document.createElement("h3"),
+                name:string = `agent-management-${Math.random()}`,
+                bodyDelete:HTMLElement = agent_management.content.deleteAgents() as HTMLElement,
+                bodyInvite:HTMLElement = agent_management.content.inviteStart() as HTMLElement,
+                bodyModify:HTMLElement = agent_management.content.modifyAgents() as HTMLElement;
+
+            util.radioListItem({
+                defaultValue: view,
+                handler: agent_management.events.modeToggle,
+                list: ["Invite", "Edit Names", "Delete"],
+                name: name,
+                parent: ul
+            });
+            ul.setAttribute("class", "section");
+
+            h3.appendText("Select An Action");
+            div.appendChild(h3);
+            div.appendChild(ul);
+            if (view === "delete") {
+                bodyInvite.style.display = "none";
+                bodyModify.style.display = "none";
+            } else if (view === "invite") {
+                bodyDelete.style.display = "none";
+                bodyModify.style.display = "none";
+            } else if (view === "edit_names") {
+                bodyInvite.style.display = "none";
+                bodyModify.style.display = "none";
+            }
+            div.appendChild(bodyInvite);
+            div.appendChild(bodyModify);
+            div.appendChild(bodyDelete);
+            div.setAttribute("class", "agent-management");
+            return div;
+        },
+
         /* Modal content for the modify agents area. */
         modifyAgents: function browser_content_agentManagement_modifyAgents():HTMLElement {
             const div:HTMLElement = document.createElement("div"),
@@ -295,228 +369,9 @@ const agent_management = {
             section("user");
             div.setAttribute("class", "modify-agents");
             return div;
-        },
-
-        /* The radio buttons at the top of the modal content. */
-        menu: function browser_content_agentManagement_menu(view:"delete"|"edit_names"|"invite"):HTMLElement {
-            const div:HTMLElement = document.createElement("div"),
-                ul:HTMLElement = document.createElement("ul"),
-                h3:HTMLElement = document.createElement("h3"),
-                name:string = `agent-management-${Math.random()}`,
-                bodyDelete:HTMLElement = agent_management.content.deleteAgents() as HTMLElement,
-                bodyInvite:HTMLElement = agent_management.content.inviteStart() as HTMLElement,
-                bodyModify:HTMLElement = agent_management.content.modifyAgents() as HTMLElement;
-
-            util.radioListItem({
-                defaultValue: view,
-                handler: agent_management.events.modeToggle,
-                list: ["Invite", "Edit Names", "Delete"],
-                name: name,
-                parent: ul
-            });
-            ul.setAttribute("class", "section");
-
-            h3.appendText("Select An Action");
-            div.appendChild(h3);
-            div.appendChild(ul);
-            if (view === "delete") {
-                bodyInvite.style.display = "none";
-                bodyModify.style.display = "none";
-            } else if (view === "invite") {
-                bodyDelete.style.display = "none";
-                bodyModify.style.display = "none";
-            } else if (view === "edit_names") {
-                bodyInvite.style.display = "none";
-                bodyModify.style.display = "none";
-            }
-            div.appendChild(bodyInvite);
-            div.appendChild(bodyModify);
-            div.appendChild(bodyDelete);
-            div.setAttribute("class", "agent-management");
-            return div;
         }
     },
     events: {
-        /* Changes visual state of items in the agent delete list as they are checked or unchecked. */
-        deleteToggle: function browser_content_agentManagement_deleteToggle(event:MouseEvent):void {
-            const element:HTMLInputElement = event.target as HTMLInputElement,
-                label:HTMLElement = element.parentNode;
-            if (element.checked === true) {
-                label.setAttribute("class", "checked");
-            } else {
-                label.removeAttribute("class");
-            }
-        },
-
-        /* Shows and hides IP address information from the Modify view of agent management */
-        displayIP: function browser_content_agentManagement_displayIP(event:MouseEvent):void {
-            const target:HTMLInputElement = event.target as HTMLInputElement,
-                body:HTMLElement = target.getAncestor("body", "class"),
-                value:string = (target.value === "yes")
-                    ? "block"
-                    : "none",
-                ipList:HTMLCollectionOf<HTMLElement> = body.getElementsByClassName("agent-management-ip") as HTMLCollectionOf<HTMLElement>;
-            let len:number = ipList.length;
-            if (len > 0) {
-                do {
-                    len = len - 1;
-                    ipList[len].style.display = value;
-                } while (len > 0);
-            }
-        },
-
-        /* Handler for declining an invitation request */
-        inviteDecline: function browser_content_invite_decline(event:MouseEvent):void {
-            const element:HTMLElement = event.target,
-                boxLocal:HTMLElement = element.getAncestor("box", "class"),
-                inviteBody:HTMLElement = boxLocal.getElementsByClassName("agentInvitation")[0] as HTMLElement,
-                invitation:service_invite = JSON.parse(inviteBody.dataset.invitation);
-            invitation.status = "declined";
-            network.send(invitation, "invite");
-            modal.events.close(event);
-        },
-
-        /* Basic form validation on the port field */
-        invitePortValidation: function browser_content_agentManagement_invitePortValidation(event:Event):void {
-            const portElement:HTMLInputElement = event.target as HTMLInputElement,
-                keyboardEvent:KeyboardEvent = event as KeyboardEvent,
-                portParent:HTMLElement = portElement.parentNode,
-                element:HTMLInputElement = (portParent.innerHTML.indexOf("Port") === 0)
-                    ? portElement
-                    : (function browser_content_agentManagement_invitePortValidation_findElement():HTMLInputElement {
-                        const content:HTMLElement = portParent.getAncestor("inviteAgent", "class");
-                        return content.getElementsByClassName("port")[0] as HTMLInputElement;
-                    }()),
-                value:string = element.value.replace(/\s+/g, ""),
-                numb:number = Number(value);
-            if (event.type === "blur" || (event.type === "keyup" && keyboardEvent.key === "Enter")) {
-                if (value !== "" && (isNaN(numb) === true || numb < 1 || numb > 65535)) {
-                    element.style.color = "#f00";
-                    element.style.borderColor = "#f00";
-                    element.parentNode.firstChild.textContent = "Error: Port must be a number from 1-65535 or empty.";
-                    element.focus();
-                } else {
-                    element.parentNode.firstChild.textContent = "Port";
-                    element.removeAttribute("style");
-                }
-            }
-        },
-
-        /* Switch text messaging in the invitation request modal when the user clicks on the type radio buttons */
-        inviteTypeToggle: function browser_content_agentManagement_inviteTypeToggle(event:Event):void {
-            const element:HTMLInputElement = event.target as HTMLInputElement,
-                inviteAgent:HTMLElement = element.getAncestor("inviteAgent", "class"),
-                warning:HTMLElement = inviteAgent.getElementsByClassName("inviteWarning")[0] as HTMLElement,
-                description:HTMLElement = inviteAgent.getElementsByClassName("type-description")[0] as HTMLElement,
-                strong:HTMLElement = document.createElement("strong");
-            if (warning !== undefined) {
-                warning.parentNode.removeChild(warning);
-            }
-            if (element.value === "device") {
-                strong.appendText("Including a personal device will provide unrestricted access to and from that device.");
-                description.appendChild(strong);
-                description.appendText(" This username will be imposed upon that device.");
-            } else {
-                description.appendText("Including a user allows sharing with a different person and the devices they make available.");
-            }
-            description.style.display = "block";
-            configuration.tools.radio(element);
-        },
-
-        /* Changes the content between invite, delete, edit of agent data */
-        modeToggle: function browser_content_agentManagement_modeToggle(event:MouseEvent):void {
-            const target:HTMLInputElement = event.target as HTMLInputElement,
-                body:HTMLElement = target.getAncestor("body", "class"),
-                bodyDelete:HTMLElement = body.getElementsByClassName("delete-agents")[0] as HTMLElement,
-                bodyInvite:HTMLElement = body.getElementsByClassName("inviteAgent")[0] as HTMLElement,
-                bodyModify:HTMLElement = body.getElementsByClassName("modify-agents")[0] as HTMLElement;
-            if (target.value === "delete") {
-                bodyDelete.style.display = "block";
-                bodyInvite.style.display = "none";
-                bodyModify.style.display = "none";
-            } else if (target.value === "invite") {
-                bodyDelete.style.display = "none";
-                bodyInvite.style.display = "block";
-                bodyModify.style.display = "none";
-            } else if (target.value === "edit_names") {
-                bodyDelete.style.display = "none";
-                bodyInvite.style.display = "none";
-                bodyModify.style.display = "block";
-            }
-        }
-    },
-    tools: {
-        /* Adds an agent into the browser user interface whether the agent is new or the page is loading. */
-        addAgent: function browser_content_agentManagement_addAgent(input:agentManagement_addAgent):void {
-            const li:HTMLLIElement = document.createElement("li"),
-                button:HTMLElement = document.createElement("button"),
-                addStyle = function browser_content_agentManagement_addUser_addStyle():void {
-                    let body:string,
-                        heading:string;
-                    if (browser.data.colors[input.type][input.hash] === undefined) {
-                        body = configuration.colorDefaults[browser.data.color][0];
-                        heading = configuration.colorDefaults[browser.data.color][1];
-                        browser.data.colors[input.type][input.hash] = [body, heading];
-                        if (input.callback === undefined) {
-                            network.configuration();
-                        } else {
-                            network.send({
-                                settings: browser.data,
-                                type: "configuration"
-                            }, "settings");
-                            input.callback();
-                        }
-                    } else {
-                        body = browser.data.colors[input.type][input.hash][0];
-                        heading = browser.data.colors[input.type][input.hash][1];
-                    }
-                    if (browser.loading === false) {
-                        configuration.tools.styleText({
-                            agent: input.hash,
-                            colors: [body, heading],
-                            replace: false,
-                            type: input.type
-                        });
-                    }
-                },
-                sharesModal = function browser_content_agentManagement_addUser_sharesModal(event:MouseEvent):void {
-                    let element:HTMLElement = event.target,
-                        agent:string = element.getAttribute("id"),
-                        agentType:agentType = element.dataset.agenttype as agentType;
-                    element = element.getAncestor("button", "tag");
-                    share.tools.modal(agent, agentType, null);
-                },
-                status = function browser_content_agentManagement_addUser_status(status:activityStatus):HTMLElement {
-                    let em:HTMLElement = document.createElement("em"),
-                        span:HTMLElement = document.createElement("span");
-                    em.setAttribute("class", `status-${status}`);
-                    em.appendText("●");
-                    span.appendText(` ${common.capitalize(status)}`);
-                    em.appendChild(span);
-                    return em;
-                };
-            button.appendChild(status("active"));
-            button.appendChild(status("idle"));
-            button.appendChild(status("offline"));
-            button.appendText(` ${input.name}`);
-            if (input.hash === browser.data.hashDevice) {
-                button.setAttribute("class", "active");
-            } else {
-                button.setAttribute("class", browser[input.type][input.hash].status);
-            }
-            button.setAttribute("id", input.hash);
-            button.setAttribute("data-agenttype", input.type);
-            button.setAttribute("type", "button");
-            button.onclick = sharesModal;
-            li.appendChild(button);
-            document.getElementById(input.type).getElementsByTagName("ul")[0].appendChild(li);
-            addStyle();
-            if (browser.loading === false) {
-                configuration.tools.addUserColor(input.hash, input.type, document.getElementById("configuration-modal").getElementsByClassName("configuration")[0] as HTMLElement);
-                share.tools.update("");
-            }
-        },
-
         /* Handles the confirmation button for the agent management modal type. */
         confirm: function browser_content_agentManagement_confirm(event:MouseEvent):void {
             const target:HTMLElement = event.target,
@@ -534,64 +389,12 @@ const agent_management = {
                     return null;
                 }());
             if (type === "invite") {
-                agent_management.tools.confirmInvite(event, browser.data.modals[box.getAttribute("id")]);
+                agent_management.events.confirmInvite(event, browser.data.modals[box.getAttribute("id")]);
             } else if (type === "edit_names") {
-                agent_management.tools.confirmModify(event);
+                agent_management.events.confirmModify(event);
             } else if (type === "delete") {
                 agent_management.tools.confirmDelete(box);
             }
-        },
-
-        /* Processes agent termination from a delete-agents content of agent-management */
-        confirmDelete: function browser_content_agentManagement_confirmDelete(box:modal):void {
-            const body:HTMLElement = box.getElementsByClassName("body")[0] as HTMLElement,
-                list:HTMLCollectionOf<Element> = body.getElementsByTagName("li"),
-                manage:service_agentManagement = {
-                    action: "delete",
-                    agentFrom: browser.data.hashDevice,
-                    agents: {
-                        device: {},
-                        user: {}
-                    },
-                    deviceUser: null
-                };
-            let a:number = list.length,
-                count:number = 0,
-                input:HTMLInputElement,
-                type:agentType,
-                subtitle:HTMLElement,
-                hash:string,
-                parent:HTMLElement;
-
-            // put the deleted agents into a list
-            do {
-                a = a - 1;
-                input = list[a].getElementsByTagName("input")[0];
-                if (input.checked === true) {
-                    hash = input.value;
-                    type = input.dataset.type as agentType;
-                    parent = document.getElementById(hash).parentNode;
-                    if (list[a].parentNode.childNodes.length < 2) {
-                        subtitle = document.createElement("p");
-                        subtitle.appendText(`No ${type}s to delete.`);
-                        subtitle.setAttribute("class", "summary");
-                        list[a].parentNode.parentNode.insertBefore(subtitle, list[a].parentNode);
-                        list[a].parentNode.parentNode.removeChild(list[a].parentNode);
-                    } else {
-                        list[a].parentNode.removeChild(list[a]);
-                    }
-                    manage.agents[type][hash] = browser[type][hash];
-                    parent.parentNode.removeChild(parent);
-                    agent_management.tools.deleteAgent(hash, type);
-                    count = count + 1;
-                }
-            } while (a > 0);
-            if (count < 1) {
-                return;
-            }
-            network.send(manage, "agent-management");
-            share.tools.update("");
-            network.configuration();
         },
 
         /* Send the invite request to the network */
@@ -605,7 +408,6 @@ const agent_management = {
                 body:HTMLElement = box.getElementsByClassName("body")[0] as HTMLElement,
                 content:HTMLElement = body.getElementsByClassName("inviteAgent")[0] as HTMLElement,
                 input:HTMLElement = (function browser_content_agentManagement_confirmInvite_input():HTMLElement {
-    
                     // value attainment and form validation
                     const inputs:HTMLCollectionOf<HTMLInputElement> = content.getElementsByTagName("input"),
                         length = inputs.length,
@@ -684,7 +486,7 @@ const agent_management = {
                         ports: browser.network.ports,
                         shares: userData[0]
                     },
-                    agentResponse: {
+                    agentSource: {
                         devices: null,
                         hashDevice: "",
                         hashUser: "",
@@ -789,57 +591,6 @@ const agent_management = {
             }
         },
 
-        /* Removes an agent from the browser interface */
-        deleteAgent: function browser_content_agentManagement_deleteAgent(agent:string, agentType:agentType):void {
-            const userColors:HTMLCollectionOf<HTMLElement> = document.getElementById("configuration-modal").getElementsByClassName(`${agentType}-color-list`)[0].getElementsByTagName("li"),
-                shareModals:HTMLElement[] = document.getModalsByModalType("shares"),
-                colorLength:number = userColors.length,
-                button:HTMLElement = document.getElementById(agent),
-                parent:HTMLElement = (button === null)
-                    ? null
-                    : button.parentNode;
-            let a:number = 0,
-                shareLength = shareModals.length,
-                closeButton:HTMLButtonElement = null;
-    
-            // loop through the color swatches in the settings modal to remove the agent's colors
-            if (colorLength > 0) {
-                do {
-                    if (userColors[a].dataset.agent === agent) {
-                        userColors[a].parentNode.removeChild(userColors[a]);
-                        configuration.tools.styleText({
-                            agent: agent,
-                            colors: ["", ""],
-                            replace: true,
-                            type: agentType
-                        });
-                        break;
-                    }
-                    a = a + 1;
-                } while (a < colorLength);
-            }
-    
-            // remove the agent from the data structures
-            delete browser[agentType][agent];
-            delete browser.data.colors[agentType][agent];
-    
-            // remove agent associated share modals
-            if (shareLength > 0) {
-                do {
-                    shareLength = shareLength - 1;
-                    if (shareModals[shareLength].dataset.agent === agent && shareModals[shareLength].dataset.agenttype === agentType) {
-                        closeButton = shareModals[shareLength].getElementsByClassName("close")[0] as HTMLButtonElement;
-                        closeButton.click();
-                    }
-                } while (shareLength > 0);
-            }
-    
-            // remove the named button for the agent
-            if (parent !== null && button.dataset.type === agentType) {
-                parent.parentNode.removeChild(parent);
-            }
-        },
-
         /* Removes a share from a device of the local user. */
         deleteShare: function browser_content_agentManagement_deleteShare(event:MouseEvent):void {
             const element:HTMLElement = event.target,
@@ -898,6 +649,293 @@ const agent_management = {
             share.tools.update(box.getAttribute("id"));
             manage.agents.device[agent] = browser.device[agent];
             network.send(manage, "agent-management");
+        },
+
+        /* Changes visual state of items in the agent delete list as they are checked or unchecked. */
+        deleteToggle: function browser_content_agentManagement_deleteToggle(event:MouseEvent):void {
+            const element:HTMLInputElement = event.target as HTMLInputElement,
+                label:HTMLElement = element.parentNode;
+            if (element.checked === true) {
+                label.setAttribute("class", "checked");
+            } else {
+                label.removeAttribute("class");
+            }
+        },
+
+        /* Shows and hides IP address information from the Modify view of agent management */
+        displayIP: function browser_content_agentManagement_displayIP(event:MouseEvent):void {
+            const target:HTMLInputElement = event.target as HTMLInputElement,
+                body:HTMLElement = target.getAncestor("body", "class"),
+                value:string = (target.value === "yes")
+                    ? "block"
+                    : "none",
+                ipList:HTMLCollectionOf<HTMLElement> = body.getElementsByClassName("agent-management-ip") as HTMLCollectionOf<HTMLElement>;
+            let len:number = ipList.length;
+            if (len > 0) {
+                do {
+                    len = len - 1;
+                    ipList[len].style.display = value;
+                } while (len > 0);
+            }
+        },
+
+        /* Handler for declining an invitation request */
+        inviteDecline: function browser_content_invite_decline(event:MouseEvent):void {
+            const element:HTMLElement = event.target,
+                boxLocal:HTMLElement = element.getAncestor("box", "class"),
+                inviteBody:HTMLElement = boxLocal.getElementsByClassName("agentInvitation")[0] as HTMLElement,
+                invitation:service_invite = JSON.parse(inviteBody.dataset.invitation);
+            invitation.status = "declined";
+            network.send(invitation, "invite");
+            modal.events.close(event);
+        },
+
+        /* Basic form validation on the port field */
+        invitePortValidation: function browser_content_agentManagement_invitePortValidation(event:Event):void {
+            const portElement:HTMLInputElement = event.target as HTMLInputElement,
+                keyboardEvent:KeyboardEvent = event as KeyboardEvent,
+                portParent:HTMLElement = portElement.parentNode,
+                element:HTMLInputElement = (portParent.innerHTML.indexOf("Port") === 0)
+                    ? portElement
+                    : (function browser_content_agentManagement_invitePortValidation_findElement():HTMLInputElement {
+                        const content:HTMLElement = portParent.getAncestor("inviteAgent", "class");
+                        return content.getElementsByClassName("port")[0] as HTMLInputElement;
+                    }()),
+                value:string = element.value.replace(/\s+/g, ""),
+                numb:number = Number(value);
+            if (event.type === "blur" || (event.type === "keyup" && keyboardEvent.key === "Enter")) {
+                if (value !== "" && (isNaN(numb) === true || numb < 1 || numb > 65535)) {
+                    element.style.color = "#f00";
+                    element.style.borderColor = "#f00";
+                    element.parentNode.firstChild.textContent = "Error: Port must be a number from 1-65535 or empty.";
+                    element.focus();
+                } else {
+                    element.parentNode.firstChild.textContent = "Port";
+                    element.removeAttribute("style");
+                }
+            }
+        },
+
+        /* Switch text messaging in the invitation request modal when the user clicks on the type radio buttons */
+        inviteTypeToggle: function browser_content_agentManagement_inviteTypeToggle(event:Event):void {
+            const element:HTMLInputElement = event.target as HTMLInputElement,
+                inviteAgent:HTMLElement = element.getAncestor("inviteAgent", "class"),
+                warning:HTMLElement = inviteAgent.getElementsByClassName("inviteWarning")[0] as HTMLElement,
+                description:HTMLElement = inviteAgent.getElementsByClassName("type-description")[0] as HTMLElement,
+                strong:HTMLElement = document.createElement("strong");
+            if (warning !== undefined) {
+                warning.parentNode.removeChild(warning);
+            }
+            if (element.value === "device") {
+                strong.appendText("Including a personal device will provide unrestricted access to and from that device.");
+                description.appendText("", true);
+                description.appendChild(strong);
+                description.appendText(" This username will be imposed upon that device.");
+            } else {
+                description.appendText("Including a user allows sharing with a different person and the devices they make available.", true);
+            }
+            description.style.display = "block";
+            configuration.tools.radio(element);
+        },
+
+        /* Changes the content between invite, delete, edit of agent data */
+        modeToggle: function browser_content_agentManagement_modeToggle(event:MouseEvent):void {
+            const target:HTMLInputElement = event.target as HTMLInputElement,
+                box:modal = target.getAncestor("box", "class"),
+                body:HTMLElement = box.getElementsByClassName("body")[0] as HTMLElement,
+                bodyDelete:HTMLElement = body.getElementsByClassName("delete-agents")[0] as HTMLElement,
+                bodyInvite:HTMLElement = body.getElementsByClassName("inviteAgent")[0] as HTMLElement,
+                bodyModify:HTMLElement = body.getElementsByClassName("modify-agents")[0] as HTMLElement,
+                footer:HTMLElement = box.getElementsByClassName("footer")[0] as HTMLElement;
+            footer.style.display = "block";
+            if (target.value === "delete") {
+                bodyDelete.style.display = "block";
+                bodyInvite.style.display = "none";
+                bodyModify.style.display = "none";
+            } else if (target.value === "invite") {
+                bodyDelete.style.display = "none";
+                bodyInvite.style.display = "block";
+                bodyModify.style.display = "none";
+            } else if (target.value === "edit_names") {
+                bodyDelete.style.display = "none";
+                bodyInvite.style.display = "none";
+                bodyModify.style.display = "block";
+            }
+        }
+    },
+    tools: {
+        /* Adds an agent into the browser user interface whether the agent is new or the page is loading. */
+        addAgent: function browser_content_agentManagement_addAgent(input:agentManagement_addAgent):void {
+            const li:HTMLLIElement = document.createElement("li"),
+                button:HTMLElement = document.createElement("button"),
+                addStyle = function browser_content_agentManagement_addUser_addStyle():void {
+                    let body:string,
+                        heading:string;
+                    if (browser.data.colors[input.type][input.hash] === undefined) {
+                        body = configuration.colorDefaults[browser.data.color][0];
+                        heading = configuration.colorDefaults[browser.data.color][1];
+                        browser.data.colors[input.type][input.hash] = [body, heading];
+                        if (input.callback === undefined) {
+                            network.configuration();
+                        } else {
+                            network.send({
+                                settings: browser.data,
+                                type: "configuration"
+                            }, "settings");
+                            input.callback();
+                        }
+                    } else {
+                        body = browser.data.colors[input.type][input.hash][0];
+                        heading = browser.data.colors[input.type][input.hash][1];
+                    }
+                    if (browser.loading === false) {
+                        configuration.tools.styleText({
+                            agent: input.hash,
+                            colors: [body, heading],
+                            replace: false,
+                            type: input.type
+                        });
+                    }
+                },
+                sharesModal = function browser_content_agentManagement_addUser_sharesModal(event:MouseEvent):void {
+                    let element:HTMLElement = event.target,
+                        agent:string = element.getAttribute("id"),
+                        agentType:agentType = element.dataset.agenttype as agentType;
+                    element = element.getAncestor("button", "tag");
+                    share.tools.modal(agent, agentType, null);
+                },
+                status = function browser_content_agentManagement_addUser_status(status:activityStatus):HTMLElement {
+                    let em:HTMLElement = document.createElement("em"),
+                        span:HTMLElement = document.createElement("span");
+                    em.setAttribute("class", `status-${status}`);
+                    em.appendText("●");
+                    span.appendText(` ${common.capitalize(status)}`);
+                    em.appendChild(span);
+                    return em;
+                };
+            button.appendChild(status("active"));
+            button.appendChild(status("idle"));
+            button.appendChild(status("offline"));
+            button.appendText(` ${input.name}`);
+            if (input.hash === browser.data.hashDevice) {
+                button.setAttribute("class", "active");
+            } else {
+                button.setAttribute("class", browser[input.type][input.hash].status);
+            }
+            button.setAttribute("id", input.hash);
+            button.setAttribute("data-agenttype", input.type);
+            button.setAttribute("type", "button");
+            button.onclick = sharesModal;
+            li.appendChild(button);
+            document.getElementById(input.type).getElementsByTagName("ul")[0].appendChild(li);
+            addStyle();
+            if (browser.loading === false) {
+                configuration.tools.addUserColor(input.hash, input.type, document.getElementById("configuration-modal").getElementsByClassName("configuration")[0] as HTMLElement);
+                share.tools.update("");
+            }
+        },
+
+        /* Processes agent termination from a delete-agents content of agent-management */
+        confirmDelete: function browser_content_agentManagement_confirmDelete(box:modal):void {
+            const body:HTMLElement = box.getElementsByClassName("body")[0] as HTMLElement,
+                list:HTMLCollectionOf<Element> = body.getElementsByClassName("delete-agents")[0].getElementsByTagName("li"),
+                manage:service_agentManagement = {
+                    action: "delete",
+                    agentFrom: browser.data.hashDevice,
+                    agents: {
+                        device: {},
+                        user: {}
+                    },
+                    deviceUser: null
+                };
+            let a:number = list.length,
+                count:number = 0,
+                input:HTMLInputElement,
+                type:agentType,
+                subtitle:HTMLElement,
+                hash:string,
+                parent:HTMLElement;
+
+            // put the deleted agents into a list
+            do {
+                a = a - 1;
+                input = list[a].getElementsByTagName("input")[0];
+                if (input.checked === true) {
+                    hash = input.value;
+                    type = input.dataset.type as agentType;
+                    parent = document.getElementById(hash).parentNode;
+                    if (list[a].parentNode.childNodes.length < 2) {
+                        subtitle = document.createElement("p");
+                        subtitle.appendText(`No ${type}s to delete.`);
+                        subtitle.setAttribute("class", "summary");
+                        list[a].parentNode.parentNode.insertBefore(subtitle, list[a].parentNode);
+                        list[a].parentNode.parentNode.removeChild(list[a].parentNode);
+                    } else {
+                        list[a].parentNode.removeChild(list[a]);
+                    }
+                    manage.agents[type][hash] = browser[type][hash];
+                    parent.parentNode.removeChild(parent);
+                    agent_management.tools.deleteAgent(hash, type);
+                    count = count + 1;
+                }
+            } while (a > 0);
+            if (count < 1) {
+                return;
+            }
+            network.send(manage, "agent-management");
+            share.tools.update("");
+            network.configuration();
+        },
+
+        /* Removes an agent from the browser interface */
+        deleteAgent: function browser_content_agentManagement_deleteAgent(agent:string, agentType:agentType):void {
+            const userColors:HTMLCollectionOf<HTMLElement> = document.getElementById("configuration-modal").getElementsByClassName(`${agentType}-color-list`)[0].getElementsByTagName("li"),
+                shareModals:HTMLElement[] = document.getModalsByModalType("shares"),
+                colorLength:number = userColors.length,
+                button:HTMLElement = document.getElementById(agent),
+                parent:HTMLElement = (button === null)
+                    ? null
+                    : button.parentNode;
+            let a:number = 0,
+                shareLength = shareModals.length,
+                closeButton:HTMLButtonElement = null;
+    
+            // loop through the color swatches in the settings modal to remove the agent's colors
+            if (colorLength > 0) {
+                do {
+                    if (userColors[a].dataset.agent === agent) {
+                        userColors[a].parentNode.removeChild(userColors[a]);
+                        configuration.tools.styleText({
+                            agent: agent,
+                            colors: ["", ""],
+                            replace: true,
+                            type: agentType
+                        });
+                        break;
+                    }
+                    a = a + 1;
+                } while (a < colorLength);
+            }
+    
+            // remove the agent from the data structures
+            delete browser[agentType][agent];
+            delete browser.data.colors[agentType][agent];
+    
+            // remove agent associated share modals
+            if (shareLength > 0) {
+                do {
+                    shareLength = shareLength - 1;
+                    if (shareModals[shareLength].dataset.agent === agent && shareModals[shareLength].dataset.agenttype === agentType) {
+                        closeButton = shareModals[shareLength].getElementsByClassName("close")[0] as HTMLButtonElement;
+                        closeButton.click();
+                    }
+                } while (shareLength > 0);
+            }
+    
+            // remove the named button for the agent
+            if (parent !== null && button.dataset.type === agentType) {
+                parent.parentNode.removeChild(parent);
+            }
         },
 
         /* Accept an invitation, handler on a modal's confirm button */
@@ -985,7 +1023,7 @@ const agent_management = {
                 }
                 a = a + 1;
             } while (a < length);
-            invitation.agentResponse.modal = modal.content(payloadModal).getAttribute("id");
+            invitation.agentSource.modal = modal.content(payloadModal).getAttribute("id");
             content.setAttribute("data-invitation", JSON.stringify(invitation));
             util.audio("invite");
         },

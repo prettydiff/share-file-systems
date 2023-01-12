@@ -191,11 +191,12 @@ body.default {
 .default #spaces .agentList .full-access .read-only-status{color:var(--grey-medium)}
 .default #spaces .agentList li{border-color:var(--shadow-bright)}
 .default #spaces .agentList li.share-agent-details{opacity:1}
-.default #spaces .agentList .text-button-agent,
-.default #spaces .agentList .video-button-agent,
+.default #spaces .agentList .share-tool-message,
+.default #spaces .agentList .share-tool-video,
 .default #spaces .text-button-device,
 .default #spaces .text-button-user{background:var(--blue-button-background);border-color:var(--blue-button-text);color:var(--blue-button-text)}
-.default #spaces .agentList .file-system-root{background:var(--yellow-bright);border-color:var(--yellow-border);color:var(--yellow-dark)}
+.default #spaces .agentList .share-tool-fileNavigate,
+.default #spaces .agentList .share-tool-terminal{background:var(--yellow-bright);border-color:var(--yellow-border);color:var(--yellow-dark)}
 .default #spaces .agentList h4{background:white}
 .default #spaces .agentList .device,
 .default #spaces .agentList .user{border-color:var(--shadow)}

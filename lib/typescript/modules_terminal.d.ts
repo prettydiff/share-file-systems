@@ -256,14 +256,14 @@ declare global {
      * interface module_sender {
      *     agentQueue: (type:socketType, agent:string, payload:socketData) => void;  // If the agent is offline the message will be queued.
      *     broadcast : (payload:socketData, listType:agentType | "browser") => void; // Send a specified ata package to all agents of a given agent type.
-     *     route     : (destination:copyAgent, socketData:socketData, callback:(socketData:socketData) => void) => void; // Automation to redirect data packages to a specific agent examination of a service identifier and agent data.
+     *     route     : (destination:agentCopy, socketData:socketData, callback:(socketData:socketData) => void) => void; // Automation to redirect data packages to a specific agent examination of a service identifier and agent data.
      *     send      : (data:socketData, agents:transmit_agents) => void;            // Send a specified data package to a specified agent
      * }
      * ``` */
     interface module_sender {
         agentQueue: (type:socketType, agent:string, payload:socketData) => void;
         broadcast: (payload:socketData, listType:agentType | "browser") => void;
-        route: (destination:copyAgent, socketData:socketData, callback:(socketData:socketData) => void) => void;
+        route: (destination:agentCopy, socketData:socketData, callback:(socketData:socketData) => void) => void;
         send: (data:socketData, agents:transmit_agents) => void;
     }
 
@@ -545,7 +545,6 @@ declare global {
      * ```typescript
      * interface transmit_ws {
      *     agentClose      : (socket:websocket_client) => void;                                    // A uniform way to notify browsers when a remote agent goes offline
-     *     agentUpdate     : (update:config_websocket_agentUpdate) => void;                        // Processes agent data received on socket establishment
      *     clientList: {
      *         browser   : socketList;
      *         device    : socketList;
@@ -576,7 +575,6 @@ declare global {
      * ``` */
     interface module_transmit_ws {
         agentClose: (socket:websocket_client) => void;
-        agentUpdate: (update:config_websocket_agentUpdate) => void;
         clientList: {
             browser: websocket_list;
             device: websocket_list;
