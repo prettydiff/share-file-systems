@@ -139,7 +139,7 @@ const transmit_ws:module_transmit_ws = {
                         a = a + 1;
                     } while (a < len);
                 }
-                client.on("error", function terminal_server_transmission_transmitWs_createSocket_hash_error(errorMessage:NodeJS.ErrnoException):void {
+                client.once("error", function terminal_server_transmission_transmitWs_createSocket_hash_error(errorMessage:NodeJS.ErrnoException):void {
                     if (config.type === "device" || config.type === "user") {
                         transmit_ws.ipAttempts[config.type][config.hash].push(config.ip);
                         client.hash = config.hash;
@@ -157,9 +157,6 @@ const transmit_ws:module_transmit_ws = {
                             JSON.stringify(errorMessage)
                         ]);
                     }
-                });
-                client.on("end", function terminal_server_transmission_transmitWs_createSocket_hash_end():void {
-                    client.status = "end";
                 });
                 client.once("ready", function terminal_server_transmission_transmitWs_createSocket_hash_ready():void {
                     header.push("");
@@ -726,6 +723,9 @@ const transmit_ws:module_transmit_ws = {
                                     const identifier:string = (type === "browser")
                                         ? hashKey
                                         : hashName;
+                                    if ((type === "device" || type === "user") && transmit_ws.clientList[type][identifier] !== undefined) {
+                                        transmit_ws.agentClose(transmit_ws.clientList[type][identifier]);
+                                    }
                                     transmit_ws.socketExtensions({
                                         callback: (type === "test-browser")
                                             ? testReset
@@ -812,7 +812,7 @@ const transmit_ws:module_transmit_ws = {
     socketExtensions: function terminal_server_transmission_transmitWs_socketExtension(config:config_websocket_extensions):void {
         if (
             (config.type === "test-browser" && vars.test.type.indexOf("browser_") === 0) ||
-            (transmit_ws.clientList[config.type as agentType | "browser"] !== undefined && transmit_ws.clientList[config.type as agentType | "browser"][config.identifier] === undefined) ||
+            transmit_ws.clientList[config.type as agentType | "browser"][config.identifier] === undefined ||
             (config.type === "perf" && (config.socket.remoteAddress === "::1" || config.socket.remoteAddress.replace("::ffff:", "") === "127.0.0.1"))
         ) {
             const ping = function terminal_server_transmission_transmitWs_socketExtension_ping(ttl:number, callback:(err:NodeJS.ErrnoException, roundtrip:bigint) => void):void {
@@ -900,6 +900,9 @@ const transmit_ws:module_transmit_ws = {
             } else if (config.type === "test-browser") {
                 transmit_ws.clientList.testRemote = config.socket;
             }
+            config.socket.on("end", function terminal_server_transmission_transmitWs_socketExtension_socketEnd():void {
+                config.socket.status = "end";
+            });
             config.socket.on("error", function terminal_server_transmission_transmitWs_socketExtension_socketError(errorMessage:NodeJS.ErrnoException):void {
                 if (vars.settings.verbose === true) {
                     error([
