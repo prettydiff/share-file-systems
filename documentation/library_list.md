@@ -22,7 +22,6 @@ This is a dynamically compiled list of supporting code files that comprise this 
    - **[../lib/electron.ts](../lib/electron.ts)**                                                                                                       - API endpoint to electron desktop application wrapper.
    - **[../lib/tauri.ts](../lib/tauri.ts)**                                                                                                             - API endpoint to Tauri desktop application wrapper.
 * Directory *[../lib/browser](../lib/browser)*
-   - **[../lib/browser/browser.ts](../lib/browser/browser.ts)**                                                                                         - A list of declared variables globally available to the browser instance of the application.
    - **[../lib/browser/index.ts](../lib/browser/index.ts)**                                                                                             - The base JavaScript code that initiates the application in the browser.
 * Directory *[../lib/browser/content](../lib/browser/content)*
    - **[../lib/browser/content/agent_management.ts](../lib/browser/content/agent_management.ts)**                                                       - Provide control of agent data: delete, invite, and edit.
@@ -39,8 +38,10 @@ This is a dynamically compiled list of supporting code files that comprise this 
    - **[../lib/browser/utilities/agent_hash.ts](../lib/browser/utilities/agent_hash.ts)**                                                               - Generates a local user identity.
    - **[../lib/browser/utilities/agent_status.ts](../lib/browser/utilities/agent_status.ts)**                                                           - Receive and process agent activity status notifications from the network.
    - **[../lib/browser/utilities/audio.ts](../lib/browser/utilities/audio.ts)**                                                                         - A storage of audio samples encoded in Base64 with respective metadata.
+   - **[../lib/browser/utilities/browser.ts](../lib/browser/utilities/browser.ts)**                                                                     - A list of declared variables globally available to the browser instance of the application.
    - **[../lib/browser/utilities/dom.ts](../lib/browser/utilities/dom.ts)**                                                                             - Extensions to the DOM to provide navigational functionality not present from the standard methods
    - **[../lib/browser/utilities/modal.ts](../lib/browser/utilities/modal.ts)**                                                                         - A collection of utilities for generating and manipulating modals/windows in the browser.
+   - **[../lib/browser/utilities/modal_configuration.ts](../lib/browser/utilities/modal_configuration.ts)**                                             - A single location for storing all modal content configurations by modal type.
    - **[../lib/browser/utilities/network.ts](../lib/browser/utilities/network.ts)**                                                                     - The methods that execute data requests to the local terminal instance of the application.
    - **[../lib/browser/utilities/remote.ts](../lib/browser/utilities/remote.ts)**                                                                       - A collection of instructions to allow event execution from outside the browser, like a remote control.
    - **[../lib/browser/utilities/util.ts](../lib/browser/utilities/util.ts)**                                                                           - Miscellaneous tools for the browser environment.

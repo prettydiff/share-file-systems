@@ -12,9 +12,9 @@ import dom from "./utilities/dom.js";
 import media from "./content/media.js";
 import message from "./content/message.js";
 import modal from "./utilities/modal.js";
+import modal_configuration from "./utilities/modal_configurations.js";
 import network from "./utilities/network.js";
 import remote from "./utilities/remote.js";
-import share from "./content/share.js";
 import tutorial from "./content/tutorial.js";
 import util from "./utilities/util.js";
 import webSocket from "./utilities/webSocket.js";
@@ -87,30 +87,6 @@ import disallowed from "../common/disallowed.js";
                 }
             },
 
-            // populate any modals that exist by default
-            defaultModals = function browser_init_defaultModals():void {
-                const payloadModal:config_modal = {
-                    agent: browser.data.hashDevice,
-                    agentIdentity: false,
-                    agentType: "device",
-                    closeHandler: modal.events.closeEnduring,
-                    content: null,
-                    read_only: false,
-                    single: true,
-                    status: "hidden",
-                    title: null,
-                    type: "configuration"
-                };
-                // building configuration modal
-                if (document.getElementById("configuration-modal") === null) {
-                    payloadModal.content = configuration.content();
-                    payloadModal.inputs = ["close"];
-                    payloadModal.title = document.getElementById("configuration").innerHTML;
-                    delete payloadModal.width;
-                    modal.content(payloadModal);
-                }
-            },
-
             // process the login form
             applyLogin = function browser_init_applyLogin():void {
                 const login:HTMLElement = document.getElementById("login"),
@@ -134,8 +110,6 @@ import disallowed from "../common/disallowed.js";
                     handlerMouse = function browser_init_applyLogin_handleMouse():void {
                         action();
                     };
-
-                defaultModals();
                 nameUser.onkeyup = handlerKeyboard;
                 nameDevice.onkeyup = handlerKeyboard;
                 button.onclick = handlerMouse;
@@ -146,9 +120,37 @@ import disallowed from "../common/disallowed.js";
             loadComplete = function browser_init_complete():void {
                 // change status to idle
                 const allDevice:HTMLElement = agentList.getElementsByClassName("device-all-shares")[0] as HTMLElement,
-                    allUser:HTMLElement = agentList.getElementsByClassName("user-all-shares")[0] as HTMLElement,
-                    buttons:HTMLCollectionOf<HTMLButtonElement> = document.getElementById("menu").getElementsByTagName("button");
-                let b:number = buttons.length;
+                    allUser:HTMLElement = agentList.getElementsByClassName("user-all-shares")[0] as HTMLElement;
+
+                // create menu buttons from modal type names and associated icons/text
+                {
+                    const buttons:string[] = Object.keys(modal_configuration.titles),
+                        buttonLength:number = buttons.length,
+                        menu = document.getElementById("menu"),
+                        menuBlur = function browser_init_complete_menuBlur():void {
+                            menu.style.display = "none"; 
+                        };
+                    let index:number = 0,
+                        button:HTMLButtonElement = null,
+                        li:HTMLElement = null,
+                        span:HTMLElement = null;
+                    do {
+                        if (modal_configuration.titles[buttons[index]].menu === true) {
+                            button = document.createElement("button");
+                            li = document.createElement("li");
+                            span = document.createElement("span");
+                            span.appendText(modal_configuration.titles[buttons[index]].icon);
+                            button.setAttribute("class", buttons[index]);
+                            button.appendChild(span);
+                            button.appendText(` ${modal_configuration.titles[buttons[index]].text}`);
+                            button.onblur = menuBlur;
+                            button.onclick = modal_configuration.modals[buttons[index] as modalType];
+                            li.appendChild(button);
+                            menu.appendChild(li);
+                        }
+                        index = index + 1;
+                    } while (index < buttonLength);
+                }
 
                 if (browser.data.hashDevice === "") {
                     // Terminate load completion dependent upon creation of device hash
@@ -160,26 +162,14 @@ import disallowed from "../common/disallowed.js";
                     message.tools.populate("");
                 }
 
-                // loading data and modals is complete
-                browser.loading = false;
-
-                if (browser.data.hashDevice !== "" && document.getElementById("configuration-modal") === null) {
-                    defaultModals();
-                }
-
                 // assign key default events
+                modal_configuration.modals.configuration(null, null);
                 browser.content.onclick                             = global_events.contextMenuRemove;
                 document.getElementById("menuToggle").onclick       = global_events.menu;
-                agentList.getElementsByTagName("button")[0].onclick = global_events.shareAll;
-                allDevice.onclick                                   = global_events.shareAll;
-                allUser.onclick                                     = global_events.shareAll;
+                agentList.getElementsByTagName("button")[0].onclick = modal_configuration.modals.shares;
+                allDevice.onclick                                   = modal_configuration.modals.shares;
+                allUser.onclick                                     = modal_configuration.modals.shares;
                 document.getElementById("minimize-all").onclick     = global_events.minimizeAll;
-                document.getElementById("export").onclick           = global_events.modal.export;
-                document.getElementById("fileNavigator").onclick    = global_events.modal.fileNavigate;
-                document.getElementById("configuration").onclick    = global_events.modal.configuration;
-                document.getElementById("terminal").onclick         = global_events.modal.terminal;
-                document.getElementById("textPad").onclick          = global_events.modal.textPad;
-                document.getElementById("agent-management").onclick = global_events.modal.agentManagement;
                 document.onvisibilitychange                         = global_events.visibility;
                 if (document.fullscreenEnabled === true) {
                     document.onfullscreenchange                   = global_events.fullscreenChange;
@@ -188,10 +178,6 @@ import disallowed from "../common/disallowed.js";
                     const fullscreen:HTMLElement = document.getElementById("fullscreen");
                     fullscreen.parentNode.removeChild(fullscreen);
                 }
-                do {
-                    b = b - 1;
-                    buttons[b].onblur = global_events.menuBlur;
-                } while (b > 0);
 
                 // initiate webSocket and activity status
                 agent_status.start();
@@ -201,6 +187,9 @@ import disallowed from "../common/disallowed.js";
                 if (location.href.indexOf("test_browser") < 0 && (browser.data.tutorial === true || location.href.indexOf("?tutorial") > 0)) {
                     tutorial();
                 }
+
+                // loading data and modals is complete
+                browser.loading = false;
             },
 
             // on page load restore the application to exactly the way it was
@@ -371,18 +360,15 @@ import disallowed from "../common/disallowed.js";
                             z(id);
                         };
                         if (modalItem.type === "agent-management") {
-                            global_events.modal.agentManagement(null, modalItem);
-                        } else if (modalItem.type === "export" || modalItem.type === "textPad") {
-                            global_events.modal.textPad(null, modalItem);
+                            modal_configuration.modals["agent-management"](null, modalItem);
+                        } else if (modalItem.type === "export" || modalItem.type === "text-pad") {
+                            modal_configuration.modals["text-pad"](null, modalItem);
                         } else if (modalItem.type === "message") {
-                            message.content.modal(modalItem, modalItem.agentType, modalItem.agent);
+                            modal_configuration.modals.message(null, modalItem);
                         } else if (modalItem.type === "shares") {
-                            const agentType:agentType|"" = (modalItem.title.indexOf("All Shares") > -1)
-                                ? ""
-                                : modalItem.agentType;
-                            share.tools.modal(modalItem.agent, agentType, modalItem);
+                            modal_configuration.modals.shares(null, modalItem);
                         } else if (modalItem.type === "terminal") {
-                            global_events.modal.terminal(null, modalItem);
+                            modal_configuration.modals.terminal(null, modalItem);
                         } else {
                             z(null);
                         }
@@ -425,7 +411,7 @@ import disallowed from "../common/disallowed.js";
                 } else {
                     modalKeys.forEach(function browser_init_modalKeys(value:string) {
                         type = state.settings.configuration.modals[value].type;
-                        if (type === "fileNavigate") {
+                        if (type === "file-navigate") {
                             modalFile(value);
                         } else if (type === "configuration") {
                             modalConfiguration(value);

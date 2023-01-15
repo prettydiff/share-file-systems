@@ -5,6 +5,7 @@ import browser from "../utilities/browser.js";
 import common from "../../common/common.js";
 import configuration from "./configuration.js";
 import modal from "../utilities/modal.js";
+import modal_configuration from "../utilities/modal_configurations.js";
 import network from "../utilities/network.js";
 import share from "./share.js";
 import util from "../utilities/util.js";
@@ -127,6 +128,10 @@ const agent_management:module_agentManagement = {
                 textarea:HTMLTextAreaElement = document.createElement("textarea");
 
             div.setAttribute("class", "agentInvitation");
+            div.setAttribute("data-agent", invitation.type);
+            div.setAttribute("data-agenttype", (invitation.type === "device")
+                ? agentInvite.hashDevice
+                : agentInvite.hashUser);
             strong.appendText(name);
             text.appendText(`${common.capitalize(invitation.type)} `);
             text.appendChild(strong);
@@ -144,6 +149,7 @@ const agent_management:module_agentManagement = {
             text.appendChild(em);
             text.appendText(" button to accept the invitation or close this modal to ignore it.");
             div.appendChild(text);
+            div.setAttribute("data-invitation", JSON.stringify(invitation));
             return div;
         },
 
@@ -552,17 +558,14 @@ const agent_management:module_agentManagement = {
                     const typeString:string = `${common.capitalize(type)}, `;
                     let boxLen:number = boxes.length,
                         button:HTMLElement = null,
-                        id:string = "",
                         text:string = "";
                     do {
                         boxLen = boxLen - 1;
                         if (boxes[boxLen].dataset.agent === agent && boxes[boxLen].dataset.agenttype === type) {
-                            id = boxes[boxLen].getAttribute("id");
                             button = boxes[boxLen].getElementsByTagName("button")[0];
                             text = button.innerHTML;
                             text = text.slice(0, text.indexOf(typeString) + typeString.length) + name;
                             button.appendText(text);
-                            browser.data.modals[id].title = text;
                         }
                     } while (boxLen > 0);
                 };
@@ -797,13 +800,6 @@ const agent_management:module_agentManagement = {
                         });
                     }
                 },
-                sharesModal = function browser_content_agentManagement_addUser_sharesModal(event:MouseEvent):void {
-                    let element:HTMLElement = event.target,
-                        agent:string = element.getAttribute("id"),
-                        agentType:agentType = element.dataset.agenttype as agentType;
-                    element = element.getAncestor("button", "tag");
-                    share.tools.modal(agent, agentType, null);
-                },
                 status = function browser_content_agentManagement_addUser_status(status:activityStatus):HTMLElement {
                     let em:HTMLElement = document.createElement("em"),
                         span:HTMLElement = document.createElement("span");
@@ -825,7 +821,7 @@ const agent_management:module_agentManagement = {
             button.setAttribute("id", input.hash);
             button.setAttribute("data-agenttype", input.type);
             button.setAttribute("type", "button");
-            button.onclick = sharesModal;
+            button.onclick = modal_configuration.modals.shares;
             li.appendChild(button);
             document.getElementById(input.type).getElementsByTagName("ul")[0].appendChild(li);
             addStyle();
@@ -996,35 +992,18 @@ const agent_management:module_agentManagement = {
                 name:string = (invitation.type === "device")
                     ? agentInvite.nameDevice
                     : agentInvite.nameUser,
-                content:HTMLElement = agent_management.content.inviteRemote(invitation, name),
-                modals:string[] = Object.keys(browser.data.modals),
-                length:number = modals.length,
-                payloadModal:config_modal = {
-                    agent: browser.data.hashDevice,
-                    agentIdentity: false,
-                    agentType: "device",
-                    closeHandler: agent_management.events.inviteDecline,
-                    content: content,
-                    height: 300,
-                    inputs: ["cancel", "confirm", "close"],
-                    read_only: false,
-                    share: browser.data.hashDevice,
-                    title: (invitation.type === "device")
-                        ? `Invitation from Device ${agentInvite.nameDevice}`
-                        : `Invitation from User ${agentInvite.nameUser}`,
-                    type: "invite-accept",
-                    width: 500
-                };
-            let a:number = 0;
-            do {
-                if (browser.data.modals[modals[a]].type === "invite-accept" && browser.data.modals[modals[a]].title === `Invitation from ${name}`) {
-                    // there should only be one invitation at a time from a given user otherwise there is spam
-                    return;
-                }
-                a = a + 1;
-            } while (a < length);
-            invitation.agentSource.modal = modal.content(payloadModal).getAttribute("id");
-            content.setAttribute("data-invitation", JSON.stringify(invitation));
+                modals:HTMLElement[] = document.getModalsByModalType("invite-accept");
+            let index:number = modals.length;
+            if (index > 0) {
+                do {
+                    index = index - 1;
+                    if (modals[index].getElementsByClassName("heading")[0].getElementsByTagName("button")[0].innerHTML.indexOf(`Invitation from ${name}`) > -1) {
+                        // there should only be one invitation at a time from a given user otherwise there is spam
+                        return;
+                    }
+                } while (index > 0);
+            }
+            invitation.agentSource.modal = modal_configuration.modals["invite-accept"](null, null, agent_management.content.inviteRemote(invitation, name)).getAttribute("id");
             util.audio("invite");
         },
 

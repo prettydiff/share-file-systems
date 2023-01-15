@@ -41,7 +41,6 @@ body.default {
     --dragBox-background:#9cf;
     --dragBox-border:#69c;
     --focus:#39f;
-    --icon-fileNavigate:#;
     --offline:#f66;
     --parent-background:#fdf;
     --parent-text:#606;
@@ -110,14 +109,19 @@ body.default {
 .default #spaces #minimize-all:hover,
 .default #spaces #fullscreen:hover,
 .default #spaces #menuToggle:hover{background:var(--white)}
-.default #spaces .icon-fileNavigator{color:var(--green-button-text)}
-.default #spaces .icon-systemLog{color:var(--focus)}
-.default #spaces .icon-textPad{color:var(--orange-text)}
-.default #spaces .icon-terminal{color:var(--red-bright)}
-.default #spaces .icon-export{color:var(--blue-hover)}
-.default #spaces .icon-invite{color:var(--parent-text)}
-.default #spaces .icon-delete{color:var(--red-bright)}
-.default #spaces .icon-configuration{color:var(--grey-medium)}
+.default #spaces .agent-management span{color:var(--grey-medium)}
+.default #spaces .configuration span{color:var(--grey-medium)}
+.default #spaces .details span{color:var(--grey-medium)}
+.default #spaces .document span{color:var(--grey-medium)}
+.default #spaces .export span{color:var(--blue-hover)}
+.default #spaces .file-edit span{color:var(--green-button-text)}
+.default #spaces .file-navigate span{color:var(--green-button-text)}
+.default #spaces .invite-accept span{color:var(--parent-text)}
+.default #spaces .media span{color:var(--parent-text)}
+.default #spaces .message span{color:var(--parent-text)}
+.default #spaces .shares span{color:var(--parent-text)}
+.default #spaces .terminal span{color:var(--red-bright)}
+.default #spaces .text-pad span{color:var(--orange-text)}
 .default #spaces #menu{border-color:var(--border);box-shadow:0.1em 0.1em 0.25em var(--shadow)}
 .default #spaces #menu button{background:var(--background-dark);border-color:var(--border)}
 .default #spaces #menu button:hover{background:var(--background);box-shadow:0.1em 0.1em 0.5em var(--shadow)}
@@ -195,7 +199,7 @@ body.default {
 .default #spaces .agentList .share-tool-video,
 .default #spaces .text-button-device,
 .default #spaces .text-button-user{background:var(--blue-button-background);border-color:var(--blue-button-text);color:var(--blue-button-text)}
-.default #spaces .agentList .share-tool-fileNavigate,
+.default #spaces .agentList .share-tool-file-navigate,
 .default #spaces .agentList .share-tool-terminal{background:var(--yellow-bright);border-color:var(--yellow-border);color:var(--yellow-dark)}
 .default #spaces .agentList h4{background:white}
 .default #spaces .agentList .device,

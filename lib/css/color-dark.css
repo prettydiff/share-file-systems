@@ -27,9 +27,6 @@ body.dark{
     --dragBox:#9cf;
     --dragBox-border:#69c;
     --full-control-background:#334;
-    --icon-export:#c0f;
-    --icon-fileNavigate:#969;
-    --icon-textPad:#963;
     --maximize-background:#024;
     --minimize-background:#421;
     --minimize-text:#db0;
@@ -88,13 +85,19 @@ body.dark{
 .dark #spaces #minimize-all:hover,
 .dark #spaces #fullscreen:hover,
 .dark #spaces #menuToggle:hover{background:var(--button-hover)}
-.dark #spaces .icon-fileNavigator{color:var(--icon-fileNavigate)}
-.dark #spaces .icon-systemLog{color:var(--blue-primary)}
-.dark #spaces .icon-textPad{color:var(--icon-textPad)}
-.dark #spaces .icon-terminal{color:var(--red-primary)}
-.dark #spaces .icon-export{color:var(--icon-export)}
-.dark #spaces .icon-invite{color:var(--green-primary)}
-.dark #spaces .icon-delete{color:var(--red-bright)}
+.dark #spaces .agent-management span{color:var(--grey-medium)}
+.dark #spaces .configuration span{color:var(--grey-medium)}
+.dark #spaces .details span{color:var(--grey-medium)}
+.dark #spaces .document span{color:var(--grey-medium)}
+.dark #spaces .export span{color:var(--blue-hover)}
+.dark #spaces .file-edit span{color:var(--green-button-text)}
+.dark #spaces .file-navigate span{color:var(--green-button-text)}
+.dark #spaces .invite-accept span{color:var(--parent-text)}
+.dark #spaces .media span{color:var(--parent-text)}
+.dark #spaces .message span{color:var(--parent-text)}
+.dark #spaces .shares span{color:var(--parent-text)}
+.dark #spaces .terminal span{color:var(--red-bright)}
+.dark #spaces .text-pad span{color:var(--orange-text)}
 .dark #spaces #menu{border-color:var(--border);box-shadow:0.1em 0.1em 0.25em var(--shadow)}
 .dark #spaces #menu button{background:var(--button);border-color:var(--border);color:var(--text)}
 .dark #spaces #menu button:hover{background:var(--button-hover);box-shadow:0.1em 0.1em 0.5em black}
@@ -181,7 +184,7 @@ body.dark{
 .dark #spaces .text-button-device,
 .dark #spaces .make-read-only,
 .dark #spaces .text-button-user{background:var(--maximize-background);border-color:var(--blue-primary);color:var(--blue-primary)}
-.dark #spaces .agentList .share-tool-fileNavigate,
+.dark #spaces .agentList .share-tool-file-navigate,
 .dark #spaces .agentList .share-tool-terminal{background:var(--minimize-background);border-color:var(--minimize-text);color:var(--minimize-text)}
 .dark #spaces .agentList h4{background:var(--button)}
 .dark #spaces .agentList .device,

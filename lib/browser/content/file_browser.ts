@@ -13,11 +13,12 @@ import util from "../utilities/util.js";
  * ```typescript
  * interface module_fileBrowser {
  *     content: {
- *         dataString: (socketData:socketData) => void; // Populate content into modals for string output operations, such as: Base64, Hash, File Read.
- *         details   : (socketData:socketData) => void; // Generates the contents of a details type modal.
- *         footer    : (width:number) => HTMLElement;   // Generates the status bar content for the file browser modal.
- *         list      : (location:string, dirs:directory_response, message:string) => HTMLElement; // Generates the contents of a file system list for population into a file navigate modal.
- *         status    : (socketData:socketData) => void; // Translates messaging into file system lists for the appropriate modals.
+ *         dataString     : (socketData:socketData) => void; // Populate content into modals for string output operations, such as: Base64, Hash, File Read.
+ *         detailsContent : (id:string) => void;             // Generates the initial content and network request for file system details.
+ *         detailsResponse: (socketData:socketData) => void; // Generates the contents of a details type modal from file system data.
+ *         footer         : (width:number) => HTMLElement;   // Generates the status bar content for the file browser modal.
+ *         list           : (location:string, dirs:directory_response, message:string) => HTMLElement; // Generates the contents of a file system list for population into a file navigate modal.
+ *         status         : (socketData:socketData) => void; // Translates messaging into file system lists for the appropriate modals.
  *     };
  *     dragFlag: dragFlag; // Allows the drag handler to identify whether the shift or control/command keys are pressed while selecting items from the file list.
  *     events: {
@@ -66,7 +67,7 @@ const file_browser:module_fileBrowser = {
                 label = document.createElement("label");
                 span = document.createElement("span");
                 span.appendText("Text Pad");
-                label.setAttribute("class", "textPad");
+                label.setAttribute("class", "text-pad");
                 label.appendChild(span);
                 label.appendChild(textArea);
                 modalResult = document.getElementById(data.files[a].id),
@@ -91,8 +92,52 @@ const file_browser:module_fileBrowser = {
             network.configuration();
         },
 
+        /* Initiates a network request for file system details */
+        detailsContent: function browser_content_fileBrowser_detailsContent(id:string):void {
+            const name:string = context.element.lowName(),
+                element:HTMLElement = (name === "li" || name === "ul")
+                    ? context.element
+                    : context.element.getAncestor("li", "tag"),
+                box:modal = element.getAncestor("box", "class"),
+                menu:HTMLElement = document.getElementById("contextMenu"),
+                addressField:HTMLInputElement = box.getElementsByClassName("fileAddress")[0].getElementsByTagName("input")[0],
+                addresses:[string, fileType, string][] = util.selectedAddresses(element, "details"),
+                agents:[fileAgent, fileAgent, fileAgent] = util.fileAgent(box, null),
+                payloadNetwork:service_fileSystem = {
+                    action: "fs-details",
+                    agentRequest: agents[0],
+                    agentSource: agents[1],
+                    agentWrite: null,
+                    depth: 0,
+                    location: (function browser_content_context_details_addressList():string[] {
+                        const output:string[] = [],
+                            length:number = addresses.length;
+                        let a:number = 0;
+                        if (name === "ul") {
+                            return [addressField.value];
+                        }
+                        do {
+                            output.push(addresses[a][0]);
+                            a = a + 1;
+                        } while (a < length);
+                        return output;
+                    }()),
+                    name: id
+                };
+            if (browser.loading === true) {
+                return;
+            }
+            browser.data.modals[id].text_value = JSON.stringify(payloadNetwork.location);
+            network.send(payloadNetwork, "file-system");
+            network.configuration();
+            context.element = null;
+            if (menu !== null) {
+                menu.parentNode.removeChild(menu);
+            }
+        },
+
         /* generates the content for a file system details modal */
-        details: function browser_content_fileBrowser_details(socketData:socketData):void {
+        detailsResponse: function browser_content_fileBrowser_detailsResponse(socketData:socketData):void {
             const payload:service_fileSystem_details = socketData.data as service_fileSystem_details,
                 list:directory_list = (payload.dirs === "missing" || payload.dirs === "noShare" || payload.dirs === "readOnly")
                     ? []
@@ -468,7 +513,7 @@ const file_browser:module_fileBrowser = {
                 do {
                     keyLength = keyLength - 1;
                     modal = browser.data.modals[keys[keyLength]];
-                    if (modal.type === "fileNavigate") {
+                    if (modal.type === "file-navigate") {
                         if (
                             // get modals from data.agentSource, this device, and targeted shares
                             (modal.agent === data.agentSource[modal.agentType] || (browser.device[modal.agent] !== undefined && browser.device[modal.agent].shares[data.agentSource.share] !== undefined)) &&
@@ -1358,7 +1403,7 @@ const file_browser:module_fileBrowser = {
             return li;
         },
 
-        /* Updates the address of a fileNavigate modal in both UI and state */
+        /* Updates the address of a file-navigate modal in both UI and state */
         modalAddress: function browser_content_fileBrowser_modalAddress(event:FocusEvent|KeyboardEvent|MouseEvent, config:config_modal_history):void {
             const modalData:config_modal = browser.data.modals[config.id],
                 modalItem:HTMLElement = document.getElementById(config.id),

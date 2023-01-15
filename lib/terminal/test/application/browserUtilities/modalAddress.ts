@@ -9,7 +9,7 @@ const modalAddress = function terminal_test_application_browserUtilities_modalAd
     return {
         delay: {
             node: [
-                ["getModalsByModalType", "fileNavigate", config.index],
+                ["getModalsByModalType", "file-navigate", config.index],
                 ["getElementsByClassName", "fileList", 0],
                 ["lastChild", null, null],
                 ["getElementsByTagName", "label", 0]
@@ -23,14 +23,14 @@ const modalAddress = function terminal_test_application_browserUtilities_modalAd
             {
                 event: "click",
                 node: [
-                    ["getModalsByModalType", "fileNavigate", config.index],
+                    ["getModalsByModalType", "file-navigate", config.index],
                     ["getElementsByTagName", "input", 0]
                 ]
             },
             {
                 event: "setValue",
                 node: [
-                    ["getModalsByModalType", "fileNavigate", config.index],
+                    ["getModalsByModalType", "file-navigate", config.index],
                     ["getElementsByTagName", "input", 0]
                 ],
                 value: filePathEncode("absolute", config.address)
@@ -38,7 +38,7 @@ const modalAddress = function terminal_test_application_browserUtilities_modalAd
             {
                 event: "keydown",
                 node: [
-                    ["getModalsByModalType", "fileNavigate", config.index],
+                    ["getModalsByModalType", "file-navigate", config.index],
                     ["getElementsByTagName", "input", 0]
                 ],
                 value: "Enter"
@@ -46,7 +46,7 @@ const modalAddress = function terminal_test_application_browserUtilities_modalAd
             {
                 event: "keyup",
                 node: [
-                    ["getModalsByModalType", "fileNavigate", config.index],
+                    ["getModalsByModalType", "file-navigate", config.index],
                     ["getElementsByTagName", "input", 0]
                 ],
                 value: "Enter"

@@ -4,6 +4,7 @@ import audio from "./audio.js";
 import browser from "./browser.js";
 import context from "../content/context.js";
 import file_browser from "../content/file_browser.js";
+import modal_configuration from "./modal_configurations.js";
 import network from "./network.js";
 import share from "../content/share.js";
 
@@ -503,7 +504,7 @@ const util:module_util = {
                 // key b, base64
                 context.element = element;
                 context.type = "Base64";
-                context.events.dataString(event);
+                modal_configuration.modals["file-edit"](event);
             } else if (key === "d") {
                 // key d, new directory
                 context.element = element;
@@ -513,7 +514,7 @@ const util:module_util = {
                 // key e, edit file
                 context.element = element;
                 context.type = "Edit";
-                context.events.dataString(event);
+                modal_configuration.modals["file-edit"](event);
             } else if (key === "f") {
                 // key f, new file
                 context.element = element;
@@ -523,7 +524,7 @@ const util:module_util = {
                 // key h, hash
                 context.element = element;
                 context.type = "Hash";
-                context.events.dataString(event);
+                modal_configuration.modals["file-edit"](event);
             } else if (key === "r" && elementName === "li") {
                 // key r, rename
                 file_browser.events.rename(event);
@@ -533,7 +534,7 @@ const util:module_util = {
                 share.events.context(event);
             } else if (key === "t") {
                 // key t, details
-                context.events.details(event);
+                modal_configuration.modals.details(event);
             }
         } else if (windowEvent.ctrlKey === true) {
             if (key === "a") {

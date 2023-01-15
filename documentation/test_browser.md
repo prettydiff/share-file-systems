@@ -193,7 +193,7 @@ An example test:
     delay: {
         // that file list contents are available
         node: [
-            ["getModalsByModalType", "fileNavigate", 0],
+            ["getModalsByModalType", "file-navigate", 0],
             ["getElementsByClassName", "fileList", 0],
             ["getElementsByTagName", "li", 0],
             ["getElementsByTagName", "ul", 0]
@@ -207,7 +207,7 @@ An example test:
         {
             event: "click",
             node: [
-                ["getModalsByModalType", "fileNavigate", 0],
+                ["getModalsByModalType", "file-navigate", 0],
                 ["getElementsByClassName", "body", 0],
                 ["getElementsByTagName", "li", 0],
                 ["getElementsByTagName", "button", 0]
@@ -234,7 +234,7 @@ An example test:
             coords: [50, 70],
             event: "move",
             node: [
-                ["getModalsByModalType", "fileNavigate", 0]
+                ["getModalsByModalType", "file-navigate", 0]
             ]
         }
     ],
@@ -243,7 +243,7 @@ An example test:
         {
             // the first child list item of the expanded directory thus contains its own expansion button
             node: [
-                ["getModalsByModalType", "fileNavigate", 0],
+                ["getModalsByModalType", "file-navigate", 0],
                 ["getElementsByClassName", "body", 0],
                 ["getElementsByTagName", "li", 0],
                 ["getElementsByTagName", "li", 0],
@@ -257,7 +257,7 @@ An example test:
         // the first child list of the expanded directory is itself a directory
         {
             node: [
-                ["getModalsByModalType", "fileNavigate", 0],
+                ["getModalsByModalType", "file-navigate", 0],
                 ["getElementsByClassName", "body", 0],
                 ["getElementsByTagName", "li", 0],
                 ["getElementsByTagName", "li", 0],

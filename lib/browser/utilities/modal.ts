@@ -7,6 +7,7 @@ import common from "../../common/common.js";
 import file_browser from "../content/file_browser.js";
 import global_events from "../content/global_events.js";
 import media from "../content/media.js";
+import modal_configuration from "./modal_configurations.js";
 import network from "./network.js";
 import webSocket from "./webSocket.js";
 
@@ -27,8 +28,8 @@ import webSocket from "./webSocket.js";
  *         minimize      : (event:MouseEvent, callback?:() => void, target?:HTMLElement) => void; // Minimizes a modal to the tray at the bottom of the page.
  *         move          : (event:MouseEvent|TouchEvent) => void;       // Allows dragging a modal around the screen.
  *         resize        : (event:MouseEvent|TouchEvent) => void;       // Resizes a modal respective to the event target, which could be any of 4 corners or 4 sides.
- *         textSave      : (event:Event) => void;                       // Handler to push the text content of a textPad modal into settings so that it is saved.
- *         textTimer     : (event:KeyboardEvent) => void;               // A timing event so that contents of a textPad modal are automatically save after a brief duration of focus blur.
+ *         textSave      : (event:Event) => void;                       // Handler to push the text content of a text-pad modal into settings so that it is saved.
+ *         textTimer     : (event:KeyboardEvent) => void;               // A timing event so that contents of a text-pad modal are automatically save after a brief duration of focus blur.
  *         unMinimize    : (event:MouseEvent) => void;                  // Restores a minimized modal to its prior size and location.
  *         zTop          : (event:KeyboardEvent|MouseEvent, elementInput?:HTMLElement) => void; // Processes visual overlapping or depth of modals.
  *     };
@@ -48,9 +49,6 @@ const modal:module_modal = {
         const id:string = (options.type === "configuration")
                 ? "configuration-modal"
                 : (options.id || `${options.type}-${Math.random().toString() + browser.data.zIndex + 1}`),
-            title:string = (options.agentIdentity === true)
-                ? `${options.title.split(" - ")[0].replace(/\s+$/, "")} - ${common.capitalize(options.agentType)}, ${browser[options.agentType][options.agent].name}`
-                : options.title,
             titleButton:HTMLButtonElement = document.createElement("button"),
             box:modal = document.createElement("article"),
             body:HTMLElement = document.createElement("div"),
@@ -125,11 +123,41 @@ const modal:module_modal = {
             options.agentType = "device";
         }
         options.id = id;
-        options.title = title;
 
         // Title bar functionality
-        // eslint-disable-next-line
-        titleButton.innerHTML = title;
+        {
+            const span:HTMLElement = document.createElement("span"),
+                text:string[] = [];
+            if (options.type === "shares") {
+                if (options.agentType as string === "") {
+                    text.push("All Shares");
+                    span.appendText("⌘");
+                } else {
+                    (options.agentType === "device")
+                        ? span.appendText("🖳")
+                        : span.appendText("👤");
+                    if (options.agent === "") {
+                        text.push(`All ${common.capitalize(options.agentType)} Shares`);
+                    } else if (browser[options.agentType][options.agent].name === undefined) {
+                        text.push("Shares");
+                    } else {
+                        text.push(`${common.capitalize(options.agentType)} ${browser[options.agentType][options.agent].name} Shares`);
+                    }
+                }
+            } else {
+                text.push(modal_configuration.titles[options.type].text);
+                if (options.title_supplement !== "" && options.title_supplement !== null && options.title_supplement !== undefined) {
+                    text.push(options.title_supplement);
+                }
+                if (options.agentIdentity === true) {
+                    text.push(`- ${common.capitalize(options.agentType)}, ${browser[options.agentType][options.agent].name}`);
+                }
+                span.appendText(modal_configuration.titles[options.type].icon);
+            }
+            titleButton.setAttribute("class", options.type);
+            titleButton.appendChild(span);
+            titleButton.appendText(` ${text.join(" ")}`);
+        }
         titleButton.onmousedown = modal.events.move;
         titleButton.ontouchstart = modal.events.move;
         titleButton.setAttribute("type", "button");
@@ -156,7 +184,7 @@ const modal:module_modal = {
         box.style.top = `${options.top / 10}em`;
         body.style.height = `${options.height / 10}em`;
         body.style.width = `${options.width / 10}em`;
-        if (options.scroll === false || options.type === "export" || options.type === "textPad") {
+        if (options.scroll === false || options.type === "export" || options.type === "text-pad") {
             body.style.overflow = "hidden";
         }
 
@@ -231,7 +259,7 @@ const modal:module_modal = {
                 if (options.text_value !== undefined) {
                     input.value = options.text_value;
                 }
-                if (options.type === "fileNavigate") {
+                if (options.type === "file-navigate") {
                     const searchLabel:HTMLElement = document.createElement("label"),
                         search:HTMLInputElement = document.createElement("input"),
                         span:HTMLElement = document.createElement("span");
@@ -289,7 +317,7 @@ const modal:module_modal = {
             }
 
             // Apply history to those types that record a history state
-            if (options.type === "fileNavigate" || options.type === "terminal") {
+            if (options.type === "file-navigate" || options.type === "terminal") {
                 if (options.history === undefined) {
                     if (options.text_value === undefined) {
                         options.history = [];
@@ -685,7 +713,7 @@ const modal:module_modal = {
         move: function browser_utilities_modal_move(event:MouseEvent|TouchEvent):void {
             const element:HTMLElement = event.target,
                 heading:HTMLElement = element.parentNode,
-                box:modal = heading.parentNode.parentNode,
+                box:modal = element.getAncestor("box", "class"),
                 boxParent:HTMLElement = box.parentNode,
                 settings:config_modal = browser.data.modals[box.getAttribute("id")],
                 border:HTMLElement = box.getElementsByTagName("div")[0],
@@ -1025,7 +1053,7 @@ const modal:module_modal = {
             }
         },
     
-        /* Pushes the text content of a textPad modal into settings so that it is saved */
+        /* Pushes the text content of a text-pad modal into settings so that it is saved */
         textSave: function browser_utilities_modal_textSave(event:Event):void {
             const element:HTMLTextAreaElement = event.target as HTMLTextAreaElement,
                 box:modal = element.getAncestor("box", "class"),

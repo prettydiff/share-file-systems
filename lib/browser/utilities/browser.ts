@@ -1,5 +1,5 @@
 
-/* lib/browser/browser - A list of declared variables globally available to the browser instance of the application. */
+/* lib/browser/utilities/browser - A list of declared variables globally available to the browser instance of the application. */
 const browser:browser = {
     content: document.getElementById("content-area"),
     data: {
