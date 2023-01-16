@@ -158,6 +158,7 @@ const defaultCommand:commands = vars.environment.command,
                     IPv4: [machines[browser.name].ip],
                     IPv6: []
                 };
+                vars.path.settings = vars.path.testStorage;
                 vars.test.browser = {
                     action: (args.mode === "self")
                         ? "result"
@@ -433,7 +434,7 @@ const defaultCommand:commands = vars.environment.command,
                 if (browser.args.mode === "remote") {
                     item.test = {
                         interaction: null,
-                        machine: "self", // confusion between browser and shelf device
+                        machine: item.exit,
                         name: "",
                         unit: null
                     };

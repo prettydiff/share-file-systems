@@ -167,7 +167,8 @@ const vars:module_terminalVariables = {
         node: "",
         project: "",
         sep: sep,
-        settings: ""
+        settings: "",
+        testStorage: ""
     },
     settings: {
         audio: true,
@@ -302,7 +303,8 @@ const vars:module_terminalVariables = {
         yellow   : "\u001b[33m"
     }
 };
-vars.path.settings = `${vars.path.project}lib${sep}settings${sep}`;
-vars.settings.storage = `${vars.path.project}lib${sep}storage${sep}`;
+vars.path.settings = `${vars.path.project}lib${vars.path.sep}settings${vars.path.sep}`;
+vars.path.testStorage = `${vars.path.project}lib${vars.path.sep}terminal${vars.path.sep}test${vars.path.sep}storageBrowser${vars.path.sep}`;
+vars.settings.storage = `${vars.path.project}lib${vars.path.sep}storage${vars.path.sep}`;
 
 export default vars;

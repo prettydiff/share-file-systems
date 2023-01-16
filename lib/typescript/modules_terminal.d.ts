@@ -377,11 +377,12 @@ declare global {
             size        : terminalVariables_networkCount;
         };
         path: {
-            js      : string;
-            node    : string;
-            project : string;
-            sep     : string;
-            settings: string;
+            js         : string;
+            node       : string;
+            project    : string;
+            sep        : string;
+            settings   : string;
+            testStorage:string;
         };
         settings: terminalVariables_settings;
         terminal: {

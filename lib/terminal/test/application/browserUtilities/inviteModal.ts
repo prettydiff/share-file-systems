@@ -18,7 +18,15 @@ const inviteModal = function terminal_test_application_browserUtilities_inviteMo
             {
                 event: "click",
                 node: [
-                    ["getElementById", "agent-management", null]
+                    ["getElementById", "menuToggle", null]
+                ]
+            },
+            {
+                event: "click",
+                node: [
+                    ["getElementById", "menu", null],
+                    ["getElementsByTagName", "li", 0],
+                    ["getElementsByTagName", "button", 0]
                 ]
             }
         ],
