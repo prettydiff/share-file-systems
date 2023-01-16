@@ -195,7 +195,7 @@ import disallowed from "../common/disallowed.js";
             // on page load restore the application to exactly the way it was
             restoreState = function browser_init_restoreState():void {
                 // state data
-                let type:modalType,
+                let modalItem:config_modal = null,
                     count:number = 0;
                 const modalKeys:string[] = Object.keys(state.settings.configuration.modals),
                     indexes:[number, string][] = [],
@@ -249,135 +249,6 @@ import disallowed from "../common/disallowed.js";
                                 a = a + 1;
                             } while (a < listLength);
                         }
-                    },
-                    modalConfiguration = function browser_init_modalConfiguration(id:string):void {
-                        const modalItem:config_modal = state.settings.configuration.modals[id];
-                        browser.data.brotli = state.settings.configuration.brotli;
-                        browser.data.hashType = state.settings.configuration.hashType;
-                        modalItem.callback = function browser_init_modalConfiguration_callback():void {
-                            const inputs:HTMLCollectionOf<HTMLInputElement> = document.getElementById("configuration-modal").getElementsByTagName("input"),
-                                length:number = inputs.length;
-                            let a:number = 0;
-                            do {
-                                if (inputs[a].name.indexOf("color-scheme-") === 0 && inputs[a].value === state.settings.configuration.color) {
-                                    inputs[a].click();
-                                } else if (inputs[a].name.indexOf("audio-") === 0 && (inputs[a].value === "off" && state.settings.configuration.audio === false) || (inputs[a].value === "on" && state.settings.configuration.audio === true)) {
-                                    inputs[a].click();
-                                } else if (inputs[a].name === "brotli") {
-                                    inputs[a].value = state.settings.configuration.brotli.toString();
-                                }
-                                a = a + 1;
-                            } while (a < length);
-                        };
-                        modalItem.closeHandler = modal.events.closeEnduring;
-                        modalItem.content = configuration.content();
-                        modal.content(modalItem);
-                        z(id);
-                    },
-                    modalDetails = function browser_init_modalDetails(id:string):void {
-                        const modalItem:config_modal = state.settings.configuration.modals[id],
-                            agents:[fileAgent, fileAgent, fileAgent] = (function browser_init_modalDetails_agents():[fileAgent, fileAgent, fileAgent] {
-                                modalItem.content = util.delay();
-                                return util.fileAgent(modal.content(modalItem), null, modalItem.text_value);
-                            }()),
-                            payloadNetwork:service_fileSystem = {
-                                action: "fs-details",
-                                agentRequest: agents[0],
-                                agentSource: agents[1],
-                                agentWrite: null,
-                                depth: 0,
-                                location: JSON.parse(modalItem.text_value),
-                                name: id
-                            };
-                        network.send(payloadNetwork, "file-system");
-                        z(id);
-                    },
-                    modalFile = function browser_init_modalFile(id:string):void {
-                        const modalItem:config_modal = state.settings.configuration.modals[id],
-                            delay:HTMLElement = util.delay(),
-                            selection = function browser_init_modalFile_selection(id:string):void {
-                                const box:modal = document.getElementById(id),
-                                    modalData:config_modal = browser.data.modals[id],
-                                    keys:string[] = (modalData.selection === undefined)
-                                        ? []
-                                        : Object.keys(modalData.selection),
-                                    fileList:HTMLElement = box.getElementsByClassName("fileList")[0] as HTMLElement,
-                                    list:HTMLCollectionOf<HTMLElement> = (fileList === undefined)
-                                        ? null
-                                        : fileList.getElementsByTagName("li"),
-                                    length:number = (list === null)
-                                        ? 0
-                                        : list.length;
-                                let b:number = 0,
-                                    address:string;
-                                if (keys.length > 0 && length > 0) {
-                                    do {
-                                        address = list[b].getElementsByTagName("label")[0].innerHTML;
-                                        if (modalData.selection[address] !== undefined) {
-                                            list[b].addClass(modalData.selection[address]);
-                                            list[b].getElementsByTagName("input")[0].checked = true;
-                                        }
-                                        b = b + 1;
-                                    } while (b < length);
-                                }
-                            };
-                        modalItem.content = delay;
-                        modalItem.footer  = file_browser.content.footer(modalItem.width);
-                        modalItem.id = id;
-                        modalItem.text_event = file_browser.events.text;
-                        modalItem.callback = function browser_init_modalFile_callback():void {
-                            if (modalItem.search !== undefined && modalItem.search[0] === modalItem.text_value && modalItem.search[1] !== "") {
-                                let search:HTMLInputElement;
-                                search = document.getElementById(id).getElementsByClassName("fileSearch")[0].getElementsByTagName("input")[0];
-                                file_browser.events.search(null, search, function browser_init_modalFile_callback_searchCallback():void {
-                                    selection(id);
-                                });
-                            } else {
-                                const agents:[fileAgent, fileAgent, fileAgent] = util.fileAgent(modalItem.content, null, modalItem.text_value),
-                                    action:actionFile = (modalItem.search[1] !== undefined && modalItem.search[0] !== "" && modalItem.search[1] !== "")
-                                        ? "fs-search"
-                                        : "fs-directory",
-                                    payload:service_fileSystem = {
-                                        action: action,
-                                        agentRequest: agents[0],
-                                        agentSource: agents[1],
-                                        agentWrite: null,
-                                        depth: 2,
-                                        location: [modalItem.text_value],
-                                        name: (action === "fs-search")
-                                            ? modalItem.search[1]
-                                            : `loadPage:${id}`
-                                    };
-                                network.send(payload, "file-system");
-                            }
-                        };
-                        modal.content(modalItem);
-                        z(id);
-                    },
-                    modalGeneric = function browser_init_modalGeneric(id:string):void {
-                        const modalItem:config_modal = state.settings.configuration.modals[id];
-                        modalItem.callback = function browser_init_modalGeneric_callback():void {
-                            z(id);
-                        };
-                        modal_configuration.modals[modalItem.type](null, modalItem);
-                    },
-                    modalMedia = function browser_init_modalMedia(id:string):void {
-                        const p:HTMLElement = document.createElement("p"),
-                            modalData:config_modal = state.settings.configuration.modals[id],
-                            restore = function browser_init_modalMedia_restore(event:MouseEvent):void {
-                                const element:HTMLElement = event.target;
-                                body.onclick = null;
-                                element.appendText("", true);
-                                element.appendChild(media.content(modalData.text_value as mediaType, modalData.height, modalData.width));
-                                element.setAttribute("class", "body");
-                            };
-                        let body:HTMLElement = null;
-                        p.appendText("Click to restore video.");
-                        modalData.content = p;
-                        body = modal.content(modalData).getElementsByClassName("body")[0] as HTMLElement;
-                        body.setAttribute("class", "body media-restore");
-                        body.onclick = restore;
-                        z(id);
                     };
                 logInTest = true;
                 browser.data.color = state.settings.configuration.color;
@@ -398,18 +269,11 @@ import disallowed from "../common/disallowed.js";
                     loadComplete();
                 } else {
                     modalKeys.forEach(function browser_init_modalKeys(value:string) {
-                        type = state.settings.configuration.modals[value].type;
-                        if (type === "file-navigate") {
-                            modalFile(value);
-                        } else if (type === "configuration") {
-                            modalConfiguration(value);
-                        } else if (type === "details") {
-                            modalDetails(value);
-                        } else if (type === "media") {
-                            modalMedia(value);
-                        } else {
-                            modalGeneric(value);
-                        }
+                        modalItem = state.settings.configuration.modals[value];
+                        modalItem.callback = function browser_init_modalKeys_callback():void {
+                            z(value);
+                        };
+                        modal_configuration.modals[modalItem.type](null, modalItem);
                     });
                 }
             },

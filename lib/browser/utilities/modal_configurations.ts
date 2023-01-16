@@ -73,10 +73,11 @@ const modal_configuration:module_modalConfiguration = {
             return modal.content(config);
         },
 
-        "configuration": function browser_utilities_modalConfiguration_configuration(event:Event):modal {
+        "configuration": function browser_utilities_modalConfiguration_configuration(event:Event, config?:config_modal):modal {
             // building configuration modal
             if (document.getElementById("configuration-modal") === null) {
-                const payloadModal:config_modal = {
+                const payloadModal:config_modal = (config === null || config === undefined)
+                ? {
                     agent: browser.data.hashDevice,
                     agentIdentity: false,
                     agentType: "device",
@@ -86,7 +87,8 @@ const modal_configuration:module_modalConfiguration = {
                     single: true,
                     status: "hidden",
                     type: "configuration"
-                };
+                }
+                : config;
                 payloadModal.content = configuration.content();
                 payloadModal.inputs = ["close"];
                 delete payloadModal.width;
@@ -100,41 +102,61 @@ const modal_configuration:module_modalConfiguration = {
             }
             data.status = "normal";
             document.getElementById("menu").style.display = "none";
+
         },
 
-        "details": function browser_utilities_modalConfiguration__details(event:Event):modal {
-            const name:string = context.element.lowName(),
-                mouseEvent:MouseEvent = event as MouseEvent,
-                element:HTMLElement = (name === "li" || name === "ul")
-                    ? context.element
-                    : context.element.getAncestor("li", "tag"),
-                div:HTMLElement = util.delay(),
-                box:modal = element.getAncestor("box", "class"),
-                agency:agency = util.getAgent(box),
-                addresses:[string, fileType, string][] = util.selectedAddresses(element, "details"),
-                plural:string = (addresses.length === 1)
-                    ? ""
-                    : "s",
-                payloadModal:config_modal = {
-                    agent: agency[0],
-                    agentIdentity: true,
-                    agentType: agency[2],
-                    content: div,
-                    height: 600,
-                    inputs: ["close"],
-                    left: mouseEvent.clientX,
-                    read_only: agency[1],
-                    single: true,
-                    text_value: "",
-                    title_supplement: `${addresses.length} item${plural}`,
-                    top: (mouseEvent.clientY - 60 < 0)
-                        ? 60
-                        : mouseEvent.clientY - 60,
-                    type: "details",
-                    width: 500
-                },
-                modalInstance:modal = modal.content(payloadModal);
-            file_browser.content.detailsContent(modalInstance.getAttribute("id"));
+        "details": function browser_utilities_modalConfiguration__details(event:Event, config?:config_modal):modal {
+            if (config === null || config === undefined) {
+                const name:string = context.element.lowName(),
+                    mouseEvent:MouseEvent = event as MouseEvent,
+                    element:HTMLElement = (name === "li" || name === "ul")
+                        ? context.element
+                        : context.element.getAncestor("li", "tag"),
+                    div:HTMLElement = util.delay(),
+                    box:modal = element.getAncestor("box", "class"),
+                    agency:agency = util.getAgent(box),
+                    addresses:[string, fileType, string][] = util.selectedAddresses(element, "details"),
+                    plural:string = (addresses.length === 1)
+                        ? ""
+                        : "s",
+                    payloadModal:config_modal = {
+                        agent: agency[0],
+                        agentIdentity: true,
+                        agentType: agency[2],
+                        content: div,
+                        height: 600,
+                        inputs: ["close"],
+                        left: mouseEvent.clientX,
+                        read_only: agency[1],
+                        single: true,
+                        text_value: "",
+                        title_supplement: `${addresses.length} item${plural}`,
+                        top: (mouseEvent.clientY - 60 < 0)
+                            ? 60
+                            : mouseEvent.clientY - 60,
+                        type: "details",
+                        width: 500
+                    },
+                    modalInstance:modal = modal.content(payloadModal);
+                file_browser.content.detailsContent(modalInstance.getAttribute("id"));
+                return modalInstance;
+            }
+            let modalInstance:modal = null;
+            const agents:[fileAgent, fileAgent, fileAgent] = (function browser_init_modalDetails_agents():[fileAgent, fileAgent, fileAgent] {
+                    config.content = util.delay();
+                    modalInstance = modal.content(config);
+                    return util.fileAgent(modalInstance, null, config.text_value);
+                }()),
+                payloadNetwork:service_fileSystem = {
+                    action: "fs-details",
+                    agentRequest: agents[0],
+                    agentSource: agents[1],
+                    agentWrite: null,
+                    depth: 0,
+                    location: JSON.parse(config.text_value),
+                    name: config.id
+                };
+            network.send(payloadNetwork, "file-system");
             return modalInstance;
         },
 
@@ -294,27 +316,33 @@ const modal_configuration:module_modalConfiguration = {
         },
 
         "file-navigate": function browser_utilities_modalConfiguration_fileNavigate(event:Event, config?:config_modal):modal {
-            const element:HTMLElement = (event as MouseEvent).target,
-                box:HTMLElement = element.getAncestor("box", "class"),
-                div:HTMLElement = element.getAncestor("div", "tag"),
-                agentName:string = (config === undefined || config.agent === undefined)
+            const element:HTMLElement = (event === null)
+                    ? null
+                    : (event as MouseEvent).target,
+                box:HTMLElement = (element === null)
+                    ? null
+                    : element.getAncestor("box", "class"),
+                div:HTMLElement = (element === null)
+                    ? null
+                    : element.getAncestor("div", "tag"),
+                agentName:string = (config === null || config === undefined || config.agent === undefined)
                     ? (box !== document.documentElement)
                         ? (box.dataset.agent === undefined || box.dataset.agent === "")
                             ? div.dataset.hash                       // multi-agent share modals not bound to one agent
                             : box.dataset.agent                      // modals bound to an agent
                         : browser.data.hashDevice                    // when not coming from a modal (assume local device)
                     : config.agent,                                  // state restoration
-                agentType:agentType = (config === undefined || config.agentType === undefined)
+                agentType:agentType = (config === null || config === undefined || config.agentType === undefined)
                     ? (box !== document.documentElement)
                         ? (box.dataset.agent === undefined || box.dataset.agent === "")
                             ? div.getAttribute("class") as agentType // multi-agent share modals not bound to one agent
                             : box.dataset.agenttype as agentType     // modals bound to an agent
                         : "device"                                   // when not coming from a modal (assume local device)
                     : config.agentType,                              // state restoration
-                location:string = (config !== undefined && typeof config.text_value === "string")
+                location:string = (config !== null && config !== undefined && typeof config.text_value === "string")
                     ? config.text_value
                     : "**root**",
-                share:string = (config === undefined || config.share === undefined)
+                share:string = (config === null || config === undefined || config.share === undefined)
                     ? ""
                     : config.share,
                 readOnly:boolean = (agentName !== browser.data.hashDevice && config !== undefined && config.read_only === true),
@@ -345,12 +373,13 @@ const modal_configuration:module_modalConfiguration = {
                     location: [location],
                     name: "navigate"
                 },
-                payloadModal:config_modal = {
+                payloadModal:config_modal = (config === null || config === undefined)
+                ? {
                     agent: agentName,
                     agentIdentity: true,
                     agentType: agentType,
-                    content: util.delay(),
-                    footer: file_browser.content.footer(800),
+                    content: null,
+                    footer: null,
                     inputs: ["close", "maximize", "minimize", "text"],
                     read_only: readOnly,
                     selection: {},
@@ -361,7 +390,10 @@ const modal_configuration:module_modalConfiguration = {
                     title_supplement: readOnlyString,
                     type: "file-navigate",
                     width: 800
-                };
+                }
+                : config;
+            payloadModal.content = util.delay();
+            payloadModal.footer = file_browser.content.footer(800);
             document.getElementById("menu").style.display = "none";
             network.send(payloadNetwork, "file-system");
             return modal.content(payloadModal);
