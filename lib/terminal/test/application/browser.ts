@@ -420,13 +420,39 @@ const defaultCommand:commands = vars.environment.command,
                         browser.methods.delay({
                             action: start,
                             browser: false,
-                            delay: 3000,
+                            delay: 2000,
                             message: "Delaying to close any open browsers."
                         });
                     } else {
                         start();
                     }
+                }
+                vars.settings.audio = false;
+                vars.settings.brotli = 0;
+                vars.settings.color = "default";
+                vars.settings.colors = {
+                    device: {},
+                    user: {}
                 };
+                vars.settings.fileSort = "file-system-type";
+                vars.settings.hashDevice = "";
+                vars.settings.hashType = "sha3-512";
+                vars.settings.hashUser = "";
+                vars.settings.modals = {};
+                vars.settings.modalTypes = [];
+                vars.settings.nameDevice = "";
+                vars.settings.nameUser = "";
+                vars.settings.statusTime = Date.now();
+                vars.settings.storage = `${vars.path.project}lib${vars.path.sep}storage${vars.path.sep}`;
+                vars.settings.tutorial = false;
+                vars.settings.zIndex = 0;
+                vars.settings.device = {};
+                vars.settings.message = [];
+                vars.settings.queue = {
+                    device: {},
+                    user: {}
+                };
+                vars.settings.user = {};
                 remove(vars.path.settings, [`${vars.path.settings}temp.txt`], launch);
             },
             "reset-complete": function terminal_test_application_browser_resetComplete(item:service_testBrowser):void {

@@ -42,7 +42,6 @@ interface config_modal {
     text_event?: (event:KeyboardEvent|MouseEvent) => void;
     text_placeholder?: string;
     text_value?: string;
-    title: string;
     top?: number;
     type: modalType;
     width?: number;
@@ -78,7 +77,6 @@ interface config_modal {
 * **text_placeholder** - The default place holder text that is to appear in input type *text*.
 * **text_value** - A default or stored value that should be populated in input type *text*, if present.
 * **timer** - A numeric value representing milliseconds since Unix epoch 1 JAN 1970 as based upon local device clock. This is optionally supplied in case timed events or periodic delays are necessary.
-* **title** - The text will populate the modal's title bar.
 * **top** - The vertical placement of the modal as measured by the modal's top edge offset from the content area's top in pixels.
 * **type** - The types of modals available.  See the section below on *type modalType*.
 * **width** - The width of the modal.  The default is 400, which is 400 pixels.
