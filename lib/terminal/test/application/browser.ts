@@ -420,7 +420,7 @@ const defaultCommand:commands = vars.environment.command,
                         browser.methods.delay({
                             action: start,
                             browser: false,
-                            delay: 2000,
+                            delay: 3000,
                             message: "Delaying to close any open browsers."
                         });
                     } else {
