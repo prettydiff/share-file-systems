@@ -3749,7 +3749,7 @@ const browserSelf:test_browserItem[] = [
             delay: {
                 // text of the first button
                 node: [
-                    ["getModalsByModalType", "text-pad", 1],
+                    ["getModalsByModalType", "file-edit", 0],
                     ["getElementsByClassName", "body", 0]
                 ],
                 qualifier: "is",
@@ -3773,7 +3773,7 @@ const browserSelf:test_browserItem[] = [
                 {
                     // text of the first button
                     node: [
-                        ["getModalsByModalType", "text-pad", 1],
+                        ["getModalsByModalType", "file-edit", 0],
                         ["getElementsByClassName", "body", 0]
                     ],
                     qualifier: "is",
@@ -3788,7 +3788,7 @@ const browserSelf:test_browserItem[] = [
         {
             delay: {
                 node: [
-                    ["getModalsByModalType", "text-pad", 1],
+                    ["getModalsByModalType", "file-edit", 0],
                     ["parentNode", null, null],
                     ["parentNode", null, null],
                     ["parentNode", null, null]
@@ -3864,7 +3864,7 @@ const browserSelf:test_browserItem[] = [
         {
             delay: {
                 node: [
-                    ["getModalsByModalType", "text-pad", 1],
+                    ["getModalsByModalType", "file-edit", 0],
                     ["parentNode", null, null]
                 ],
                 qualifier: "is",
@@ -3876,7 +3876,7 @@ const browserSelf:test_browserItem[] = [
                 {
                     event: "click",
                     node: [
-                        ["getModalsByModalType", "text-pad", 1],
+                        ["getModalsByModalType", "file-edit", 0],
                         ["getElementsByClassName", "heading", 0],
                         ["getElementsByTagName", "button", 0]
                     ]
@@ -3887,7 +3887,7 @@ const browserSelf:test_browserItem[] = [
             unit: [
                 {
                     node: [
-                        ["getModalsByModalType", "text-pad", 1],
+                        ["getModalsByModalType", "file-edit", 0],
                         ["getElementsByClassName", "buttons", 0]
                     ],
                     qualifier: "is",
@@ -3898,7 +3898,7 @@ const browserSelf:test_browserItem[] = [
             ]
         },
 
-        // restore file editor from tray
+        // restore text pad from tray
         {
             delay: {
                 node: [

@@ -394,6 +394,7 @@ const modal_configuration:module_modalConfiguration = {
                 : config;
             payloadModal.content = util.delay();
             payloadModal.footer = file_browser.content.footer(800);
+            payloadModal.text_event = file_browser.events.text;
             document.getElementById("menu").style.display = "none";
             network.send(payloadNetwork, "file-system");
             return modal.content(payloadModal);
