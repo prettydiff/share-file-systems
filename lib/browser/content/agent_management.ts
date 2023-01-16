@@ -826,7 +826,7 @@ const agent_management:module_agentManagement = {
             document.getElementById(input.type).getElementsByTagName("ul")[0].appendChild(li);
             addStyle();
             if (browser.loading === false) {
-                configuration.tools.addUserColor(input.hash, input.type, document.getElementById("configuration-modal").getElementsByClassName("configuration")[0] as HTMLElement);
+                configuration.tools.addUserColor(input.hash, input.type);
                 share.tools.update("");
             }
         },

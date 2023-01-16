@@ -488,7 +488,7 @@ const share:module_share = {
                         }
                     } else if (item.type === "agent-management") {
                         // redraw the edit and delete content of agent management modals
-                        modal = document.getElementById(modals[a]).getElementsByClassName("agent-management")[0] as HTMLElement;
+                        modal = document.getElementById(modals[a]).getElementsByClassName("body")[0].getElementsByClassName("agent-management")[0] as HTMLElement;
                         modal.removeChild(modal.getElementsByClassName("modify-agents")[0]);
                         modal.removeChild(modal.getElementsByClassName("delete-agents")[0]);
                         modal.appendChild(agent_management.content.modifyAgents());

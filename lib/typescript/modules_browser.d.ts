@@ -238,10 +238,10 @@ interface module_common {
  *         modal            : (event:MouseEvent) => void; // Generates the configuration modal and fills it with content.
  *     };
  *     tools: {
- *         addUserColor    : (agent:string, type:agentType, configurationBody:HTMLElement) => void; // Add agent color options to the configuration modal content.
- *         applyAgentColors: (agent:string, type:agentType, colors:[string, string]) => void;       // Update the specified color information against the default colors of the current color scheme.
- *         radio           : (element:HTMLElement) => void;                                         // Sets a class on a grandparent element to apply style changes to the corresponding label.
- *         styleText       : (input:configuration_styleText) => void;                               // Generates the CSS code for an agent specific style change and populates it into an HTML style tag.
+ *         addUserColor    : (agent:string, type:agentType) => void;                          // Add agent color options to the configuration modal content.
+ *         applyAgentColors: (agent:string, type:agentType, colors:[string, string]) => void; // Update the specified color information against the default colors of the current color scheme.
+ *         radio           : (element:HTMLElement) => void;                                   // Sets a class on a grandparent element to apply style changes to the corresponding label.
+ *         styleText       : (input:configuration_styleText) => void;                         // Generates the CSS code for an agent specific style change and populates it into an HTML style tag.
  *     };
  * }
  * ``` */
@@ -256,7 +256,7 @@ interface module_configuration {
         detailsToggle: (event:MouseEvent) => void;
     };
     tools: {
-        addUserColor: (agent:string, type:agentType, configurationBody:HTMLElement) => void;
+        addUserColor: (agent:string, type:agentType) => void;
         applyAgentColors: (agent:string, type:agentType, colors:[string, string]) => void;
         radio: (element:HTMLElement) => void;
         styleText: (input:configuration_styleText) => void;

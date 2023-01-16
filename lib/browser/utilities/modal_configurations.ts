@@ -83,6 +83,7 @@ const modal_configuration:module_modalConfiguration = {
                     agentType: "device",
                     closeHandler: modal.events.closeEnduring,
                     content: null,
+                    id: "configuration-modal",
                     read_only: false,
                     single: true,
                     status: "hidden",
@@ -91,8 +92,10 @@ const modal_configuration:module_modalConfiguration = {
                 : config;
                 payloadModal.content = configuration.content();
                 payloadModal.inputs = ["close"];
-                delete payloadModal.width;
                 return modal.content(payloadModal);
+            }
+            if (browser.loading === true) {
+                return document.getElementById("configuration-modal");
             }
             const conf:HTMLElement = document.getElementById("configuration-modal"),
                 data:config_modal = browser.data.modals["configuration-modal"];

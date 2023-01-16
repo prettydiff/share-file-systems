@@ -5,13 +5,9 @@ import agent_hash from "./utilities/agent_hash.js";
 import agent_management from "./content/agent_management.js";
 import agent_status from "./utilities/agent_status.js";
 import browser from "./utilities/browser.js";
-import configuration from "./content/configuration.js";
-import file_browser from "./content/file_browser.js";
 import global_events from "./content/global_events.js";
 import dom from "./utilities/dom.js";
-import media from "./content/media.js";
 import message from "./content/message.js";
-import modal from "./utilities/modal.js";
 import modal_configuration from "./utilities/modal_configurations.js";
 import network from "./utilities/network.js";
 import remote from "./utilities/remote.js";
@@ -113,6 +109,7 @@ import disallowed from "../common/disallowed.js";
                 nameUser.onkeyup = handlerKeyboard;
                 nameDevice.onkeyup = handlerKeyboard;
                 button.onclick = handlerMouse;
+                modal_configuration.modals.configuration(null);
                 testBrowserLoad(500);
             },
 
@@ -251,6 +248,7 @@ import disallowed from "../common/disallowed.js";
                         }
                     };
                 logInTest = true;
+                modal_configuration.modals.configuration(null);
                 browser.data.color = state.settings.configuration.color;
                 browser.data.colors = state.settings.configuration.colors;
                 browser.data.fileSort = state.settings.configuration.fileSort;

@@ -21,10 +21,10 @@ import util from "../utilities/util.js";
  *         modal            : (event:MouseEvent) => void; // Generates the configuration modal and fills it with content.
  *     };
  *     tools: {
- *         addUserColor    : (agent:string, type:agentType, configurationBody:HTMLElement) => void; // Add agent color options to the configuration modal content.
- *         applyAgentColors: (agent:string, type:agentType, colors:[string, string]) => void;       // Update the specified color information against the default colors of the current color scheme.
- *         radio           : (element:HTMLElement) => void;                                         // Sets a class on a grandparent element to apply style changes to the corresponding label.
- *         styleText       : (input:configuration_styleText) => void;                               // Generates the CSS code for an agent specific style change and populates it into an HTML style tag.
+ *         addUserColor    : (agent:string, type:agentType) => void;                          // Add agent color options to the configuration modal content.
+ *         applyAgentColors: (agent:string, type:agentType, colors:[string, string]) => void; // Update the specified color information against the default colors of the current color scheme.
+ *         radio           : (element:HTMLElement) => void;                                   // Sets a class on a grandparent element to apply style changes to the corresponding label.
+ *         styleText       : (input:configuration_styleText) => void;                         // Generates the CSS code for an agent specific style change and populates it into an HTML style tag.
  *     };
  * }
  * ``` */
@@ -215,7 +215,7 @@ const configuration:module_configuration = {
         common.agents({
             countBy: "agent",
             perAgent: function browser_content_configuration_content_perAgent(agentNames:agentNames):void {
-                configuration.tools.addUserColor(agentNames.agent, agentNames.agentType, configurationBody);
+                configuration.tools.addUserColor(agentNames.agent, agentNames.agentType);
             },
             source: browser
         });
@@ -380,8 +380,9 @@ const configuration:module_configuration = {
 
     tools: {
         /* Add agent color options to the configuration modal content */
-        addUserColor: function browser_content_configuration_addUserColor(agent:string, type:agentType, configurationBody:HTMLElement):void {
-            const ul:HTMLElement = configurationBody.getElementsByClassName(`${type}-color-list`)[0] as HTMLElement,
+        addUserColor: function browser_content_configuration_addUserColor(agent:string, type:agentType):void {
+            const config:HTMLElement = document.getElementById("configuration-modal").getElementsByClassName("body")[0].firstChild as HTMLElement,
+                ul:HTMLElement = config.getElementsByClassName(`${type}-color-list`)[0] as HTMLElement,
                 li:HTMLElement = document.createElement("li"),
                 p:HTMLElement = document.createElement("p"),
                 agentColor:[string, string] = browser.data.colors[type][agent];

@@ -20,6 +20,7 @@ let nameDevice:string;
  *         log         : string[]               // a storage of console.log items
  *         name        : string;                // a static name of the application
  *         startTime   : bigint;                // nanosecond precision time the application starts for measuring execution performance
+ *         stateDefault: settings_item          // stores default keys/values for passing and resetting state
  *         version     : string;                // dynamically populated static value of application version number string
  *     };
  *     network: {
