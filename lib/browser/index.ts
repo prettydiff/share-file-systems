@@ -359,19 +359,7 @@ import disallowed from "../common/disallowed.js";
                         modalItem.callback = function browser_init_modalGeneric_callback():void {
                             z(id);
                         };
-                        if (modalItem.type === "agent-management") {
-                            modal_configuration.modals["agent-management"](null, modalItem);
-                        } else if (modalItem.type === "export" || modalItem.type === "text-pad") {
-                            modal_configuration.modals["text-pad"](null, modalItem);
-                        } else if (modalItem.type === "message") {
-                            modal_configuration.modals.message(null, modalItem);
-                        } else if (modalItem.type === "shares") {
-                            modal_configuration.modals.shares(null, modalItem);
-                        } else if (modalItem.type === "terminal") {
-                            modal_configuration.modals.terminal(null, modalItem);
-                        } else {
-                            z(null);
-                        }
+                        modal_configuration.modals[modalItem.type](null, modalItem);
                     },
                     modalMedia = function browser_init_modalMedia(id:string):void {
                         const p:HTMLElement = document.createElement("p"),

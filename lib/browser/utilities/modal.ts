@@ -329,7 +329,9 @@ const modal:module_modal = {
         }
 
         // Append body content after top areas and before bottom areas
-        body.appendChild(options.content);
+        if (options.content !== null && options.content !== undefined) {
+            body.appendChild(options.content);
+        }
         border.appendChild(body);
 
         // Status bar
@@ -712,7 +714,6 @@ const modal:module_modal = {
         /* Drag and drop interaction for modals */
         move: function browser_utilities_modal_move(event:MouseEvent|TouchEvent):void {
             const element:HTMLElement = event.target,
-                heading:HTMLElement = element.parentNode,
                 box:modal = element.getAncestor("box", "class"),
                 boxParent:HTMLElement = box.parentNode,
                 settings:config_modal = browser.data.modals[box.getAttribute("id")],

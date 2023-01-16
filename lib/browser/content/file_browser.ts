@@ -81,7 +81,6 @@ const file_browser:module_fileBrowser = {
                     textArea.style.minHeight = "5em";
                     body.style.height = "auto";
                 }
-                browser.data.modals[data.files[a].id].text_value = data.files[a].content;
                 textArea.value = data.files[a].content;
                 body.appendText("", true);
                 body.appendChild(label);

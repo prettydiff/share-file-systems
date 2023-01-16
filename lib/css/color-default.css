@@ -27,6 +27,7 @@ body.default {
     --yellow-border:#990;
     --yellow-bright:#ffc;
     --yellow-dark:#440;
+    --yellow-icon:#b90;
     --yellow-primary:#ee0;
     --yellow-text:#770;
 
@@ -109,19 +110,19 @@ body.default {
 .default #spaces #minimize-all:hover,
 .default #spaces #fullscreen:hover,
 .default #spaces #menuToggle:hover{background:var(--white)}
-.default #spaces .agent-management span{color:var(--grey-medium)}
-.default #spaces .configuration span{color:var(--grey-medium)}
-.default #spaces .details span{color:var(--grey-medium)}
-.default #spaces .document span{color:var(--grey-medium)}
-.default #spaces .export span{color:var(--blue-hover)}
-.default #spaces .file-edit span{color:var(--green-button-text)}
-.default #spaces .file-navigate span{color:var(--green-button-text)}
+.default #spaces .agent-management span{color:var(--red-primary)}
+.default #spaces .configuration span{color:var(--grey-dark)}
+.default #spaces .details span{color:var(--yellow-text)}
+.default #spaces .document span{color:var(--black)}
+.default #spaces .export span{color:var(--parent-text)}
+.default #spaces .file-edit span{color:var(--yellow-icon)}
+.default #spaces .file-navigate span{color:var(--blue-hover)}
 .default #spaces .invite-accept span{color:var(--parent-text)}
-.default #spaces .media span{color:var(--parent-text)}
-.default #spaces .message span{color:var(--parent-text)}
-.default #spaces .shares span{color:var(--parent-text)}
-.default #spaces .terminal span{color:var(--red-bright)}
-.default #spaces .text-pad span{color:var(--orange-text)}
+.default #spaces .media span{color:var(--white)}
+.default #spaces .message span{color:var(--green-button-text)}
+.default #spaces .shares span{color:var(--black)}
+.default #spaces .terminal span{color:var(--blue-button-text)}
+.default #spaces .text-pad span{color:var(--focus)}
 .default #spaces #menu{border-color:var(--border);box-shadow:0.1em 0.1em 0.25em var(--shadow)}
 .default #spaces #menu button{background:var(--background-dark);border-color:var(--border)}
 .default #spaces #menu button:hover{background:var(--background);box-shadow:0.1em 0.1em 0.5em var(--shadow)}

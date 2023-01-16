@@ -244,6 +244,7 @@ body.login #spaces{padding:2.5em 0 0}
 #spaces .box .delay p{font-size:2em;text-align:center}
 #spaces .box .footer .terminal span,
 #spaces .box .text-pad span{display:block;position:absolute;text-indent:-2000em}
+#spaces .heading .text-pad span{display:inline-block;position:static;text-indent:0}
 #spaces .box .text-pad textarea{border-style:none;display:block;font-size:var(--textSize);height:100%;margin:0;overflow:scroll;padding:0;resize:none;white-space:pre;width:100%}
 #spaces .box .footer textarea{border-style:solid;font-size:1.8em;height:5em;margin:0;resize:both;width:100%}
 #spaces .footer .text-pad textarea{margin:0 0 1em}

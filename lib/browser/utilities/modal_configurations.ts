@@ -154,12 +154,12 @@ const modal_configuration:module_modalConfiguration = {
                 }
                 : config;
             if (content !== null && config !== undefined) {
-                config.content = content;
+                payload.content = content;
             }
             return modal.content(payload);
         },
 
-        "export": function browser_utilities_modalConfiguration_export():modal {
+        "export": function browser_utilities_modalConfiguration_export(event:Event, config?:config_modal):modal {
             const textArea:HTMLTextAreaElement = document.createElement("textarea"),
                 label:HTMLElement = document.createElement("label"),
                 span:HTMLElement = document.createElement("span"),
@@ -173,6 +173,9 @@ const modal_configuration:module_modalConfiguration = {
                     single: true,
                     type: "export"
                 };
+            if (config !== null && config !== undefined) {
+                payload.callback = config.callback;
+            }
             document.getElementById("menu").style.display = "none";
             textArea.onblur = modal.events.textSave;
             textArea.value = JSON.stringify(browser.data);
@@ -183,37 +186,40 @@ const modal_configuration:module_modalConfiguration = {
             return modal.content(payload);
         },
 
-        "file-edit": function browser_content_context_dataString(event:Event):modal {
-            const element:HTMLElement = (context.element.lowName() === "li")
-                    ? context.element
-                    : context.element.getAncestor("li", "tag"),
-                mouseEvent:MouseEvent = event as MouseEvent,
-                contextElement:HTMLElement = event.target as HTMLElement,
-                type:contextType = (context.type !== "")
-                    ? context.type
-                    : (contextElement.innerHTML.indexOf("Base64") === 0)
-                        ? "Base64"
-                        : (contextElement.innerHTML.indexOf("File as Text") > 0)
-                            ? "Edit"
-                            : "Hash",
-                menu:HTMLElement = document.getElementById("contextMenu"),
-                addresses:[string, fileType, string][] = util.selectedAddresses(element, "file-edit"),
-                box:modal = element.getAncestor("box", "class"),
-                length:number = addresses.length,
-                agency:agency = util.getAgent(box),
-                agents:[fileAgent, fileAgent, fileAgent] = util.fileAgent(box, null),
+        "file-edit": function browser_utilities_modalConfiguration_fileEdit(event:Event, config?:config_modal):modal {
+            let modalInstance:modal = null,
+                agents:[fileAgent, fileAgent, fileAgent] = null;
+            const menu:HTMLElement = document.getElementById("contextMenu"),
                 payloadNetwork:service_fileSystem = {
-                    action: (type === "Edit")
-                        ? "fs-read"
-                        : `fs-${type.toLowerCase()}` as actionFile,
-                    agentRequest: agents[0],
-                    agentSource: agents[1],
+                    action: null,
+                    agentRequest: null,
+                    agentSource: null,
                     agentWrite: null,
                     depth: 1,
                     location: [],
                     name: ""
-                },
-                payloadModal:config_modal = {
+                };
+            if (config === null || config === undefined) {
+                const element:HTMLElement = (context.element.lowName() === "li")
+                        ? context.element
+                        : context.element.getAncestor("li", "tag"),
+                    mouseEvent:MouseEvent = event as MouseEvent,
+                    contextElement:HTMLElement = event.target as HTMLElement,
+                    type:contextType = (context.type !== "")
+                        ? context.type
+                        : (contextElement.innerHTML.indexOf("Base64") === 0)
+                            ? "Base64"
+                            : (contextElement.innerHTML.indexOf("File as Text") > 0)
+                                ? "Edit"
+                                : "Hash",
+                    addresses:[string, fileType, string][] = util.selectedAddresses(element, "file-edit"),
+                    box:modal = element.getAncestor("box", "class"),
+                    length:number = addresses.length,
+                    agency:agency = util.getAgent(box);
+                let a:number = 0,
+                    delay:HTMLElement;
+                agents = util.fileAgent(box, null);
+                config = {
                     agent: agency[0],
                     agentIdentity: true,
                     agentType: agency[2],
@@ -227,23 +233,57 @@ const modal_configuration:module_modalConfiguration = {
                     single: false,
                     title_supplement: type,
                     top: 0,
-                    type: "text-pad",
+                    type: "file-edit",
                     width: 500
                 };
-            let a:number = 0,
-                delay:HTMLElement,
-                modalInstance:modal;
-            do {
-                if (addresses[a][1].indexOf("file") === 0) {
-                    delay = util.delay();
-                    payloadModal.content = delay;
-                    payloadModal.left = mouseEvent.clientX + (a * 10);
-                    payloadModal.top = (mouseEvent.clientY - 60) + (a * 10);
-                    modalInstance = modal.content(payloadModal);
-                    payloadNetwork.location.push(`${modalInstance.getAttribute("id")}:${addresses[a][0]}`);
+                payloadNetwork.action = (type === "Edit")
+                    ? "fs-read"
+                    : `fs-${type.toLowerCase()}` as actionFile;
+                payloadNetwork.agentRequest = agents[0];
+                payloadNetwork.agentSource = agents[1];
+                do {
+                    if (addresses[a][1].indexOf("file") === 0) {
+                        delay = util.delay();
+                        config.content = delay;
+                        config.left = mouseEvent.clientX + (a * 10);
+                        config.top = (mouseEvent.clientY - 60) + (a * 10);
+                        config.text_value = addresses[a][0];
+                        modalInstance = modal.content(config);
+                        payloadNetwork.location.push(`${modalInstance.getAttribute("id")}:${addresses[a][0]}`);
+                    }
+                    a = a + 1;
+                } while (a < length);
+                network.send(payloadNetwork, "file-system");
+                context.element = null;
+                context.type = "";
+                if (menu !== null) {
+                    menu.parentNode.removeChild(menu);
                 }
-                a = a + 1;
-            } while (a < length);
+                return modalInstance;
+            }
+            config.content = util.delay();
+            modalInstance = modal.content(config);
+            agents = util.fileAgent(modalInstance, null, config.text_value);
+            payloadNetwork.action = payloadNetwork.action = (config.title_supplement === "Edit")
+                ? "fs-read"
+                : `fs-${config.title_supplement.toLowerCase()}` as actionFile;
+            payloadNetwork.agentRequest = {
+                device: browser.data.hashDevice,
+                modalAddress: "",
+                share: "",
+                user: browser.data.hashUser
+            };
+            payloadNetwork.agentSource = {
+                device: (config.agentType === "device")
+                    ? config.agent
+                    : "",
+                modalAddress: config.text_value,
+                share: "",
+                user: (config.agentType === "device")
+                    ? browser.data.hashUser
+                    : config.agent
+            };
+            payloadNetwork.location = [`${modalInstance.getAttribute("id")}:${config.text_value}`];
             network.send(payloadNetwork, "file-system");
             context.element = null;
             context.type = "";
@@ -346,7 +386,7 @@ const modal_configuration:module_modalConfiguration = {
                         : `User ${agentInvite.nameUser}`,
                     type: "invite-accept",
                     width: 500
-                }
+                };
             }
             if (content !== null && content !== undefined) {
                 config.content = content;
@@ -533,7 +573,9 @@ const modal_configuration:module_modalConfiguration = {
             label.appendChild(span);
             label.appendChild(textArea);
             if (config !== undefined) {
-                textArea.value = config.text_value;
+                if (config.text_value !== undefined) {
+                    textArea.value = config.text_value;
+                }
                 payload.content = label;
             }
             textArea.onblur = modal.events.textSave;
@@ -575,7 +617,7 @@ const modal_configuration:module_modalConfiguration = {
         "file-edit": {
             icon: "✎",
             menu: false,
-            text: "File Edit"
+            text: "File"
         },
         "file-navigate": {
             icon: "⌹",
@@ -583,19 +625,19 @@ const modal_configuration:module_modalConfiguration = {
             text: "File Navigate"
         },
         "invite-accept": {
-            icon: null,
+            icon: "❧",
             menu: false,
             text: "Invitation from"
-        },
-        "message": {
-            icon: "☎",
-            menu: false,
-            text: "Text Message to"
         },
         "media": {
             icon: "💬",
             menu: false,
             text: "Message to"
+        },
+        "message": {
+            icon: "☎",
+            menu: false,
+            text: "Text Message to"
         },
         "shares": {
             icon: "",
