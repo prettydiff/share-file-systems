@@ -84,7 +84,37 @@ const vars:module_terminalVariables = {
         module_type: "module",
         log: [],
         name: "Share File Systems",
-        startTime: process.hrtime.bigint(),
+        startTime: 0n,
+        stateDefault: {
+            configuration: {
+                audio: false,
+                brotli: 0,
+                color: "default",
+                colors: {
+                    device: {},
+                    user: {}
+                },
+                fileSort: "file-system-type",
+                hashDevice: "",
+                hashType: "sha3-512",
+                hashUser: "",
+                modals: {},
+                modalTypes: [],
+                nameDevice: "",
+                nameUser: "",
+                statusTime: 15000,
+                storage: "",
+                tutorial: false,
+                zIndex: 0
+            },
+            device: {},
+            message: [],
+            queue: {
+                device: {},
+                user: {}
+            },
+            user: {}
+        },
         version: ""
     },
     network: {
@@ -306,5 +336,6 @@ const vars:module_terminalVariables = {
 vars.path.settings = `${vars.path.project}lib${vars.path.sep}settings${vars.path.sep}`;
 vars.path.testStorage = `${vars.path.project}lib${vars.path.sep}terminal${vars.path.sep}test${vars.path.sep}storageBrowser${vars.path.sep}`;
 vars.settings.storage = `${vars.path.project}lib${vars.path.sep}storage${vars.path.sep}`;
+vars.environment.stateDefault.configuration.storage = `${vars.path.project}lib${vars.path.sep}storage${vars.path.sep}`;
 
 export default vars;
