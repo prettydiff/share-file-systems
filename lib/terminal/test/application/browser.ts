@@ -434,7 +434,7 @@ const defaultCommand:commands = vars.environment.command,
                 if (browser.args.mode === "remote") {
                     item.test = {
                         interaction: null,
-                        machine: item.exit,
+                        machine: "self",
                         name: "",
                         unit: null
                     };
