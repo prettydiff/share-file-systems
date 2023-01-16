@@ -17,7 +17,7 @@ import vars from "../../utilities/vars.js";
  * ``` */
 const sender:module_sender = {
     agentQueue: function terminal_server_transmission_sender_agentQueue(type:socketType, agent:string, payload:socketData) {
-        const socket:websocket_client = transmit_ws.clientList[type as agentType][agent];//console.log(type+" "+agent+" "+payload.service+" "+(socket===undefined?undefined:socket.status));
+        const socket:websocket_client = transmit_ws.clientList[type as agentType][agent];
         if (socket !== undefined && socket !== null && (socket.status === "open" || socket.status === "pending")) {
             transmit_ws.queue(payload, socket, 1);
         } else if (vars.test.type === "" && (type === "device" || type === "user") && vars.settings[type][agent] !== undefined) {
@@ -71,7 +71,9 @@ const sender:module_sender = {
             if (index > 0) {
                 do {
                     index = index - 1;
-                    sender.agentQueue(listType, list[index], payload);
+                    if (listType !== "device" || (listType === "device" && list[index] !== vars.settings.hashDevice)) {
+                        sender.agentQueue(listType, list[index], payload);
+                    }
                 } while (index > 0);
             }
         }

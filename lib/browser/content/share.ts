@@ -475,7 +475,7 @@ const share:module_share = {
             do {
                 if (exclusion !== modals[a]) {
                     item = browser.data.modals[modals[a]];
-                    if (browser[item.agentType][item.agent] === undefined && item.type !== "shares" && item.type !== "configuration" && item.type === "agent-management") {
+                    if (item !== undefined && browser[item.agentType][item.agent] === undefined && item.type !== "shares" && item.type !== "configuration" && item.type === "agent-management") {
                         closer(modals[a]);
                     } else if (item.type === "shares") {
                         modal = document.getElementById(modals[a]);

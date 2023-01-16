@@ -140,12 +140,14 @@ const browserDevice:test_browserItem[] = [
     {
         delay: {
             node: [
-                ["getModalsByModalType", "shares", 0]
+                ["getModalsByModalType", "shares", 0],
+                ["getElementsByClassName", "body", 0],
+                ["getElementsByTagName", "ul", null]
             ],
-            qualifier: "greater",
-            target: ["clientHeight"],
+            qualifier: "is",
+            target: ["length"],
             type: "property",
-            value: 200
+            value: 14
         },
         interaction: [
             {
@@ -169,17 +171,6 @@ const browserDevice:test_browserItem[] = [
                 target: ["length"],
                 type: "property",
                 value: 3
-            },
-            {
-                node: [
-                    ["getModalsByModalType", "shares", 0],
-                    ["getElementsByClassName", "body", 0],
-                    ["getElementsByTagName", "ul", null]
-                ],
-                qualifier: "is",
-                target: ["length"],
-                type: "property",
-                value: 14
             },
             {
                 node: [
@@ -212,13 +203,12 @@ const browserDevice:test_browserItem[] = [
             node: [
                 ["getModalsByModalType", "shares", 0],
                 ["getElementsByClassName", "body", 0],
-                ["getElementsByTagName", "h3", 0],
-                ["getElementsByTagName", "strong", 0]
+                ["getElementsByTagName", "ul", null]
             ],
             qualifier: "is",
-            target: ["innerHTML"],
+            target: ["length"],
             type: "property",
-            value: "devices"
+            value: 14
         },
         interaction: [
             {
@@ -242,17 +232,6 @@ const browserDevice:test_browserItem[] = [
                 target: ["length"],
                 type: "property",
                 value: 3
-            },
-            {
-                node: [
-                    ["getModalsByModalType", "shares", 0],
-                    ["getElementsByClassName", "body", 0],
-                    ["getElementsByTagName", "ul", null]
-                ],
-                qualifier: "is",
-                target: ["length"],
-                type: "property",
-                value: 14
             },
             {
                 node: [
