@@ -93,7 +93,7 @@ const commandName = function terminal_utilities_command(globalName:string):strin
         a = a + 1;
     } while (filtered.length > 1 && a < len);
 
-    if (filtered.length < 1 || (filtered[0] === "debug" && filtered.length < 2) || (filtered[0] === "update")) {
+    if (filtered.length < 1 || (filtered[0] === "debug" && filtered.length < 2) || (filtered[0] === "update" && arg !== "update")) {
         logger(`Command ${boldArg} is not a supported command.`);
         logger("");
         logger("Please try:");
