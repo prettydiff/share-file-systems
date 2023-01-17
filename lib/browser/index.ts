@@ -262,18 +262,16 @@ import disallowed from "../common/disallowed.js";
                 browser.pageBody.setAttribute("class", browser.data.color);
                 restoreShares("device");
                 restoreShares("user");
-
-                if (modalKeys.length < 1) {
-                    loadComplete();
-                } else {
-                    modalKeys.forEach(function browser_init_modalKeys(value:string) {
+                z("configuration-modal");
+                modalKeys.forEach(function browser_init_modalKeys(value:string) {
+                    if (value !== "configuration-modal") {
                         modalItem = state.settings.configuration.modals[value];
                         modalItem.callback = function browser_init_modalKeys_callback():void {
                             z(value);
                         };
                         modal_configuration.modals[modalItem.type](null, modalItem);
-                    });
-                }
+                    }
+                });
             },
 
             // callback once the socket tunnel is operational
