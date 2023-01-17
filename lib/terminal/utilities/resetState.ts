@@ -1,10 +1,17 @@
 /* lib/terminal/utilities/resetState - A convenience tool to baseline environmental settings */
 
+import transmit_ws from "../server/transmission/transmit_ws.js";
 import vars from "./vars.js";
 
-const resetState = function terminal_utilities_resetState():void {
+const resetState = function terminal_utilities_resetState(callback:() => void):void {
+    let agentType:agentType = "device";
     const stateKeys:string[] = Object.keys(vars.environment.stateDefault),
         configKeys:string[] = Object.keys(vars.environment.stateDefault.configuration),
+        deviceKeys:string[] = Object.keys(transmit_ws.clientList.device),
+        userKeys:string[] = Object.keys(transmit_ws.clientList.user),
+        agentKill = function terminal_utilities_resetState_agentKill(agent:string) {
+            transmit_ws.agentClose(transmit_ws.clientList[agentType][agent]);
+        },
         mapValues = function terminal_utilities_resetState_mapValues(configuration:boolean):void {
             let index:number = (configuration === true)
                     ? configKeys.length
@@ -50,7 +57,13 @@ const resetState = function terminal_utilities_resetState():void {
                     }
                 }
             } while (index > 0);
+            if (configuration === true) {
+                callback();
+            }
         };
+    deviceKeys.forEach(agentKill);
+    agentType = "user";
+    userKeys.forEach(agentKill);
     mapValues(false);
     mapValues(true);
 };

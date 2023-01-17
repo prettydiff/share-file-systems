@@ -405,25 +405,26 @@ const defaultCommand:commands = vars.environment.command,
                     vars.settings.device = {};
                     vars.settings.user = {};
                     if (browser.args.mode === "remote") {
-                        const close:service_testBrowser = {
-                            action: "close",
-                            exit: "",
-                            index: -1,
-                            result: [],
-                            test: {
-                                interaction: null,
-                                machine: browser.name,
-                                name: "reset-request",
-                                unit: null
-                            }
-                        };
-                        browser.methods.send(close);
-                        resetState();
-                        browser.methods.delay({
-                            action: start,
-                            browser: false,
-                            delay: 2000,
-                            message: "Delaying to close any open browsers."
+                        resetState(function terminal_test_application_browser_reset_readdir_browserLaunch_resetState():void {
+                            const close:service_testBrowser = {
+                                action: "close",
+                                exit: "",
+                                index: -1,
+                                result: [],
+                                test: {
+                                    interaction: null,
+                                    machine: browser.name,
+                                    name: "reset-request",
+                                    unit: null
+                                }
+                            };
+                            browser.methods.send(close);
+                            browser.methods.delay({
+                                action: start,
+                                browser: false,
+                                delay: 2000,
+                                message: "Delaying to close any open browsers."
+                            });
                         });
                     } else {
                         start();
