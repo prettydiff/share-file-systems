@@ -99,7 +99,7 @@ const network:module_network = {
                 "agent-management": agent_management.tools.modifyReceive,
                 "error": error,
                 "hash-share": share.tools.hash,
-                "file-system-details": file_browser.content.details,
+                "file-system-details": file_browser.content.detailsResponse,
                 "file-system-status": file_browser.content.status,
                 "file-system-string": file_browser.content.dataString,
                 "invite": agent_management.tools.inviteTransmissionReceipt,

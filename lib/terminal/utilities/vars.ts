@@ -20,6 +20,7 @@ let nameDevice:string;
  *         log         : string[]               // a storage of console.log items
  *         name        : string;                // a static name of the application
  *         startTime   : bigint;                // nanosecond precision time the application starts for measuring execution performance
+ *         stateDefault: settings_item          // stores default keys/values for passing and resetting state
  *         version     : string;                // dynamically populated static value of application version number string
  *     };
  *     network: {
@@ -85,6 +86,36 @@ const vars:module_terminalVariables = {
         log: [],
         name: "Share File Systems",
         startTime: process.hrtime.bigint(),
+        stateDefault: {
+            configuration: {
+                audio: false,
+                brotli: 0,
+                color: "default",
+                colors: {
+                    device: {},
+                    user: {}
+                },
+                fileSort: "file-system-type",
+                hashDevice: "",
+                hashType: "sha3-512",
+                hashUser: "",
+                modals: {},
+                modalTypes: [],
+                nameDevice: "",
+                nameUser: "",
+                statusTime: 15000,
+                storage: "",
+                tutorial: false,
+                zIndex: 0
+            },
+            device: {},
+            message: [],
+            queue: {
+                device: {},
+                user: {}
+            },
+            user: {}
+        },
         version: ""
     },
     network: {
@@ -167,7 +198,8 @@ const vars:module_terminalVariables = {
         node: "",
         project: "",
         sep: sep,
-        settings: ""
+        settings: "",
+        testStorage: ""
     },
     settings: {
         audio: true,
@@ -302,7 +334,9 @@ const vars:module_terminalVariables = {
         yellow   : "\u001b[33m"
     }
 };
-vars.path.settings = `${vars.path.project}lib${sep}settings${sep}`;
-vars.settings.storage = `${vars.path.project}lib${sep}storage${sep}`;
+vars.path.settings = `${vars.path.project}lib${vars.path.sep}settings${vars.path.sep}`;
+vars.path.testStorage = `${vars.path.project}lib${vars.path.sep}terminal${vars.path.sep}test${vars.path.sep}storageBrowser${vars.path.sep}`;
+vars.settings.storage = `${vars.path.project}lib${vars.path.sep}storage${vars.path.sep}`;
+vars.environment.stateDefault.configuration.storage = `${vars.path.project}lib${vars.path.sep}storage${vars.path.sep}`;
 
 export default vars;

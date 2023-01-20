@@ -65,7 +65,10 @@ const update = function terminal_commands_library_update():void {
             if (childError(err, "git") === false) {
                 const status:string = (stderr.indexOf("Already up-to-date.") > -1)
                         ? `${humanTime(false)}Code already up to date.`
-                        : ((/Fast-forward\s/).test(stderr) === true && stderr.indexOf("Updating ") > -1)
+                        : (
+                            ((/Fast-forward\s/).test(stderr) === true && stderr.indexOf("Updating ") > -1) ||
+                            (stderr.indexOf("First, rewinding head to replay your work on top of it...") > -1 && stderr.indexOf("Applying: ") > -1)
+                        )
                             ? `${humanTime(false)}Code ${vars.text.green + vars.text.bold}updated${vars.text.none} from git.`
                             : "unknown";
                 if (status === "unknown") {

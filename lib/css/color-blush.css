@@ -28,6 +28,7 @@ body.blush {
     --yellow-border:#760;
     --yellow-bright:#fec;
     --yellow-dark:#440;
+    --yellow-icon:#b90;
     --yellow-primary:#ee0;
     --yellow-text:#750;
 
@@ -42,7 +43,6 @@ body.blush {
     --dragBox-background:#9cf;
     --dragBox-border:#69c;
     --focus:#39f;
-    --icon-fileNavigate:#;
     --offline:#f66;
     --parent-background:#fdc;
     --parent-text:#604;
@@ -110,14 +110,19 @@ body.blush {
 .blush #spaces #minimize-all:hover,
 .blush #spaces #fullscreen:hover,
 .blush #spaces #menuToggle:hover{background:var(--white)}
-.blush #spaces .icon-fileNavigator{color:var(--green-button-text)}
-.blush #spaces .icon-systemLog{color:var(--focus)}
-.blush #spaces .icon-textPad{color:var(--orange-text)}
-.blush #spaces .icon-terminal{color:var(--red-bright)}
-.blush #spaces .icon-export{color:var(--blue-hover)}
-.blush #spaces .icon-invite{color:var(--parent-text)}
-.blush #spaces .icon-delete{color:var(--red-bright)}
-.blush #spaces .icon-configuration{color:var(--grey-medium)}
+.blush #spaces .agent-management span{color:var(--red-primary)}
+.blush #spaces .configuration span{color:var(--grey-dark)}
+.blush #spaces .details span{color:var(--yellow-text)}
+.blush #spaces .document span{color:var(--black)}
+.blush #spaces .export span{color:var(--parent-text)}
+.blush #spaces .file-edit span{color:var(--yellow-icon)}
+.blush #spaces .file-navigate span{color:var(--blue-hover)}
+.blush #spaces .invite-accept span{color:var(--parent-text)}
+.blush #spaces .media span{color:var(--white)}
+.blush #spaces .message span{color:var(--green-button-text)}
+.blush #spaces .shares span{color:var(--black)}
+.blush #spaces .terminal span{color:var(--blue-button-text)}
+.blush #spaces .text-pad span{color:var(--focus)}
 .blush #spaces #menu{border-color:var(--border);box-shadow:0.1em 0.1em 0.25em var(--shadow)}
 .blush #spaces #menu button{background:var(--background-dark);border-color:var(--border)}
 .blush #spaces #menu button:hover{background:var(--background);box-shadow:0.1em 0.1em 0.5em var(--shadow)}
@@ -195,7 +200,7 @@ body.blush {
 .blush #spaces .agentList .share-tool-video,
 .blush #spaces .text-button-device,
 .blush #spaces .text-button-user{background:var(--blue-button-background);border-color:var(--blue-button-text);color:var(--blue-button-text)}
-.blush #spaces .agentList .share-tool-fileNavigate,
+.blush #spaces .agentList .share-tool-file-navigate,
 .blush #spaces .agentList .share-tool-terminal{background:var(--yellow-bright);border-color:var(--yellow-border);color:var(--yellow-dark)}
 .blush #spaces .agentList h4{background:white}
 .blush #spaces .agentList .device,

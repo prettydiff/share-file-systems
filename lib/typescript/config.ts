@@ -261,25 +261,6 @@ declare global {
     }
 
     /**
-     * For global_events.modal.fileNavigate (optional) of browser/content/global_events.
-     * ```typescript
-     * interface config_fileNavigate {
-     *     agentName: string;
-     *     agentType: agentType;
-     *     path: string;
-     *     readOnly: boolean;
-     *     share: string;
-     * }
-     * ``` */
-    interface config_fileNavigate {
-        agentName: string;
-        agentType: agentType;
-        path: string;
-        readOnly: boolean;
-        share: string;
-    }
-
-    /**
      * For transmit_http.request of terminal/server/transmission/transmit_http.
      * ```typescript
      * interface config_http_request {
@@ -356,22 +337,6 @@ declare global {
     }
 
     /**
-     * For media.tools.modal of browser/content/media.
-     * ```typescript
-     * interface config_mediaModal {
-     *     agent: string;
-     *     agentType: agentType;
-     *     mediaType: mediaType;
-     * }
-     * type mediaType = "audio" | "video";
-     * ``` */
-    interface config_mediaModal {
-        agent: string;
-        agentType: agentType;
-        mediaType: mediaType;
-    }
-
-    /**
      * For modal.content of browser/utilities/modal.
      * ```typescript
      * interface config_modal {
@@ -402,14 +367,14 @@ declare global {
      *     text_event?: (event:KeyboardEvent|MouseEvent) => void;
      *     text_placeholder?: string;
      *     text_value?: string;
-     *     title: string;
+     *     title_supplement?: string;
      *     top?: number;
      *     type: modalType;
      *     width?: number;
      *     zIndex?: number;
      * }
      * type modalStatus = "hidden" | "maximized" | "minimized" | "normal";
-     * type modalType = "agent-management" | "configuration" | "details" | "document" | "export" | "fileEdit" | "fileNavigate" | "invite-accept" | "media" | "message" | "shares" | "terminal" | "textPad";
+     * type modalType = "agent-management" | "configuration" | "details" | "document" | "export" | "file-edit" | "file-navigate" | "invite-accept" | "media" | "message" | "shares" | "terminal" | "text-pad";
      * type ui_input = "cancel" | "close" | "confirm" | "maximize" | "minimize" | "save" | "text";
      * ``` */
     interface config_modal {
@@ -440,7 +405,7 @@ declare global {
         text_event?: (event:KeyboardEvent|MouseEvent) => void;
         text_placeholder?: string;
         text_value?: string;
-        title: string;
+        title_supplement?: string;
         top?: number;
         type: modalType;
         width?: number;

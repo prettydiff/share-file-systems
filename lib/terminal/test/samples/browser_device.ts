@@ -140,12 +140,14 @@ const browserDevice:test_browserItem[] = [
     {
         delay: {
             node: [
-                ["getModalsByModalType", "shares", 0]
+                ["getModalsByModalType", "shares", 0],
+                ["getElementsByClassName", "body", 0],
+                ["getElementsByTagName", "ul", null]
             ],
-            qualifier: "greater",
-            target: ["clientHeight"],
+            qualifier: "is",
+            target: ["length"],
             type: "property",
-            value: 200
+            value: 14
         },
         interaction: [
             {
@@ -169,17 +171,6 @@ const browserDevice:test_browserItem[] = [
                 target: ["length"],
                 type: "property",
                 value: 3
-            },
-            {
-                node: [
-                    ["getModalsByModalType", "shares", 0],
-                    ["getElementsByClassName", "body", 0],
-                    ["getElementsByTagName", "ul", null]
-                ],
-                qualifier: "is",
-                target: ["length"],
-                type: "property",
-                value: 14
             },
             {
                 node: [
@@ -212,13 +203,12 @@ const browserDevice:test_browserItem[] = [
             node: [
                 ["getModalsByModalType", "shares", 0],
                 ["getElementsByClassName", "body", 0],
-                ["getElementsByTagName", "h3", 0],
-                ["getElementsByTagName", "strong", 0]
+                ["getElementsByTagName", "ul", null]
             ],
             qualifier: "is",
-            target: ["innerHTML"],
+            target: ["length"],
             type: "property",
-            value: "devices"
+            value: 14
         },
         interaction: [
             {
@@ -242,17 +232,6 @@ const browserDevice:test_browserItem[] = [
                 target: ["length"],
                 type: "property",
                 value: 3
-            },
-            {
-                node: [
-                    ["getModalsByModalType", "shares", 0],
-                    ["getElementsByClassName", "body", 0],
-                    ["getElementsByTagName", "ul", null]
-                ],
-                qualifier: "is",
-                target: ["length"],
-                type: "property",
-                value: 14
             },
             {
                 node: [
@@ -286,7 +265,7 @@ const browserDevice:test_browserItem[] = [
         delay: {
             // the file navigator modal is created
             node: [
-                ["getModalsByModalType", "fileNavigate", 0],
+                ["getModalsByModalType", "file-navigate", 0],
                 ["getElementsByClassName", "body", 0],
                 ["getElementsByTagName", "ul", 0]
             ],
@@ -309,7 +288,7 @@ const browserDevice:test_browserItem[] = [
             {
                 // that file navigation modal contains an address bar
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 0],
+                    ["getModalsByModalType", "file-navigate", 0],
                     ["getElementsByTagName", "input", 0]
                 ],
                 qualifier: "is",
@@ -320,7 +299,7 @@ const browserDevice:test_browserItem[] = [
             {
                 // the file navigate modal contains a search field
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 0],
+                    ["getModalsByModalType", "file-navigate", 0],
                     ["getElementsByTagName", "input", 1]
                 ],
                 qualifier: "is",
@@ -331,7 +310,7 @@ const browserDevice:test_browserItem[] = [
             {
                 // the file navigate modal contains a status bar
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 0],
+                    ["getModalsByModalType", "file-navigate", 0],
                     ["getElementsByClassName", "status-bar", 0]
                 ],
                 qualifier: "contains",
@@ -342,7 +321,7 @@ const browserDevice:test_browserItem[] = [
             {
                 // that file navigator modal contains a back button
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 0],
+                    ["getModalsByModalType", "file-navigate", 0],
                     ["getElementsByClassName", "header", 0],
                     ["getElementsByTagName", "button", 0]
                 ],
@@ -354,7 +333,7 @@ const browserDevice:test_browserItem[] = [
             {
                 // that file navigator modal contains a reload button
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 0],
+                    ["getModalsByModalType", "file-navigate", 0],
                     ["getElementsByClassName", "header", 0],
                     ["getElementsByTagName", "button", 1]
                 ],
@@ -366,7 +345,7 @@ const browserDevice:test_browserItem[] = [
             {
                 // that file navigator modal contains a parent navigation button
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 0],
+                    ["getModalsByModalType", "file-navigate", 0],
                     ["getElementsByClassName", "header", 0],
                     ["getElementsByTagName", "button", 2]
                 ],
@@ -378,7 +357,7 @@ const browserDevice:test_browserItem[] = [
             {
                 // that file navigator modal contains a minimize button
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 0],
+                    ["getModalsByModalType", "file-navigate", 0],
                     ["getElementsByClassName", "buttons", 0],
                     ["getElementsByTagName", "button", 0]
                 ],
@@ -390,7 +369,7 @@ const browserDevice:test_browserItem[] = [
             {
                 // that file navigator modal contains a maximize button
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 0],
+                    ["getModalsByModalType", "file-navigate", 0],
                     ["getElementsByClassName", "buttons", 0],
                     ["getElementsByTagName", "button", 1]
                 ],
@@ -402,7 +381,7 @@ const browserDevice:test_browserItem[] = [
             {
                 // that file navigator modal contains a close button
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 0],
+                    ["getModalsByModalType", "file-navigate", 0],
                     ["getElementsByClassName", "buttons", 0],
                     ["getElementsByTagName", "button", 2]
                 ],
@@ -414,7 +393,7 @@ const browserDevice:test_browserItem[] = [
             {
                 // the file navigate modal displays file system results with a directory
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 0],
+                    ["getModalsByModalType", "file-navigate", 0],
                     ["getElementsByClassName", "body", 0],
                     ["getElementsByTagName", "li", 0]
                 ],
@@ -426,7 +405,7 @@ const browserDevice:test_browserItem[] = [
             {
                 // that directory contains an expansion button
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 0],
+                    ["getModalsByModalType", "file-navigate", 0],
                     ["getElementsByClassName", "body", 0],
                     ["getElementsByTagName", "li", 0],
                     ["getElementsByTagName", "button", 0]
@@ -447,7 +426,7 @@ const browserDevice:test_browserItem[] = [
         machine: "VM1"
     }),
     showContextMenu([
-        ["getModalsByModalType", "fileNavigate", 0],
+        ["getModalsByModalType", "file-navigate", 0],
         ["getElementsByClassName", "body", 0],
         ["getElementsByTagName", "li", 3],
         ["getElementsByTagName", "p", 0]
@@ -544,7 +523,7 @@ const browserDevice:test_browserItem[] = [
     {
         delay: {
             node: [
-                ["getModalsByModalType", "fileNavigate", 0],
+                ["getModalsByModalType", "file-navigate", 0],
                 ["getElementsByClassName", "fileList", 0],
                 ["getElementsByTagName", "li", 1],
                 ["getElementsByTagName", "label", 0]
@@ -605,7 +584,7 @@ const browserDevice:test_browserItem[] = [
 
     // open file navigate context menu at self
     showContextMenu([
-        ["getModalsByModalType", "fileNavigate", 0],
+        ["getModalsByModalType", "file-navigate", 0],
         ["getElementsByClassName", "body", 0],
         ["getElementsByTagName", "li", 1],
         ["getElementsByTagName", "p", 0]
@@ -616,7 +595,7 @@ const browserDevice:test_browserItem[] = [
     {
         delay: {
             node: [
-                ["getModalsByModalType", "textPad", 0],
+                ["getModalsByModalType", "text-pad", 0],
                 ["getElementsByClassName", "body", 0],
                 ["getElementsByTagName", "textarea", 0]
             ],
@@ -640,7 +619,7 @@ const browserDevice:test_browserItem[] = [
         unit: [
             {
                 node: [
-                    ["getModalsByModalType", "textPad", 0],
+                    ["getModalsByModalType", "text-pad", 0],
                     ["getElementsByClassName", "body", 0],
                     ["getElementsByTagName", "textarea", 0]
                 ],
@@ -654,7 +633,7 @@ const browserDevice:test_browserItem[] = [
 
     // open file navigate context menu at self
     showContextMenu([
-        ["getModalsByModalType", "fileNavigate", 0],
+        ["getModalsByModalType", "file-navigate", 0],
         ["getElementsByClassName", "body", 0],
         ["getElementsByTagName", "li", 0],
         ["getElementsByTagName", "p", 0]
@@ -665,7 +644,7 @@ const browserDevice:test_browserItem[] = [
     {
         delay: {
             node: [
-                ["getModalsByModalType", "fileNavigate", 1],
+                ["getModalsByModalType", "file-navigate", 1],
                 ["getElementsByClassName", "fileList", 0],
                 ["getElementsByTagName", "li", 0]
             ],
@@ -704,7 +683,7 @@ const browserDevice:test_browserItem[] = [
         delay: {
             // the file navigator modal is created
             node: [
-                ["getModalsByModalType", "fileNavigate", 0],
+                ["getModalsByModalType", "file-navigate", 0],
                 ["getElementsByClassName", "body", 0],
                 ["getElementsByTagName", "ul", 0]
             ],
@@ -727,7 +706,7 @@ const browserDevice:test_browserItem[] = [
             {
                 // that file navigation modal contains an address bar
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 0],
+                    ["getModalsByModalType", "file-navigate", 0],
                     ["getElementsByTagName", "input", 0]
                 ],
                 qualifier: "is",
@@ -738,7 +717,7 @@ const browserDevice:test_browserItem[] = [
             {
                 // the file navigate modal contains a search field
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 0],
+                    ["getModalsByModalType", "file-navigate", 0],
                     ["getElementsByTagName", "input", 1]
                 ],
                 qualifier: "is",
@@ -749,7 +728,7 @@ const browserDevice:test_browserItem[] = [
             {
                 // the file navigate modal contains a status bar
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 0],
+                    ["getModalsByModalType", "file-navigate", 0],
                     ["getElementsByClassName", "status-bar", 0]
                 ],
                 qualifier: "contains",
@@ -760,7 +739,7 @@ const browserDevice:test_browserItem[] = [
             {
                 // that file navigator modal contains a back button
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 0],
+                    ["getModalsByModalType", "file-navigate", 0],
                     ["getElementsByClassName", "header", 0],
                     ["getElementsByTagName", "button", 0]
                 ],
@@ -772,7 +751,7 @@ const browserDevice:test_browserItem[] = [
             {
                 // that file navigator modal contains a reload button
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 0],
+                    ["getModalsByModalType", "file-navigate", 0],
                     ["getElementsByClassName", "header", 0],
                     ["getElementsByTagName", "button", 1]
                 ],
@@ -784,7 +763,7 @@ const browserDevice:test_browserItem[] = [
             {
                 // that file navigator modal contains a parent navigation button
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 0],
+                    ["getModalsByModalType", "file-navigate", 0],
                     ["getElementsByClassName", "header", 0],
                     ["getElementsByTagName", "button", 2]
                 ],
@@ -796,7 +775,7 @@ const browserDevice:test_browserItem[] = [
             {
                 // that file navigator modal contains a minimize button
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 0],
+                    ["getModalsByModalType", "file-navigate", 0],
                     ["getElementsByClassName", "buttons", 0],
                     ["getElementsByTagName", "button", 0]
                 ],
@@ -808,7 +787,7 @@ const browserDevice:test_browserItem[] = [
             {
                 // that file navigator modal contains a maximize button
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 0],
+                    ["getModalsByModalType", "file-navigate", 0],
                     ["getElementsByClassName", "buttons", 0],
                     ["getElementsByTagName", "button", 1]
                 ],
@@ -820,7 +799,7 @@ const browserDevice:test_browserItem[] = [
             {
                 // that file navigator modal contains a close button
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 0],
+                    ["getModalsByModalType", "file-navigate", 0],
                     ["getElementsByClassName", "buttons", 0],
                     ["getElementsByTagName", "button", 2]
                 ],
@@ -832,7 +811,7 @@ const browserDevice:test_browserItem[] = [
             {
                 // the file navigate modal displays file system results with a directory
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 0],
+                    ["getModalsByModalType", "file-navigate", 0],
                     ["getElementsByClassName", "body", 0],
                     ["getElementsByTagName", "li", 0]
                 ],
@@ -844,7 +823,7 @@ const browserDevice:test_browserItem[] = [
             {
                 // that directory contains an expansion button
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 0],
+                    ["getModalsByModalType", "file-navigate", 0],
                     ["getElementsByClassName", "body", 0],
                     ["getElementsByTagName", "li", 0],
                     ["getElementsByTagName", "button", 0]
@@ -927,7 +906,7 @@ const browserDevice:test_browserItem[] = [
 
     // open file navigate context menu at VM2
     showContextMenu([
-        ["getModalsByModalType", "fileNavigate", 0],
+        ["getModalsByModalType", "file-navigate", 0],
         ["getElementsByClassName", "body", 0],
         ["getElementsByTagName", "li", 3],
         ["getElementsByTagName", "p", 0]
@@ -967,7 +946,7 @@ const browserDevice:test_browserItem[] = [
     {
         delay: {
             node: [
-                ["getModalsByModalType", "fileNavigate", 2],
+                ["getModalsByModalType", "file-navigate", 2],
                 ["getElementsByClassName", "fileList", 0],
                 ["getElementsByTagName", "li", 0]
             ],
@@ -1011,7 +990,7 @@ const browserDevice:test_browserItem[] = [
     {
         delay: {
             node: [
-                ["getModalsByModalType", "fileNavigate", 0],
+                ["getModalsByModalType", "file-navigate", 0],
                 ["getElementsByClassName", "fileList", 0],
                 ["getElementsByTagName", "li", 0],
                 ["getElementsByTagName", "label", 0]
@@ -1025,7 +1004,7 @@ const browserDevice:test_browserItem[] = [
             {
                 event: "click",
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 0],
+                    ["getModalsByModalType", "file-navigate", 0],
                     ["getElementsByClassName", "header", 0],
                     ["getElementsByClassName", "reloadDirectory", 0]
                 ]
@@ -1040,7 +1019,7 @@ const browserDevice:test_browserItem[] = [
     {
         delay: {
             node: [
-                ["getModalsByModalType", "fileNavigate", 0],
+                ["getModalsByModalType", "file-navigate", 0],
                 ["getElementsByClassName", "fileList", 0],
                 ["getElementsByTagName", "li", 0]
             ],
@@ -1053,7 +1032,7 @@ const browserDevice:test_browserItem[] = [
             {
                 event: "click",
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 0],
+                    ["getModalsByModalType", "file-navigate", 0],
                     ["getElementsByClassName", "fileList", 0],
                     ["getElementsByTagName", "li", 0],
                     ["getElementsByTagName", "p", 0]
@@ -1062,7 +1041,7 @@ const browserDevice:test_browserItem[] = [
             {
                 event: "keydown",
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 0],
+                    ["getModalsByModalType", "file-navigate", 0],
                     ["getElementsByClassName", "fileList", 0],
                     ["getElementsByTagName", "li", 0],
                     ["getElementsByTagName", "p", 0]
@@ -1072,7 +1051,7 @@ const browserDevice:test_browserItem[] = [
             {
                 event: "keyup",
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 0],
+                    ["getModalsByModalType", "file-navigate", 0],
                     ["getElementsByClassName", "fileList", 0],
                     ["getElementsByTagName", "li", 0],
                     ["getElementsByTagName", "p", 0]
@@ -1085,7 +1064,7 @@ const browserDevice:test_browserItem[] = [
         unit: [
             {
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 0],
+                    ["getModalsByModalType", "file-navigate", 0],
                     ["getElementsByClassName", "fileAddress", 0],
                     ["getElementsByTagName", "input", 0]
                 ],
@@ -1101,7 +1080,7 @@ const browserDevice:test_browserItem[] = [
     {
         delay: {
             node: [
-                ["getModalsByModalType", "fileNavigate", 0],
+                ["getModalsByModalType", "file-navigate", 0],
                 ["getElementsByClassName", "status-bar", 0],
                 ["getElementsByTagName", "p", 0]
             ],
@@ -1114,7 +1093,7 @@ const browserDevice:test_browserItem[] = [
             {
                 event: "click",
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 1],
+                    ["getModalsByModalType", "file-navigate", 1],
                     ["getElementsByClassName", "fileList", 0],
                     ["getElementsByTagName", "li", 1],
                     ["getElementsByTagName", "p", 0]
@@ -1123,7 +1102,7 @@ const browserDevice:test_browserItem[] = [
             {
                 event: "keydown",
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 1],
+                    ["getModalsByModalType", "file-navigate", 1],
                     ["getElementsByClassName", "fileList", 0],
                     ["getElementsByTagName", "li", 1],
                     ["getElementsByTagName", "p", 0]
@@ -1133,7 +1112,7 @@ const browserDevice:test_browserItem[] = [
             {
                 event: "click",
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 1],
+                    ["getModalsByModalType", "file-navigate", 1],
                     ["getElementsByClassName", "fileList", 0],
                     ["getElementsByTagName", "li", 2],
                     ["getElementsByTagName", "p", 0]
@@ -1142,7 +1121,7 @@ const browserDevice:test_browserItem[] = [
             {
                 event: "click",
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 1],
+                    ["getModalsByModalType", "file-navigate", 1],
                     ["getElementsByClassName", "fileList", 0],
                     ["getElementsByTagName", "li", 3],
                     ["getElementsByTagName", "p", 0]
@@ -1151,7 +1130,7 @@ const browserDevice:test_browserItem[] = [
             {
                 event: "keydown",
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 1],
+                    ["getModalsByModalType", "file-navigate", 1],
                     ["getElementsByClassName", "fileList", 0],
                     ["getElementsByTagName", "li", 3],
                     ["getElementsByTagName", "p", 0]
@@ -1161,7 +1140,7 @@ const browserDevice:test_browserItem[] = [
             {
                 event: "keyup",
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 1],
+                    ["getModalsByModalType", "file-navigate", 1],
                     ["getElementsByClassName", "fileList", 0],
                     ["getElementsByTagName", "li", 3],
                     ["getElementsByTagName", "p", 0]
@@ -1171,7 +1150,7 @@ const browserDevice:test_browserItem[] = [
             {
                 event: "keyup",
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 1],
+                    ["getModalsByModalType", "file-navigate", 1],
                     ["getElementsByClassName", "fileList", 0],
                     ["getElementsByTagName", "li", 3],
                     ["getElementsByTagName", "p", 0]
@@ -1181,14 +1160,14 @@ const browserDevice:test_browserItem[] = [
             {
                 event: "click",
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 0],
+                    ["getModalsByModalType", "file-navigate", 0],
                     ["getElementsByClassName", "fileList", 0]
                 ]
             },
             {
                 event: "keydown",
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 0],
+                    ["getModalsByModalType", "file-navigate", 0],
                     ["getElementsByClassName", "fileList", 0]
                 ],
                 value: "Control"
@@ -1196,7 +1175,7 @@ const browserDevice:test_browserItem[] = [
             {
                 event: "keydown",
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 0],
+                    ["getModalsByModalType", "file-navigate", 0],
                     ["getElementsByClassName", "fileList", 0]
                 ],
                 value: "v"
@@ -1204,7 +1183,7 @@ const browserDevice:test_browserItem[] = [
             {
                 event: "keyup",
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 0],
+                    ["getModalsByModalType", "file-navigate", 0],
                     ["getElementsByClassName", "fileList", 0]
                 ],
                 value: "v"
@@ -1212,7 +1191,7 @@ const browserDevice:test_browserItem[] = [
             {
                 event: "keyup",
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 0],
+                    ["getModalsByModalType", "file-navigate", 0],
                     ["getElementsByClassName", "fileList", 0]
                 ],
                 value: "Control"
@@ -1223,7 +1202,7 @@ const browserDevice:test_browserItem[] = [
         unit: [
             {
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 0],
+                    ["getModalsByModalType", "file-navigate", 0],
                     ["getElementsByClassName", "fileList", 0],
                     ["getElementsByTagName", "li", 0],
                     ["getElementsByTagName", "label", 0]
@@ -1240,7 +1219,7 @@ const browserDevice:test_browserItem[] = [
     {
         delay: {
             node: [
-                ["getModalsByModalType", "fileNavigate", 1],
+                ["getModalsByModalType", "file-navigate", 1],
                 ["getElementsByClassName", "fileList", 0],
                 ["getElementsByTagName", "li", 0]
             ],
@@ -1253,7 +1232,7 @@ const browserDevice:test_browserItem[] = [
             {
                 event: "click",
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 1],
+                    ["getModalsByModalType", "file-navigate", 1],
                     ["getElementsByClassName", "fileList", 0],
                     ["getElementsByTagName", "li", 0],
                     ["getElementsByTagName", "p", 0]
@@ -1262,7 +1241,7 @@ const browserDevice:test_browserItem[] = [
             {
                 event: "keydown",
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 1],
+                    ["getModalsByModalType", "file-navigate", 1],
                     ["getElementsByClassName", "fileList", 0],
                     ["getElementsByTagName", "li", 0],
                     ["getElementsByTagName", "p", 0]
@@ -1272,7 +1251,7 @@ const browserDevice:test_browserItem[] = [
             {
                 event: "keyup",
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 1],
+                    ["getModalsByModalType", "file-navigate", 1],
                     ["getElementsByClassName", "fileList", 0],
                     ["getElementsByTagName", "li", 0],
                     ["getElementsByTagName", "p", 0]
@@ -1285,7 +1264,7 @@ const browserDevice:test_browserItem[] = [
         unit: [
             {
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 1],
+                    ["getModalsByModalType", "file-navigate", 1],
                     ["getElementsByClassName", "fileAddress", 0],
                     ["getElementsByTagName", "input", 0]
                 ],
@@ -1301,7 +1280,7 @@ const browserDevice:test_browserItem[] = [
     {
         delay: {
             node: [
-                ["getModalsByModalType", "fileNavigate", 2],
+                ["getModalsByModalType", "file-navigate", 2],
                 ["getElementsByClassName", "fileList", 0],
                 ["getElementsByTagName", "li", 0],
                 ["getElementsByTagName", "label", 0]
@@ -1315,7 +1294,7 @@ const browserDevice:test_browserItem[] = [
             {
                 event: "click",
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 2],
+                    ["getModalsByModalType", "file-navigate", 2],
                     ["getElementsByClassName", "header", 0],
                     ["getElementsByClassName", "reloadDirectory", 0]
                 ]
@@ -1330,7 +1309,7 @@ const browserDevice:test_browserItem[] = [
     {
         delay: {
             node: [
-                ["getModalsByModalType", "fileNavigate", 1],
+                ["getModalsByModalType", "file-navigate", 1],
                 ["getElementsByClassName", "fileList", 0],
                 ["getElementsByTagName", "li", 0]
             ],
@@ -1343,7 +1322,7 @@ const browserDevice:test_browserItem[] = [
             {
                 event: "click",
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 1],
+                    ["getModalsByModalType", "file-navigate", 1],
                     ["getElementsByClassName", "fileList", 0],
                     ["getElementsByTagName", "li", 0],
                     ["getElementsByTagName", "p", 0]
@@ -1352,7 +1331,7 @@ const browserDevice:test_browserItem[] = [
             {
                 event: "keydown",
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 1],
+                    ["getModalsByModalType", "file-navigate", 1],
                     ["getElementsByClassName", "fileList", 0],
                     ["getElementsByTagName", "li", 0],
                     ["getElementsByTagName", "p", 0]
@@ -1362,7 +1341,7 @@ const browserDevice:test_browserItem[] = [
             {
                 event: "keyup",
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 1],
+                    ["getModalsByModalType", "file-navigate", 1],
                     ["getElementsByClassName", "fileList", 0],
                     ["getElementsByTagName", "li", 0],
                     ["getElementsByTagName", "p", 0]
@@ -1375,7 +1354,7 @@ const browserDevice:test_browserItem[] = [
         unit: [
             {
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 1],
+                    ["getModalsByModalType", "file-navigate", 1],
                     ["getElementsByClassName", "fileAddress", 0],
                     ["getElementsByTagName", "input", 0]
                 ],
@@ -1391,7 +1370,7 @@ const browserDevice:test_browserItem[] = [
     {
         delay: {
             node: [
-                ["getModalsByModalType", "fileNavigate", 0],
+                ["getModalsByModalType", "file-navigate", 0],
                 ["getElementsByClassName", "fileList", 0],
                 ["getElementsByTagName", "li", 0]
             ],
@@ -1404,7 +1383,7 @@ const browserDevice:test_browserItem[] = [
             {
                 event: "click",
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 0],
+                    ["getModalsByModalType", "file-navigate", 0],
                     ["getElementsByClassName", "parentDirectory", 0]
                 ]
             }
@@ -1414,7 +1393,7 @@ const browserDevice:test_browserItem[] = [
         unit: [
             {
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 0],
+                    ["getModalsByModalType", "file-navigate", 0],
                     ["getElementsByClassName", "fileAddress", 0],
                     ["getElementsByTagName", "input", 0]
                 ],
@@ -1430,7 +1409,7 @@ const browserDevice:test_browserItem[] = [
     {
         delay: {
             node: [
-                ["getModalsByModalType", "fileNavigate", 1],
+                ["getModalsByModalType", "file-navigate", 1],
                 ["getElementsByClassName", "status-bar", 0],
                 ["getElementsByTagName", "p", 0]
             ],
@@ -1443,7 +1422,7 @@ const browserDevice:test_browserItem[] = [
             {
                 event: "click",
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 0],
+                    ["getModalsByModalType", "file-navigate", 0],
                     ["getElementsByClassName", "fileList", 0],
                     ["getElementsByTagName", "li", 0],
                     ["getElementsByTagName", "p", 0]
@@ -1452,7 +1431,7 @@ const browserDevice:test_browserItem[] = [
             {
                 event: "keydown",
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 0],
+                    ["getModalsByModalType", "file-navigate", 0],
                     ["getElementsByClassName", "fileList", 0],
                     ["getElementsByTagName", "li", 0],
                     ["getElementsByTagName", "p", 0]
@@ -1462,7 +1441,7 @@ const browserDevice:test_browserItem[] = [
             {
                 event: "keydown",
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 0],
+                    ["getModalsByModalType", "file-navigate", 0],
                     ["getElementsByClassName", "fileList", 0],
                     ["getElementsByTagName", "li", 0],
                     ["getElementsByTagName", "p", 0]
@@ -1472,7 +1451,7 @@ const browserDevice:test_browserItem[] = [
             {
                 event: "keyup",
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 0],
+                    ["getModalsByModalType", "file-navigate", 0],
                     ["getElementsByClassName", "fileList", 0],
                     ["getElementsByTagName", "li", 0],
                     ["getElementsByTagName", "p", 0]
@@ -1482,7 +1461,7 @@ const browserDevice:test_browserItem[] = [
             {
                 event: "keyup",
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 0],
+                    ["getModalsByModalType", "file-navigate", 0],
                     ["getElementsByClassName", "fileList", 0],
                     ["getElementsByTagName", "li", 0],
                     ["getElementsByTagName", "p", 0]
@@ -1492,14 +1471,14 @@ const browserDevice:test_browserItem[] = [
             {
                 event: "click",
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 1],
+                    ["getModalsByModalType", "file-navigate", 1],
                     ["getElementsByClassName", "fileList", 0]
                 ]
             },
             {
                 event: "keydown",
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 1],
+                    ["getModalsByModalType", "file-navigate", 1],
                     ["getElementsByClassName", "fileList", 0]
                 ],
                 value: "Control"
@@ -1507,7 +1486,7 @@ const browserDevice:test_browserItem[] = [
             {
                 event: "keydown",
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 1],
+                    ["getModalsByModalType", "file-navigate", 1],
                     ["getElementsByClassName", "fileList", 0]
                 ],
                 value: "v"
@@ -1515,7 +1494,7 @@ const browserDevice:test_browserItem[] = [
             {
                 event: "keyup",
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 1],
+                    ["getModalsByModalType", "file-navigate", 1],
                     ["getElementsByClassName", "fileList", 0]
                 ],
                 value: "v"
@@ -1523,7 +1502,7 @@ const browserDevice:test_browserItem[] = [
             {
                 event: "keyup",
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 1],
+                    ["getModalsByModalType", "file-navigate", 1],
                     ["getElementsByClassName", "fileList", 0]
                 ],
                 value: "Control"
@@ -1534,7 +1513,7 @@ const browserDevice:test_browserItem[] = [
         unit: [
             {
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 1],
+                    ["getModalsByModalType", "file-navigate", 1],
                     ["getElementsByClassName", "fileList", 0],
                     ["getElementsByTagName", "li", 0],
                     ["getElementsByTagName", "label", 0]
@@ -1551,7 +1530,7 @@ const browserDevice:test_browserItem[] = [
     {
         delay: {
             node: [
-                ["getModalsByModalType", "fileNavigate", 2],
+                ["getModalsByModalType", "file-navigate", 2],
                 ["getElementsByClassName", "status-bar", 0],
                 ["getElementsByTagName", "p", 0]
             ],
@@ -1564,7 +1543,7 @@ const browserDevice:test_browserItem[] = [
             {
                 event: "click",
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 0],
+                    ["getModalsByModalType", "file-navigate", 0],
                     ["getElementsByClassName", "fileList", 0],
                     ["getElementsByTagName", "li", 0],
                     ["getElementsByTagName", "p", 0]
@@ -1573,7 +1552,7 @@ const browserDevice:test_browserItem[] = [
             {
                 event: "keydown",
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 0],
+                    ["getModalsByModalType", "file-navigate", 0],
                     ["getElementsByClassName", "fileList", 0],
                     ["getElementsByTagName", "li", 0],
                     ["getElementsByTagName", "p", 0]
@@ -1583,7 +1562,7 @@ const browserDevice:test_browserItem[] = [
             {
                 event: "click",
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 0],
+                    ["getModalsByModalType", "file-navigate", 0],
                     ["getElementsByClassName", "fileList", 0],
                     ["getElementsByTagName", "li", 1],
                     ["getElementsByTagName", "p", 0]
@@ -1592,7 +1571,7 @@ const browserDevice:test_browserItem[] = [
             {
                 event: "click",
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 0],
+                    ["getModalsByModalType", "file-navigate", 0],
                     ["getElementsByClassName", "fileList", 0],
                     ["getElementsByTagName", "li", 2],
                     ["getElementsByTagName", "p", 0]
@@ -1601,7 +1580,7 @@ const browserDevice:test_browserItem[] = [
             {
                 event: "keydown",
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 0],
+                    ["getModalsByModalType", "file-navigate", 0],
                     ["getElementsByClassName", "fileList", 0],
                     ["getElementsByTagName", "li", 2],
                     ["getElementsByTagName", "p", 0]
@@ -1611,7 +1590,7 @@ const browserDevice:test_browserItem[] = [
             {
                 event: "keyup",
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 0],
+                    ["getModalsByModalType", "file-navigate", 0],
                     ["getElementsByClassName", "fileList", 0],
                     ["getElementsByTagName", "li", 2],
                     ["getElementsByTagName", "p", 0]
@@ -1621,7 +1600,7 @@ const browserDevice:test_browserItem[] = [
             {
                 event: "keyup",
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 0],
+                    ["getModalsByModalType", "file-navigate", 0],
                     ["getElementsByClassName", "fileList", 0],
                     ["getElementsByTagName", "li", 2],
                     ["getElementsByTagName", "p", 0]
@@ -1631,14 +1610,14 @@ const browserDevice:test_browserItem[] = [
             {
                 event: "click",
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 2],
+                    ["getModalsByModalType", "file-navigate", 2],
                     ["getElementsByClassName", "fileList", 0]
                 ]
             },
             {
                 event: "keydown",
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 2],
+                    ["getModalsByModalType", "file-navigate", 2],
                     ["getElementsByClassName", "fileList", 0]
                 ],
                 value: "Control"
@@ -1646,7 +1625,7 @@ const browserDevice:test_browserItem[] = [
             {
                 event: "keydown",
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 2],
+                    ["getModalsByModalType", "file-navigate", 2],
                     ["getElementsByClassName", "fileList", 0]
                 ],
                 value: "v"
@@ -1654,7 +1633,7 @@ const browserDevice:test_browserItem[] = [
             {
                 event: "keyup",
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 2],
+                    ["getModalsByModalType", "file-navigate", 2],
                     ["getElementsByClassName", "fileList", 0]
                 ],
                 value: "v"
@@ -1662,7 +1641,7 @@ const browserDevice:test_browserItem[] = [
             {
                 event: "keyup",
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 2],
+                    ["getModalsByModalType", "file-navigate", 2],
                     ["getElementsByClassName", "fileList", 0]
                 ],
                 value: "Control"
@@ -1673,7 +1652,7 @@ const browserDevice:test_browserItem[] = [
         unit: [
             {
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 0],
+                    ["getModalsByModalType", "file-navigate", 0],
                     ["getElementsByClassName", "fileList", 0],
                     ["getElementsByTagName", "li", 0],
                     ["getElementsByTagName", "label", 0]
@@ -1690,7 +1669,7 @@ const browserDevice:test_browserItem[] = [
     {
         delay: {
             node: [
-                ["getModalsByModalType", "fileNavigate", 1],
+                ["getModalsByModalType", "file-navigate", 1],
                 ["getElementsByClassName", "fileList", 0],
                 ["getElementsByTagName", "li", 0]
             ],
@@ -1703,7 +1682,7 @@ const browserDevice:test_browserItem[] = [
             {
                 event: "click",
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 1],
+                    ["getModalsByModalType", "file-navigate", 1],
                     ["getElementsByClassName", "fileList", 0],
                     ["getElementsByTagName", "li", 0],
                     ["getElementsByTagName", "p", 0]
@@ -1712,7 +1691,7 @@ const browserDevice:test_browserItem[] = [
             {
                 event: "keydown",
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 1],
+                    ["getModalsByModalType", "file-navigate", 1],
                     ["getElementsByClassName", "fileList", 0],
                     ["getElementsByTagName", "li", 0],
                     ["getElementsByTagName", "p", 0]
@@ -1722,7 +1701,7 @@ const browserDevice:test_browserItem[] = [
             {
                 event: "keyup",
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 1],
+                    ["getModalsByModalType", "file-navigate", 1],
                     ["getElementsByClassName", "fileList", 0],
                     ["getElementsByTagName", "li", 0],
                     ["getElementsByTagName", "p", 0]
@@ -1735,7 +1714,7 @@ const browserDevice:test_browserItem[] = [
         unit: [
             {
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 1],
+                    ["getModalsByModalType", "file-navigate", 1],
                     ["getElementsByClassName", "status-bar", 0],
                     ["getElementsByTagName", "p", 0]
                 ],
@@ -1751,7 +1730,7 @@ const browserDevice:test_browserItem[] = [
     {
         delay: {
             node: [
-                ["getModalsByModalType", "fileNavigate", 2],
+                ["getModalsByModalType", "file-navigate", 2],
                 ["getElementsByClassName", "status-bar", 0],
                 ["getElementsByTagName", "p", 0]
             ],
@@ -1764,7 +1743,7 @@ const browserDevice:test_browserItem[] = [
             {
                 event: "click",
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 2],
+                    ["getModalsByModalType", "file-navigate", 2],
                     ["getElementsByClassName", "fileList", 0],
                     ["getElementsByTagName", "li", 0],
                     ["getElementsByTagName", "p", 0]
@@ -1773,7 +1752,7 @@ const browserDevice:test_browserItem[] = [
             {
                 event: "keydown",
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 2],
+                    ["getModalsByModalType", "file-navigate", 2],
                     ["getElementsByClassName", "fileList", 0],
                     ["getElementsByTagName", "li", 0],
                     ["getElementsByTagName", "p", 0]
@@ -1783,7 +1762,7 @@ const browserDevice:test_browserItem[] = [
             {
                 event: "keydown",
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 2],
+                    ["getModalsByModalType", "file-navigate", 2],
                     ["getElementsByClassName", "fileList", 0],
                     ["getElementsByTagName", "li", 0],
                     ["getElementsByTagName", "p", 0]
@@ -1793,7 +1772,7 @@ const browserDevice:test_browserItem[] = [
             {
                 event: "keyup",
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 2],
+                    ["getModalsByModalType", "file-navigate", 2],
                     ["getElementsByClassName", "fileList", 0],
                     ["getElementsByTagName", "li", 0],
                     ["getElementsByTagName", "p", 0]
@@ -1803,7 +1782,7 @@ const browserDevice:test_browserItem[] = [
             {
                 event: "keyup",
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 2],
+                    ["getModalsByModalType", "file-navigate", 2],
                     ["getElementsByClassName", "fileList", 0],
                     ["getElementsByTagName", "li", 0],
                     ["getElementsByTagName", "p", 0]
@@ -1813,14 +1792,14 @@ const browserDevice:test_browserItem[] = [
             {
                 event: "click",
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 1],
+                    ["getModalsByModalType", "file-navigate", 1],
                     ["getElementsByClassName", "fileList", 0]
                 ]
             },
             {
                 event: "keydown",
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 1],
+                    ["getModalsByModalType", "file-navigate", 1],
                     ["getElementsByClassName", "fileList", 0]
                 ],
                 value: "Control"
@@ -1828,7 +1807,7 @@ const browserDevice:test_browserItem[] = [
             {
                 event: "keydown",
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 1],
+                    ["getModalsByModalType", "file-navigate", 1],
                     ["getElementsByClassName", "fileList", 0]
                 ],
                 value: "v"
@@ -1836,7 +1815,7 @@ const browserDevice:test_browserItem[] = [
             {
                 event: "keyup",
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 1],
+                    ["getModalsByModalType", "file-navigate", 1],
                     ["getElementsByClassName", "fileList", 0]
                 ],
                 value: "v"
@@ -1844,7 +1823,7 @@ const browserDevice:test_browserItem[] = [
             {
                 event: "keyup",
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 1],
+                    ["getModalsByModalType", "file-navigate", 1],
                     ["getElementsByClassName", "fileList", 0]
                 ],
                 value: "Control"
@@ -1855,7 +1834,7 @@ const browserDevice:test_browserItem[] = [
         unit: [
             {
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 1],
+                    ["getModalsByModalType", "file-navigate", 1],
                     ["getElementsByClassName", "fileList", 0],
                     ["getElementsByTagName", "li", 0]
                 ],
@@ -1866,7 +1845,7 @@ const browserDevice:test_browserItem[] = [
             },
             {
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 2],
+                    ["getModalsByModalType", "file-navigate", 2],
                     ["getElementsByClassName", "fileList", 0],
                     ["getElementsByTagName", "li", 0]
                 ],
@@ -1882,7 +1861,7 @@ const browserDevice:test_browserItem[] = [
     {
         delay: {
             node: [
-                ["getModalsByModalType", "fileNavigate", 2],
+                ["getModalsByModalType", "file-navigate", 2],
                 ["getElementsByClassName", "status-bar", 0],
                 ["getElementsByTagName", "p", 0]
             ],
@@ -1895,7 +1874,7 @@ const browserDevice:test_browserItem[] = [
             {
                 event: "click",
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 2],
+                    ["getModalsByModalType", "file-navigate", 2],
                     ["getElementsByClassName", "fileList", 0],
                     ["getElementsByTagName", "li", 0],
                     ["getElementsByTagName", "p", 0]
@@ -1904,7 +1883,7 @@ const browserDevice:test_browserItem[] = [
             {
                 event: "keydown",
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 2],
+                    ["getModalsByModalType", "file-navigate", 2],
                     ["getElementsByClassName", "fileList", 0],
                     ["getElementsByTagName", "li", 0],
                     ["getElementsByTagName", "p", 0]
@@ -1914,7 +1893,7 @@ const browserDevice:test_browserItem[] = [
             {
                 event: "keyup",
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 2],
+                    ["getModalsByModalType", "file-navigate", 2],
                     ["getElementsByClassName", "fileList", 0],
                     ["getElementsByTagName", "li", 0],
                     ["getElementsByTagName", "p", 0]
@@ -1927,7 +1906,7 @@ const browserDevice:test_browserItem[] = [
         unit: [
             {
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 2],
+                    ["getModalsByModalType", "file-navigate", 2],
                     ["getElementsByClassName", "fileList", 0],
                     ["getElementsByTagName", "li", 0]
                 ],
@@ -1942,7 +1921,7 @@ const browserDevice:test_browserItem[] = [
     {
         delay: {
             node: [
-                ["getModalsByModalType", "fileNavigate", 0],
+                ["getModalsByModalType", "file-navigate", 0],
                 ["getElementsByClassName", "status-bar", 0],
                 ["getElementsByTagName", "p", 0]
             ],
@@ -1955,7 +1934,7 @@ const browserDevice:test_browserItem[] = [
             {
                 event: "click",
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 0],
+                    ["getModalsByModalType", "file-navigate", 0],
                     ["getElementsByClassName", "fileList", 0],
                     ["getElementsByTagName", "li", 1],
                     ["getElementsByTagName", "p", 0]
@@ -1964,7 +1943,7 @@ const browserDevice:test_browserItem[] = [
             {
                 event: "keydown",
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 0],
+                    ["getModalsByModalType", "file-navigate", 0],
                     ["getElementsByClassName", "fileList", 0],
                     ["getElementsByTagName", "li", 1],
                     ["getElementsByTagName", "p", 0]
@@ -1974,7 +1953,7 @@ const browserDevice:test_browserItem[] = [
             {
                 event: "click",
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 0],
+                    ["getModalsByModalType", "file-navigate", 0],
                     ["getElementsByClassName", "fileList", 0],
                     ["getElementsByTagName", "li", 2],
                     ["getElementsByTagName", "p", 0]
@@ -1983,7 +1962,7 @@ const browserDevice:test_browserItem[] = [
             {
                 event: "keydown",
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 0],
+                    ["getModalsByModalType", "file-navigate", 0],
                     ["getElementsByClassName", "fileList", 0],
                     ["getElementsByTagName", "li", 2],
                     ["getElementsByTagName", "p", 0]
@@ -1993,7 +1972,7 @@ const browserDevice:test_browserItem[] = [
             {
                 event: "keyup",
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 0],
+                    ["getModalsByModalType", "file-navigate", 0],
                     ["getElementsByClassName", "fileList", 0],
                     ["getElementsByTagName", "li", 2],
                     ["getElementsByTagName", "p", 0]
@@ -2003,7 +1982,7 @@ const browserDevice:test_browserItem[] = [
             {
                 event: "keyup",
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 0],
+                    ["getModalsByModalType", "file-navigate", 0],
                     ["getElementsByClassName", "fileList", 0],
                     ["getElementsByTagName", "li", 2],
                     ["getElementsByTagName", "p", 0]
@@ -2013,14 +1992,14 @@ const browserDevice:test_browserItem[] = [
             {
                 event: "click",
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 2],
+                    ["getModalsByModalType", "file-navigate", 2],
                     ["getElementsByClassName", "fileList", 0]
                 ]
             },
             {
                 event: "keydown",
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 2],
+                    ["getModalsByModalType", "file-navigate", 2],
                     ["getElementsByClassName", "fileList", 0]
                 ],
                 value: "Control"
@@ -2028,7 +2007,7 @@ const browserDevice:test_browserItem[] = [
             {
                 event: "keydown",
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 2],
+                    ["getModalsByModalType", "file-navigate", 2],
                     ["getElementsByClassName", "fileList", 0]
                 ],
                 value: "v"
@@ -2036,7 +2015,7 @@ const browserDevice:test_browserItem[] = [
             {
                 event: "keyup",
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 2],
+                    ["getModalsByModalType", "file-navigate", 2],
                     ["getElementsByClassName", "fileList", 0]
                 ],
                 value: "v"
@@ -2044,7 +2023,7 @@ const browserDevice:test_browserItem[] = [
             {
                 event: "keydown",
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 2],
+                    ["getModalsByModalType", "file-navigate", 2],
                     ["getElementsByClassName", "fileList", 0]
                 ],
                 value: "Control"
@@ -2055,7 +2034,7 @@ const browserDevice:test_browserItem[] = [
         unit: [
             {
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 2],
+                    ["getModalsByModalType", "file-navigate", 2],
                     ["getElementsByClassName", "fileList", 0],
                     ["getElementsByTagName", "li", 0]
                 ],
@@ -2066,7 +2045,7 @@ const browserDevice:test_browserItem[] = [
             },
             {
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 2],
+                    ["getModalsByModalType", "file-navigate", 2],
                     ["getElementsByClassName", "status-bar", 0],
                     ["getElementsByTagName", "p", 0]
                 ],
@@ -2077,7 +2056,7 @@ const browserDevice:test_browserItem[] = [
             },
             {
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 0],
+                    ["getModalsByModalType", "file-navigate", 0],
                     ["getElementsByClassName", "status-bar", 0],
                     ["getElementsByTagName", "p", 0]
                 ],

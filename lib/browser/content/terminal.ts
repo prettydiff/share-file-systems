@@ -169,7 +169,7 @@ const terminal:module_browserTerminal = {
             if (data.id === "all") {
                 const terminals:HTMLElement[] = document.getModalsByModalType("terminal"),
                     each = function browser_content_terminal_each(element:HTMLElement):void {
-                        if (element.dataset.agent === data.agentSource.agent && element.dataset.agenttype === data.agentSource.agentType) {
+                        if (element.dataset.agent === data.agentSource.agent && element.dataset !== undefined && element.dataset.agenttype === data.agentSource.agentType) {
                             write(element);
                         }
                     };

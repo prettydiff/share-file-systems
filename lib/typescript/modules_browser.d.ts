@@ -238,10 +238,10 @@ interface module_common {
  *         modal            : (event:MouseEvent) => void; // Generates the configuration modal and fills it with content.
  *     };
  *     tools: {
- *         addUserColor    : (agent:string, type:agentType, configurationBody:HTMLElement) => void; // Add agent color options to the configuration modal content.
- *         applyAgentColors: (agent:string, type:agentType, colors:[string, string]) => void;       // Update the specified color information against the default colors of the current color scheme.
- *         radio           : (element:HTMLElement) => void;                                         // Sets a class on a grandparent element to apply style changes to the corresponding label.
- *         styleText       : (input:configuration_styleText) => void;                               // Generates the CSS code for an agent specific style change and populates it into an HTML style tag.
+ *         addUserColor    : (agent:string, type:agentType, configElement?:HTMLElement)) => void; // Add agent color options to the configuration modal content.
+ *         applyAgentColors: (agent:string, type:agentType, colors:[string, string]) => void;     // Update the specified color information against the default colors of the current color scheme.
+ *         radio           : (element:HTMLElement) => void;                                       // Sets a class on a grandparent element to apply style changes to the corresponding label.
+ *         styleText       : (input:configuration_styleText) => void;                             // Generates the CSS code for an agent specific style change and populates it into an HTML style tag.
  *     };
  * }
  * ``` */
@@ -256,7 +256,7 @@ interface module_configuration {
         detailsToggle: (event:MouseEvent) => void;
     };
     tools: {
-        addUserColor: (agent:string, type:agentType, configurationBody:HTMLElement) => void;
+        addUserColor: (agent:string, type:agentType, configElement?:HTMLElement) => void;
         applyAgentColors: (agent:string, type:agentType, colors:[string, string]) => void;
         radio: (element:HTMLElement) => void;
         styleText: (input:configuration_styleText) => void;
@@ -272,9 +272,7 @@ interface module_configuration {
  *     element: HTMLElement;                       // Stores a reference to the element.target associated with a given menu item.
  *     events: {
  *         copy      : (event:Event) => void; // Handler for the *Copy* menu button, which stores file system address information in the application's clipboard.
- *         dataString: (event:Event) => void; // Handler for the *Base64*, *Edit*, and *Hash* menu buttons.
  *         destroy   : (event:Event) => void; // Handler for the *Destroy* menu button, which is responsible for deleting file system artifacts.
- *         details   : (Event:Event) => void; // Handler for the *Details* menu button, which will generate a details modal.
  *         fsNew     : (event:Event) => void; // Handler for the *New Directory* and *New File* menu buttons.
  *         menu      : (event:Event) => void; // Generates the context menu which populates with different menu items depending upon event.target of the right click.
  *         paste     : (event:Event) => void; // Handler for the *Paste* menu item which performs the file copy operation over the network.
@@ -289,9 +287,7 @@ interface module_context {
     element: HTMLElement;
     events: {
         copy: (event:Event) => void;
-        dataString: (event:Event) => void;
         destroy: (event:Event) => void;
-        details: (Event:Event) => void;
         fsNew: (event:Event) => void;
         menu: (event:Event) => void;
         paste: (event:Event) => void;
@@ -304,11 +300,12 @@ interface module_context {
  * ```typescript
  * interface module_fileBrowser {
  *     content: {
- *         dataString: (socketData:socketData) => void; // Populate content into modals for string output operations, such as: Base64, Hash, File Read.
- *         details   : (socketData:socketData) => void; // Generates the contents of a details type modal.
- *         footer    : (width:number) => HTMLElement;   // Generates the status bar content for the file browser modal.
- *         list      : (location:string, dirs:directory_response, message:string) => HTMLElement; // Generates the contents of a file system list for population into a file navigate modal.
- *         status    : (socketData:socketData) => void; // Translates messaging into file system lists for the appropriate modals.
+ *         dataString     : (socketData:socketData) => void; // Populate content into modals for string output operations, such as: Base64, Hash, File Read.
+ *         detailsContent : (id:string) => void;             // Generates the initial content and network request for file system details.
+ *         detailsResponse: (socketData:socketData) => void; // Generates the contents of a details type modal from file system data.
+ *         footer         : (width:number) => HTMLElement;   // Generates the status bar content for the file browser modal.
+ *         list           : (location:string, dirs:directory_response, message:string) => HTMLElement; // Generates the contents of a file system list for population into a file navigate modal.
+ *         status         : (socketData:socketData) => void; // Translates messaging into file system lists for the appropriate modals.
  *     };
  *     dragFlag: dragFlag; // Allows the drag handler to identify whether the shift or control/command keys are pressed while selecting items from the file list.
  *     events: {
@@ -338,7 +335,8 @@ interface module_context {
 interface module_fileBrowser {
     content: {
         dataString: (socketData:socketData) => void;
-        details: (socketData:socketData) => void;
+        detailsContent: (id:string) => void;
+        detailsResponse: (socketData:socketData) => void;
         footer: (width:number) => HTMLElement;
         list: (location:string, dirs:directory_response, message:string) => HTMLElement;
         status: (socketData:socketData) => void;
@@ -375,18 +373,8 @@ interface module_fileBrowser {
  *     fullscreen       : (event:Event) => void; // An event handler that launches the browser into fullscreen mode.
  *     fullscreenChange : (event:Event) => void; // An event handler that executes when the browser moves in or out of fullscreen mode.
  *     menu             : (event:Event) => void; // Displays the primary modal in the top left corner of the application.
- *     menuBlur         : (event:Event) => void; // Destroys the menu, if present.
  *     minimizeAll      : (event:Event) => void; // Forcefully minimizes all modals to the tray at the bottom of the application.
  *     minimizeAllFlag  : boolean;               // A flag that halts state saving until all modals are minimized.
- *     modal: {
- *         agentManagement: (event:MouseEvent, config?:config_modal) => void;   // Displays agent management modal content from the main menu.
- *         configuration  : (event:MouseEvent) => void;                         // Displays a configuration modal from the main menu.
- *         terminal       : (event:MouseEvent, config?:config_modal) => void;   // Displays a command terminal modal from the main menu.
- *         export         : (event:MouseEvent) => void;                         // Displays an Import/Export modal from the main menu.
- *         fileNavigate   : (Event:Event, config?:navConfig) => void;          // Displays a File Navigate modal from the main menu.
- *         textPad        : (event:KeyboardEvent|MouseEvent, config?:config_modal) => HTMLElement; // Displays a TextPad modal from the main menu.
- *     };
- *     shareAll: (event:MouseEvent) => void;     // Displays a Share modal associated with multiple agents.
  *     visibility: () => void;                   // Determines whether the current browser tab is visible or hidden.
  * }
  * ``` */
@@ -395,18 +383,8 @@ interface module_globalEvents {
     fullscreen: (event:Event) => void;
     fullscreenChange: (event:Event) => void;
     menu: (event:Event) => void;
-    menuBlur: (event:Event) => void;
     minimizeAll: (event:Event) => void;
     minimizeAllFlag: boolean;
-    modal: {
-        agentManagement: (event:MouseEvent, config?:config_modal) => void;
-        configuration: (event:MouseEvent) => void;
-        terminal: (event:MouseEvent, config?:config_modal) => void;
-        export: (event:MouseEvent) => void;
-        fileNavigate: (Event:Event, config?:config_fileNavigate) => void;
-        textPad: (event:KeyboardEvent|MouseEvent, config?:config_modal) => HTMLElement;
-    };
-    shareAll: (event:MouseEvent) => void;
     visibility: () => void;
 }
 
@@ -459,11 +437,9 @@ interface module_invite {
  *     events: {
  *         close      : (event:MouseEvent) => void;            // Kill any media stream when closing the modal
  *         selfDrag   : (event:MouseEvent|TouchEvent) => void; // Allows dragging a thumbnail of local webcam video from one corner of a video modal to another.
- *         videoButton: (event:MouseEvent) => void;            // Creates a button where a user may initiate a video call with another agent.
  *     };
  *     tools: {
  *         kill : (modal:config_modal) => void;             // Destroys a media stream to the local hardware and closes the corresponding modal.
- *         modal: (mediaConfig:config_mediaModal) => modal; // Creates a media modal populated with content from method *media.element*.
  *     };
  * }
  * type mediaType = "audio" | "video";
@@ -473,11 +449,9 @@ interface module_media {
     events: {
         close: (event:MouseEvent) => void;
         selfDrag: (event:MouseEvent|TouchEvent) => void;
-        videoButton: (event:MouseEvent) => void;
     };
     tools: {
         kill: (modal:config_modal) => void;
-        modal: (mediaConfig:config_mediaModal) => modal;
     };
 }
 
@@ -486,8 +460,8 @@ interface module_media {
  * ```typescript
  * interface module_message {
  *     content: {
- *         footer: (mode:messageMode, value:string) => HTMLElement;                              // Called from modal.create to supply the footer area modal content.
- *         modal : (configuration:config_modal, agentType:agentType, agentName:string) => modal; // Generates a message modal.
+ *         footer: (mode:messageMode, value:string) => HTMLElement;                 // Called from modal.create to supply the footer area modal content.
+ *         modal : (text:string, placeholder:string) => [HTMLElement, HTMLElement]; // Generates a message modal.
  *     };
  *     events: {
  *         keySubmit  : (event:KeyboardEvent) => void;            // Submits a text message on key press, such as pressing the 'Enter' key.
@@ -507,7 +481,7 @@ interface module_media {
 interface module_message {
     content: {
         footer: (mode:messageMode, value:string) => HTMLElement;
-        modal: (configuration:config_modal, agentType:agentType, agentName:string) => modal;
+        modal: (text:string, placeholder:string) => [HTMLElement, HTMLElement];
     };
     events: {
         keySubmit: (event:KeyboardEvent) => void;
@@ -537,8 +511,8 @@ interface module_message {
  *         minimize      : (event:MouseEvent, callback?:() => void, target?:HTMLElement) => void; // Minimizes a modal to the tray at the bottom of the page.
  *         move          : (event:MouseEvent|TouchEvent) => void;       // Allows dragging a modal around the screen.
  *         resize        : (event:MouseEvent|TouchEvent) => void;       // Resizes a modal respective to the event target, which could be any of 4 corners or 4 sides.
- *         textSave      : (event:Event) => void;                       // Handler to push the text content of a textPad modal into settings so that it is saved.
- *         textTimer     : (event:KeyboardEvent) => void;               // A timing event so that contents of a textPad modal are automatically save after a brief duration of focus blur.
+ *         textSave      : (event:Event) => void;                       // Handler to push the text content of a text-pad modal into settings so that it is saved.
+ *         textTimer     : (event:KeyboardEvent) => void;               // A timing event so that contents of a text-pad modal are automatically save after a brief duration of focus blur.
  *         unMinimize    : (event:MouseEvent) => void;                  // Restores a minimized modal to its prior size and location.
  *         zTop          : (event:KeyboardEvent|MouseEvent, elementInput?:HTMLElement) => void; // Processes visual overlapping or depth of modals.
  *     };
@@ -566,6 +540,59 @@ interface module_modal {
     };
     tools: {
         forceMinimize: (id:string) => void;
+    };
+}
+
+/**
+ * Provides a central location for the configuration of modals by modal type.
+ * ```typescript
+ * interface module_modalConfiguration {
+ *     modals: {
+ *         "agent-management": modal_open;
+ *         "configuration": modal_open;
+ *         "details": modal_open;
+ *         "document": modal_open;
+ *         "export": modal_open;
+ *         "file-edit": modal_open;
+ *         "file-navigate": modal_open;
+ *         "invite-accept": modal_open;
+ *         "media": modal_open;
+ *         "message": modal_open;
+ *         "shares": modal_open;
+ *         "terminal": modal_open;
+ *         "text-pad": modal_open;
+ *     };
+ *     titles: {
+ *         [key:string]: {
+ *             icon: string;
+ *             menu: boolean;
+ *             text: string;
+ *         };
+ *     };
+ * }
+ * ``` */
+interface module_modalConfiguration {
+    modals: {
+        "agent-management": modal_open;
+        "configuration": modal_open;
+        "details": modal_open;
+        "document": modal_open;
+        "export": modal_open;
+        "file-edit": modal_open;
+        "file-navigate": modal_open;
+        "invite-accept": modal_open;
+        "media": modal_open;
+        "message": modal_open;
+        "shares": modal_open;
+        "terminal": modal_open;
+        "text-pad": modal_open;
+    };
+    titles: {
+        [key:string]: {
+            icon: string;
+            menu: boolean;
+            text: string;
+        };
     };
 }
 
@@ -640,7 +667,6 @@ interface module_remote {
  *     }
  *     tools: {
  *         hash    : (socketData) => void;       // Generates a hash identifier for a new share
- *         modal   : (agent:string, agentType:agentType|"", configuration:config_modal) => void; // Creates a share modal displaying device details, shares, and available features.
  *         update  : (exclusion:string) => void; // Updates the content of device shares in response to messaging from the network and local user interaction.
  *     }
  * }
@@ -653,7 +679,6 @@ interface module_share {
     };
     tools: {
         hash: (socketData:socketData) => void;
-        modal: (agent:string, agentType:agentType|"", configuration:config_modal) => void;
         update: (exclusion:string) => void;
     };
 }

@@ -5,6 +5,7 @@ import browser from "../utilities/browser.js";
 import common from "../../common/common.js";
 import configuration from "./configuration.js";
 import modal from "../utilities/modal.js";
+import modal_configuration from "../utilities/modal_configurations.js";
 import network from "../utilities/network.js";
 import util from "../utilities/util.js";
 
@@ -15,8 +16,8 @@ import util from "../utilities/util.js";
  * ```typescript
  * interface module_message {
  *     content: {
- *         footer: (mode:messageMode, value:string) => HTMLElement;                              // Called from modal.create to supply the footer area modal content.
- *         modal : (configuration:config_modal, agentType:agentType, agentName:string) => modal; // Generates a message modal.
+ *         footer: (mode:messageMode, value:string) => HTMLElement;                 // Called from modal.create to supply the footer area modal content.
+ *         modal : (text:string, placeholder:string) => [HTMLElement, HTMLElement]; // Generates a message modal.
  *     };
  *     events: {
  *         keySubmit  : (event:KeyboardEvent) => void;            // Submits a text message on key press, such as pressing the 'Enter' key.
@@ -37,7 +38,7 @@ const message:module_message = {
 
     /* Render a message modal */
     content: {
-        modal: function browser_content_message_content(configuration:config_modal, agentType:agentType, agentFrom:string):modal {
+        modal: function browser_content_message_content(text:string, placeholder:string):[HTMLElement, HTMLElement] {
             const content:HTMLElement = document.createElement("div"),
                 footer:HTMLElement = document.createElement("div"),
                 table:HTMLElement = document.createElement("table"),
@@ -52,7 +53,7 @@ const message:module_message = {
                 inputControl = function browser_content_message_content_input(type:"code"|"text"):void {
                     const input:HTMLInputElement = document.createElement("input"),
                         label:HTMLElement = document.createElement("label");
-                    if (modalConfig.text_placeholder === type) {
+                    if (placeholder === type) {
                         input.checked = true;
                     }
                     input.name = name;
@@ -63,26 +64,7 @@ const message:module_message = {
                     label.appendText(`${common.capitalize(type)} Mode`);
                     pToggle.appendChild(label);
                 },
-                name:string = `message-${Math.random()}-mode`,
-                identity:boolean = (agentFrom !== browser.data.hashDevice),
-                modalConfig:config_modal = (configuration === null)
-                    ? {
-                        agent: agentFrom,
-                        agentIdentity: identity,
-                        agentType: agentType,
-                        content: null,
-                        footer: null,
-                        inputs: ["close", "maximize", "minimize"],
-                        read_only: false,
-                        text_placeholder: "text",
-                        text_value: "",
-                        title: (identity === true)
-                            ? "💬 Text Message to"
-                            : `💬 Text Message to all ${agentType}s`,
-                        type: "message",
-                        width: 800
-                    }
-                    : configuration;
+                name:string = `message-${Math.random()}-mode`;
             table.setAttribute("class", "message-content");
             table.appendChild(document.createElement("tbody"));
             content.appendChild(table);
@@ -97,14 +79,14 @@ const message:module_message = {
             textArea.onblur = modal.events.textSave;
             textArea.onkeyup = modal.events.textTimer;
             textArea.placeholder = "Write a message.";
-            textArea.value = modalConfig.text_value;
-            textArea.setAttribute("class", modalConfig.text_placeholder);
-            if (modalConfig.text_placeholder === "code") {
+            textArea.value = text;
+            textArea.setAttribute("class", placeholder);
+            if (placeholder === "code") {
                 textArea.onkeyup = null;
             } else {
                 textArea.onkeyup = message.events.keySubmit;
             }
-            label.setAttribute("class", "textPad");
+            label.setAttribute("class", "text-pad");
             spanTextArea.appendText("Write a message.");
             label.appendChild(spanTextArea);
             label.appendChild(textArea);
@@ -120,9 +102,7 @@ const message:module_message = {
             spanClear.setAttribute("class", "clear");
             footer.appendChild(spanClear);
 
-            modalConfig.content = content;
-            modalConfig.footer = footer;
-            return modal.content(modalConfig);
+            return [content, footer];
         },
 
         /* Called from modal.create to supply the footer area modal content */
@@ -145,7 +125,7 @@ const message:module_message = {
             } else {
                 textArea.onkeyup = message.events.keySubmit;
             }
-            label.setAttribute("class", "textPad");
+            label.setAttribute("class", "text-pad");
             span.appendText("Write a message.");
             label.appendChild(span);
             label.appendChild(textArea);
@@ -264,7 +244,7 @@ const message:module_message = {
                     }
                 } while (a > 0);
             }
-            messageModal = message.content.modal(null, agentType, agentHash);
+            messageModal = modal_configuration.modals.message(event, null);
             message.tools.populate(messageModal.getAttribute("id"));
         },
 
@@ -487,8 +467,24 @@ const message:module_message = {
     
             // creates a new message modal if none matched
             if (writeTest === false) {
-                const messageModal:modal = message.content.modal(null, item.agentType, item.agentFrom);
-                writeMessage(messageModal);
+                const identity:boolean = (item.agentFrom !== browser.data.hashDevice),
+                    modalItem:modal = modal_configuration.modals.message(null, {
+                        agent: item.agentFrom,
+                        agentIdentity: identity,
+                        agentType: item.agentType,
+                        content: null,
+                        footer: null,
+                        inputs: ["close", "maximize", "minimize"],
+                        read_only: false,
+                        text_placeholder: "text",
+                        text_value: "",
+                        title_supplement: (identity === true)
+                            ? null
+                            : `all ${item.agentType}s`,
+                        type: "message",
+                        width: 800
+                    });
+                writeMessage(modalItem);
             }
         },
     

@@ -301,6 +301,7 @@ declare global {
      *         log         : string[]               // a storage of console.log items
      *         name        : string;                // a static name of the application
      *         startTime   : bigint;                // nanosecond precision time the application starts for measuring execution performance
+     *         stateDefault: settings_item          // stores default keys/values for passing and resetting state
      *         version     : string;                // dynamically populated static value of application version number string
      *     };
      *     network: {
@@ -359,14 +360,15 @@ declare global {
      * ``` */
     interface module_terminalVariables {
         environment: {
-            command    : commands;
-            date       : string;
-            git_hash   : string;
-            module_type: "commonjs" | "module";
-            log        : string[];
-            name       : string;
-            startTime  : bigint;
-            version    : string;
+            command     : commands;
+            date        : string;
+            git_hash    : string;
+            module_type : "commonjs" | "module";
+            log         : string[];
+            name        : string;
+            startTime   : bigint;
+            stateDefault: settings_item;
+            version     : string;
         };
         network: {
             addresses   : transmit_addresses_IP;
@@ -377,11 +379,12 @@ declare global {
             size        : terminalVariables_networkCount;
         };
         path: {
-            js      : string;
-            node    : string;
-            project : string;
-            sep     : string;
-            settings: string;
+            js         : string;
+            node       : string;
+            project    : string;
+            sep        : string;
+            settings   : string;
+            testStorage:string;
         };
         settings: terminalVariables_settings;
         terminal: {

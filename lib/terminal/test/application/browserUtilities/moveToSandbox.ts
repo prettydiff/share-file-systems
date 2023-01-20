@@ -5,7 +5,7 @@ const moveToSandbox = function terminal_test_application_browserUtilities_moveTo
     return {
         delay: {
             node: [
-                ["getModalsByModalType", "fileNavigate", index],
+                ["getModalsByModalType", "file-navigate", index],
                 ["getElementsByClassName", "fileList", 0],
                 ["getElementsByTagName", "li", 0]
             ],
@@ -18,7 +18,7 @@ const moveToSandbox = function terminal_test_application_browserUtilities_moveTo
             {
                 event: "click",
                 node: [
-                    ["getModalsByModalType", "fileNavigate", index],
+                    ["getModalsByModalType", "file-navigate", index],
                     ["getElementsByClassName", "fileAddress", 0],
                     ["getElementsByTagName", "input", 0]
                 ]
@@ -26,7 +26,7 @@ const moveToSandbox = function terminal_test_application_browserUtilities_moveTo
             {
                 event: "setValue",
                 node: [
-                    ["getModalsByModalType", "fileNavigate", index],
+                    ["getModalsByModalType", "file-navigate", index],
                     ["getElementsByClassName", "fileAddress", 0],
                     ["getElementsByTagName", "input", 0]
                 ],
@@ -35,7 +35,7 @@ const moveToSandbox = function terminal_test_application_browserUtilities_moveTo
             {
                 event: "blur",
                 node: [
-                    ["getModalsByModalType", "fileNavigate", index],
+                    ["getModalsByModalType", "file-navigate", index],
                     ["getElementsByClassName", "fileAddress", 0],
                     ["getElementsByTagName", "input", 0]
                 ]

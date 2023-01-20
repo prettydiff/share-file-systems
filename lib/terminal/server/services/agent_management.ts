@@ -32,14 +32,13 @@ const agent_management = function terminal_server_services_agentManagement(socke
                         },
                         service: "settings"
                     });
-                    if (data.agentFrom === vars.settings.hashDevice) {
-                        sender.broadcast({
-                            data: data,
-                            service: "agent-management"
-                        }, "device");
-                    } else if (vars.settings.device[data.agentFrom] !== undefined && data.deviceUser !== null && data.deviceUser.length === 128) {
+                    if (vars.settings.device[data.agentFrom] !== undefined && data.deviceUser !== null && data.deviceUser.length === 128) {
                         vars.settings.hashUser = data.deviceUser;
                     }
+                    sender.broadcast({
+                        data: data,
+                        service: "agent-management"
+                    }, "device");
                     sender.broadcast(socketData, "browser");
                 }
             }

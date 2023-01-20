@@ -5,7 +5,7 @@ const newDirectory = function terminal_test_samples_browserDevices_newDirectory(
     return {
         delay: {
             node: [
-                ["getModalsByModalType", "fileNavigate", index],
+                ["getModalsByModalType", "file-navigate", index],
                 ["getElementsByClassName", "fileList", 0],
                 ["firstChild", null, null]
             ],
@@ -18,14 +18,14 @@ const newDirectory = function terminal_test_samples_browserDevices_newDirectory(
             {
                 event: "click",
                 node: [
-                    ["getModalsByModalType", "fileNavigate", index],
+                    ["getModalsByModalType", "file-navigate", index],
                     ["getElementsByClassName", "fileList", 0]
                 ]
             },
             {
                 event: "keydown",
                 node: [
-                    ["getModalsByModalType", "fileNavigate", index],
+                    ["getModalsByModalType", "file-navigate", index],
                     ["getElementsByClassName", "fileList", 0]
                 ],
                 value: "Control"
@@ -33,7 +33,7 @@ const newDirectory = function terminal_test_samples_browserDevices_newDirectory(
             {
                 event: "keydown",
                 node: [
-                    ["getModalsByModalType", "fileNavigate", index],
+                    ["getModalsByModalType", "file-navigate", index],
                     ["getElementsByClassName", "fileList", 0]
                 ],
                 value: "Alt"
@@ -41,7 +41,7 @@ const newDirectory = function terminal_test_samples_browserDevices_newDirectory(
             {
                 event: "keydown",
                 node: [
-                    ["getModalsByModalType", "fileNavigate", index],
+                    ["getModalsByModalType", "file-navigate", index],
                     ["getElementsByClassName", "fileList", 0]
                 ],
                 value: "d"
@@ -49,7 +49,7 @@ const newDirectory = function terminal_test_samples_browserDevices_newDirectory(
             {
                 event: "keyup",
                 node: [
-                    ["getModalsByModalType", "fileNavigate", index],
+                    ["getModalsByModalType", "file-navigate", index],
                     ["getElementsByClassName", "fileList", 0]
                 ],
                 value: "d"
@@ -57,7 +57,7 @@ const newDirectory = function terminal_test_samples_browserDevices_newDirectory(
             {
                 event: "keyup",
                 node: [
-                    ["getModalsByModalType", "fileNavigate", index],
+                    ["getModalsByModalType", "file-navigate", index],
                     ["getElementsByClassName", "fileList", 0]
                 ],
                 value: "Alt"
@@ -65,7 +65,7 @@ const newDirectory = function terminal_test_samples_browserDevices_newDirectory(
             {
                 event: "keyup",
                 node: [
-                    ["getModalsByModalType", "fileNavigate", index],
+                    ["getModalsByModalType", "file-navigate", index],
                     ["getElementsByClassName", "fileList", 0]
                 ],
                 value: "Control"
@@ -95,7 +95,7 @@ const newDirectory = function terminal_test_samples_browserDevices_newDirectory(
         unit: [
             {
                 node: [
-                    ["getModalsByModalType", "fileNavigate", index],
+                    ["getModalsByModalType", "file-navigate", index],
                     ["getElementsByClassName", "status-bar", 0],
                     ["getElementsByTagName", "p", 0]
                 ],

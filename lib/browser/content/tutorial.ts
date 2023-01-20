@@ -2,6 +2,7 @@
 
 import browser from "../utilities/browser.js";
 import modal from "../utilities/modal.js";
+import modal_configuration from "../utilities/modal_configurations.js";
 import network from "../utilities/network.js";
 import remote from "../utilities/remote.js";
 
@@ -64,7 +65,7 @@ const tutorial = function browser_content_tutorial():void {
                 ],
                 event: "click",
                 node: [
-                    ["getModalsByModalType", "fileNavigate", -1],
+                    ["getModalsByModalType", "file-navigate", -1],
                     ["getElementsByClassName", "fileAddress", 0],
                     ["getElementsByTagName", "input", 0]
                 ],
@@ -84,7 +85,7 @@ const tutorial = function browser_content_tutorial():void {
                 ],
                 event: "click",
                 node: [
-                    ["getModalsByModalType", "fileNavigate", -1],
+                    ["getModalsByModalType", "file-navigate", -1],
                     ["getElementsByClassName", "fileSearch", 0],
                     ["getElementsByTagName", "input", 0]
                 ],
@@ -96,7 +97,7 @@ const tutorial = function browser_content_tutorial():void {
                 ],
                 event: "click",
                 node: [
-                    ["getModalsByModalType", "fileNavigate", -1],
+                    ["getModalsByModalType", "file-navigate", -1],
                     ["getElementsByClassName", "fileList", 0],
                     ["getElementsByTagName", "li", 0],
                     ["getElementsByClassName", "expansion", 0]
@@ -111,7 +112,7 @@ const tutorial = function browser_content_tutorial():void {
                 ],
                 event: "click",
                 node: [
-                    ["getModalsByModalType", "fileNavigate", -1],
+                    ["getModalsByModalType", "file-navigate", -1],
                     ["getElementsByClassName", "fileList", 0],
                     ["getElementsByTagName", "li", 0],
                     ["getElementsByTagName", "p", 0]
@@ -144,7 +145,7 @@ const tutorial = function browser_content_tutorial():void {
                 ],
                 event: "contextmenu",
                 node: [
-                    ["getModalsByModalType", "fileNavigate", -1],
+                    ["getModalsByModalType", "file-navigate", -1],
                     ["getElementsByClassName", "fileList", 0],
                     ["getElementsByTagName", "li", 0],
                     ["getElementsByTagName", "p", 0]
@@ -239,7 +240,7 @@ const tutorial = function browser_content_tutorial():void {
                 ],
                 event: "click",
                 node: [
-                    ["getElementById", "textPad", null]
+                    ["getElementById", "text-pad", null]
                 ],
                 title: "Open a Text Pad"
             },
@@ -250,7 +251,7 @@ const tutorial = function browser_content_tutorial():void {
                 ],
                 event: "keyup",
                 node: [
-                    ["getModalsByModalType", "textPad", -1],
+                    ["getModalsByModalType", "text-pad", -1],
                     ["getElementsByClassName", "body", 0],
                     ["getElementsByTagName", "textarea", 0]
                 ],
@@ -472,19 +473,7 @@ const tutorial = function browser_content_tutorial():void {
             wrapper.setAttribute("class", "document");
             return wrapper;
         },
-        modalConfig:config_modal = {
-            agent: browser.data.hashDevice,
-            agentIdentity: false,
-            agentType: "device",
-            content: content(),
-            height: 600,
-            inputs: ["close"],
-            move: false,
-            read_only: true,
-            title: "🗎 Tutorial",
-            type: "document"
-        },
-        contentModal:modal = modal.content(modalConfig),
+        contentModal:modal = modal_configuration.modals.document(null, null, content()),
         close:HTMLElement = contentModal.getElementsByClassName("buttons")[0].getElementsByClassName("close")[0] as HTMLElement,
         body:HTMLElement = contentModal.getElementsByClassName("body")[0] as HTMLElement;
     contentModal.style.zIndex = "10001";

@@ -2,7 +2,6 @@
 /* lib/browser/content/media - A library for executing audio/video calls. */
 
 import browser from "../utilities/browser.js";
-import common from "../../common/common.js";
 import modal from "../utilities/modal.js";
 
 /**
@@ -13,11 +12,9 @@ import modal from "../utilities/modal.js";
  *     events: {
  *         close      : (event:MouseEvent) => void;            // Kill any media stream when closing the modal
  *         selfDrag   : (event:MouseEvent|TouchEvent) => void; // Allows dragging a thumbnail of local webcam video from one corner of a video modal to another.
- *         videoButton: (event:MouseEvent) => void;            // Creates a button where a user may initiate a video call with another agent.
  *     };
  *     tools: {
  *         kill : (modal:config_modal) => void;             // Destroys a media stream to the local hardware and closes the corresponding modal.
- *         modal: (mediaConfig:config_mediaModal) => modal; // Creates a media modal populated with content from method *media.element*.
  *     };
  * }
  * type mediaType = "audio" | "video";
@@ -164,19 +161,6 @@ const media:module_media = {
             } else {
                 document.onmouseup = stop;
             }
-        },
-
-        /* Launch a media modal from the Video Call button of share modal*/
-        videoButton: function browser_message_videoButton(event:MouseEvent):void {
-            const element:HTMLElement = event.target,
-                agentContainer:HTMLElement = element.getAncestor("tools", "class").parentNode,
-                agent:string = agentContainer.dataset.hash,
-                agentType:agentType = agentContainer.getAttribute("class") as agentType;
-            media.tools.modal({
-                agent: agent,
-                agentType: agentType,
-                mediaType: "video"
-            });
         }
     },
 
@@ -209,23 +193,6 @@ const media:module_media = {
                 body.onclick = null;
                 body.removeChild(body.firstChild);
             }
-        },
-
-        /* Start a media engagement and launch a media modal */
-        modal: function browser_content_media_modal(mediaConfig:config_mediaModal):modal {
-            return modal.content({
-                agent: mediaConfig.agent,
-                agentIdentity: true,
-                agentType: mediaConfig.agentType,
-                closeHandler: media.events.close,
-                content: media.content(mediaConfig.mediaType, 400, 565),
-                inputs: ["close", "maximize"],
-                read_only: true,
-                scroll: false,
-                text_value: mediaConfig.mediaType,
-                title: `${common.capitalize(mediaConfig.mediaType)} Call`,
-                type: "media"
-            });
         }
     }
 };

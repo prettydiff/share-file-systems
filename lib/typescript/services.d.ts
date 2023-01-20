@@ -281,8 +281,6 @@ interface service_hashShare {
  *     agentRequest: agentInvite;
  *     agentSource: agentInvite;
  *     message: string;
- *     modal: string;
- *     shares:
  *     status: inviteStatus;
  *     type: agentType;
  * }

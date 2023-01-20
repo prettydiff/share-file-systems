@@ -9,6 +9,7 @@ import humanTime from "../../utilities/humanTime.js";
 import ipList from "../../utilities/ipList.js";
 import log from "../../utilities/log.js";
 import remove from "../../commands/library/remove.js";
+import resetState from "../../utilities/resetState.js";
 import sender from "../../server/transmission/sender.js";
 import time from "../../utilities/time.js";
 import transmit_http from "../../server/transmission/transmit_http.js";
@@ -158,6 +159,7 @@ const defaultCommand:commands = vars.environment.command,
                     IPv4: [machines[browser.name].ip],
                     IPv6: []
                 };
+                vars.path.settings = vars.path.testStorage;
                 vars.test.browser = {
                     action: (args.mode === "self")
                         ? "result"
@@ -403,24 +405,26 @@ const defaultCommand:commands = vars.environment.command,
                     vars.settings.device = {};
                     vars.settings.user = {};
                     if (browser.args.mode === "remote") {
-                        const close:service_testBrowser = {
-                            action: "close",
-                            exit: "",
-                            index: -1,
-                            result: [],
-                            test: {
-                                interaction: null,
-                                machine: browser.name,
-                                name: "reset-request",
-                                unit: null
-                            }
-                        };
-                        browser.methods.send(close);
-                        browser.methods.delay({
-                            action: start,
-                            browser: false,
-                            delay: 2000,
-                            message: "Delaying to close any open browsers."
+                        resetState(function terminal_test_application_browser_reset_readdir_browserLaunch_resetState():void {
+                            const close:service_testBrowser = {
+                                action: "close",
+                                exit: "",
+                                index: -1,
+                                result: [],
+                                test: {
+                                    interaction: null,
+                                    machine: browser.name,
+                                    name: "reset-request",
+                                    unit: null
+                                }
+                            };
+                            browser.methods.send(close);
+                            browser.methods.delay({
+                                action: start,
+                                browser: false,
+                                delay: 2000,
+                                message: "Delaying to close any open browsers."
+                            });
                         });
                     } else {
                         start();
@@ -433,7 +437,7 @@ const defaultCommand:commands = vars.environment.command,
                 if (browser.args.mode === "remote") {
                     item.test = {
                         interaction: null,
-                        machine: "self", // confusion between browser and shelf device
+                        machine: "self",
                         name: "",
                         unit: null
                     };

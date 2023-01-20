@@ -1485,7 +1485,6 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                             read_only: false,
                             single: true,
                             status: "hidden",
-                            title: "<span class=\"icon-settings\">⚙</span> Settings",
                             type: "configuration",
                             width: 800,
                             zIndex: 1,
@@ -1496,7 +1495,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                         },
                     },
                     modalTypes: [
-                        "configuration", "fileNavigate", "invite-request"
+                        "configuration", "file-navigate", "invite-request"
                     ],
                     nameDevice: "this device name",
                     nameUser: "local user name",
@@ -1539,7 +1538,6 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                             read_only: false,
                             single: true,
                             status: "hidden",
-                            title: "<span class=\"icon-settings\">⚙</span> Settings",
                             type: "configuration",
                             width: 800,
                             zIndex: 1,
@@ -1550,7 +1548,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                         },
                     },
                     modalTypes: [
-                        "configuration", "fileNavigate", "invite-request"
+                        "configuration", "file-navigate", "invite-request"
                     ],
                     nameDevice: "this device name",
                     nameUser: "local user name",

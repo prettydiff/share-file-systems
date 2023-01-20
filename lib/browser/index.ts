@@ -5,16 +5,12 @@ import agent_hash from "./utilities/agent_hash.js";
 import agent_management from "./content/agent_management.js";
 import agent_status from "./utilities/agent_status.js";
 import browser from "./utilities/browser.js";
-import configuration from "./content/configuration.js";
-import file_browser from "./content/file_browser.js";
 import global_events from "./content/global_events.js";
 import dom from "./utilities/dom.js";
-import media from "./content/media.js";
 import message from "./content/message.js";
-import modal from "./utilities/modal.js";
+import modal_configuration from "./utilities/modal_configurations.js";
 import network from "./utilities/network.js";
 import remote from "./utilities/remote.js";
-import share from "./content/share.js";
 import tutorial from "./content/tutorial.js";
 import util from "./utilities/util.js";
 import webSocket from "./utilities/webSocket.js";
@@ -87,30 +83,6 @@ import disallowed from "../common/disallowed.js";
                 }
             },
 
-            // populate any modals that exist by default
-            defaultModals = function browser_init_defaultModals():void {
-                const payloadModal:config_modal = {
-                    agent: browser.data.hashDevice,
-                    agentIdentity: false,
-                    agentType: "device",
-                    closeHandler: modal.events.closeEnduring,
-                    content: null,
-                    read_only: false,
-                    single: true,
-                    status: "hidden",
-                    title: null,
-                    type: "configuration"
-                };
-                // building configuration modal
-                if (document.getElementById("configuration-modal") === null) {
-                    payloadModal.content = configuration.content();
-                    payloadModal.inputs = ["close"];
-                    payloadModal.title = document.getElementById("configuration").innerHTML;
-                    delete payloadModal.width;
-                    modal.content(payloadModal);
-                }
-            },
-
             // process the login form
             applyLogin = function browser_init_applyLogin():void {
                 const login:HTMLElement = document.getElementById("login"),
@@ -134,11 +106,10 @@ import disallowed from "../common/disallowed.js";
                     handlerMouse = function browser_init_applyLogin_handleMouse():void {
                         action();
                     };
-
-                defaultModals();
                 nameUser.onkeyup = handlerKeyboard;
                 nameDevice.onkeyup = handlerKeyboard;
                 button.onclick = handlerMouse;
+                modal_configuration.modals.configuration(null);
                 testBrowserLoad(500);
             },
 
@@ -146,9 +117,37 @@ import disallowed from "../common/disallowed.js";
             loadComplete = function browser_init_complete():void {
                 // change status to idle
                 const allDevice:HTMLElement = agentList.getElementsByClassName("device-all-shares")[0] as HTMLElement,
-                    allUser:HTMLElement = agentList.getElementsByClassName("user-all-shares")[0] as HTMLElement,
-                    buttons:HTMLCollectionOf<HTMLButtonElement> = document.getElementById("menu").getElementsByTagName("button");
-                let b:number = buttons.length;
+                    allUser:HTMLElement = agentList.getElementsByClassName("user-all-shares")[0] as HTMLElement;
+
+                // create menu buttons from modal type names and associated icons/text
+                {
+                    const buttons:string[] = Object.keys(modal_configuration.titles),
+                        buttonLength:number = buttons.length,
+                        menu = document.getElementById("menu"),
+                        menuBlur = function browser_init_complete_menuBlur():void {
+                            menu.style.display = "none"; 
+                        };
+                    let index:number = 0,
+                        button:HTMLButtonElement = null,
+                        li:HTMLElement = null,
+                        span:HTMLElement = null;
+                    do {
+                        if (modal_configuration.titles[buttons[index]].menu === true) {
+                            button = document.createElement("button");
+                            li = document.createElement("li");
+                            span = document.createElement("span");
+                            span.appendText(modal_configuration.titles[buttons[index]].icon);
+                            button.setAttribute("class", buttons[index]);
+                            button.appendChild(span);
+                            button.appendText(` ${modal_configuration.titles[buttons[index]].text}`);
+                            button.onblur = menuBlur;
+                            button.onclick = modal_configuration.modals[buttons[index] as modalType];
+                            li.appendChild(button);
+                            menu.appendChild(li);
+                        }
+                        index = index + 1;
+                    } while (index < buttonLength);
+                }
 
                 if (browser.data.hashDevice === "") {
                     // Terminate load completion dependent upon creation of device hash
@@ -160,26 +159,14 @@ import disallowed from "../common/disallowed.js";
                     message.tools.populate("");
                 }
 
-                // loading data and modals is complete
-                browser.loading = false;
-
-                if (browser.data.hashDevice !== "" && document.getElementById("configuration-modal") === null) {
-                    defaultModals();
-                }
-
                 // assign key default events
+                modal_configuration.modals.configuration(null, null);
                 browser.content.onclick                             = global_events.contextMenuRemove;
                 document.getElementById("menuToggle").onclick       = global_events.menu;
-                agentList.getElementsByTagName("button")[0].onclick = global_events.shareAll;
-                allDevice.onclick                                   = global_events.shareAll;
-                allUser.onclick                                     = global_events.shareAll;
+                agentList.getElementsByTagName("button")[0].onclick = modal_configuration.modals.shares;
+                allDevice.onclick                                   = modal_configuration.modals.shares;
+                allUser.onclick                                     = modal_configuration.modals.shares;
                 document.getElementById("minimize-all").onclick     = global_events.minimizeAll;
-                document.getElementById("export").onclick           = global_events.modal.export;
-                document.getElementById("fileNavigator").onclick    = global_events.modal.fileNavigate;
-                document.getElementById("configuration").onclick    = global_events.modal.configuration;
-                document.getElementById("terminal").onclick         = global_events.modal.terminal;
-                document.getElementById("textPad").onclick          = global_events.modal.textPad;
-                document.getElementById("agent-management").onclick = global_events.modal.agentManagement;
                 document.onvisibilitychange                         = global_events.visibility;
                 if (document.fullscreenEnabled === true) {
                     document.onfullscreenchange                   = global_events.fullscreenChange;
@@ -188,10 +175,6 @@ import disallowed from "../common/disallowed.js";
                     const fullscreen:HTMLElement = document.getElementById("fullscreen");
                     fullscreen.parentNode.removeChild(fullscreen);
                 }
-                do {
-                    b = b - 1;
-                    buttons[b].onblur = global_events.menuBlur;
-                } while (b > 0);
 
                 // initiate webSocket and activity status
                 agent_status.start();
@@ -201,13 +184,17 @@ import disallowed from "../common/disallowed.js";
                 if (location.href.indexOf("test_browser") < 0 && (browser.data.tutorial === true || location.href.indexOf("?tutorial") > 0)) {
                     tutorial();
                 }
+
+                // loading data and modals is complete
+                browser.loading = false;
             },
 
             // on page load restore the application to exactly the way it was
             restoreState = function browser_init_restoreState():void {
                 // state data
-                let type:modalType,
-                    count:number = 0;
+                let modalItem:config_modal = null,
+                    count:number = 0,
+                    configKey:boolean = false;
                 const modalKeys:string[] = Object.keys(state.settings.configuration.modals),
                     indexes:[number, string][] = [],
                     // applies z-index to the modals in the proper sequence while restarting the value at 0
@@ -221,6 +208,21 @@ import disallowed from "../common/disallowed.js";
                                 len:number = indexes.length,
                                 uiModal:config_modal,
                                 modalItem:HTMLElement = null;
+                            const restoreShares = function browser_init_restoreState_restoreShares(type:agentType):void {
+                                const list:string[] = Object.keys(state.settings[type]),
+                                    listLength:number = list.length;
+                                let a:number = 0;
+                                if (listLength > 0) {
+                                    do {
+                                        agent_management.tools.addAgent({
+                                            hash: list[a],
+                                            name: browser[type][list[a]].name,
+                                            type: type
+                                        });
+                                        a = a + 1;
+                                    } while (a < listLength);
+                                }
+                            };
                             browser.data.zIndex = modalKeys.length;
                             indexes.sort(function browser_init_z_sort(aa:[number, string], bb:[number, string]):number {
                                 if (aa[0] < bb[0]) {
@@ -238,172 +240,13 @@ import disallowed from "../common/disallowed.js";
                                 }
                                 index = index + 1;
                             } while (index < len);
+                            if (configKey ===  false) {
+                                modal_configuration.modals.configuration(null);
+                            }
+                            restoreShares("device");
+                            restoreShares("user");
                             loadComplete();
                         }
-                    },
-                    restoreShares = function browser_init_restoreShares(type:agentType):void {
-                        if (state.settings[type] === undefined) {
-                            browser[type] = {};
-                            return;
-                        }
-                        browser[type] = state.settings[type];
-                        const list:string[] = Object.keys(state.settings[type]),
-                            listLength:number = list.length;
-                        let a:number = 0;
-                        if (listLength > 0) {
-                            do {
-                                agent_management.tools.addAgent({
-                                    hash: list[a],
-                                    name: browser[type][list[a]].name,
-                                    type: type
-                                });
-                                a = a + 1;
-                            } while (a < listLength);
-                        }
-                    },
-                    modalConfiguration = function browser_init_modalConfiguration(id:string):void {
-                        const modalItem:config_modal = state.settings.configuration.modals[id];
-                        browser.data.brotli = state.settings.configuration.brotli;
-                        browser.data.hashType = state.settings.configuration.hashType;
-                        modalItem.callback = function browser_init_modalConfiguration_callback():void {
-                            const inputs:HTMLCollectionOf<HTMLInputElement> = document.getElementById("configuration-modal").getElementsByTagName("input"),
-                                length:number = inputs.length;
-                            let a:number = 0;
-                            do {
-                                if (inputs[a].name.indexOf("color-scheme-") === 0 && inputs[a].value === state.settings.configuration.color) {
-                                    inputs[a].click();
-                                } else if (inputs[a].name.indexOf("audio-") === 0 && (inputs[a].value === "off" && state.settings.configuration.audio === false) || (inputs[a].value === "on" && state.settings.configuration.audio === true)) {
-                                    inputs[a].click();
-                                } else if (inputs[a].name === "brotli") {
-                                    inputs[a].value = state.settings.configuration.brotli.toString();
-                                }
-                                a = a + 1;
-                            } while (a < length);
-                        };
-                        modalItem.closeHandler = modal.events.closeEnduring;
-                        modalItem.content = configuration.content();
-                        modal.content(modalItem);
-                        z(id);
-                    },
-                    modalDetails = function browser_init_modalDetails(id:string):void {
-                        const modalItem:config_modal = state.settings.configuration.modals[id],
-                            agents:[fileAgent, fileAgent, fileAgent] = (function browser_init_modalDetails_agents():[fileAgent, fileAgent, fileAgent] {
-                                modalItem.content = util.delay();
-                                return util.fileAgent(modal.content(modalItem), null, modalItem.text_value);
-                            }()),
-                            payloadNetwork:service_fileSystem = {
-                                action: "fs-details",
-                                agentRequest: agents[0],
-                                agentSource: agents[1],
-                                agentWrite: null,
-                                depth: 0,
-                                location: JSON.parse(modalItem.text_value),
-                                name: id
-                            };
-                        network.send(payloadNetwork, "file-system");
-                        z(id);
-                    },
-                    modalFile = function browser_init_modalFile(id:string):void {
-                        const modalItem:config_modal = state.settings.configuration.modals[id],
-                            delay:HTMLElement = util.delay(),
-                            selection = function browser_init_modalFile_selection(id:string):void {
-                                const box:modal = document.getElementById(id),
-                                    modalData:config_modal = browser.data.modals[id],
-                                    keys:string[] = (modalData.selection === undefined)
-                                        ? []
-                                        : Object.keys(modalData.selection),
-                                    fileList:HTMLElement = box.getElementsByClassName("fileList")[0] as HTMLElement,
-                                    list:HTMLCollectionOf<HTMLElement> = (fileList === undefined)
-                                        ? null
-                                        : fileList.getElementsByTagName("li"),
-                                    length:number = (list === null)
-                                        ? 0
-                                        : list.length;
-                                let b:number = 0,
-                                    address:string;
-                                if (keys.length > 0 && length > 0) {
-                                    do {
-                                        address = list[b].getElementsByTagName("label")[0].innerHTML;
-                                        if (modalData.selection[address] !== undefined) {
-                                            list[b].addClass(modalData.selection[address]);
-                                            list[b].getElementsByTagName("input")[0].checked = true;
-                                        }
-                                        b = b + 1;
-                                    } while (b < length);
-                                }
-                            };
-                        modalItem.content = delay;
-                        modalItem.footer  = file_browser.content.footer(modalItem.width);
-                        modalItem.id = id;
-                        modalItem.text_event = file_browser.events.text;
-                        modalItem.callback = function browser_init_modalFile_callback():void {
-                            if (modalItem.search !== undefined && modalItem.search[0] === modalItem.text_value && modalItem.search[1] !== "") {
-                                let search:HTMLInputElement;
-                                search = document.getElementById(id).getElementsByClassName("fileSearch")[0].getElementsByTagName("input")[0];
-                                file_browser.events.search(null, search, function browser_init_modalFile_callback_searchCallback():void {
-                                    selection(id);
-                                });
-                            } else {
-                                const agents:[fileAgent, fileAgent, fileAgent] = util.fileAgent(modalItem.content, null, modalItem.text_value),
-                                    action:actionFile = (modalItem.search[1] !== undefined && modalItem.search[0] !== "" && modalItem.search[1] !== "")
-                                        ? "fs-search"
-                                        : "fs-directory",
-                                    payload:service_fileSystem = {
-                                        action: action,
-                                        agentRequest: agents[0],
-                                        agentSource: agents[1],
-                                        agentWrite: null,
-                                        depth: 2,
-                                        location: [modalItem.text_value],
-                                        name: (action === "fs-search")
-                                            ? modalItem.search[1]
-                                            : `loadPage:${id}`
-                                    };
-                                network.send(payload, "file-system");
-                            }
-                        };
-                        modal.content(modalItem);
-                        z(id);
-                    },
-                    modalGeneric = function browser_init_modalGeneric(id:string):void {
-                        const modalItem:config_modal = state.settings.configuration.modals[id];
-                        modalItem.callback = function browser_init_modalGeneric_callback():void {
-                            z(id);
-                        };
-                        if (modalItem.type === "agent-management") {
-                            global_events.modal.agentManagement(null, modalItem);
-                        } else if (modalItem.type === "export" || modalItem.type === "textPad") {
-                            global_events.modal.textPad(null, modalItem);
-                        } else if (modalItem.type === "message") {
-                            message.content.modal(modalItem, modalItem.agentType, modalItem.agent);
-                        } else if (modalItem.type === "shares") {
-                            const agentType:agentType|"" = (modalItem.title.indexOf("All Shares") > -1)
-                                ? ""
-                                : modalItem.agentType;
-                            share.tools.modal(modalItem.agent, agentType, modalItem);
-                        } else if (modalItem.type === "terminal") {
-                            global_events.modal.terminal(null, modalItem);
-                        } else {
-                            z(null);
-                        }
-                    },
-                    modalMedia = function browser_init_modalMedia(id:string):void {
-                        const p:HTMLElement = document.createElement("p"),
-                            modalData:config_modal = state.settings.configuration.modals[id],
-                            restore = function browser_init_modalMedia_restore(event:MouseEvent):void {
-                                const element:HTMLElement = event.target;
-                                body.onclick = null;
-                                element.appendText("", true);
-                                element.appendChild(media.content(modalData.text_value as mediaType, modalData.height, modalData.width));
-                                element.setAttribute("class", "body");
-                            };
-                        let body:HTMLElement = null;
-                        p.appendText("Click to restore video.");
-                        modalData.content = p;
-                        body = modal.content(modalData).getElementsByClassName("body")[0] as HTMLElement;
-                        body.setAttribute("class", "body media-restore");
-                        body.onclick = restore;
-                        z(id);
                     };
                 logInTest = true;
                 browser.data.color = state.settings.configuration.color;
@@ -416,28 +259,19 @@ import disallowed from "../common/disallowed.js";
                 browser.data.statusTime = state.settings.configuration.statusTime;
                 browser.data.storage = state.settings.configuration.storage;
                 browser.data.tutorial = state.settings.configuration.tutorial;
+                browser.device = state.settings.device;
+                browser.user = state.settings.user;
                 browser.pageBody.setAttribute("class", browser.data.color);
-                restoreShares("device");
-                restoreShares("user");
-
-                if (modalKeys.length < 1) {
-                    loadComplete();
-                } else {
-                    modalKeys.forEach(function browser_init_modalKeys(value:string) {
-                        type = state.settings.configuration.modals[value].type;
-                        if (type === "fileNavigate") {
-                            modalFile(value);
-                        } else if (type === "configuration") {
-                            modalConfiguration(value);
-                        } else if (type === "details") {
-                            modalDetails(value);
-                        } else if (type === "media") {
-                            modalMedia(value);
-                        } else {
-                            modalGeneric(value);
-                        }
-                    });
-                }
+                modalKeys.forEach(function browser_init_modalKeys(value:string) {
+                    modalItem = state.settings.configuration.modals[value];
+                    modalItem.callback = function browser_init_modalKeys_callback():void {
+                        z(value);
+                    };
+                    if (value === "configuration-modal") {
+                        configKey = true;
+                    }
+                    modal_configuration.modals[modalItem.type](null, modalItem);
+                });
             },
 
             // callback once the socket tunnel is operational

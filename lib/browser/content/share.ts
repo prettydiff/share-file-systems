@@ -6,9 +6,8 @@ import common from "../../common/common.js";
 import agent_management from "./agent_management.js";
 import browser from "../utilities/browser.js";
 import context from "./context.js";
-import global_events from "./global_events.js";
 import message from "./message.js";
-import modal from "../utilities/modal.js";
+import modal_configuration from "../utilities/modal_configurations.js";
 import network from "../utilities/network.js";
 import util from "../utilities/util.js";
 
@@ -23,7 +22,6 @@ import util from "../utilities/util.js";
  *     }
  *     tools: {
  *         hash    : (socketData) => void;       // Generates a hash identifier for a new share
- *         modal   : (agent:string, agentType:agentType|"", configuration:config_modal) => void; // Creates a share modal displaying device details, shares, and available features.
  *         update  : (exclusion:string) => void; // Updates the content of device shares in response to messaging from the network and local user interaction.
  *     }
  * }
@@ -67,14 +65,17 @@ const share:module_share = {
                 } else {
                     address = path;
                 }
-                global_events.modal.fileNavigate(event, {
-                    agentName: agent,
+                modal_configuration.modals["file-navigate"](event, {
+                    agent: agent,
+                    agentIdentity: true,
                     agentType: agentType,
-                    path: address,
-                    readOnly: browser[agentType][agent].shares[share].readOnly,
+                    content: null,
+                    read_only: browser[agentType][agent].shares[share].readOnly,
                     share: (agentType === "user")
                         ? share
-                        : ""
+                        : "",
+                    text_value: address,
+                    type: "file-navigate"
                 });
             },
             toolButton = function browser_content_share_content_toolButton(config:config_share_tool):void {
@@ -169,8 +170,8 @@ const share:module_share = {
                     if (agentNames.agentType === "device") {
                         // file navigate button
                         toolButton({
-                            className: "fileNavigate",
-                            handler: global_events.modal.fileNavigate,
+                            className: "file-navigate",
+                            handler: modal_configuration.modals["file-navigate"],
                             identity: null,
                             list: toolList,
                             text: "File System Root"
@@ -179,7 +180,7 @@ const share:module_share = {
                         // command terminal button
                         toolButton({
                             className: "terminal",
-                            handler: global_events.modal.terminal,
+                            handler: modal_configuration.modals.terminal,
                             identity: null,
                             list: toolList,
                             text: "Command Terminal"
@@ -198,7 +199,7 @@ const share:module_share = {
                         // video button
                         // toolButton({
                         //     className: "video",
-                        //     handler: media.videoButton,
+                        //     handler: modal_configuration.modals.media,
                         //     identity: ` ${browser[agentNames.agentType][agentNames.agent].name}`,
                         //     list: toolList,
                         //     text: "Video Call"
@@ -459,43 +460,6 @@ const share:module_share = {
             network.send(management, "agent-management");
         },
 
-        /* Displays a list of shared items for each user */
-        modal: function browser_content_shares_modal(agent:string, agentType:agentType|"", configuration:config_modal):void {
-            if (configuration === null) {
-                const icon:string = (agentType === "device")
-                        ? "🖳"
-                        : "👤",
-                    identity:boolean = (agent !== "" && agentType !== ""),
-                    title:string = (agent === "")
-                        ? (agentType === "")
-                            ? "⌘ All Shares"
-                            : `${icon} All ${common.capitalize(agentType)} Shares`
-                        : `${icon} Shares`;
-                configuration = {
-                    agent: agent,
-                    agentIdentity: identity,
-                    agentType: (identity === true)
-                        ? agentType as agentType
-                        : "device",
-                    content: share.content(agent, agentType),
-                    inputs: ["close", "maximize", "minimize"],
-                    read_only: false,
-                    text_value: title,
-                    title: title,
-                    type: "shares",
-                    width: 800
-                };
-            } else {
-                configuration.content = (configuration.title === "👤 All User Shares")
-                    ? share.content("", "user")
-                    : share.content(agent, agentType);
-                configuration.type = "shares";
-                configuration.text_value = configuration.title;
-                configuration.inputs = ["close", "maximize", "minimize"];
-            }
-            modal.content(configuration);
-        },
-
         /* Updates the contents of share modals */
         update: function browser_content_share_update(exclusion:string):void {
             const modals:string[] = Object.keys(browser.data.modals),
@@ -507,13 +471,11 @@ const share:module_share = {
             let a:number = 0,
                 modal:HTMLElement,
                 body:HTMLElement,
-                agent:string,
-                item:config_modal,
-                agentType:agentType | "";
+                item:config_modal;
             do {
                 if (exclusion !== modals[a]) {
                     item = browser.data.modals[modals[a]];
-                    if (browser[item.agentType][item.agent] === undefined && item.type !== "shares" && item.type !== "configuration" && item.type === "agent-management") {
+                    if (item !== undefined && browser[item.agentType][item.agent] === undefined && item.type !== "shares" && item.type !== "configuration" && item.type === "agent-management") {
                         closer(modals[a]);
                     } else if (item.type === "shares") {
                         modal = document.getElementById(modals[a]);
@@ -521,29 +483,12 @@ const share:module_share = {
                             closer(modals[a]);
                         } else {
                             body = modal.getElementsByClassName("body")[0] as HTMLElement;
-                            if (item.title.indexOf("All Shares") > -1) {
-                                agentType = "";
-                                agent = "";
-                            } else if (item.title.indexOf("All User Shares") > -1) {
-                                agentType = "user";
-                                agent = "";
-                            } else if (item.title.indexOf("All Device Shares") > -1) {
-                                agentType = "device";
-                                agent = "";
-                            } else {
-                                if (item.title.indexOf("Device,") > -1) {
-                                    agentType = "device";
-                                } else {
-                                    agentType = "user";
-                                }
-                                agent = item.agent;
-                            }
                             body.appendText("", true);
-                            body.appendChild(share.content(agent, agentType));
+                            body.appendChild(share.content(item.agent, item.agentType));
                         }
                     } else if (item.type === "agent-management") {
                         // redraw the edit and delete content of agent management modals
-                        modal = document.getElementById(modals[a]).getElementsByClassName("agent-management")[0] as HTMLElement;
+                        modal = document.getElementById(modals[a]).getElementsByClassName("body")[0].getElementsByClassName("agent-management")[0] as HTMLElement;
                         modal.removeChild(modal.getElementsByClassName("modify-agents")[0]);
                         modal.removeChild(modal.getElementsByClassName("delete-agents")[0]);
                         modal.appendChild(agent_management.content.modifyAgents());

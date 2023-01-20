@@ -5,6 +5,7 @@ import browser from "../utilities/browser.js";
 import file_browser from "./file_browser.js";
 import global_events from "./global_events.js";
 import modal from "../utilities/modal.js";
+import modal_configuration from "../utilities/modal_configurations.js";
 import network from "../utilities/network.js";
 import share from "./share.js";
 import util from "../utilities/util.js";
@@ -20,9 +21,7 @@ import util from "../utilities/util.js";
  *     element: HTMLElement;                       // Stores a reference to the element.target associated with a given menu item.
  *     events: {
  *         copy      : (event:Event) => void; // Handler for the *Copy* menu button, which stores file system address information in the application's clipboard.
- *         dataString: (event:Event) => void; // Handler for the *Base64*, *Edit*, and *Hash* menu buttons.
  *         destroy   : (event:Event) => void; // Handler for the *Destroy* menu button, which is responsible for deleting file system artifacts.
- *         details   : (Event:Event) => void; // Handler for the *Details* menu button, which will generate a details modal.
  *         fsNew     : (event:Event) => void; // Handler for the *New Directory* and *New File* menu buttons.
  *         menu      : (event:Event) => void; // Generates the context menu which populates with different menu items depending upon event.target of the right click.
  *         paste     : (event:Event) => void; // Handler for the *Paste* menu item which performs the file copy operation over the network.
@@ -59,7 +58,7 @@ const context:module_context = {
                     button.appendText("Base64 ");
                     button.appendChild(em);
                     button.setAttribute("type", "button");
-                    button.onclick = context.events.dataString;
+                    button.onclick = modal_configuration.modals["file-edit"];
                     item.appendChild(button);
                     itemList.push(item);
                 },
@@ -112,7 +111,7 @@ const context:module_context = {
                     button.appendText("Details ");
                     button.appendChild(em);
                     button.setAttribute("type", "button");
-                    button.onclick = context.events.details;
+                    button.onclick = modal_configuration.modals.details;
                     item.appendChild(button);
                     itemList.push(item);
                 },
@@ -128,7 +127,7 @@ const context:module_context = {
                     }
                     button.appendChild(em);
                     button.setAttribute("type", "button");
-                    button.onclick = context.events.dataString;
+                    button.onclick = modal_configuration.modals["file-edit"];
                     item.appendChild(button);
                     itemList.push(item);
                 },
@@ -140,7 +139,7 @@ const context:module_context = {
                     button.appendText("Hash ");
                     button.appendChild(em);
                     button.setAttribute("type", "button");
-                    button.onclick = context.events.dataString;
+                    button.onclick = modal_configuration.modals["file-edit"];
                     item.appendChild(button);
                     itemList.push(item);
                 },
@@ -235,7 +234,7 @@ const context:module_context = {
             }
         } else if (nodeName === "li") {
             functions.details();
-            if (box.dataset.agenttype === "device") {
+            if (box.dataset !== undefined && box.dataset.agenttype === "device") {
                 functions.share();
             }
             if (element.getAttribute("class").indexOf("file") === 0) {
@@ -362,77 +361,6 @@ const context:module_context = {
             }
         },
     
-        /* Handler for base64, edit, and hash operations from the context menu */
-        dataString: function browser_content_context_dataString(event:Event):void {
-            const element:HTMLElement = (context.element.lowName() === "li")
-                    ? context.element
-                    : context.element.getAncestor("li", "tag"),
-                mouseEvent:MouseEvent = event as MouseEvent,
-                contextElement:HTMLElement = event.target as HTMLElement,
-                type:contextType = (context.type !== "")
-                    ? context.type
-                    : (contextElement.innerHTML.indexOf("Base64") === 0)
-                        ? "Base64"
-                        : (contextElement.innerHTML.indexOf("File as Text") > 0)
-                            ? "Edit"
-                            : "Hash",
-                menu:HTMLElement = document.getElementById("contextMenu"),
-                addresses:[string, fileType, string][] = util.selectedAddresses(element, "fileEdit"),
-                box:modal = element.getAncestor("box", "class"),
-                length:number = addresses.length,
-                agency:agency = util.getAgent(box),
-                agents:[fileAgent, fileAgent, fileAgent] = util.fileAgent(box, null),
-                payloadNetwork:service_fileSystem = {
-                    action: (type === "Edit")
-                        ? "fs-read"
-                        : `fs-${type.toLowerCase()}` as actionFile,
-                    agentRequest: agents[0],
-                    agentSource: agents[1],
-                    agentWrite: null,
-                    depth: 1,
-                    location: [],
-                    name: ""
-                },
-                payloadModal:config_modal = {
-                    agent: agency[0],
-                    agentIdentity: true,
-                    agentType: agency[2],
-                    content: null,
-                    height: 500,
-                    inputs: (type === "Edit" && agency[1] === false)
-                        ? ["close", "save"]
-                        : ["close"],
-                    left: 0,
-                    read_only: agency[1],
-                    single: false,
-                    title: null,
-                    top: 0,
-                    type: "textPad",
-                    width: 500
-                };
-            let a:number = 0,
-                delay:HTMLElement,
-                modalInstance:modal;
-            do {
-                if (addresses[a][1].indexOf("file") === 0) {
-                    delay = util.delay();
-                    payloadModal.content = delay;
-                    payloadModal.left = mouseEvent.clientX + (a * 10);
-                    payloadModal.title = addresses[a][0];
-                    payloadModal.top = (mouseEvent.clientY - 60) + (a * 10);
-                    modalInstance = modal.content(payloadModal);
-                    payloadNetwork.location.push(`${modalInstance.getAttribute("id")}:${addresses[a][0]}`);
-                }
-                a = a + 1;
-            } while (a < length);
-            network.send(payloadNetwork, "file-system");
-            context.element = null;
-            context.type = "";
-            if (menu !== null) {
-                menu.parentNode.removeChild(menu);
-            }
-        },
-    
         /* Handler for removing file system artifacts via context menu */
         destroy: function browser_content_context_destroy():void {
             let element:HTMLElement = (context.element.lowName() === "li")
@@ -460,73 +388,6 @@ const context:module_context = {
                 });
             }
             network.send(payload, "file-system");
-            context.element = null;
-            if (menu !== null) {
-                menu.parentNode.removeChild(menu);
-            }
-        },
-    
-        /* Handler for details action of context menu */
-        details: function browser_content_context_details(event:Event):void {
-            const name:string = context.element.lowName(),
-                mouseEvent:MouseEvent = event as MouseEvent,
-                element:HTMLElement = (name === "li" || name === "ul")
-                    ? context.element
-                    : context.element.getAncestor("li", "tag"),
-                div:HTMLElement = util.delay(),
-                box:modal = element.getAncestor("box", "class"),
-                agency:agency = util.getAgent(box),
-                menu:HTMLElement = document.getElementById("contextMenu"),
-                addressField:HTMLInputElement = box.getElementsByClassName("fileAddress")[0].getElementsByTagName("input")[0],
-                addresses:[string, fileType, string][] = util.selectedAddresses(element, "details"),
-                payloadModal:config_modal = {
-                    agent: agency[0],
-                    agentIdentity: true,
-                    agentType: agency[2],
-                    content: div,
-                    height: 600,
-                    inputs: ["close"],
-                    left: mouseEvent.clientX,
-                    read_only: agency[1],
-                    single: true,
-                    text_value: "",
-                    title: `Details - ${addresses.length} items`,
-                    top: (mouseEvent.clientY - 60 < 0)
-                        ? 60
-                        : mouseEvent.clientY - 60,
-                    type: "details",
-                    width: 500
-                },
-                modalInstance:modal = modal.content(payloadModal),
-                id:string = modalInstance.getAttribute("id"),
-                agents:[fileAgent, fileAgent, fileAgent] = util.fileAgent(box, null),
-                payloadNetwork:service_fileSystem = {
-                    action: "fs-details",
-                    agentRequest: agents[0],
-                    agentSource: agents[1],
-                    agentWrite: null,
-                    depth: 0,
-                    location: (function browser_content_context_details_addressList():string[] {
-                        const output:string[] = [],
-                            length:number = addresses.length;
-                        let a:number = 0;
-                        if (name === "ul") {
-                            return [addressField.value];
-                        }
-                        do {
-                            output.push(addresses[a][0]);
-                            a = a + 1;
-                        } while (a < length);
-                        return output;
-                    }()),
-                    name: id
-                };
-            if (browser.loading === true) {
-                return;
-            }
-            browser.data.modals[id].text_value = JSON.stringify(payloadNetwork.location);
-            network.send(payloadNetwork, "file-system");
-            network.configuration();
             context.element = null;
             if (menu !== null) {
                 menu.parentNode.removeChild(menu);

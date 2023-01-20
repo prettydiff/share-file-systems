@@ -235,7 +235,7 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
         {
             delay: {
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 0],
+                    ["getModalsByModalType", "file-navigate", 0],
                     ["getElementsByClassName", "body", 0],
                     ["getElementsByClassName", "fileList", 0],
                     ["getElementsByTagName", "li", null]
@@ -262,7 +262,7 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
         {
             delay: {
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 0],
+                    ["getModalsByModalType", "file-navigate", 0],
                     ["getElementsByClassName", "fileList", 0],
                     ["getElementsByTagName", "li", 0],
                     ["getElementsByTagName", "label", 0]
@@ -276,7 +276,7 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
                 {
                     event: "click",
                     node: [
-                        ["getModalsByModalType", "fileNavigate", 0],
+                        ["getModalsByModalType", "file-navigate", 0],
                         ["getElementsByClassName", "fileAddress", 0],
                         ["getElementsByTagName", "input", 0]
                     ]
@@ -284,7 +284,7 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
                 {
                     event: "setValue",
                     node: [
-                        ["getModalsByModalType", "fileNavigate", 0],
+                        ["getModalsByModalType", "file-navigate", 0],
                         ["getElementsByClassName", "fileAddress", 0],
                         ["getElementsByTagName", "input", 0]
                     ],
@@ -293,7 +293,7 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
                 {
                     event: "keydown",
                     node: [
-                        ["getModalsByModalType", "fileNavigate", 0],
+                        ["getModalsByModalType", "file-navigate", 0],
                         ["getElementsByClassName", "fileAddress", 0],
                         ["getElementsByTagName", "input", 0]
                     ],
@@ -302,7 +302,7 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
                 {
                     event: "keyup",
                     node: [
-                        ["getModalsByModalType", "fileNavigate", 0],
+                        ["getModalsByModalType", "file-navigate", 0],
                         ["getElementsByClassName", "fileAddress", 0],
                         ["getElementsByTagName", "input", 0]
                     ],
@@ -311,7 +311,7 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
                 {
                     event: "blur",
                     node: [
-                        ["getModalsByModalType", "fileNavigate", 0],
+                        ["getModalsByModalType", "file-navigate", 0],
                         ["getElementsByClassName", "fileAddress", 0],
                         ["getElementsByTagName", "input", 0]
                     ]
@@ -326,7 +326,7 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
         {
             delay: {
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 0],
+                    ["getModalsByModalType", "file-navigate", 0],
                     ["getElementsByClassName", "fileList", 0],
                     ["getElementsByTagName", "li", 0],
                     ["getElementsByTagName", "label", 0]
@@ -340,7 +340,7 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
                 {
                     event: "contextmenu",
                     node: [
-                        ["getModalsByModalType", "fileNavigate", 0],
+                        ["getModalsByModalType", "file-navigate", 0],
                         ["getElementsByClassName", "fileList", 0]
                     ]
                 },
@@ -433,7 +433,7 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
                 {
                     event: "click",
                     node: [
-                        ["getModalsByModalType", "fileNavigate", 0],
+                        ["getModalsByModalType", "file-navigate", 0],
                         ["getElementsByClassName", "header", 0],
                         ["getElementsByClassName", "parentDirectory", 0]
                     ]
@@ -446,7 +446,7 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
                 {
                     event: "contextmenu",
                     node: [
-                        ["getModalsByModalType", "fileNavigate", 0],
+                        ["getModalsByModalType", "file-navigate", 0],
                         ["getElementsByClassName", "fileList", 0],
                         ["getElementsByTagName", "li", 0],
                         ["getElementsByTagName", "p", 0]
@@ -522,7 +522,7 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
         {
             delay: {
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 0],
+                    ["getModalsByModalType", "file-navigate", 0],
                     ["getElementsByClassName", "body", 0],
                     ["getElementsByClassName", "fileList", 0],
                     ["getElementsByTagName", "li", null]
@@ -549,7 +549,7 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
         {
             delay: {
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 0],
+                    ["getModalsByModalType", "file-navigate", 0],
                     ["getElementsByClassName", "fileList", 0],
                     ["getElementsByTagName", "li", 0],
                     ["getElementsByTagName", "label", 0]
@@ -563,7 +563,7 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
                 {
                     event: "click",
                     node: [
-                        ["getModalsByModalType", "fileNavigate", 0],
+                        ["getModalsByModalType", "file-navigate", 0],
                         ["getElementsByClassName", "fileAddress", 0],
                         ["getElementsByTagName", "input", 0]
                     ]
@@ -571,7 +571,7 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
                 {
                     event: "setValue",
                     node: [
-                        ["getModalsByModalType", "fileNavigate", 0],
+                        ["getModalsByModalType", "file-navigate", 0],
                         ["getElementsByClassName", "fileAddress", 0],
                         ["getElementsByTagName", "input", 0]
                     ],
@@ -580,7 +580,7 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
                 {
                     event: "keydown",
                     node: [
-                        ["getModalsByModalType", "fileNavigate", 0],
+                        ["getModalsByModalType", "file-navigate", 0],
                         ["getElementsByClassName", "fileAddress", 0],
                         ["getElementsByTagName", "input", 0]
                     ],
@@ -589,7 +589,7 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
                 {
                     event: "keyup",
                     node: [
-                        ["getModalsByModalType", "fileNavigate", 0],
+                        ["getModalsByModalType", "file-navigate", 0],
                         ["getElementsByClassName", "fileAddress", 0],
                         ["getElementsByTagName", "input", 0]
                     ],
@@ -605,7 +605,7 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
         {
             delay: {
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 0],
+                    ["getModalsByModalType", "file-navigate", 0],
                     ["getElementsByClassName", "fileList", 0],
                     ["getElementsByTagName", "li", 0],
                     ["getElementsByTagName", "label", 0]
@@ -619,7 +619,7 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
                 {
                     event: "click",
                     node: [
-                        ["getModalsByModalType", "fileNavigate", 0],
+                        ["getModalsByModalType", "file-navigate", 0],
                         ["getElementsByClassName", "header", 0],
                         ["getElementsByClassName", "reloadDirectory", 0]
                     ]
@@ -634,7 +634,7 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
         {
             delay: {
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 0],
+                    ["getModalsByModalType", "file-navigate", 0],
                     ["getElementsByClassName", "fileList", 0],
                     ["getElementsByTagName", "li", 0],
                     ["getElementsByTagName", "label", 0]
@@ -648,7 +648,7 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
                 {
                     event: "contextmenu",
                     node: [
-                        ["getModalsByModalType", "fileNavigate", 0],
+                        ["getModalsByModalType", "file-navigate", 0],
                         ["getElementsByClassName", "fileList", 0]
                     ]
                 },
@@ -741,7 +741,7 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
                 {
                     event: "click",
                     node: [
-                        ["getModalsByModalType", "fileNavigate", 0],
+                        ["getModalsByModalType", "file-navigate", 0],
                         ["getElementsByClassName", "header", 0],
                         ["getElementsByClassName", "parentDirectory", 0]
                     ]
@@ -754,7 +754,7 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
                 {
                     event: "contextmenu",
                     node: [
-                        ["getModalsByModalType", "fileNavigate", 0],
+                        ["getModalsByModalType", "file-navigate", 0],
                         ["getElementsByClassName", "fileList", 0],
                         ["getElementsByTagName", "li", 0],
                         ["getElementsByTagName", "p", 0]
@@ -830,7 +830,7 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
         {
             delay: {
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 0]
+                    ["getModalsByModalType", "file-navigate", 0]
                 ],
                 qualifier: "greater",
                 target: ["clientHeight"],
@@ -858,7 +858,7 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
         {
             delay: {
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 0],
+                    ["getModalsByModalType", "file-navigate", 0],
                     ["getElementsByClassName", "status-bar", 0],
                     ["getElementsByTagName", "p", 0]
                 ],
@@ -871,7 +871,7 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
                 {
                     event: "click",
                     node: [
-                        ["getModalsByModalType", "fileNavigate", 0],
+                        ["getModalsByModalType", "file-navigate", 0],
                         ["getElementsByClassName", "parentDirectory", 0]
                     ]
                 }
@@ -885,7 +885,7 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
         {
             delay: {
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 0],
+                    ["getModalsByModalType", "file-navigate", 0],
                     ["getElementsByClassName", "fileList", 0],
                     ["getElementsByTagName", "li", 0]
                 ],
@@ -898,7 +898,7 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
                 {
                     event: "click",
                     node: [
-                        ["getModalsByModalType", "fileNavigate", 0],
+                        ["getModalsByModalType", "file-navigate", 0],
                         ["getElementsByClassName", "backDirectory", 0]
                     ]
                 }
@@ -913,7 +913,7 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
         {
             delay: {
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 0],
+                    ["getModalsByModalType", "file-navigate", 0],
                     ["getElementsByClassName", "body", 0],
                     ["getElementsByClassName", "fileList", 0],
                     ["getElementsByTagName", "li", null]
@@ -940,7 +940,7 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
         {
             delay: {
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 0],
+                    ["getModalsByModalType", "file-navigate", 0],
                     ["getElementsByClassName", "fileList", 0],
                     ["getElementsByTagName", "li", 3],
                     ["getElementsByTagName", "label", 0]
@@ -954,7 +954,7 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
                 {
                     event: "click",
                     node: [
-                        ["getModalsByModalType", "fileNavigate", 0],
+                        ["getModalsByModalType", "file-navigate", 0],
                         ["getElementsByClassName", "fileAddress", 0],
                         ["getElementsByTagName", "input", 0]
                     ]
@@ -962,7 +962,7 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
                 {
                     event: "setValue",
                     node: [
-                        ["getModalsByModalType", "fileNavigate", 0],
+                        ["getModalsByModalType", "file-navigate", 0],
                         ["getElementsByClassName", "fileAddress", 0],
                         ["getElementsByTagName", "input", 0]
                     ],
@@ -971,7 +971,7 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
                 {
                     event: "keydown",
                     node: [
-                        ["getModalsByModalType", "fileNavigate", 0],
+                        ["getModalsByModalType", "file-navigate", 0],
                         ["getElementsByClassName", "fileAddress", 0],
                         ["getElementsByTagName", "input", 0]
                     ],
@@ -980,7 +980,7 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
                 {
                     event: "keyup",
                     node: [
-                        ["getModalsByModalType", "fileNavigate", 0],
+                        ["getModalsByModalType", "file-navigate", 0],
                         ["getElementsByClassName", "fileAddress", 0],
                         ["getElementsByTagName", "input", 0]
                     ],
@@ -1049,7 +1049,7 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
                 {
                     event: "contextmenu",
                     node: [
-                        ["getModalsByModalType", "fileNavigate", 0],
+                        ["getModalsByModalType", "file-navigate", 0],
                         ["getElementsByClassName", "fileList", 0],
                         ["getElementsByTagName", "li", 3],
                         ["getElementsByTagName", "p", 0]
@@ -1073,7 +1073,7 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
         {
             delay: {
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 1],
+                    ["getModalsByModalType", "file-navigate", 1],
                     ["getElementsByClassName", "heading", 0],
                     ["getElementsByTagName", "button", 0]
                 ],
@@ -1113,7 +1113,7 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
         {
             delay: {
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 2],
+                    ["getModalsByModalType", "file-navigate", 2],
                     ["getElementsByClassName", "fileList", 0],
                     ["getElementsByTagName", "li", null]
                 ],
@@ -1146,7 +1146,7 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
         {
             delay: {
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 0],
+                    ["getModalsByModalType", "file-navigate", 0],
                     ["getElementsByClassName", "status-bar", 0],
                     ["getElementsByTagName", "p", 0]
                 ],
@@ -1159,7 +1159,7 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
                 {
                     event: "click",
                     node: [
-                        ["getModalsByModalType", "fileNavigate", 0],
+                        ["getModalsByModalType", "file-navigate", 0],
                         ["getElementsByClassName", "parentDirectory", 0]
                     ]
                 }
@@ -1173,7 +1173,7 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
         {
             delay: {
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 0],
+                    ["getModalsByModalType", "file-navigate", 0],
                     ["getElementsByClassName", "fileList", 0],
                     ["getElementsByTagName", "li", 0]
                 ],
@@ -1186,7 +1186,7 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
                 {
                     event: "click",
                     node: [
-                        ["getModalsByModalType", "fileNavigate", 0],
+                        ["getModalsByModalType", "file-navigate", 0],
                         ["getElementsByClassName", "backDirectory", 0]
                     ]
                 }
@@ -1200,7 +1200,7 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
         {
             delay: {
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 0],
+                    ["getModalsByModalType", "file-navigate", 0],
                     ["getElementsByClassName", "status-bar", 0],
                     ["getElementsByTagName", "p", 0]
                 ],
@@ -1213,7 +1213,7 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
                 {
                     event: "click",
                     node: [
-                        ["getModalsByModalType", "fileNavigate", 2],
+                        ["getModalsByModalType", "file-navigate", 2],
                         ["getElementsByClassName", "fileList", 0],
                         ["getElementsByText", filePathEncode("absolute", "documentation"), 0],
                         ["parentNode", null, null]
@@ -1222,7 +1222,7 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
                 {
                     event: "keydown",
                     node: [
-                        ["getModalsByModalType", "fileNavigate", 2],
+                        ["getModalsByModalType", "file-navigate", 2],
                         ["getElementsByClassName", "fileList", 0],
                         ["getElementsByText", filePathEncode("absolute", "documentation"), 0],
                         ["parentNode", null, null]
@@ -1232,7 +1232,7 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
                 {
                     event: "keydown",
                     node: [
-                        ["getModalsByModalType", "fileNavigate", 2],
+                        ["getModalsByModalType", "file-navigate", 2],
                         ["getElementsByClassName", "fileList", 0],
                         ["getElementsByText", filePathEncode("absolute", "documentation"), 0],
                         ["parentNode", null, null]
@@ -1242,7 +1242,7 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
                 {
                     event: "keyup",
                     node: [
-                        ["getModalsByModalType", "fileNavigate", 2],
+                        ["getModalsByModalType", "file-navigate", 2],
                         ["getElementsByClassName", "fileList", 0],
                         ["getElementsByText", filePathEncode("absolute", "documentation"), 0],
                         ["parentNode", null, null]
@@ -1252,7 +1252,7 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
                 {
                     event: "keyup",
                     node: [
-                        ["getModalsByModalType", "fileNavigate", 2],
+                        ["getModalsByModalType", "file-navigate", 2],
                         ["getElementsByClassName", "fileList", 0],
                         ["getElementsByText", filePathEncode("absolute", "documentation"), 0],
                         ["parentNode", null, null]
@@ -1262,14 +1262,14 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
                 {
                     event: "click",
                     node: [
-                        ["getModalsByModalType", "fileNavigate", 0],
+                        ["getModalsByModalType", "file-navigate", 0],
                         ["getElementsByClassName", "fileList", 0]
                     ]
                 },
                 {
                     event: "keydown",
                     node: [
-                        ["getModalsByModalType", "fileNavigate", 0],
+                        ["getModalsByModalType", "file-navigate", 0],
                         ["getElementsByClassName", "fileList", 0]
                     ],
                     value: "Control"
@@ -1277,7 +1277,7 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
                 {
                     event: "keydown",
                     node: [
-                        ["getModalsByModalType", "fileNavigate", 0],
+                        ["getModalsByModalType", "file-navigate", 0],
                         ["getElementsByClassName", "fileList", 0]
                     ],
                     value: "v"
@@ -1285,7 +1285,7 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
                 {
                     event: "keyup",
                     node: [
-                        ["getModalsByModalType", "fileNavigate", 0],
+                        ["getModalsByModalType", "file-navigate", 0],
                         ["getElementsByClassName", "fileList", 0]
                     ],
                     value: "v"
@@ -1293,7 +1293,7 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
                 {
                     event: "keyup",
                     node: [
-                        ["getModalsByModalType", "fileNavigate", 0],
+                        ["getModalsByModalType", "file-navigate", 0],
                         ["getElementsByClassName", "fileList", 0]
                     ],
                     value: "Control"
@@ -1310,7 +1310,7 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
                 {
                     event: "click",
                     node: [
-                        ["getModalsByModalType", "fileNavigate", 0],
+                        ["getModalsByModalType", "file-navigate", 0],
                         ["getElementsByClassName", "buttons", 0],
                         ["getElementsByClassName", "close", 0]
                     ]
@@ -1321,7 +1321,7 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
             unit: [
                 {
                     node: [
-                        ["getModalsByModalType", "fileNavigate", null]
+                        ["getModalsByModalType", "file-navigate", null]
                     ],
                     qualifier: "is",
                     target: ["length"],
@@ -1422,7 +1422,7 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
         {
             delay: {
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 2],
+                    ["getModalsByModalType", "file-navigate", 2],
                     ["getElementsByClassName", "status-bar", 0],
                     ["getElementsByTagName", "p", 0]
                 ],
@@ -1446,7 +1446,7 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
             unit: [
                 {
                     node: [
-                        ["getModalsByModalType", "fileNavigate", 2],
+                        ["getModalsByModalType", "file-navigate", 2],
                         ["getElementsByClassName", "body", 0],
                         ["getElementsByClassName", "fileList", 0],
                         ["getElementsByTagName", "li", 0]
@@ -1458,7 +1458,7 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
                 },
                 {
                     node: [
-                        ["getModalsByModalType", "fileNavigate", 2],
+                        ["getModalsByModalType", "file-navigate", 2],
                         ["getElementsByClassName", "heading", 0],
                         ["getElementsByTagName", "button", 0]
                     ],
@@ -1474,7 +1474,7 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
         {
             delay: {
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 2],
+                    ["getModalsByModalType", "file-navigate", 2],
                     ["getElementsByClassName", "status-bar", 0],
                     ["getElementsByTagName", "p", 0]
                 ],
@@ -1487,7 +1487,7 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
                 {
                     event: "click",
                     node: [
-                        ["getModalsByModalType", "fileNavigate", 1],
+                        ["getModalsByModalType", "file-navigate", 1],
                         ["getElementsByClassName", "fileList", 0],
                         ["getElementsByText", filePathEncode("absolute", "documentation"), 0],
                         ["parentNode", null, null]
@@ -1496,7 +1496,7 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
                 {
                     event: "keydown",
                     node: [
-                        ["getModalsByModalType", "fileNavigate", 1],
+                        ["getModalsByModalType", "file-navigate", 1],
                         ["getElementsByClassName", "fileList", 0],
                         ["getElementsByText", filePathEncode("absolute", "documentation"), 0],
                         ["parentNode", null, null]
@@ -1506,7 +1506,7 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
                 {
                     event: "keydown",
                     node: [
-                        ["getModalsByModalType", "fileNavigate", 1],
+                        ["getModalsByModalType", "file-navigate", 1],
                         ["getElementsByClassName", "fileList", 0],
                         ["getElementsByText", filePathEncode("absolute", "documentation"), 0],
                         ["parentNode", null, null]
@@ -1516,7 +1516,7 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
                 {
                     event: "keyup",
                     node: [
-                        ["getModalsByModalType", "fileNavigate", 1],
+                        ["getModalsByModalType", "file-navigate", 1],
                         ["getElementsByClassName", "fileList", 0],
                         ["getElementsByText", filePathEncode("absolute", "documentation"), 0],
                         ["parentNode", null, null]
@@ -1526,7 +1526,7 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
                 {
                     event: "keyup",
                     node: [
-                        ["getModalsByModalType", "fileNavigate", 1],
+                        ["getModalsByModalType", "file-navigate", 1],
                         ["getElementsByClassName", "fileList", 0],
                         ["getElementsByText", filePathEncode("absolute", "documentation"), 0],
                         ["parentNode", null, null]
@@ -1536,14 +1536,14 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
                 {
                     event: "click",
                     node: [
-                        ["getModalsByModalType", "fileNavigate", 2],
+                        ["getModalsByModalType", "file-navigate", 2],
                         ["getElementsByClassName", "fileList", 0]
                     ]
                 },
                 {
                     event: "keydown",
                     node: [
-                        ["getModalsByModalType", "fileNavigate", 2],
+                        ["getModalsByModalType", "file-navigate", 2],
                         ["getElementsByClassName", "fileList", 0]
                     ],
                     value: "Control"
@@ -1551,7 +1551,7 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
                 {
                     event: "keydown",
                     node: [
-                        ["getModalsByModalType", "fileNavigate", 2],
+                        ["getModalsByModalType", "file-navigate", 2],
                         ["getElementsByClassName", "fileList", 0]
                     ],
                     value: "v"
@@ -1559,7 +1559,7 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
                 {
                     event: "keyup",
                     node: [
-                        ["getModalsByModalType", "fileNavigate", 2],
+                        ["getModalsByModalType", "file-navigate", 2],
                         ["getElementsByClassName", "fileList", 0]
                     ],
                     value: "v"
@@ -1567,7 +1567,7 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
                 {
                     event: "keyup",
                     node: [
-                        ["getModalsByModalType", "fileNavigate", 2],
+                        ["getModalsByModalType", "file-navigate", 2],
                         ["getElementsByClassName", "fileList", 0]
                     ],
                     value: "Control"
@@ -1582,7 +1582,7 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
         {
             delay: {
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 1],
+                    ["getModalsByModalType", "file-navigate", 1],
                     ["getElementsByClassName", "fileList", 0],
                     ["getElementsByTagName", "li", 1],
                     ["getElementsByTagName", "p", 0],
@@ -1597,7 +1597,7 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
                 {
                     event: "dblclick",
                     node: [
-                        ["getModalsByModalType", "fileNavigate", 1],
+                        ["getModalsByModalType", "file-navigate", 1],
                         ["getElementsByClassName", "fileList", 0],
                         ["getElementsByText", filePathEncode("absolute", "documentation"), 0],
                         ["parentNode", null, null],
@@ -1618,7 +1618,7 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
         {
             delay: {
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 1],
+                    ["getModalsByModalType", "file-navigate", 1],
                     ["getElementsByClassName", "fileList", 0],
                     ["getElementsByTagName", "li", 0]
                 ],
@@ -1631,7 +1631,7 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
                 {
                     event: "click",
                     node: [
-                        ["getModalsByModalType", "fileNavigate", 1],
+                        ["getModalsByModalType", "file-navigate", 1],
                         ["getElementsByClassName", "reloadDirectory", 0]
                     ]
                 }
@@ -1700,7 +1700,7 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
                 {
                     event: "contextmenu",
                     node: [
-                        ["getModalsByModalType", "fileNavigate", 1],
+                        ["getModalsByModalType", "file-navigate", 1],
                         ["getElementsByClassName", "fileList", 0],
                         ["getElementsByTagName", "li", 0],
                         ["getElementsByTagName", "p", 0]
@@ -1724,7 +1724,7 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
         {
             delay: {
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 1],
+                    ["getModalsByModalType", "file-navigate", 1],
                     ["getElementsByClassName", "fileList", 0],
                     ["getElementsByTagName", "li", 0]
                 ],
@@ -1737,7 +1737,7 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
                 {
                     event: "dblclick",
                     node: [
-                        ["getModalsByModalType", "fileNavigate", 1],
+                        ["getModalsByModalType", "file-navigate", 1],
                         ["getElementsByClassName", "fileList", 0],
                         ["getElementsByTagName", "li", 0]
                     ]
@@ -1754,7 +1754,7 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
         {
             delay: {
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 1],
+                    ["getModalsByModalType", "file-navigate", 1],
                     ["getElementsByClassName", "status-bar", 0],
                     ["getElementsByTagName", "p", 0]
                 ],
@@ -1767,7 +1767,7 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
                 {
                     event: "click",
                     node: [
-                        ["getModalsByModalType", "fileNavigate", 2],
+                        ["getModalsByModalType", "file-navigate", 2],
                         ["getElementsByClassName", "fileList", 0],
                         ["getElementsByTagName", "li", 0],
                         ["getElementsByTagName", "p", 0]
@@ -1776,7 +1776,7 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
                 {
                     event: "keydown",
                     node: [
-                        ["getModalsByModalType", "fileNavigate", 2],
+                        ["getModalsByModalType", "file-navigate", 2],
                         ["getElementsByClassName", "fileList", 0],
                         ["getElementsByTagName", "li", 0],
                         ["getElementsByTagName", "p", 0]
@@ -1786,7 +1786,7 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
                 {
                     event: "keydown",
                     node: [
-                        ["getModalsByModalType", "fileNavigate", 2],
+                        ["getModalsByModalType", "file-navigate", 2],
                         ["getElementsByClassName", "fileList", 0],
                         ["getElementsByTagName", "li", 0],
                         ["getElementsByTagName", "p", 0]
@@ -1796,7 +1796,7 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
                 {
                     event: "keyup",
                     node: [
-                        ["getModalsByModalType", "fileNavigate", 2],
+                        ["getModalsByModalType", "file-navigate", 2],
                         ["getElementsByClassName", "fileList", 0],
                         ["getElementsByTagName", "li", 0],
                         ["getElementsByTagName", "p", 0]
@@ -1806,7 +1806,7 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
                 {
                     event: "keyup",
                     node: [
-                        ["getModalsByModalType", "fileNavigate", 2],
+                        ["getModalsByModalType", "file-navigate", 2],
                         ["getElementsByClassName", "fileList", 0],
                         ["getElementsByTagName", "li", 0],
                         ["getElementsByTagName", "p", 0]
@@ -1816,14 +1816,14 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
                 {
                     event: "click",
                     node: [
-                        ["getModalsByModalType", "fileNavigate", 1],
+                        ["getModalsByModalType", "file-navigate", 1],
                         ["getElementsByClassName", "fileList", 0]
                     ]
                 },
                 {
                     event: "keydown",
                     node: [
-                        ["getModalsByModalType", "fileNavigate", 1],
+                        ["getModalsByModalType", "file-navigate", 1],
                         ["getElementsByClassName", "fileList", 0]
                     ],
                     value: "Control"
@@ -1831,7 +1831,7 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
                 {
                     event: "keydown",
                     node: [
-                        ["getModalsByModalType", "fileNavigate", 1],
+                        ["getModalsByModalType", "file-navigate", 1],
                         ["getElementsByClassName", "fileList", 0]
                     ],
                     value: "v"
@@ -1839,7 +1839,7 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
                 {
                     event: "keyup",
                     node: [
-                        ["getModalsByModalType", "fileNavigate", 1],
+                        ["getModalsByModalType", "file-navigate", 1],
                         ["getElementsByClassName", "fileList", 0]
                     ],
                     value: "v"
@@ -1847,7 +1847,7 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
                 {
                     event: "keyup",
                     node: [
-                        ["getModalsByModalType", "fileNavigate", 1],
+                        ["getModalsByModalType", "file-navigate", 1],
                         ["getElementsByClassName", "fileList", 0]
                     ],
                     value: "Control"
@@ -1862,7 +1862,7 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
         {
             delay: {
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 3],
+                    ["getModalsByModalType", "file-navigate", 3],
                     ["getElementsByClassName", "fileAddress", 0],
                     ["getElementsByTagName", "input", 0]
                 ],
@@ -1890,7 +1890,7 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
         {
             delay: {
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 1],
+                    ["getModalsByModalType", "file-navigate", 1],
                     ["getElementsByClassName", "fileList", 0],
                     ["getElementsByTagName", "li", 0],
                     ["getElementsByTagName", "label", 0]
@@ -1904,7 +1904,7 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
                 {
                     event: "click",
                     node: [
-                        ["getModalsByModalType", "fileNavigate", 1],
+                        ["getModalsByModalType", "file-navigate", 1],
                         ["getElementsByClassName", "fileAddress", 0],
                         ["getElementsByTagName", "input", 0]
                     ]
@@ -1912,7 +1912,7 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
                 {
                     event: "setValue",
                     node: [
-                        ["getModalsByModalType", "fileNavigate", 1],
+                        ["getModalsByModalType", "file-navigate", 1],
                         ["getElementsByClassName", "fileAddress", 0],
                         ["getElementsByTagName", "input", 0]
                     ],
@@ -1921,7 +1921,7 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
                 {
                     event: "keydown",
                     node: [
-                        ["getModalsByModalType", "fileNavigate", 1],
+                        ["getModalsByModalType", "file-navigate", 1],
                         ["getElementsByClassName", "fileAddress", 0],
                         ["getElementsByTagName", "input", 0]
                     ],
@@ -1930,7 +1930,7 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
                 {
                     event: "keyup",
                     node: [
-                        ["getModalsByModalType", "fileNavigate", 1],
+                        ["getModalsByModalType", "file-navigate", 1],
                         ["getElementsByClassName", "fileAddress", 0],
                         ["getElementsByTagName", "input", 0]
                     ],
@@ -1946,7 +1946,7 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
         {
             delay: {
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 3],
+                    ["getModalsByModalType", "file-navigate", 3],
                     ["getElementsByClassName", "status-bar", 0],
                     ["getElementsByTagName", "p", 0]
                 ],
@@ -1959,7 +1959,7 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
                 {
                     event: "click",
                     node: [
-                        ["getModalsByModalType", "fileNavigate", 1],
+                        ["getModalsByModalType", "file-navigate", 1],
                         ["getElementsByClassName", "fileList", 0],
                         ["getElementsByText", filePathEncode("absolute", "documentation"), 0],
                         ["parentNode", null, null]
@@ -1968,7 +1968,7 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
                 {
                     event: "keydown",
                     node: [
-                        ["getModalsByModalType", "fileNavigate", 1],
+                        ["getModalsByModalType", "file-navigate", 1],
                         ["getElementsByClassName", "fileList", 0],
                         ["getElementsByText", filePathEncode("absolute", "documentation"), 0],
                         ["parentNode", null, null]
@@ -1978,7 +1978,7 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
                 {
                     event: "keydown",
                     node: [
-                        ["getModalsByModalType", "fileNavigate", 1],
+                        ["getModalsByModalType", "file-navigate", 1],
                         ["getElementsByClassName", "fileList", 0],
                         ["getElementsByText", filePathEncode("absolute", "documentation"), 0],
                         ["parentNode", null, null]
@@ -1988,7 +1988,7 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
                 {
                     event: "keyup",
                     node: [
-                        ["getModalsByModalType", "fileNavigate", 1],
+                        ["getModalsByModalType", "file-navigate", 1],
                         ["getElementsByClassName", "fileList", 0],
                         ["getElementsByText", filePathEncode("absolute", "documentation"), 0],
                         ["parentNode", null, null]
@@ -1998,7 +1998,7 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
                 {
                     event: "keyup",
                     node: [
-                        ["getModalsByModalType", "fileNavigate", 1],
+                        ["getModalsByModalType", "file-navigate", 1],
                         ["getElementsByClassName", "fileList", 0],
                         ["getElementsByText", filePathEncode("absolute", "documentation"), 0],
                         ["parentNode", null, null]
@@ -2008,14 +2008,14 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
                 {
                     event: "click",
                     node: [
-                        ["getModalsByModalType", "fileNavigate", 3],
+                        ["getModalsByModalType", "file-navigate", 3],
                         ["getElementsByClassName", "fileList", 0]
                     ]
                 },
                 {
                     event: "keydown",
                     node: [
-                        ["getModalsByModalType", "fileNavigate", 3],
+                        ["getModalsByModalType", "file-navigate", 3],
                         ["getElementsByClassName", "fileList", 0]
                     ],
                     value: "Control"
@@ -2023,7 +2023,7 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
                 {
                     event: "keydown",
                     node: [
-                        ["getModalsByModalType", "fileNavigate", 3],
+                        ["getModalsByModalType", "file-navigate", 3],
                         ["getElementsByClassName", "fileList", 0]
                     ],
                     value: "v"
@@ -2031,7 +2031,7 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
                 {
                     event: "keyup",
                     node: [
-                        ["getModalsByModalType", "fileNavigate", 3],
+                        ["getModalsByModalType", "file-navigate", 3],
                         ["getElementsByClassName", "fileList", 0]
                     ],
                     value: "v"
@@ -2039,7 +2039,7 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
                 {
                     event: "keyup",
                     node: [
-                        ["getModalsByModalType", "fileNavigate", 3],
+                        ["getModalsByModalType", "file-navigate", 3],
                         ["getElementsByClassName", "fileList", 0]
                     ],
                     value: "Control"
@@ -2056,7 +2056,7 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
                 {
                     event: "click",
                     node: [
-                        ["getModalsByModalType", "fileNavigate", 3],
+                        ["getModalsByModalType", "file-navigate", 3],
                         ["getElementsByClassName", "buttons", 0],
                         ["getElementsByClassName", "close", 0]
                     ]
@@ -2067,7 +2067,7 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
             unit: [
                 {
                     node: [
-                        ["getModalsByModalType", "fileNavigate", null]
+                        ["getModalsByModalType", "file-navigate", null]
                     ],
                     qualifier: "is",
                     target: ["length"],
@@ -2143,7 +2143,7 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
         {
             delay: {
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 3],
+                    ["getModalsByModalType", "file-navigate", 3],
                     ["getElementsByClassName", "status-bar", 0],
                     ["getElementsByTagName", "p", 0]
                 ],
@@ -2167,7 +2167,7 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
             unit: [
                 {
                     node: [
-                        ["getModalsByModalType", "fileNavigate", 3],
+                        ["getModalsByModalType", "file-navigate", 3],
                         ["getElementsByClassName", "body", 0],
                         ["getElementsByClassName", "fileList", 0],
                         ["getElementsByTagName", "li", 0]
@@ -2179,7 +2179,7 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
                 },
                 {
                     node: [
-                        ["getModalsByModalType", "fileNavigate", 3],
+                        ["getModalsByModalType", "file-navigate", 3],
                         ["getElementsByClassName", "heading", 0],
                         ["getElementsByTagName", "button", 0]
                     ],
@@ -2195,7 +2195,7 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
         {
             delay: {
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 3],
+                    ["getModalsByModalType", "file-navigate", 3],
                     ["getElementsByClassName", "status-bar", 0],
                     ["getElementsByTagName", "p", 0]
                 ],
@@ -2208,7 +2208,7 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
                 {
                     event: "click",
                     node: [
-                        ["getModalsByModalType", "fileNavigate", 1],
+                        ["getModalsByModalType", "file-navigate", 1],
                         ["getElementsByClassName", "fileList", 0],
                         ["getElementsByText", filePathEncode("absolute", "documentation"), 0],
                         ["parentNode", null, null]
@@ -2217,7 +2217,7 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
                 {
                     event: "keydown",
                     node: [
-                        ["getModalsByModalType", "fileNavigate", 1],
+                        ["getModalsByModalType", "file-navigate", 1],
                         ["getElementsByClassName", "fileList", 0],
                         ["getElementsByText", filePathEncode("absolute", "documentation"), 0],
                         ["parentNode", null, null]
@@ -2227,7 +2227,7 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
                 {
                     event: "keydown",
                     node: [
-                        ["getModalsByModalType", "fileNavigate", 1],
+                        ["getModalsByModalType", "file-navigate", 1],
                         ["getElementsByClassName", "fileList", 0],
                         ["getElementsByText", filePathEncode("absolute", "documentation"), 0],
                         ["parentNode", null, null]
@@ -2237,7 +2237,7 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
                 {
                     event: "keyup",
                     node: [
-                        ["getModalsByModalType", "fileNavigate", 1],
+                        ["getModalsByModalType", "file-navigate", 1],
                         ["getElementsByClassName", "fileList", 0],
                         ["getElementsByText", filePathEncode("absolute", "documentation"), 0],
                         ["parentNode", null, null]
@@ -2247,7 +2247,7 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
                 {
                     event: "keyup",
                     node: [
-                        ["getModalsByModalType", "fileNavigate", 1],
+                        ["getModalsByModalType", "file-navigate", 1],
                         ["getElementsByClassName", "fileList", 0],
                         ["getElementsByText", filePathEncode("absolute", "documentation"), 0],
                         ["parentNode", null, null]
@@ -2257,14 +2257,14 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
                 {
                     event: "click",
                     node: [
-                        ["getModalsByModalType", "fileNavigate", 3],
+                        ["getModalsByModalType", "file-navigate", 3],
                         ["getElementsByClassName", "fileList", 0]
                     ]
                 },
                 {
                     event: "keydown",
                     node: [
-                        ["getModalsByModalType", "fileNavigate", 3],
+                        ["getModalsByModalType", "file-navigate", 3],
                         ["getElementsByClassName", "fileList", 0]
                     ],
                     value: "Control"
@@ -2272,7 +2272,7 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
                 {
                     event: "keydown",
                     node: [
-                        ["getModalsByModalType", "fileNavigate", 3],
+                        ["getModalsByModalType", "file-navigate", 3],
                         ["getElementsByClassName", "fileList", 0]
                     ],
                     value: "v"
@@ -2280,7 +2280,7 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
                 {
                     event: "keyup",
                     node: [
-                        ["getModalsByModalType", "fileNavigate", 3],
+                        ["getModalsByModalType", "file-navigate", 3],
                         ["getElementsByClassName", "fileList", 0]
                     ],
                     value: "v"
@@ -2288,7 +2288,7 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
                 {
                     event: "keyup",
                     node: [
-                        ["getModalsByModalType", "fileNavigate", 3],
+                        ["getModalsByModalType", "file-navigate", 3],
                         ["getElementsByClassName", "fileList", 0]
                     ],
                     value: "Control"
@@ -2303,7 +2303,7 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
         {
             delay: {
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 1],
+                    ["getModalsByModalType", "file-navigate", 1],
                     ["getElementsByClassName", "fileList", 0],
                     ["getElementsByTagName", "li", 0],
                     ["getElementsByTagName", "label", 0]
@@ -2317,7 +2317,7 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
                 {
                     event: "click",
                     node: [
-                        ["getModalsByModalType", "fileNavigate", 1],
+                        ["getModalsByModalType", "file-navigate", 1],
                         ["getElementsByClassName", "backDirectory", 0]
                     ]
                 }
@@ -2327,7 +2327,7 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
             unit: [
                 {
                     node: [
-                        ["getModalsByModalType", "fileNavigate", 1],
+                        ["getModalsByModalType", "file-navigate", 1],
                         ["getElementsByClassName", "fileList", 0],
                         ["getElementsByTagName", "li", null]
                     ],
@@ -2343,7 +2343,7 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
         {
             delay: {
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 1],
+                    ["getModalsByModalType", "file-navigate", 1],
                     ["getElementsByClassName", "status-bar", 0],
                     ["getElementsByTagName", "p", 0]
                 ],
@@ -2356,7 +2356,7 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
                 {
                     event: "click",
                     node: [
-                        ["getModalsByModalType", "fileNavigate", 1],
+                        ["getModalsByModalType", "file-navigate", 1],
                         ["getElementsByClassName", "fileList", 0],
                         ["getElementsByTagName", "p", 0]
                     ]
@@ -2364,7 +2364,7 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
                 {
                     event: "keydown",
                     node: [
-                        ["getModalsByModalType", "fileNavigate", 1],
+                        ["getModalsByModalType", "file-navigate", 1],
                         ["getElementsByClassName", "fileList", 0],
                         ["getElementsByTagName", "p", 0]
                     ],
@@ -2373,7 +2373,7 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
                 {
                     event: "keyup",
                     node: [
-                        ["getModalsByModalType", "fileNavigate", 1],
+                        ["getModalsByModalType", "file-navigate", 1],
                         ["getElementsByClassName", "fileList", 0],
                         ["getElementsByTagName", "p", 0]
                     ],
@@ -2389,7 +2389,7 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
         {
             delay: {
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 1],
+                    ["getModalsByModalType", "file-navigate", 1],
                     ["getElementsByClassName", "status-bar", 0],
                     ["getElementsByTagName", "p", 0]
                 ],
@@ -2402,7 +2402,7 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
                 {
                     event: "click",
                     node: [
-                        ["getModalsByModalType", "fileNavigate", 3],
+                        ["getModalsByModalType", "file-navigate", 3],
                         ["getElementsByClassName", "fileList", 0],
                         ["getElementsByTagName", "li", 0],
                         ["getElementsByTagName", "p", 0]
@@ -2411,7 +2411,7 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
                 {
                     event: "keydown",
                     node: [
-                        ["getModalsByModalType", "fileNavigate", 3],
+                        ["getModalsByModalType", "file-navigate", 3],
                         ["getElementsByClassName", "fileList", 0],
                         ["getElementsByTagName", "li", 0],
                         ["getElementsByTagName", "p", 0]
@@ -2421,7 +2421,7 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
                 {
                     event: "keydown",
                     node: [
-                        ["getModalsByModalType", "fileNavigate", 3],
+                        ["getModalsByModalType", "file-navigate", 3],
                         ["getElementsByClassName", "fileList", 0],
                         ["getElementsByTagName", "li", 0],
                         ["getElementsByTagName", "p", 0]
@@ -2431,7 +2431,7 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
                 {
                     event: "keyup",
                     node: [
-                        ["getModalsByModalType", "fileNavigate", 3],
+                        ["getModalsByModalType", "file-navigate", 3],
                         ["getElementsByClassName", "fileList", 0],
                         ["getElementsByTagName", "li", 0],
                         ["getElementsByTagName", "p", 0]
@@ -2441,7 +2441,7 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
                 {
                     event: "keyup",
                     node: [
-                        ["getModalsByModalType", "fileNavigate", 3],
+                        ["getModalsByModalType", "file-navigate", 3],
                         ["getElementsByClassName", "fileList", 0],
                         ["getElementsByTagName", "li", 0],
                         ["getElementsByTagName", "p", 0]
@@ -2451,14 +2451,14 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
                 {
                     event: "click",
                     node: [
-                        ["getModalsByModalType", "fileNavigate", 1],
+                        ["getModalsByModalType", "file-navigate", 1],
                         ["getElementsByClassName", "fileList", 0]
                     ]
                 },
                 {
                     event: "keydown",
                     node: [
-                        ["getModalsByModalType", "fileNavigate", 1],
+                        ["getModalsByModalType", "file-navigate", 1],
                         ["getElementsByClassName", "fileList", 0]
                     ],
                     value: "Control"
@@ -2466,7 +2466,7 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
                 {
                     event: "keydown",
                     node: [
-                        ["getModalsByModalType", "fileNavigate", 1],
+                        ["getModalsByModalType", "file-navigate", 1],
                         ["getElementsByClassName", "fileList", 0]
                     ],
                     value: "v"
@@ -2474,7 +2474,7 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
                 {
                     event: "keyup",
                     node: [
-                        ["getModalsByModalType", "fileNavigate", 1],
+                        ["getModalsByModalType", "file-navigate", 1],
                         ["getElementsByClassName", "fileList", 0]
                     ],
                     value: "v"
@@ -2482,7 +2482,7 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
                 {
                     event: "keyup",
                     node: [
-                        ["getModalsByModalType", "fileNavigate", 1],
+                        ["getModalsByModalType", "file-navigate", 1],
                         ["getElementsByClassName", "fileList", 0]
                     ],
                     value: "Control"
