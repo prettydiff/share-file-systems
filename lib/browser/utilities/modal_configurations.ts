@@ -76,8 +76,7 @@ const modal_configuration:module_modalConfiguration = {
         "configuration": function browser_utilities_modalConfiguration_configuration(event:Event, config?:config_modal):modal {
             // building configuration modal
             if (document.getElementById("configuration-modal") === null) {
-                const payloadModal:config_modal = (config === null || config === undefined)
-                ? {
+                const payloadModal:config_modal = {
                     agent: browser.data.hashDevice,
                     agentIdentity: false,
                     agentType: "device",
@@ -88,8 +87,15 @@ const modal_configuration:module_modalConfiguration = {
                     single: true,
                     status: "hidden",
                     type: "configuration"
+                };
+                if (config !== null && config !== undefined) {
+                    payloadModal.callback = config.callback;
+                    payloadModal.height = config.height;
+                    payloadModal.left = config.left;
+                    payloadModal.top = config.top;
+                    payloadModal.width = config.width;
+                    payloadModal.zIndex = config.zIndex;
                 }
-                : config;
                 payloadModal.content = configuration.content();
                 payloadModal.inputs = ["close"];
                 return modal.content(payloadModal);

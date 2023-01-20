@@ -193,7 +193,8 @@ import disallowed from "../common/disallowed.js";
             restoreState = function browser_init_restoreState():void {
                 // state data
                 let modalItem:config_modal = null,
-                    count:number = 0;
+                    count:number = 0,
+                    configKey:boolean = false;
                 const modalKeys:string[] = Object.keys(state.settings.configuration.modals),
                     indexes:[number, string][] = [],
                     // applies z-index to the modals in the proper sequence while restarting the value at 0
@@ -207,6 +208,21 @@ import disallowed from "../common/disallowed.js";
                                 len:number = indexes.length,
                                 uiModal:config_modal,
                                 modalItem:HTMLElement = null;
+                            const restoreShares = function browser_init_restoreState_restoreShares(type:agentType):void {
+                                const list:string[] = Object.keys(state.settings[type]),
+                                    listLength:number = list.length;
+                                let a:number = 0;
+                                if (listLength > 0) {
+                                    do {
+                                        agent_management.tools.addAgent({
+                                            hash: list[a],
+                                            name: browser[type][list[a]].name,
+                                            type: type
+                                        });
+                                        a = a + 1;
+                                    } while (a < listLength);
+                                }
+                            };
                             browser.data.zIndex = modalKeys.length;
                             indexes.sort(function browser_init_z_sort(aa:[number, string], bb:[number, string]):number {
                                 if (aa[0] < bb[0]) {
@@ -224,31 +240,15 @@ import disallowed from "../common/disallowed.js";
                                 }
                                 index = index + 1;
                             } while (index < len);
+                            if (configKey ===  false) {
+                                modal_configuration.modals.configuration(null);
+                            }
+                            restoreShares("device");
+                            restoreShares("user");
                             loadComplete();
-                        }
-                    },
-                    restoreShares = function browser_init_restoreShares(type:agentType):void {
-                        if (state.settings[type] === undefined) {
-                            browser[type] = {};
-                            return;
-                        }
-                        browser[type] = state.settings[type];
-                        const list:string[] = Object.keys(state.settings[type]),
-                            listLength:number = list.length;
-                        let a:number = 0;
-                        if (listLength > 0) {
-                            do {
-                                agent_management.tools.addAgent({
-                                    hash: list[a],
-                                    name: browser[type][list[a]].name,
-                                    type: type
-                                });
-                                a = a + 1;
-                            } while (a < listLength);
                         }
                     };
                 logInTest = true;
-                modal_configuration.modals.configuration(null);
                 browser.data.color = state.settings.configuration.color;
                 browser.data.colors = state.settings.configuration.colors;
                 browser.data.fileSort = state.settings.configuration.fileSort;
@@ -259,18 +259,18 @@ import disallowed from "../common/disallowed.js";
                 browser.data.statusTime = state.settings.configuration.statusTime;
                 browser.data.storage = state.settings.configuration.storage;
                 browser.data.tutorial = state.settings.configuration.tutorial;
+                browser.device = state.settings.device;
+                browser.user = state.settings.user;
                 browser.pageBody.setAttribute("class", browser.data.color);
-                restoreShares("device");
-                restoreShares("user");
-                z("configuration-modal");
                 modalKeys.forEach(function browser_init_modalKeys(value:string) {
-                    if (value !== "configuration-modal") {
-                        modalItem = state.settings.configuration.modals[value];
-                        modalItem.callback = function browser_init_modalKeys_callback():void {
-                            z(value);
-                        };
-                        modal_configuration.modals[modalItem.type](null, modalItem);
+                    modalItem = state.settings.configuration.modals[value];
+                    modalItem.callback = function browser_init_modalKeys_callback():void {
+                        z(value);
+                    };
+                    if (value === "configuration-modal") {
+                        configKey = true;
                     }
+                    modal_configuration.modals[modalItem.type](null, modalItem);
                 });
             },
 

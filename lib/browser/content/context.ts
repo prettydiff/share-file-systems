@@ -234,7 +234,7 @@ const context:module_context = {
             }
         } else if (nodeName === "li") {
             functions.details();
-            if (box.dataset.agenttype === "device") {
+            if (box.dataset !== undefined && box.dataset.agenttype === "device") {
                 functions.share();
             }
             if (element.getAttribute("class").indexOf("file") === 0) {

@@ -9,7 +9,7 @@ const resetState = function terminal_utilities_resetState(callback:() => void):v
         configKeys:string[] = Object.keys(vars.environment.stateDefault.configuration),
         deviceKeys:string[] = Object.keys(transmit_ws.clientList.device),
         userKeys:string[] = Object.keys(transmit_ws.clientList.user),
-        agentKill = function terminal_utilities_resetState_agentKill(agent:string) {
+        agentKill = function terminal_utilities_resetState_agentKill(agent:string):void {
             transmit_ws.agentClose(transmit_ws.clientList[agentType][agent]);
         },
         mapValues = function terminal_utilities_resetState_mapValues(configuration:boolean):void {

@@ -85,7 +85,7 @@ const vars:module_terminalVariables = {
         module_type: "module",
         log: [],
         name: "Share File Systems",
-        startTime: 0n,
+        startTime: process.hrtime.bigint(),
         stateDefault: {
             configuration: {
                 audio: false,

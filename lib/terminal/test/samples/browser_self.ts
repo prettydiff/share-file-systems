@@ -2600,7 +2600,7 @@ const browserSelf:test_browserItem[] = [
                     qualifier: "ends",
                     target: ["value"],
                     type: "property",
-                    value: `,"left":245,"top":245,"height":400,"status":"normal","text_value":"God bless kittens"}},"modalTypes":["configuration","file-navigate","shares","terminal","text-pad"],"nameDevice":"Primary Device","nameUser":"Primary User","statusTime":15000,"storage":"${filePathEncode("absolute", "lib/storage/", true)}","tutorial":true,"zIndex":7}`
+                    value: `,"left":245,"top":245,"height":400,"status":"normal","text_value":"God bless kittens"}},"modalTypes":["configuration","file-navigate","shares","terminal","text-pad"],"nameDevice":"Primary Device","nameUser":"Primary User","statusTime":15000,"storage":"${filePathEncode("absolute", "lib/storage/", true)}","tutorial":true,"zIndex":6}`
                 }
             ]
         },
