@@ -278,7 +278,7 @@ const browserDevice:test_browserItem[] = [
             {
                 event: "click",
                 node: [
-                    ["getElementById", "fileNavigator", null]
+                    ["getElementById", "file-navigator", null]
                 ]
             }
         ],
@@ -696,7 +696,7 @@ const browserDevice:test_browserItem[] = [
             {
                 event: "click",
                 node: [
-                    ["getElementById", "fileNavigator", null]
+                    ["getElementById", "file-navigator", null]
                 ]
             }
         ],
