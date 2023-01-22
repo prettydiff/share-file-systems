@@ -249,7 +249,7 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
                 {
                     event: "click",
                     node: [
-                        ["getElementById", "fileNavigator", null]
+                        ["getElementById", "file-navigator", null]
                     ]
                 }
             ],
@@ -536,7 +536,7 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
                 {
                     event: "click",
                     node: [
-                        ["getElementById", "fileNavigator", null]
+                        ["getElementById", "file-navigator", null]
                     ]
                 }
             ],
@@ -927,7 +927,7 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
                 {
                     event: "click",
                     node: [
-                        ["getElementById", "fileNavigator", null]
+                        ["getElementById", "file-navigator", null]
                     ]
                 }
             ],
@@ -1126,7 +1126,7 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
                 {
                     event: "click",
                     node: [
-                        ["getElementById", "fileNavigator", null]
+                        ["getElementById", "file-navigator", null]
                     ]
                 }
             ],

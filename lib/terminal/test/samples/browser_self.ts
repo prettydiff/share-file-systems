@@ -4122,7 +4122,7 @@ const browserSelf:test_browserItem[] = [
         {
             delay: {
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 0],
+                    ["getModalsByModalType", "file-navigate", 0],
                     ["getElementsByClassName", "status-bar", 0],
                     ["getElementsByTagName", "p", 0]
                 ],
@@ -4135,7 +4135,7 @@ const browserSelf:test_browserItem[] = [
                 {
                     event: "click",
                     node: [
-                        ["getModalsByModalType", "fileNavigate", 0],
+                        ["getModalsByModalType", "file-navigate", 0],
                         ["getElementsByClassName", "reloadDirectory", 0]
                     ]
                 }
@@ -4148,7 +4148,7 @@ const browserSelf:test_browserItem[] = [
         {
             delay: {
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 0],
+                    ["getModalsByModalType", "file-navigate", 0],
                     ["getElementsByClassName", "status-bar", 0],
                     ["getElementsByTagName", "p", 0]
                 ],
@@ -4161,14 +4161,14 @@ const browserSelf:test_browserItem[] = [
                 {
                     event: "click",
                     node: [
-                        ["getModalsByModalType", "fileNavigate", 0],
+                        ["getModalsByModalType", "file-navigate", 0],
                         ["getElementsByTagName", "input", 0]
                     ]
                 },
                 {
                     event: "keydown",
                     node: [
-                        ["getModalsByModalType", "fileNavigate", 0],
+                        ["getModalsByModalType", "file-navigate", 0],
                         ["getElementsByTagName", "input", 0]
                     ],
                     value: "Enter"
@@ -4176,7 +4176,7 @@ const browserSelf:test_browserItem[] = [
                 {
                     event: "keyup",
                     node: [
-                        ["getModalsByModalType", "fileNavigate", 0],
+                        ["getModalsByModalType", "file-navigate", 0],
                         ["getElementsByTagName", "input", 0]
                     ],
                     value: "Enter"
