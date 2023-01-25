@@ -23,7 +23,7 @@ const lists = function terminal_utilities_lists(lists:config_list):void {
                     lens:number = 0,
                     comm:string = "";
                 if (len < 1) {
-                    error([`Please run the build: ${vars.text.cyan + vars.terminal.command_instruction}build${vars.text.none}`]);
+                    error([`Please run the build: ${vars.text.cyan + vars.terminal.command_instruction}build${vars.text.none}`], null);
                     return;
                 }
                 do {

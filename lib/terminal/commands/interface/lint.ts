@@ -12,7 +12,7 @@ const interfaceLint = function terminal_commands_interface_lint(callback:command
         : vars.path.project;
     vars.settings.verbose = true;
     if ((/(\\|\/|\.)js$/).test(lintPath) === true) {
-        error(["Lint command not configured to work with JavaScript files."]);
+        error(["Lint command not configured to work with JavaScript files."], null);
         return;
     }
     lint(lintPath, callback);

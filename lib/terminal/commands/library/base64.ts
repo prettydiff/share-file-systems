@@ -35,7 +35,7 @@ const base64 = function terminal_commands_library_base64(input:config_command_ba
                                             return;
                                         });
                                     }
-                                    error([ero.toString()]);
+                                    error([`Error opening ${filePath}`], ero);
                                     if (vars.environment.command !== "service") {
                                         return;
                                     }
@@ -47,7 +47,7 @@ const base64 = function terminal_commands_library_base64(input:config_command_ba
                                         });
                                     }
                                     if (err !== null) {
-                                        error([err.toString()]);
+                                        error([`Error reading file stream on ${filePath}`], err);
                                         if (vars.environment.command !== "service") {
                                             return;
                                         }
@@ -70,12 +70,12 @@ const base64 = function terminal_commands_library_base64(input:config_command_ba
                             });
                         }
                         if (er.toString().indexOf("no such file or directory") > 0) {
-                            error([angryPath]);
+                            error([angryPath], er);
                             if (vars.environment.command !== "service") {
                                 return;
                             }
                         }
-                        error([er.toString()]);
+                        error([`Error executing stat on ${filePath}`], er);
                         if (vars.environment.command !== "service") {
                             return;
                         }
@@ -86,7 +86,7 @@ const base64 = function terminal_commands_library_base64(input:config_command_ba
                                 return;
                             });
                         }
-                        error([angryPath]);
+                        error([angryPath], null);
                         if (vars.environment.command !== "service") {
                             return;
                         }
@@ -97,7 +97,7 @@ const base64 = function terminal_commands_library_base64(input:config_command_ba
                 });
             };
         if (path === undefined) {
-            error([`No path to encode.  Please see ${vars.text.cyan + vars.terminal.command_instruction}commands base64${vars.text.none} for examples.`]);
+            error([`No path to encode.  Please see ${vars.text.cyan + vars.terminal.command_instruction}commands base64${vars.text.none} for examples.`], null);
             return;
         }
         if (path.indexOf("string:") === 0) {

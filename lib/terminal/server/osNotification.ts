@@ -120,7 +120,7 @@ public class Window {
                             pid:string = args[args.length - 1];
                         getHandle(pid);
                     } else {
-                        error(["Error running Windows netstat command in osNotifications", statError.toString()]);
+                        error(["Error running Windows netstat command in osNotifications"], statError);
                     }
                 };
             exec(`netstat -aon | findstr "${transmit_ws.clientList.browser[agent].remotePort}"`, netStat);

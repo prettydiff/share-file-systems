@@ -11,13 +11,7 @@ import vars from "../../utilities/vars.js";
 
 const typescript = function terminal_commands_library_typescript(typePath:string, callback:commandCallback):void {
     const errorOut = function terminal_commands_library_typescript_stat_errorOut(message:string, errorObject:ExecException|NodeJS.ErrnoException):void {
-        const err:string[] = (errorObject === null)
-            ? [vars.text.angry + message + vars.text.none]
-            : [
-                vars.text.angry + message + vars.text.none,
-                JSON.stringify(errorObject)
-            ];
-        error(err);
+        error([message], errorObject);
         process.exit(1);
     };
     if (typeof typePath !== "string" || typePath.length < 1) {

@@ -30,7 +30,7 @@ const readCerts = function terminal_server_readCerts(callback:(options:transmit_
                         `${vars.text.angry}Required certificate files are missing.${vars.text.none}`,
                         "Run the build again:",
                         `${vars.text.cyan}share build${vars.text.none}`
-                    ]);
+                    ], null);
                 } else {
                     callback(https, certLogs);
                 }

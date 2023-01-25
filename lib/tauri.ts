@@ -17,9 +17,8 @@ entry(function tauri_entry(title:string, text:string[]):void {
             error([
                 `${vars.text.angry}Error starting Tauri.${vars.text.none}`,
                 stdout,
-                stderr,
-                JSON.stringify(err)
-            ]);
+                stderr
+            ], err);
         }
     });
 });

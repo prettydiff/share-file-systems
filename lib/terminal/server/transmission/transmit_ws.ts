@@ -152,10 +152,7 @@ const transmit_ws:module_transmit_ws = {
                         });
                     }
                     if (vars.settings.verbose === true) {
-                        error([
-                            "Error attempting websocket connect from client side.",
-                            JSON.stringify(errorMessage)
-                        ]);
+                        error(["Error attempting websocket connect from client side."], errorMessage);
                     }
                 });
                 client.once("ready", function terminal_server_transmission_transmitWs_createSocket_hash_ready():void {
@@ -637,7 +634,7 @@ const transmit_ws:module_transmit_ws = {
         } else {
             error([
                 `Error queueing message for socket transmission. Opcode ${vars.text.angry + opcode + vars.text.none} is not supported.`
-            ]);
+            ], null);
         }
     },
     // push an offline agent message queue into the transmission queue
@@ -912,7 +909,7 @@ const transmit_ws:module_transmit_ws = {
                             socket: config.socket,
                             type: "ws"
                         }))
-                    ]);
+                    ], null);
                 }
                 if (config.socket.type === "device" || config.socket.type === "user") {
                     transmit_ws.agentClose(config.socket);

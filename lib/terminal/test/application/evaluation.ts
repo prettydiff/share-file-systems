@@ -158,7 +158,7 @@ const testEvaluation = function terminal_test_application_testEvaluation(output:
             return;
         }
         if (output.values[0] === "") {
-            error([output.values[1].toString()]);
+            error([output.values[1].toString()], null);
             return;
         }
     }

@@ -63,7 +63,7 @@ const copy = function terminal_commands_library_copy(params:config_command_copy)
                                         : null;
                                     types(errorText);
                                 },
-                                types = function terminal_commands_library_copy_dirCallback_renameCallback_types(typeError:Error):void {
+                                types = function terminal_commands_library_copy_dirCallback_renameCallback_types(typeError:NodeJS.ErrnoException):void {
                                     if (typeError === null) {
                                         if (a === len) {
                                             const text:string[] = [`${vars.environment.name} copied `],
@@ -130,7 +130,7 @@ const copy = function terminal_commands_library_copy(params:config_command_copy)
                                                     link(list[a][0], list[a][6]);
                                                 } else if (list[a][1] === "error") {
                                                     numb.error = numb.error + 1;
-                                                    error([`error on address ${list[a][0]} from library directory`]);
+                                                    error([`Error on address ${list[a][0]} from library directory`], null);
                                                 }
                                             };
 
@@ -138,7 +138,7 @@ const copy = function terminal_commands_library_copy(params:config_command_copy)
                                         }
                                     } else if (vars.test.type.indexOf("browser") < 0) {
                                         numb.error = numb.error + 1;
-                                        error([typeError.toString()]);
+                                        error([`Error copying artifact ${list[a][0]}`], typeError);
                                     }
                                     a = a + 1;
                                 };
@@ -158,7 +158,7 @@ const copy = function terminal_commands_library_copy(params:config_command_copy)
                             });
                             types(null);
                         } else {
-                            error([JSON.stringify(renameError)]);
+                            error([], renameError);
                         }
                     },
                     destination: params.destination,

@@ -8,16 +8,11 @@ import { EOL } from "os";
 import error from "../../utilities/error.js";
 import vars from "../../utilities/vars.js";
 
+// cspell: words advfirewall netsh runas
+
 const firewall = function terminal_commands_library_firewall(callback:commandCallback):void {
     const errorOut = function terminal_commands_library_fireWall_errorOut(message:string, errorObject:ExecException|NodeJS.ErrnoException):void {
-        const err:string[] = (errorObject === null)
-                ? [vars.text.angry + message + vars.text.none]
-                : [
-                    vars.text.angry + message + vars.text.none,
-                    JSON.stringify(errorObject)
-                ];
-        error(err);
-        process.stderr.write(err.join(EOL));
+        error([message], errorObject);
         process.exit(1);
     };
     if (process.platform === "win32") {

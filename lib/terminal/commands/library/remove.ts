@@ -71,7 +71,7 @@ const remove = function terminal_commands_library_remove(filePath:string, exclus
                                     terminal_commands_library_remove_removeItems_destroy(item);
                                     return;
                                 }
-                                error([JSON.stringify(er)]);
+                                error(["Error removing file system artifact."], er);
                                 return;
                             }
 

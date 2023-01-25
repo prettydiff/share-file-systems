@@ -10,7 +10,7 @@ const interfaceGet = function terminal_commands_interface_get(callback:commandCa
         error([
             "The get command requires an address and that address must be in http/https scheme.",
             `Please execute ${vars.text.cyan + vars.terminal.command_instruction}commands get${vars.text.none} for examples.`
-        ]);
+        ], null);
         return;
     }
     if ((/^(https?:\/\/)/).test(address) === false) {
@@ -18,10 +18,10 @@ const interfaceGet = function terminal_commands_interface_get(callback:commandCa
             `Address: ${vars.text.angry + address + vars.text.none}`,
             "The get command requires an address in http/https scheme.",
             `Please execute ${vars.text.cyan + vars.terminal.command_instruction}commands get${vars.text.none} for examples.`
-        ], true);
+        ], null, true);
         return;
     }
-    get(address, function terminal_commands_inteface_get_callback(title:string, file:Buffer|string):void {
+    get(address, function terminal_commands_interface_get_callback(title:string, file:Buffer|string):void {
         callback(title, [file[0].toString()], null);
     });
 };

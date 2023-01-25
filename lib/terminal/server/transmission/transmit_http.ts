@@ -310,7 +310,7 @@ const transmit_http:module_transmit_http = {
                 error([
                     "Attempt to write to HTTP request after end:",
                     dataString
-                ]);
+                ], null);
             } else {
                 fsRequest.hash = config.agent;
                 fsRequest.type = config.agentType;
@@ -340,7 +340,7 @@ const transmit_http:module_transmit_http = {
                         ? "(empty string)"
                         : config.message);
                 }
-                error(message);
+                error(message, null);
             } else {
                 const textTypes:string[] = [
                         "application/json",
@@ -471,11 +471,14 @@ const transmit_http:module_transmit_http = {
                     const browserCommand:string = `${vars.terminal.executionKeyword} ${scheme}://${vars.network.domain + portString}/`;
                     exec(browserCommand, {cwd: vars.terminal.cwd}, function terminal_server_transmission_transmitHttp_server_browser_child(errs:Error, stdout:string, stdError:Buffer | string):void {
                         if (errs !== null) {
-                            error([errs.toString()]);
+                            error([], errs);
                             return;
                         }
                         if (stdError !== "") {
-                            error([stdError.toString()]);
+                            error([
+                                "Unexpected data written to stderr when opening browser:",
+                                stdError.toString()
+                            ], null);
                             return;
                         }
                         log(["", "Launching default web browser..."]);
@@ -495,16 +498,15 @@ const transmit_http:module_transmit_http = {
             start = function terminal_server_transmission_transmitHttp_server_start(server:Server):void {
                 const serverError = function terminal_server_transmission_transmitHttp_server_start_serverError(errorMessage:NetworkError):void {
                         if (errorMessage.code === "EADDRINUSE") {
-                            error([`Specified port, ${vars.text.cyan + port + vars.text.none}, is in use!`], true);
+                            error([`Specified port, ${vars.text.cyan + port + vars.text.none}, is in use!`], null, true);
                         } else if (errorMessage.code === "EACCES" && process.platform === "linux" && errorMessage.syscall === "listen" && errorMessage.port < 1025) {
                             error([
-                                errorMessage.toString(),
                                 `${vars.text.angry}Restricted access to reserved port.${vars.text.none}`,
                                 "Run the build against with option force_port:",
                                 `${vars.text.cyan + vars.terminal.command_instruction}build force_port${vars.text.none}`
-                            ]);
+                            ], errorMessage);
                         } else if (errorMessage.code !== "ETIMEDOUT") {
-                            error([errorMessage.toString()]);
+                            error(["Error from HTTP server."], errorMessage);
                         }
                     },
                     listen = function terminal_server_transmission_transmitHttp_server_start_listen():void {
@@ -673,7 +675,7 @@ const transmit_http:module_transmit_http = {
                                                                     if (type === "device" && keys[a] === vars.settings.hashDevice) {
                                                                         complete();
                                                                     } else if (self.ipAll.IPv4.indexOf(vars.settings[type][keys[a]].ipSelected) > -1 || self.ipAll.IPv6.indexOf(vars.settings[type][keys[a]].ipSelected) > -1) {
-                                                                        error([`Selected IP ${vars.settings[type][keys[a]].ipSelected} of ${type} ${keys[a]} is an IP assigned to this local device.`]);
+                                                                        error([`Selected IP ${vars.settings[type][keys[a]].ipSelected} of ${type} ${keys[a]} is an IP assigned to this local device.`], null);
                                                                         complete();
                                                                     } else {
                                                                         vars.settings[type][keys[a]].status = "offline";

@@ -36,7 +36,7 @@ const entry = function terminal_entry(callback:(title:string, text:string[]) => 
                     execute();
                     return;
                 }
-                error([er.toString()]);
+                error(["Error reading version.json file."], er);
                 return;
             });
         } else {

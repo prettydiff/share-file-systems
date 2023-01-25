@@ -1,5 +1,7 @@
 /* lib/typescript/environment.d - TypeScript interfaces that define environmental objects. */
 
+// cspell: words brotli
+
 /**
  * Defines a global environmental object to the browser environment.
  * ```typescript

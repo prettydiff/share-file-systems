@@ -82,11 +82,11 @@ const message = function terminal_server_services_message(socketData:socketData)
                             vars.settings.message = vars.settings.message.slice(count);
                             save();
                         });
-                        writeStream.on("error", function terminal_server_services_message_readdir_writeError(errMessage:Error):void {
-                            error([errMessage.toString()]);
+                        writeStream.on("error", function terminal_server_services_message_readdir_writeError(errMessage:NodeJS.ErrnoException):void {
+                            error(["Error on write stream to message archive"], errMessage);
                         });
                     } else {
-                        error(["Error performing readdir on message_archive", erd.toString()]);
+                        error(["Error performing readdir on message_archive"], erd);
                     }
                 });
             } else {

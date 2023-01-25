@@ -11,7 +11,7 @@ const interfaceHash = function terminal_commands_interface_hash(callback:command
         error([
             `Command ${vars.text.cyan}hash${vars.text.none} requires some form of address of something to analyze, ${vars.text.angry}but no address is provided${vars.text.none}.`,
             `See ${vars.text.green + vars.terminal.command_instruction} commands hash${vars.text.none} for examples.`
-        ], true);
+        ], null, true);
         return;
     }
     let a:number = 0,

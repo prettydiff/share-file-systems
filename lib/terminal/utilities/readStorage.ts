@@ -5,6 +5,8 @@ import { readdir, readFile } from "fs";
 import error from "./error.js";
 import vars from "./vars.js";
 
+// cspell: words brotli
+
 const readStorage = function terminal_utilities_readStorage(fromFile:boolean, callback:(settings:settings_item) => void):void {
     readdir(vars.path.settings, function terminal_utilities_readStorage_readdir(erd:Error, fileList:string[]):void {
         if (erd === null) {
@@ -117,10 +119,7 @@ const readStorage = function terminal_utilities_readStorage(fromFile:boolean, ca
                 callback(settings);
             }
         } else {
-            error([
-                "Error reading files from configuration storage directory.",
-                JSON.stringify(erd)
-            ]);
+            error(["Error reading files from configuration storage directory."], erd);
         }
     });
 };

@@ -407,10 +407,10 @@ const fileCopy:module_fileCopy = {
                         const fileError = function terminal_server_services_fileCopy_write_fileReceive_fileError(message:string):void {
                                 status.failures = status.failures + 1;
                                 failList.push(path_source);
-                                error([message]);
-                                unlink(path_write, function terminal_server_services_fileCopy_write_fileReceive_fileError_unlink(unlinkErr:Error):void {
+                                error([message], null);
+                                unlink(path_write, function terminal_server_services_fileCopy_write_fileReceive_fileError_unlink(unlinkErr:NodeJS.ErrnoException):void {
                                     if (unlinkErr !== null) {
-                                        error([unlinkErr.toString()]);
+                                        error([`Error removing file system artifact ${path_write}`], unlinkErr);
                                     }
                                 });
                                 fileRequest();
@@ -577,7 +577,7 @@ const fileCopy:module_fileCopy = {
                                             }
                                         } else {
                                             failList.push(list[listIndex][directoryIndex][0]);
-                                            error([errorString]);
+                                            error([errorString], null);
                                         }
                                     };
 
@@ -604,9 +604,8 @@ const fileCopy:module_fileCopy = {
                             });
                         } else {
                             error([
-                                "Error executing utility rename.",
-                                JSON.stringify(renameError)
-                            ]);
+                                "Error executing utility rename."
+                            ], renameError);
                         }
                     },
                     renameConfig:config_rename = {

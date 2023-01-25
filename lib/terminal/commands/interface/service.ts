@@ -40,7 +40,7 @@ const service = function terminal_commands_interface_service(callback:commandCal
     if (process.argv.indexOf("firewall") > 0) {
         firewall(function terminal_commands_interface_service_firewall(title:string, message:string[], fail:boolean):void {
             if (fail === true) {
-                error(message);
+                error(message, null);
             } else {
                 cursorTo(process.stdout, 0, 0);
                 clearScreenDown(process.stdout);

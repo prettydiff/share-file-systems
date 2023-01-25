@@ -25,7 +25,7 @@ const certificate = function terminal_commands_library_certificate(config:config
                        config.callback("Certificate", [`Certificates created at ${config.location}`], null);
                     }
                 } else {
-                    error([erChild.toString()]);
+                    error([`Error executing command: ${commands[index]}`], erChild);
                 }
             });
         };
@@ -109,7 +109,7 @@ const certificate = function terminal_commands_library_certificate(config:config
         } else if (stats.code === "ENOENT") {
             mkdir(config.location, create);
         } else {
-            error([stats.toString()]);
+            error(["Certificate already exists."], null);
         }
     });
 };
