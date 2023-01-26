@@ -364,6 +364,7 @@ declare global {
      *     single?: boolean;
      *     socket?: boolean;
      *     status?: modalStatus;
+     *     string_store?: string[];
      *     text_event?: (event:KeyboardEvent|MouseEvent) => void;
      *     text_placeholder?: string;
      *     text_value?: string;
@@ -402,6 +403,7 @@ declare global {
         single?: boolean;
         socket?: boolean;
         status?: modalStatus;
+        string_store?: string[];
         text_event?: (event:KeyboardEvent|MouseEvent) => void;
         text_placeholder?: string;
         text_value?: string;

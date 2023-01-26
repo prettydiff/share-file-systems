@@ -383,26 +383,29 @@ const modal_configuration:module_modalConfiguration = {
                     name: "navigate"
                 },
                 payloadModal:config_modal = (config === null || config === undefined)
-                ? {
-                    agent: agentName,
-                    agentIdentity: true,
-                    agentType: agentType,
-                    content: null,
-                    footer: null,
-                    inputs: ["close", "maximize", "minimize", "text"],
-                    read_only: readOnly,
-                    selection: {},
-                    share: share,
-                    text_event: file_browser.events.text,
-                    text_placeholder: "Optionally type a file system address here.",
-                    text_value: location,
-                    title_supplement: readOnlyString,
-                    type: "file-navigate",
-                    width: 800
-                }
-                : config;
+                    ? {
+                        agent: agentName,
+                        agentIdentity: true,
+                        agentType: agentType,
+                        content: null,
+                        footer: null,
+                        inputs: ["close", "maximize", "minimize", "text"],
+                        read_only: readOnly,
+                        selection: {},
+                        share: share,
+                        text_event: file_browser.events.text,
+                        text_placeholder: "Optionally type a file system address here.",
+                        text_value: location,
+                        title_supplement: readOnlyString,
+                        type: "file-navigate",
+                        width: 800
+                    }
+                    : config,
+                width:number = (config === null || config === undefined)
+                    ? 800
+                    : config.width;
             payloadModal.content = util.delay();
-            payloadModal.footer = file_browser.content.footer(800);
+            payloadModal.footer = file_browser.content.footer(width);
             payloadModal.text_event = file_browser.events.text;
             document.getElementById("menu").style.display = "none";
             network.send(payloadNetwork, "file-system");
