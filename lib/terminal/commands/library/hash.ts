@@ -200,9 +200,9 @@ const hash = function terminal_commands_library_hash(input:config_command_hash):
                         error([
                             `File path ${vars.text.angry + input.source + vars.text.none} is not a file or directory.`,
                             `See ${vars.text.cyan + vars.terminal.command_instruction} commands hash${vars.text.none} for examples.`
-                        ], true);
+                        ], null, true);
                     } else {
-                        error([ers.toString()]);
+                        error([`Error retrieving stat from ${input.source}`], ers);
                     }
                 }
             });

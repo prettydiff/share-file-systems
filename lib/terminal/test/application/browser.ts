@@ -387,7 +387,7 @@ const defaultCommand:commands = vars.environment.command,
                                 : `${keyword} ${path}`,
                             child = function terminal_test_application_browser_reset_readdir_browserLaunch_child(errs:Error, stdout:string, stderr:Buffer | string):void {
                                 if (errs !== null) {
-                                    error([errs.toString()]);
+                                    error(["Error opening browser in test automation."], errs);
                                     return;
                                 }
                                 if (stdout !== "") {
@@ -694,7 +694,7 @@ const defaultCommand:commands = vars.environment.command,
                 }
                 if (data.action !== "nothing") {
                     if (browser.methods[data.action] === undefined) {
-                        error([`Unsupported action in browser test automation: ${data.action}`]);
+                        error([`Unsupported action in browser test automation: ${data.action}`], null);
                     } else if (browser.args.mode === "remote" && data.action === "result") {
                         if (data.result.length > 0) {
                             data.test = {

@@ -62,17 +62,6 @@ const build = function terminal_commands_library_build(config:config_command_bui
             path: `${vars.path.project}lib${vars.path.sep}certificate${vars.path.sep}`,
             selfSign: false
         },
-        errorOut = function terminal_commands_library_build_errorOut(message:string, errorObject:ExecException|NodeJS.ErrnoException):void {
-            const err:string[] = (errorObject === null)
-                    ? [vars.text.angry + message + vars.text.none]
-                    : [
-                        vars.text.angry + message + vars.text.none,
-                        JSON.stringify(errorObject)
-                    ];
-            error(err);
-            process.stderr.write(err.join(EOL));
-            process.exit(1);
-        },
         testsCallback = function terminal_commands_library_build_testsCallback(title:string, text:string[], fail:boolean):void {
             if (fail === true) {
                 vars.settings.verbose = true;
@@ -263,7 +252,7 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                         if (writeError === null) {
                                             next("CSS bundle written.");
                                         } else {
-                                            errorOut("Error writing bundled CSS file in bundleCSS step of build.", writeError);
+                                            error(["Error writing bundled CSS file in bundleCSS step of build."], writeError);
                                         }
                                     });
                                 }
@@ -278,13 +267,13 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                             files.push(fileData.toString().replace(/\r?\n/g, "").replace(/\/\*(\s|\w|-|,|:|\/|\\)+\*\//g, "").replace(/ +/g, " ").replace(/@font-face/g, `${EOL}@font-face`));
                                             readComplete();
                                         } else {
-                                            errorOut("Error reading file in bundleCSS step of build.", dirError);
+                                            error(["Error reading file in bundleCSS step of build."], dirError);
                                         }
                                     });
                                 }
                             });
                         } else {
-                            errorOut("Error reading directory in bundleCSS step of build.", dirError);
+                            error(["Error reading directory in bundleCSS step of build."], dirError);
                         }
                     };
                 readdir(filePath, dirCallback);
@@ -338,7 +327,7 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                         if (writeError === null) {
                                             next("Browser JavaScript bundle written.");
                                         } else {
-                                            errorOut("Error writing bundled JavaScript file in bundleJS step of build.", writeError);
+                                            error(["Error writing bundled JavaScript file in bundleJS step of build."], writeError);
                                         }
                                     });
                                 };
@@ -348,7 +337,7 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                     readStorage(true, storageCallback);
                                 }
                             } else {
-                                errorOut("Error reading file in bundleJS step of build.", readError);
+                                error(["Error reading file in bundleJS step of build."], readError);
                             }
                         });
                     },
@@ -387,7 +376,7 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                             index();
                                         }
                                     } else {
-                                        errorOut("Error reading file in bundleJS step of build.", readError);
+                                        error(["Error reading file in bundleJS step of build."], readError);
                                     }
                                 });
                             });
@@ -396,7 +385,7 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                 readdir(dirs[dirIndex], terminal_commands_library_build_bundleJS_dirCallback);
                             }
                         } else {
-                            errorOut("Error reading directory in bundleJS step of build.", err);
+                            error(["Error reading directory in bundleJS step of build."], err);
                         }
                     };
                 readdir(dirs[0], dirCallback);
@@ -466,17 +455,11 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                                     if (writeError === null) {
                                                         configComplete(name);
                                                     } else {
-                                                        error([
-                                                            `Error writing file ${cnfPath}`,
-                                                            JSON.stringify(writeError)
-                                                        ]);
+                                                        error([`Error writing file ${cnfPath}`], writeError);
                                                     }
                                                 });
                                             } else {
-                                                error([
-                                                    `Error reading file ${cnfPath}`,
-                                                    JSON.stringify(readError)
-                                                ]);
+                                                error([`Error reading file ${cnfPath}`], readError);
                                             }
                                         });
                                     };
@@ -510,7 +493,7 @@ const build = function terminal_commands_library_build(config:config_command_bui
             clearStorage: function terminal_commands_library_build_clearStorage():void {
                 readdir(`${vars.path.project}lib${vars.path.sep}settings`, function terminal_commands_library_build_clearStorage_dir(erd:Error, dirList:string[]) {
                     if (erd !== null) {
-                        errorOut("Error reading from settings directory.", erd);
+                        error(["Error reading from settings directory."], erd);
                         return;
                     }
                     const length:number = dirList.length,
@@ -523,7 +506,7 @@ const build = function terminal_commands_library_build(config:config_command_bui
                             start = start + 1;
                             unlink(`${vars.path.project}lib${vars.path.sep}settings${vars.path.sep + dirList[a]}`, function terminal_commands_library_build_clearStorage_dir_unlink(eru:Error):void {
                                 if (eru !== null) {
-                                    errorOut("Error removing files from settings directory.", eru);
+                                    error(["Error removing files from settings directory."], eru);
                                     return;
                                 }
                                 end = end + 1;
@@ -572,7 +555,7 @@ const build = function terminal_commands_library_build(config:config_command_bui
                         next(`File ${filePath} successfully written.`);
                         return;
                     }
-                    errorOut("Error writing updated commands documentation file.", err);
+                    error(["Error writing updated commands documentation file."], err);
                 });
             },
             // writes configuration data to files
@@ -592,7 +575,7 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                     }
                                     return;
                                 }
-                                errorOut("Error writing configuration files.", wErr);
+                                error(["Error writing configuration files."], wErr);
                             },
 
                             write = function terminal_commands_library_build_configurations_readFile_write():void {
@@ -635,7 +618,7 @@ const build = function terminal_commands_library_build(config:config_command_bui
                         } while (a > 0);
                         return;
                     }
-                    errorOut("Error reading from configurations.json file.", err);
+                    error(["Error reading from configurations.json file."], err);
                 });
             },
             // libReadme builds out the readme file that indexes code files in the current directory
@@ -701,7 +684,7 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                 } while (a < fileLength);
                                 writeFile(filePath, fileContents.join("\n"), "utf8", function terminal_commands_library_build_libReadme_masterList_write(erWrite:Error):void {
                                     if (erWrite !== null) {
-                                        errorOut("Error writing library_list.md documentation file.", erWrite);
+                                        error(["Error writing library_list.md documentation file."], erWrite);
                                         return;
                                     }
                                     log([`${humanTime(false)}Updated ${filePath}`]);
@@ -728,10 +711,10 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                 }
                                 readFile(filePath, "utf8", function terminal_commands_library_build_libReadme_write_readFile(erRead:Error, readme:string):void {
                                     if (erRead !== null) {
-                                        errorOut([
+                                        error([
                                             "Error reading file during documentation build task.",
                                             `File: ${filePath}`
-                                        ].join(EOL), erRead);
+                                        ], erRead);
                                         return;
                                     }
                                     const sample:string = "Contents dynamically populated. -->",
@@ -740,10 +723,10 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                     // Ninth, write the documentation to each respective file
                                     writeFile(filePath, readme, "utf8", function terminal_commands_library_build_libReadme_write_readFile_writeFile(erWrite:Error):void {
                                         if (erWrite !== null) {
-                                            errorOut([
+                                            error([
                                                 "Error writing file during documentation build task.",
                                                 `File: ${filePath}`
-                                            ].join(EOL), erWrite);
+                                            ], erWrite);
                                             return;
                                         }
                                         log([`${humanTime(false)}Updated ${filePath}`]);
@@ -755,11 +738,11 @@ const build = function terminal_commands_library_build(config:config_command_bui
                             // read code files for the required supporting comment at the top each code file
                             fileRead = function terminal_commands_library_build_libReadme_fileRead(erRead:Error, file:string):void {
                                 if (erRead !== null) {
-                                    errorOut("Error reading file during documentation build task.", erRead);
+                                    error(["Error reading file during documentation build task."], erRead);
                                     return;
                                 }
                                 if ((/^\s*((\/\*)|(<!--)) \w+(\/\w+)+(\.d)? - \w/).test(file) === false) {
-                                    errorOut([
+                                    error([
                                         "Code file missing required descriptive comment at top of code.",
                                         `${vars.text.angry + codeFiles[a] + vars.text.none}`,
                                         "--------------------------------------------------------------",
@@ -775,7 +758,7 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                         `   ${vars.text.angry}1${vars.text.none} A path to the file relative to the project root, without file extension, and using forward slash as the directory separator.`,
                                         `   ${vars.text.angry}2${vars.text.none} A separator comprising of a space, a hyphen, and a second space.`,
                                         `   ${vars.text.angry}3${vars.text.none} An English statement describing the code file.`
-                                    ].join(EOL), null);
+                                    ], null);
                                     return;
                                 }
                                 const md:boolean = (file.replace(/^\s+/, "").indexOf("<!--") === 0),
@@ -882,7 +865,7 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                                 // write the updated file
                                                 writeFile(codeFiles[a], file, "utf8", function terminal_commands_library_build_libReadme_fileRead_moduleComment_writeFile(writeError:NodeJS.ErrnoException):void {
                                                     if (writeError !== null) {
-                                                        errorOut("Error writing TypeScript module comment to code file.", writeError);
+                                                        error(["Error writing TypeScript module comment to code file."], writeError);
                                                     }
                                                 });
                                             }
@@ -973,7 +956,7 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                             modulesComplete();
                                         }
                                     } else {
-                                        errorOut("Error reading TypeScript module definition file.", moduleError);
+                                        error(["Error reading TypeScript module definition file."], moduleError);
                                     }
                                 });
                             },
@@ -1058,17 +1041,11 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                                             complete();
                                                         }
                                                     } else {
-                                                        error([
-                                                            "Error installing certificates using a powershell script.",
-                                                            JSON.stringify(readError)
-                                                        ]);
+                                                        error(["Error installing certificates using a powershell script."], readError);
                                                     }
                                                 });
                                             } else {
-                                                error([
-                                                    "Error reading project file windows.ps1",
-                                                    JSON.stringify(readError)
-                                                ]);
+                                                error(["Error reading project file windows.ps1"], readError);
                                             }
                                         });
                                     };
@@ -1095,7 +1072,7 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                 if (process.argv.indexOf("firewall") > -1) {
                                     firewall(function terminal_commands_library_build_osSpecific_windows_firewallWrapper_callback(title:string, message:string[], fail:boolean):void {
                                         if (fail === true) {
-                                            error(message);
+                                            error(message, null);
                                         } else {
                                             flags.firewall = true;
                                             outputLog.push(`${humanTime(false)}Windows firewall updated.`);
@@ -1210,17 +1187,17 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                                     if (errWrite === null) {
                                                         linuxCallback();
                                                     } else {
-                                                        errorOut("Error writing the linux.sh file from the certificate directory", err);
+                                                        error(["Error writing the linux.sh file from the certificate directory"], err);
                                                     }
                                                 });
                                             } else {
-                                                errorOut("Error reading the linux.sh file from the certificate directory", err);
+                                                error(["Error reading the linux.sh file from the certificate directory"], err);
                                             }
                                         });
                                     },
                                     toolInstall = function terminal_commands_library_build_osSpecific_distributions_toolInstall(toolName:"toolCAP"|"toolNSS"):void {
                                         if (flags[toolName] === true) {
-                                            error([`Error: Not able to download tool ${vars.text.angry + tools[toolName][dist] + vars.text.none}`]);
+                                            error([`Error: Not able to download tool ${vars.text.angry + tools[toolName][dist] + vars.text.none}`], null);
                                         } else {
                                             // install nss tool to run the certutil utility for injecting certificates into browser trust stores
                                             taskIndex = (taskIndex > 0)
@@ -1261,7 +1238,7 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                             if (stderr !== "") {
                                                 log([stderr.toString()]);
                                             }
-                                            errorOut("Error executing a command with sudo.", sudoErr);
+                                            error(["Error executing a command with sudo."], sudoErr);
                                         }
                                     },
                                     statCallback = function terminal_commands_library_build_osSpecific_distributions_statCallback(certError:NodeJS.ErrnoException):void {
@@ -1492,7 +1469,7 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                                     }
                                                 });
                                             } else {
-                                                errorOut(`Error reading ${vars.path.js}terminal${vars.path.sep}utilities${vars.path.sep}entry.js file.`, readError);
+                                                error([`Error reading ${vars.path.js}terminal${vars.path.sep}utilities${vars.path.sep}entry.js file.`], readError);
                                             }
                                         });
                                     },
@@ -1528,12 +1505,12 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                         });
                                     }
                                 } else {
-                                    errorOut("Error executing stat on global path location.", errs);
+                                    error(["Error executing stat on global path location."], errs);
                                 }
                             }
                         });
                     } else {
-                        errorOut("Error executing child process: npm root -g", err);
+                        error(["Error executing child process: npm root -g"], err);
                     }
                 });
             },
@@ -1564,7 +1541,7 @@ const build = function terminal_commands_library_build(config:config_command_bui
                     configPath:string = `${vars.path.project}lib${vars.path.sep}configurations.json`,
                     packStat = function terminal_commands_library_build_version_packStat(ers:Error, stats:Stats):void {
                         if (ers !== null) {
-                            errorOut("Error executing stat on package.json file for version task of build.", ers);
+                            error(["Error executing stat on package.json file for version task of build."], ers);
                             return;
                         }
                         const readPack = function terminal_commands_library_build_version_packStat_readPack(err:Error, data:string):void {
@@ -1585,13 +1562,13 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                                 },
                                                 readHTML = function terminal_commands_library_build_version_packStat_readPack_commitHash_readHTML(err:Error, fileData:string):void {
                                                     if (err !== null) {
-                                                        error([err.toString()]);
+                                                        error(["Error reading index.html file."], err);
                                                         return;
                                                     }
                                                     const regex:RegExp = new RegExp("<h1>\\s*(\\w+\\s*)*\\s*<span\\s+class=(\"|')application-version(\"|')>(version\\s+\\d+(\\.\\d+)+)?\\s*<\\/span>\\s*<\\/h1>", "g"),
                                                         writeHTML = function terminal_commands_library_build_version_packStat_readPack_commitHash_readHTML_writeHTML(erh:Error):void {
                                                             if (erh !== null) {
-                                                                error([erh.toString()]);
+                                                                error(["Error writing updated index.html file."], erh);
                                                                 return;
                                                             }
                                                             flag.html = true;
@@ -1604,13 +1581,13 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                                 },
                                                 readConfig = function terminal_commands_library_build_version_packStat_readPack_commitHash_readConfig(err:Error, configFile:string):void {
                                                     if (err !== null) {
-                                                        error([err.toString()]);
+                                                        error(["Error reading configuration.json file."], err);
                                                         return;
                                                     }
                                                     const config:configuration_application = JSON.parse(configFile),
                                                         writeConfig = function terminal_commands_library_build_version_packStat_readPack_commitHash_readConfig_writeConfig(erc:Error):void {
                                                             if (erc !== null) {
-                                                                error([erc.toString()]);
+                                                                error(["Error writing configuration.json file."], erc);
                                                                 return;
                                                             }
                                                             flag.config = true;
@@ -1631,11 +1608,14 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                                 };
                 
                                             if (hashErr !== null) {
-                                                error([hashErr.toString()]);
+                                                error(["Error gathering latest git commit hash."], hashErr);
                                                 return;
                                             }
                                             if (stderr !== "") {
-                                                error([stderr]);
+                                                error([
+                                                    "Received unexpected output attempting to retrieve git commit hash:",
+                                                    stderr
+                                                ], null);
                                                 return;
                                             }
                 
@@ -1663,7 +1643,7 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                     });
                                     commandName = packageData.command;
                                 } else {
-                                    errorOut("Error reading package.json file.", err);
+                                    error(["Error reading package.json file."], err);
                                 }
                             },
                             month:string = (function terminal_commands_library_build_version_packStat_month():string {

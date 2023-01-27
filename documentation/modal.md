@@ -39,6 +39,7 @@ interface config_modal {
     single?: boolean;
     socket?: boolean;
     status?: modalStatus;
+    string_store?: string[];
     text_event?: (event:KeyboardEvent|MouseEvent) => void;
     text_placeholder?: string;
     text_value?: string;
@@ -58,7 +59,7 @@ interface config_modal {
 * **focus** - The DOM element holding the current focus, similar to `document.activeElement` but can apply to elements that don't normally hold a focus.
 * **footer** - An optional custom content area separate from and following the modal's primary content area for us by things like a file navigate status bar or text message input area.
 * **height** - Determines the height of the modal's content area.  Optional footer elements generate height in addition to this value.  The default is 400, which is 400 pixels.
-* **history** - File Navigator type modal's retain a history of prior locations. This is necessary for the *back* button's operation.
+* **history** - Some modal types retain a history of prior locations or user input. This is necessary for the file navigator's *back* button or terminal input history.
 * **historyIndex** - The current index of history when scrolling through the history property.
 * **id** - The unique identifier for the given modal.  This usually created dynamically as the modal is created unless the modal already exists upon page load.
 * **inputs** - An array of buttons to appear in the modal.  See the next section for a description of the buttons available.
@@ -70,6 +71,7 @@ interface config_modal {
 * **search** - A text fragment of something to search for, such as a searching a file system location only for a certain file extension.  The search field does not support wildcards like file system search in most operating systems.
 * **selection** - A list of selected items, such as selected file system items so that selection data is maintained even if the application is turned off.
 * **share** - If a modal is representative of a *share* that identifier is stored here.  This identity is necessary to ensure content shared by a user is accessible via the security model.
+* **string_store** - A string array for associating lists to a modal via state.
 * **single** - Whether only one instance of the given modal type may be available at a time or if many instances may be available.
 * **socket** - If the given modal requires a dedicated socket.
 * **status** - The display state of the modal which is: *normal*, *minimized*, *maximized*.

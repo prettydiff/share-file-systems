@@ -206,7 +206,7 @@ const fileSystem:module_fileSystem = {
                     if (erNewFile === null) {
                         fileSystem.status.generate(data, null);
                     } else {
-                        error([erNewFile.toString()]);
+                        error([`Error writing file ${data.location[0]}`], erNewFile);
                         fileSystem.actions.error(erNewFile, data.agentRequest, data.agentRequest);
                     }
                 });
@@ -249,7 +249,7 @@ const fileSystem:module_fileSystem = {
                             filePath: fileInput.source
                         };
                         if (readError !== null) {
-                            error([readError.toString()]);
+                            error([`Error reading file ${fileInput.source}`], readError);
                             fileSystem.actions.error(readError, data.agentRequest, data.agentRequest);
                             return;
                         }
@@ -313,7 +313,7 @@ const fileSystem:module_fileSystem = {
                             data.name = `Renamed ${data.name} from ${data.location[0]}`;
                             fileSystem.status.generate(data, null);
                         } else {
-                            error([erRename.toString()]);
+                            error([`Error renaming artifact ${data.location[0]}`], erRename);
                             fileSystem.actions.error(erRename, data.agentRequest, data.agentRequest);
                         }
                     });

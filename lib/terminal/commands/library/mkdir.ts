@@ -19,7 +19,7 @@ const mkdir = function terminal_commands_library_mkdir(dir:string, callback:comm
                     return;
                 }
                 if (vars.settings.verbose === true) {
-                    error([errorInstance.toString()]);
+                    error(["Error making a directory."], errorInstance);
                 }
                 return;
             }

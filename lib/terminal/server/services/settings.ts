@@ -50,11 +50,11 @@ const settings = function terminal_server_services_settings(dataPackage:socketDa
                 }
                 changeName();
             } else {
-                error([erSettings.toString()]);
+                error([`Error writing settings type ${data.type}`], erSettings);
             }
         };
     if (data.type === undefined) {
-        error(["Submitted a 'type' value of undefined to the settings utility."]);
+        error(["Submitted a 'type' value of undefined to the settings utility."], null);
         return;
     }
     if (vars.test.type === "service") {

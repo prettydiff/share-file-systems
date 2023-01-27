@@ -23,11 +23,14 @@ const fileExecution = function terminal_server_services_fileExecute(pathList:fil
                 : `${vars.terminal.executionKeyword} "${path}"`;
             exec(command, {cwd: vars.terminal.cwd}, function terminal_server_services_fileExecution_execute(errs:ExecException, stdout:string, stdError:Buffer | string):void {
                 if (errs !== null && errs.message.indexOf("Access is denied.") < 0) {
-                    error([JSON.stringify(errs)]);
+                    error([`Access is denied to command: ${command}`], errs);
                     return;
                 }
                 if (stdError !== "" && stdError.indexOf("Access is denied.") < 0) {
-                    error([stdError.toString()]);
+                    error([
+                        `Unexpected output to stderr from command: ${command}`,
+                        stdError.toString()
+                    ], null);
                     return;
                 }
                 if (counter < 10) {

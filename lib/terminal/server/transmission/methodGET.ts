@@ -47,7 +47,7 @@ const methodGET = function terminal_server_transmission_methodGET(request:Incomi
                     readdir(localPath, function terminal_server_transmission_methodGET_stat_dir(erd:Error, list:string[]) {
                         const dirList:string[] = [`<p>directory of ${localPath}</p> <ul>`];
                         if (erd !== null) {
-                            error([erd.toString()]);
+                            error([`Error reading directory of ${localPath}`], erd);
                             return;
                         }
                         list.forEach(function terminal_server_transmission_methodGET_stat_dir_list(value:string) {
@@ -178,7 +178,7 @@ const methodGET = function terminal_server_transmission_methodGET(request:Incomi
                         serverResponse: serverResponse
                     }, true, request.url);
                 } else {
-                    error([ers.toString()]);
+                    error([`Error on stat of ${localPath}`], ers);
                 }
             }
         }

@@ -158,7 +158,7 @@ const perf:module_perf = {
     socket: null,
     start: function terminal_commands_library_perf_start(config:config_perf_start):void {
         if (perf.preparation[config.type] === undefined) {
-            error([`Unsupported perf type: ${vars.text.angry + config.type + vars.text.none}`]);
+            error([`Unsupported perf type: ${vars.text.angry + config.type + vars.text.none}`], null);
             return;
         }
         vars.settings.secure = false;

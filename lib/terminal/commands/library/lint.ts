@@ -16,7 +16,7 @@ const lint = function terminal_commands_library_lint(lintPath:string, callback:c
         cwd: vars.path.project
     }, function terminal_commands_lint_eslint(err:Error, stdout:string, stderr:string) {
         if (stdout.indexOf("error") > 0) {
-            error([stdout, "Lint failure."], true);
+            error([stdout, "Lint failure."], null, true);
             return;
         }
         if (err !== null) {
@@ -29,7 +29,7 @@ const lint = function terminal_commands_library_lint(lintPath:string, callback:c
             fail = true;
         } else if (stdout === "" || stdout.indexOf("0:0  warning  File ignored because of a matching ignore pattern.") > -1) {
             if (stderr !== null && stderr !== "") {
-                error([stderr]);
+                error([stderr], null);
                 return;
             }
             text.push(complete);

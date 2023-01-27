@@ -29,7 +29,7 @@ const get = function terminal_commands_library_get(address:string, callback:(tit
                             terminal_commands_library_get(address, callback);
                             return;
                         }
-                        error([`${scheme}.get failed with status code ${res.statusCode}`]);
+                        error([`${scheme}.get failed with status code ${res.statusCode}`], null);
                         return;
                     }
                     callback(title, file);

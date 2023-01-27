@@ -158,6 +158,61 @@ const browserSelf:test_browserItem[] = [
         // access the primary menu
         mainMenu("self"),
 
+        // open terminal
+        {
+            delay: {
+                node: [
+                    ["getModalsByModalType", "terminal", 0],
+                    ["getElementsByClassName", "terminal-list", 0],
+                    ["getElementsByTagName", "li", null]
+                ],
+                qualifier: "greater",
+                target: ["length"],
+                type: "property",
+                value: 8
+            },
+            interaction: [
+                {
+                    event: "click",
+                    node: [
+                        ["getElementById", "menu", null],
+                        ["getElementsByTagName", "li", 4],
+                        ["getElementsByTagName", "button", 0]
+                    ]
+                }
+            ],
+            machine: "self",
+            name: "Open terminal modal 1",
+            unit: [
+                {
+                    node: [
+                        ["getModalsByModalType", "terminal", 0],
+                        ["getElementsByClassName", "terminal-list", 0],
+                        ["getElementsByTagName", "li", 2]
+                    ],
+                    qualifier: "is",
+                    target: ["innerHTML"],
+                    type: "property",
+                    value: "<span class=\"cyan bold underline\">Share File Systems - Browser Tests - self</span>"
+                },
+                {
+                    node: [
+                        ["getModalsByModalType", "terminal", 0],
+                        ["getElementsByClassName", "terminal-list", 0]
+                    ],
+                    qualifier: "is",
+                    target: ["dataset", "scroll"],
+                    type: "property",
+                    value: "{\"position\":0,\"entries\":[11]}"
+                }
+            ]
+        },
+
+
+
+        // access the primary menu
+        mainMenu("self"),
+
         // open a file navigator modal
         {
             delay: {
@@ -789,7 +844,7 @@ const browserSelf:test_browserItem[] = [
                 qualifier: "is",
                 target: ["style", "top"],
                 type: "property",
-                value: "20.9em"
+                value: "21.8em"
             },
             interaction: [
                 {
@@ -812,7 +867,7 @@ const browserSelf:test_browserItem[] = [
                     qualifier: "is",
                     target: ["style", "left"],
                     type: "property",
-                    value: "20.9em"
+                    value: "21.8em"
                 },
                 {
                     // the file navigator modal is a different size
@@ -1716,13 +1771,13 @@ const browserSelf:test_browserItem[] = [
                 node: [
                     ["getModalsByModalType", "file-navigate", 1],
                     ["getElementsByClassName", "body", 0],
-                    ["getElementsByClassName", "directory", 0]
-
+                    ["getElementsByClassName", "fileList", 0],
+                    ["firstChild", null, null]
                 ],
                 qualifier: "contains",
-                target: ["innerHTML"],
-                type: "property",
-                value: filePathEncode("relative", "/_newDirectory-1")
+                target: ["class"],
+                type: "attribute",
+                value: "directory"
             },
             interaction: [
                 {
@@ -2289,7 +2344,7 @@ const browserSelf:test_browserItem[] = [
         {
             delay: {
                 node: [
-                    ["getModalsByModalType", "terminal", 0],
+                    ["getModalsByModalType", "terminal", 1],
                     ["getElementsByClassName", "terminal-list", 0],
                     ["getElementsByTagName", "li", null]
                 ],
@@ -2309,11 +2364,11 @@ const browserSelf:test_browserItem[] = [
                 }
             ],
             machine: "self",
-            name: "Open terminal modal",
+            name: "Open terminal modal 2",
             unit: [
                 {
                     node: [
-                        ["getModalsByModalType", "terminal", 0],
+                        ["getModalsByModalType", "terminal", 1],
                         ["getElementsByClassName", "terminal-list", 0],
                         ["getElementsByTagName", "li", 2]
                     ],
@@ -2324,13 +2379,13 @@ const browserSelf:test_browserItem[] = [
                 },
                 {
                     node: [
-                        ["getModalsByModalType", "terminal", 0],
+                        ["getModalsByModalType", "terminal", 1],
                         ["getElementsByClassName", "terminal-list", 0]
                     ],
                     qualifier: "is",
                     target: ["dataset", "scroll"],
                     type: "property",
-                    value: "{\"position\":0,\"entries\":[57]}"
+                    value: "{\"position\":0,\"entries\":[59]}"
                 }
             ]
         },
@@ -2600,7 +2655,7 @@ const browserSelf:test_browserItem[] = [
                     qualifier: "ends",
                     target: ["value"],
                     type: "property",
-                    value: `,"left":245,"top":245,"height":400,"status":"normal","text_value":"God bless kittens"}},"modalTypes":["configuration","file-navigate","shares","terminal","text-pad"],"nameDevice":"Primary Device","nameUser":"Primary User","statusTime":15000,"storage":"${filePathEncode("absolute", "lib/storage/", true)}","tutorial":true,"zIndex":6}`
+                    value: `,"left":254,"top":254,"height":400,"status":"normal","text_value":"God bless kittens"}},"modalTypes":["configuration","terminal","file-navigate","shares","text-pad"],"nameDevice":"Primary Device","nameUser":"Primary User","statusTime":15000,"storage":"${filePathEncode("absolute", "lib/storage/", true)}","tutorial":true,"zIndex":7}`
                 }
             ]
         },

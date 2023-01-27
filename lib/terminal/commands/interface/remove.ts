@@ -12,7 +12,7 @@ const interfaceRemove = function terminal_commands_interface_remove(callback:com
         error([
             "Command remove requires a file path",
             `${vars.text.cyan + vars.terminal.command_instruction}remove ../jsFiles${vars.text.none}`
-        ]);
+        ], null);
         return;
     }
     remove(pathItem, vars.terminal.exclusions, function terminal_commands_interface_remove_callback(title:string, text:string[]):void {

@@ -1,6 +1,7 @@
 
 /* lib/terminal/utilities/error - A utility for processing and logging errors from the terminal application. */
 
+import { ExecException } from "child_process";
 import { arch, cpus, EOL, freemem, platform, release, totalmem } from "os";
 
 import common from "../../common/common.js";
@@ -9,7 +10,7 @@ import sender from "../server/transmission/sender.js";
 import vars from "./vars.js";
 
 // uniform error formatting
-const error = function terminal_utilities_error(errText:string[], noStack?:boolean):void {
+const error = function terminal_utilities_error(errText:string[], errObject:ExecException|NodeJS.ErrnoException, noStack?:boolean):void {
     // eslint-disable-next-line
     const logger:(input:string|object) => void = console.log,
         bell = function terminal_utilities_error_bell():void {

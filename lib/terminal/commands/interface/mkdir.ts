@@ -12,7 +12,7 @@ const interfaceMkdir = function terminal_commands_interface_mkdir(callback:comma
         error([
             "No directory name specified.",
             `See ${vars.text.cyan + vars.terminal.command_instruction} commands mkdir${vars.text.none} for examples.`
-        ], true);
+        ], null, true);
         process.exit(1);
         return;
     }

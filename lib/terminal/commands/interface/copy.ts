@@ -11,11 +11,11 @@ const interfaceCopy = function terminal_commands_interface_copy(callback:command
         error([
             "The copy command requires a source path and a destination path.",
             `Please execute ${vars.text.cyan + vars.terminal.command_instruction}commands copy${vars.text.none} for examples.`
-        ]);
+        ], null);
         return;
     }
     const config:config_command_copy = {
-        callback: function terminal_commands_inteface_copy_callback(title:string, text:string[]):void {
+        callback: function terminal_commands_interface_copy_callback(title:string, text:string[]):void {
             callback(title, text, null);
         },
         destination: resolve(process.argv[1]),

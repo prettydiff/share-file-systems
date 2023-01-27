@@ -46,7 +46,10 @@ const update = function terminal_commands_library_update():void {
                     log([output.toString()]);
                 });
                 spawnItem.stderr.on("data", function terminal_commands_library_update_command_stderr(output:Buffer):void {
-                    error([output.toString()]);
+                    error([
+                        `Unexpected data to stderr from command: ${command}`,
+                        output.toString()
+                    ], null);
                 });
             }
         },

@@ -21,7 +21,7 @@ const agentOnline = function terminal_commands_library_agentOnline(callback:comm
             error([
                 `${vars.text.angry}Device data is not present in settings.${vars.text.angry}`,
                 `Run the ${vars.text.cyan}service${vars.text.none} command and go to address ${vars.text.cyan + vars.network.domain + vars.text.none} in the web browser to initiate device data.`
-            ], true);
+            ], null, true);
             return;
         }
         if (arg === "list") {
@@ -123,7 +123,7 @@ const agentOnline = function terminal_commands_library_agentOnline(callback:comm
                 title = "Agent test for Single Agent";
             }
             if (arg !== "all" && arg !== "device" && arg !== "user" && vars.settings[type][arg] === undefined) {
-                error([`${vars.text.angry}Parameter ${arg} is either not an accepted agent identifier or is not present in settings files device.json or user.json.${vars.text.none}`], true);
+                error([`${vars.text.angry}Parameter ${arg} is either not an accepted agent identifier or is not present in settings files device.json or user.json.${vars.text.none}`], null, true);
                 return;
             }
             if (arg === hash) {
