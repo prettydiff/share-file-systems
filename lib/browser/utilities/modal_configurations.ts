@@ -566,6 +566,7 @@ const modal_configuration:module_modalConfiguration = {
                         inputs: ["close", "maximize", "minimize"],
                         read_only: false,
                         socket: false,
+                        string_store: [],
                         text_value: "",
                         type: "terminal",
                         width: 800
@@ -583,7 +584,11 @@ const modal_configuration:module_modalConfiguration = {
             document.getElementById("menu").style.display = "none";
             textArea.placeholder = "Type a command here. Press 'ins' key for file system auto-completion.";
             box = modal.content(payloadModal);
-            terminal.tools.send(box, "", false);
+            if (config === undefined) {
+                terminal.tools.send(box, "", false);
+            } else {
+                terminal.tools.populate(box, config.string_store, true);
+            }
             return box;
         },
 

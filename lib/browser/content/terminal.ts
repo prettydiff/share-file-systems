@@ -22,7 +22,7 @@ import util from "../utilities/util.js";
  *     };
  *     tools: {
  *         controlKeys: (event:KeyboardEvent, list:HTMLElement) => void;
- *         populate: (element:HTMLElement, logs:string[]) => void;
+ *         populate: (box:modal, logs:string[], restore:boolean) => void;
  *         send: (box:modal, command:string, autoComplete:boolean) => void;
  *     };
  * }
@@ -78,7 +78,7 @@ const terminal:module_browserTerminal = {
                 };
             if (key === "c" && event.ctrlKey === true) {
                 terminal.tools.send(box, "close-modal", false);
-                terminal.tools.populate(list, [""]);
+                terminal.tools.populate(box, [""], false);
                 clearTarget();
                 return;
             }
@@ -94,7 +94,7 @@ const terminal:module_browserTerminal = {
                     list.appendText("", true);
                     list.setAttribute("data-scroll", JSON.stringify(scroll));
                 } else if (value === "") {
-                    terminal.tools.populate(list, [""]);
+                    terminal.tools.populate(box, [""], false);
                 } else {
                     terminal.tools.send(box, value, false);
                 }
@@ -158,19 +158,19 @@ const terminal:module_browserTerminal = {
                 write = function browser_content_terminal_receive_update(box:modal):void {
                     if (box !== null) {
                         const cwd:HTMLElement = box.getElementsByClassName("terminal-cwd")[0] as HTMLElement;
-                        terminal.tools.populate(box.getElementsByClassName("terminal-list")[0] as HTMLElement, data.logs);
+                        terminal.tools.populate(box, data.logs, false);
                         if (browser.data.modals[data.id] !== null && browser.data.modals[data.id].text_placeholder !== data.directory) {
                             browser.data.modals[data.id].text_placeholder = data.directory;
-                            network.configuration();
                         }
                         cwd.appendText(data.directory, true);
+                        network.configuration();
                     }
                 };
             if (data.id === "all") {
                 const terminals:HTMLElement[] = document.getModalsByModalType("terminal"),
-                    each = function browser_content_terminal_each(element:HTMLElement):void {
-                        if (element.dataset.agent === data.agentSource.agent && element.dataset !== undefined && element.dataset.agenttype === data.agentSource.agentType) {
-                            write(element);
+                    each = function browser_content_terminal_each(box:modal):void {
+                        if (box.dataset.agent === data.agentSource.agent && box.dataset !== undefined && box.dataset.agenttype === data.agentSource.agentType) {
+                            write(box);
                         }
                     };
                 terminals.forEach(each);
@@ -183,8 +183,8 @@ const terminal:module_browserTerminal = {
                     textArea.selectionEnd = data.autoComplete;
                 }
             } else {
-                const element:HTMLElement = document.getElementById(data.id);
-                write(element);
+                const box:modal = document.getElementById(data.id);
+                write(box);
             }
         }
     },
@@ -247,8 +247,10 @@ const terminal:module_browserTerminal = {
                 return;
             }
         },
-        populate: function browser_content_terminal_populate(element:HTMLElement, logs:string[]):void {
-            const items:number = element.getElementsByTagName("li").length,
+        populate: function browser_content_terminal_populate(box:modal, logs:string[], restore:boolean):void {
+            const element:HTMLElement = box.getElementsByClassName("terminal-list")[0] as HTMLElement,
+                id:string = box.getAttribute("id"),
+                items:number = element.getElementsByTagName("li").length,
                 each = function browser_content_terminalPopulate_each(logItem:string):void {
                     let count:number = 0;
                     const li:HTMLElement = document.createElement("li"),
@@ -306,6 +308,9 @@ const terminal:module_browserTerminal = {
                             }
                             return "";
                         };
+                    if (restore === false) {
+                        browser.data.modals[id].string_store.push(logItem);
+                    }
                     logItem = util.sanitizeHTML(logItem);
                     do {
                         logItem = logItem.replace(ansi, list).replace(/\u001b\[0m/g, end);

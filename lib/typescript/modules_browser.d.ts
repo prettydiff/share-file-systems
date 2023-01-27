@@ -177,7 +177,7 @@ interface module_agentStatus {
  *     };
  *     tools: {
  *         controlKeys: (event:KeyboardEvent, list:HTMLElement) => void;
- *         populate: (element:HTMLElement, logs:string[]) => void;
+ *         populate: (box:modal, logs:string[], restore:boolean) => void;
  *         send: (box:modal, command:string, autoComplete:boolean) => void;
  *     };
  * }
@@ -193,7 +193,7 @@ interface module_browserTerminal {
     };
     tools: {
         controlKeys: (event:KeyboardEvent, list:HTMLElement) => void;
-        populate: (element:HTMLElement, logs:string[]) => void;
+        populate: (box:modal, logs:string[], restore:boolean) => void;
         send: (box:modal, command:string, autoComplete:boolean) => void;
     };
 }
