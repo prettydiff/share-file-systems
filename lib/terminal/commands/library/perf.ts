@@ -7,6 +7,7 @@ import common from "../../../common/common.js";
 import error from "../../utilities/error.js";
 import humanTime from "../../utilities/humanTime.js";
 import log from "../../utilities/log.js";
+import readCerts from "../../server/readCerts.js";
 import transmit_ws from "../../server/transmission/transmit_ws.js";
 import vars from "../../utilities/vars.js";
 
@@ -152,17 +153,29 @@ const perf:module_perf = {
                 port: 0,
                 options: null
             };
-            transmit_ws.server(configServer);
+            if (vars.settings.secure === true) {
+                readCerts(function terminal_commands_library_perf_preparationSocket_readCerts(options:transmit_tlsOptions):void {
+                    configServer.options = options;
+                    transmit_ws.server(configServer);
+                });
+            } else {
+                transmit_ws.server(configServer);
+            }
         }
     },
     socket: null,
     start: function terminal_commands_library_perf_start(config:config_perf_start):void {
+        const secure:string = (config.secure === true)
+            ? "Secure"
+            : "Insecure";
         if (perf.preparation[config.type] === undefined) {
             error([`Unsupported perf type: ${vars.text.angry + config.type + vars.text.none}`], null);
             return;
         }
-        vars.settings.secure = false;
-        log.title(`Performance - ${config.type}`, vars.settings.secure);
+        if (config.secure === false) {
+            vars.settings.secure = false;
+        }
+        log.title(`Performance - ${secure} ${config.type}`, vars.settings.secure);
         perf.frequency = config.frequency;
         perf.preparation[config.type]();
     },

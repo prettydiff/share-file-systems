@@ -333,6 +333,7 @@ interface service_terminal {
     logs: string[];
     target: agentTransmit;
 }
+
 /**
  * The data object for transferring browser test automation items across the network.
  * ```typescript
