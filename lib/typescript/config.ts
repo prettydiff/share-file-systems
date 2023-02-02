@@ -457,11 +457,13 @@ declare global {
      * ```typescript
      * interface config_perf_start {
      *     frequency: number;
+     *     secure: boolean;
      *     type: string;
      * }
      * ``` */
     interface config_perf_start {
         frequency: number;
+        secure: boolean;
         type: string;
     }
 

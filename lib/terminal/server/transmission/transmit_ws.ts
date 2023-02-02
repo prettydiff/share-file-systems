@@ -781,6 +781,7 @@ const transmit_ws:module_transmit_ws = {
                 socket.once("data", handshake);
             },
             wsServer:Server = (vars.settings.secure === true && config.options !== null)
+                // options are of type TlsOptions
                 ? createSecureServer({
                     ca: config.options.options.ca,
                     cert: config.options.options.cert,
@@ -809,8 +810,8 @@ const transmit_ws:module_transmit_ws = {
     socketExtensions: function terminal_server_transmission_transmitWs_socketExtension(config:config_websocket_extensions):void {
         if (
             (config.type === "test-browser" && vars.test.type.indexOf("browser_") === 0) ||
-            transmit_ws.clientList[config.type as agentType | "browser"][config.identifier] === undefined ||
-            (config.type === "perf" && (config.socket.remoteAddress === "::1" || config.socket.remoteAddress.replace("::ffff:", "") === "127.0.0.1"))
+            (config.type === "perf" && (config.socket.remoteAddress === "::1" || config.socket.remoteAddress.replace("::ffff:", "") === "127.0.0.1")) ||
+            transmit_ws.clientList[config.type as agentType | "browser"][config.identifier] === undefined
         ) {
             const ping = function terminal_server_transmission_transmitWs_socketExtension_ping(ttl:number, callback:(err:NodeJS.ErrnoException, roundtrip:bigint) => void):void {
                 const errorObject = function terminal_server_transmission_transmitWs_socketExtension_ping_errorObject(code:string, message:string):NodeJS.ErrnoException {
