@@ -323,10 +323,24 @@ const commands_documentation = function terminal_utility_commandsDocumentation(c
         },
         perf: {
             description: "Measure performance aspects of the application.",
-            example: [{
-                code: `${command}perf`,
-                defined: "Starts the performance tool against the default scenario, socket, which measures socket message speed."
-            }]
+            example: [
+                {
+                    code: `${command}perf`,
+                    defined: "Starts the performance tool against the default scenario, socket, which measures socket message speed."
+                },
+                {
+                    code: `${command}perf 300000`,
+                    defined: "A numeric argument specifies the quantity of events to execute."
+                },
+                {
+                    code: `${command}perf insecure`,
+                    defined: "By default the perf command assumes secure protocols (HTTPS and WSS) but supplying the 'insecure' argument will allow use of insecure protocols (HTTP and WS)."
+                },
+                {
+                    code: `${command}perf socket`,
+                    defined: "Other argument values are interpreted as the type of performance test to run.  Currently the only supported performance test type is 'socket'."
+                }
+            ]
         },
         remove: {
             description: "Remove a file or directory tree from the local file system.",
