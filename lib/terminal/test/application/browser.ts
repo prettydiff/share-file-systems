@@ -156,7 +156,9 @@ const defaultCommand:commands = vars.environment.command,
                 }
                 vars.environment.command = "test_browser";
                 vars.network.addresses = {
-                    IPv4: [machines[browser.name].ip],
+                    IPv4: (args.mode === "self")
+                        ? ["127.0.0.1"]
+                        : [machines[browser.name].ip],
                     IPv6: []
                 };
                 vars.path.settings = vars.path.testStorage;
@@ -172,6 +174,9 @@ const defaultCommand:commands = vars.environment.command,
                         : null
                 };
                 vars.test.type = `browser_${args.mode}` as test_listType;
+                if (args.mode === "self") {
+                    browser.name = "self";
+                }
                 transmit_http.server({
                     browser: false,
                     host: "",
