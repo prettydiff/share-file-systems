@@ -1,8 +1,8 @@
 /* lib/terminal/server/transmission/transmit_ws - A command utility for creating a websocket server or client. */
 
-import { AddressInfo, connect as connectInsecure, createServer as createInsecureServer, Server } from "net";
-import { StringDecoder } from "string_decoder";
-import { connect as connectSecure, createServer as createSecureServer, TLSSocket } from "tls";
+import { AddressInfo, connect as connectInsecure, createServer as createInsecureServer, Server } from "node:net";
+import { StringDecoder } from "node:string_decoder";
+import { connect as connectSecure, createServer as createSecureServer, TLSSocket } from "node:tls";
 
 import agent_management from "../services/agent_management.js";
 import agent_status from "../services/agent_status.js";

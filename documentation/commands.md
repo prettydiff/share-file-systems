@@ -201,6 +201,12 @@ Measure performance aspects of the application.
 ### Examples
 1. `share perf`
    - Starts the performance tool against the default scenario, socket, which measures socket message speed.
+1. `share perf 300000`
+   - A numeric argument specifies the quantity of events to execute.
+1. `share perf insecure`
+   - By default the perf command assumes secure protocols (HTTPS and WSS) but supplying the 'insecure' argument will allow use of insecure protocols (HTTP and WS).
+1. `share perf socket`
+   - Other argument values are interpreted as the type of performance test to run.  Currently the only supported performance test type is 'socket'.
 
 ## remove
 Remove a file or directory tree from the local file system.
