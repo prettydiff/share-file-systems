@@ -33,7 +33,7 @@ const log = function terminal_utilities_log(output:string[], end?:boolean):void 
                         return "s";
                     };
                 if (days < 1) {
-                    return "today";
+                    return "within last day";
                 } else {
                     const month:number = (day * 30),
                         months:number = Math.floor(duration / month);
