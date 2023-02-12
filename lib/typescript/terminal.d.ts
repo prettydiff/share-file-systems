@@ -210,6 +210,7 @@ declare global {
      *         };
      *         devDependencies: stringStore;
      *     };
+     *     versionDate: number;
      * }
      * ``` */
     interface configuration_application {
@@ -248,6 +249,7 @@ declare global {
             };
             devDependencies: stringStore;
         };
+        versionDate: number;
     }
 
     /**

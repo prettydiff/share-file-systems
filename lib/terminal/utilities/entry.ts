@@ -31,6 +31,7 @@ const entry = function terminal_entry(callback:(title:string, text:string[]) => 
                 if (er === null) {
                     const data:version = JSON.parse(versionFile);
                     vars.environment.date = data.date;
+                    vars.environment.dateRaw = data.mtime;
                     vars.environment.git_hash = data.git_hash;
                     vars.environment.version = data.version;
                     execute();

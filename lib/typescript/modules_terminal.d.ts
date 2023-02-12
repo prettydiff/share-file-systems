@@ -295,6 +295,7 @@ declare global {
      *     environment: {
      *         command     : commands;              // command name currently executing the application
      *         date        : string;                // dynamically populated static value of date of prior version change
+     *         dateRaw     : number;                // raw numeric version of date or prior change
      *         domain      : string[];              // supported domains that resolves to a localhost IP
      *         git_hash    : string;                // dynamically populated static value of hash from prior git commit at latest build
      *         module_type : "commonjs" | "module"  // the type of module system the application is currently using
@@ -362,6 +363,7 @@ declare global {
         environment: {
             command     : commands;
             date        : string;
+            dateRaw     : number;
             git_hash    : string;
             module_type : "commonjs" | "module";
             log         : string[];
