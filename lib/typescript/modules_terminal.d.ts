@@ -215,21 +215,22 @@ declare global {
      * Structure of methods for conducting performance tests.
      * ```typescript
      * interface module_perf {
-     *     averages: (perfType:string) => void;
-     *     conclude: {
+     *     averages: (perfType:string) => void;         // outputs averages for the various test runs
+     *     conclude: {                                  // outputs message for a given test index
      *         [key:string]: (data:socketData) => void;
      *     };
-     *     frequency: number;
-     *     interval: {
+     *     frequency: number;                           // the number of action to complete in a given test index
+     *     interval: {                                  // the task to execute in a given test index
      *         [key:string]: () => void;
      *     };
-     *     preparation: {
+     *     preparation: {                               // any start up instructions to execute before measuring given test indexes
      *         [key:string]: () => void;
      *     };
-     *     socket: websocket_client;
+     *     size: number;                                // the payload size of the thing exercised or measured
+     *     socket: websocket_client;                    // holds a given socket dedicated for performance testing
      *     start: (config:config_perf_start, callback:(title:string, text:string[], fail:boolean) => void) => void;
-     *     startTime: bigInt;
-     *     storage: number[][];
+     *     startTime: bigInt;                           // stores a high precision time number to measure against
+     *     storage: number[][];                         // stores raw data per given test index
      * }
      * ``` */
     interface module_perf {
@@ -244,6 +245,7 @@ declare global {
         preparation: {
             [key:string]: () => void;
         };
+        size: number;
         socket: websocket_client;
         start: (config:config_perf_start, callback:(title:string, text:string[], fail:boolean) => void) => void;
         startTime: bigint;
@@ -295,6 +297,7 @@ declare global {
      *     environment: {
      *         command     : commands;              // command name currently executing the application
      *         date        : string;                // dynamically populated static value of date of prior version change
+     *         dateRaw     : number;                // raw numeric version of date or prior change
      *         domain      : string[];              // supported domains that resolves to a localhost IP
      *         git_hash    : string;                // dynamically populated static value of hash from prior git commit at latest build
      *         module_type : "commonjs" | "module"  // the type of module system the application is currently using
@@ -362,6 +365,7 @@ declare global {
         environment: {
             command     : commands;
             date        : string;
+            dateRaw     : number;
             git_hash    : string;
             module_type : "commonjs" | "module";
             log         : string[];

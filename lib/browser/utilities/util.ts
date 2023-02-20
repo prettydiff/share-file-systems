@@ -17,7 +17,6 @@ import share from "../content/share.js";
  *     dragBox          : (event:MouseEvent|TouchEvent, callback:(event:MouseEvent, dragBox:HTMLElement) => void) => void; // Draw a selection box to capture a collection of items into a selection.
  *     dragList         : (event:MouseEvent, dragBox:HTMLElement) => void;   // Selects list items in response to drawing a drag box.
  *     fileAgent        : (element:HTMLElement, copyElement:HTMLElement, address?:string) => [fileAgent, fileAgent, fileAgent]; // Produces fileAgent objects for service_fileSystem and service_copy.
- *     fixHeight        : () => void;                                        // Resizes the interactive area to fit the browser viewport.
  *     formKeys         : (event:KeyboardEvent, submit:() => void) => void;  // Provides form execution on key down of 'Enter' key to input fields not in a form.
  *     getAgent         : (element:HTMLElement) => agency;                   // Get the agent of a given modal.
  *     keys             : (event:KeyboardEvent) => void;                     // Executes shortcut key combinations.
@@ -423,15 +422,6 @@ const util:module_util = {
                     };
                 }())
         ];
-    },
-
-    /* Resizes the interactive area to fit the browser viewport. */
-    fixHeight: function browser_utilities_util_fixHeight():void {
-        const height:number   = window.innerHeight || document.getElementsByTagName("body")[0].clientHeight;
-        document.getElementById("spaces").style.height = `${height / 10}em`;
-        browser.content.style.height = `${(height - 51) / 10}em`;
-        document.getElementById("agentList").style.height = `${(window.innerHeight - 80) / 10}em`;
-        document.getElementById("tray").style.width = `${(window.innerWidth - 17.5) / 10}em`;
     },
 
     /* Provides form execution to input fields not in a form. */

@@ -601,6 +601,8 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                 }
                                 if (stringItem !== "") {
                                     writeFile(vars.path.project + keys[a], stringItem, "utf8", writeCallback);
+                                } else {
+                                    writeCallback(null);
                                 }
                             },
                             removeCallback = function terminal_commands_library_build_configurations_readFile_removeCallback():void {
@@ -1553,13 +1555,6 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                                     html: false,
                                                     package: false
                                                 },
-                                                version:version = {
-                                                    date: vars.environment.date,
-                                                    git_hash: (stdout === "")
-                                                        ? "(git not used)"
-                                                        : stdout.replace(/\s+/g, ""),
-                                                    version: packageData.version
-                                                },
                                                 readHTML = function terminal_commands_library_build_version_packStat_readPack_commitHash_readHTML(err:Error, fileData:string):void {
                                                     if (err !== null) {
                                                         error(["Error reading index.html file."], err);
@@ -1594,19 +1589,106 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                                             if (flag.html === true && flag.package === true) {
                                                                 next("Version data written");
                                                             }
+                                                        },
+                                                        versionWrite = function terminal_commands_library_build_version_packStat_readPack_commitHash_packageWrite(err:Error):void {
+                                                            if (err === null) {
+                                                                flag.package = true;
+                                                                if (flag.config === true && flag.html === true) {
+                                                                    next("Version data written");
+                                                                }
+                                                            }
+                                                        },
+                                                        versionCheck = (function terminal_commands_library_build_version_packStat_versionCheck():boolean {
+                                                            if (vars.environment.version = "") {
+                                                                return true;
+                                                            }
+                                                            const packVersions:string[] = packageData.version.split("."),
+                                                                packNumbs:number[] = [Number(packVersions[0]), Number(packVersions[1]), Number(packVersions[2])],
+                                                                varVersions:string[] = vars.environment.version.split("."),
+                                                                varNumbs:number[] = [Number(varVersions[0]), Number(varVersions[1]), Number(varVersions[2])];
+                                                            if (packNumbs[0] > varNumbs[0]) {
+                                                                return true;
+                                                            }
+                                                            if (packNumbs[0] === varNumbs[0] && packNumbs[1] > varNumbs[1]) {
+                                                                return true;
+                                                            }
+                                                            if (packNumbs[0] === varNumbs[0] && packNumbs[1] === varNumbs[1] && packNumbs[2] > varNumbs[2]) {
+                                                                return true;
+                                                            }
+                                                            return false;
+                                                        }()),
+                                                        dateRaw:number = (versionCheck === true)
+                                                            ? Date.parse(stats.mtime.toDateString())
+                                                            : config.versionDate,
+                                                        dateObj:Date = new Date(dateRaw),
+                                                        month:string = (function terminal_commands_library_build_version_packStat_month():string {
+                                                            let numb:number = dateObj.getMonth();
+                                                            if (numb === 0) {
+                                                                return "JAN";
+                                                            }
+                                                            if (numb === 1) {
+                                                                return "FEB";
+                                                            }
+                                                            if (numb === 2) {
+                                                                return "MAR";
+                                                            }
+                                                            if (numb === 3) {
+                                                                return "APR";
+                                                            }
+                                                            if (numb === 4) {
+                                                                return "MAY";
+                                                            }
+                                                            if (numb === 5) {
+                                                                return "JUN";
+                                                            }
+                                                            if (numb === 6) {
+                                                                return "JUL";
+                                                            }
+                                                            if (numb === 7) {
+                                                                return "AUG";
+                                                            }
+                                                            if (numb === 8) {
+                                                                return "SEP";
+                                                            }
+                                                            if (numb === 9) {
+                                                                return "OCT";
+                                                            }
+                                                            if (numb === 10) {
+                                                                return "NOV";
+                                                            }
+                                                            if (numb === 11) {
+                                                                return "DEC";
+                                                            }
+                                                        }()),
+                                                        date:string = (versionCheck === true)
+                                                            ? (function terminal_commands_library_build_version_packStat_date():string {
+                                                                const dayString:string = dateObj.getDate().toString(),
+                                                                    dayPadded:string = (dayString.length < 2)
+                                                                        ? `0${dayString}`
+                                                                        : dayString;
+                                                                return `${dayPadded} ${month} ${dateObj.getFullYear().toString()}`;
+                                                            }())
+                                                            : vars.environment.date,
+                                                        version:version = {
+                                                            date: vars.environment.date,
+                                                            git_hash: (stdout === "")
+                                                                ? "(git not used)"
+                                                                : stdout.replace(/\s+/g, ""),
+                                                            mtime: dateRaw,
+                                                            version: packageData.version
                                                         };
                                                     config["package-lock.json"].version = vars.environment.version;
+                                                    config.versionDate = dateRaw;
+                                                    vars.environment.git_hash = version.git_hash;
+                                                    vars.environment.version = packageData.version;
+                                                    vars.environment.date = date;
+                                                    vars.environment.dateRaw = dateRaw;
                                                     writeFile(configPath, JSON.stringify(config), "utf8", writeConfig);
-                                                },
-                                                versionWrite = function terminal_commands_library_build_version_packStat_readPack_commitHash_packageWrite(err:Error):void {
-                                                    if (err === null) {
-                                                        flag.package = true;
-                                                        if (flag.config === true && flag.html === true) {
-                                                            next("Version data written");
-                                                        }
-                                                    }
+
+                                                    // write version data
+                                                    writeFile(`${vars.path.project}version.json`, JSON.stringify(version), versionWrite);
                                                 };
-                
+
                                             if (hashErr !== null) {
                                                 error(["Error gathering latest git commit hash."], hashErr);
                                                 return;
@@ -1618,18 +1700,12 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                                 ], null);
                                                 return;
                                             }
-                
-                                            vars.environment.git_hash = version.git_hash;
-                                            vars.environment.version = packageData.version;
-                
+
                                             // modify index.html
                                             readFile(html, "utf8", readHTML);
-                
+
                                             // modify configuration.json
                                             readFile(configPath, "utf8", readConfig);
-
-                                            // write version data
-                                            writeFile(`${vars.path.project}version.json`, JSON.stringify(version), versionWrite);
                                         };
                                     
                                     stat(`${vars.path.project}.git`, function terminal_commands_library_build_version_packStat_readPack_gitStat(gitError:Error):void {
@@ -1645,52 +1721,7 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                 } else {
                                     error(["Error reading package.json file."], err);
                                 }
-                            },
-                            month:string = (function terminal_commands_library_build_version_packStat_month():string {
-                                let numb:number = stats.mtime.getMonth();
-                                if (numb === 0) {
-                                    return "JAN";
-                                }
-                                if (numb === 1) {
-                                    return "FEB";
-                                }
-                                if (numb === 2) {
-                                    return "MAR";
-                                }
-                                if (numb === 3) {
-                                    return "APR";
-                                }
-                                if (numb === 4) {
-                                    return "MAY";
-                                }
-                                if (numb === 5) {
-                                    return "JUN";
-                                }
-                                if (numb === 6) {
-                                    return "JUL";
-                                }
-                                if (numb === 7) {
-                                    return "AUG";
-                                }
-                                if (numb === 8) {
-                                    return "SEP";
-                                }
-                                if (numb === 9) {
-                                    return "OCT";
-                                }
-                                if (numb === 10) {
-                                    return "NOV";
-                                }
-                                if (numb === 11) {
-                                    return "DEC";
-                                }
-                            }()),
-                            dayString:string = stats.mtime.getDate().toString(),
-                            dayPadded:string = (dayString.length < 2)
-                                ? `0${dayString}`
-                                : dayString,
-                            date:string = `${dayPadded} ${month} ${stats.mtime.getFullYear().toString()}`;
-                        vars.environment.date = date.replace(/-/g, "");
+                            };
 
                         // read package.json
                         readFile(pack, "utf8", readPack);

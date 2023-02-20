@@ -15,21 +15,22 @@ import vars from "../../utilities/vars.js";
  * Structure of methods for conducting performance tests.
  * ```typescript
  * interface module_perf {
- *     averages: (perfType:string) => void;
- *     conclude: {
+ *     averages: (perfType:string) => void;         // outputs averages for the various test runs
+ *     conclude: {                                  // outputs message for a given test index
  *         [key:string]: (data:socketData) => void;
  *     };
- *     frequency: number;
- *     interval: {
+ *     frequency: number;                           // the number of action to complete in a given test index
+ *     interval: {                                  // the task to execute in a given test index
  *         [key:string]: () => void;
  *     };
- *     preparation: {
+ *     preparation: {                               // any start up instructions to execute before measuring given test indexes
  *         [key:string]: () => void;
  *     };
- *     socket: websocket_client;
+ *     size: number;                                // the payload size of the thing exercised or measured
+ *     socket: websocket_client;                    // holds a given socket dedicated for performance testing
  *     start: (config:config_perf_start, callback:(title:string, text:string[], fail:boolean) => void) => void;
- *     startTime: bigInt;
- *     storage: number[][];
+ *     startTime: bigInt;                           // stores a high precision time number to measure against
+ *     storage: number[][];                         // stores raw data per given test index
  * }
  * ``` */
 const perf:module_perf = {
@@ -88,7 +89,7 @@ const perf:module_perf = {
         socket: function terminal_commands_library_perf_concludeSocket():void {
             const duration:number = Number(process.hrtime.bigint() - perf.startTime) / 1e9,
                 storageLength:number = perf.storage.length;
-            log([`${humanTime(false)} Index ${storageLength}. Complete send/receive execution for ${vars.text.cyan + common.commas(perf.frequency) + vars.text.none} messages: ${vars.text.green + duration + vars.text.none} seconds, or ${vars.text.green + common.commas(Math.round(perf.frequency / duration)) + vars.text.none} messages per second.`]);
+            log([`${humanTime(false)} Index ${storageLength}. Complete send/receive execution for ${vars.text.cyan + common.commas(perf.frequency) + vars.text.none} messages of size ${common.prettyBytes(perf.size)}: ${vars.text.green + duration + vars.text.none} seconds, or ${vars.text.green + common.commas(Math.round(perf.frequency / duration)) + vars.text.none} messages per second.`]);
             perf.storage[storageLength - 1][2] = duration;
             perf.averages("socket");
         }
@@ -98,12 +99,17 @@ const perf:module_perf = {
         socket: function terminal_commands_library_perf_intervalSocket():void {
             let index:number = perf.frequency,
                 sentInsecure:number = 0,
-                sentSecure:number = 0,
-                startInsecure:bigint = process.hrtime.bigint();
+                sentSecure:number = 0;
+            const startInsecure:bigint = process.hrtime.bigint(),
+                messageBody:string = "x".repeat(1024);
+             perf.size = Buffer.from(JSON.stringify({
+                data: ["Performance test", messageBody],
+                service: "log"
+            })).length;
             do {
                 index = index - 1;
                 transmit_ws.queue({
-                    data: ["Performance test", String(index)],
+                    data: ["Performance test", messageBody],
                     service: "log"
                 }, perf.socket, 2);
             } while (index > 0);
@@ -114,7 +120,7 @@ const perf:module_perf = {
             do {
                 index = index - 1;
                 transmit_ws.queue({
-                    data: ["Performance test", String(index)],
+                    data: ["Performance test", messageBody],
                     service: "log"
                 }, perf.socket, 1);
             } while (index > 0);
@@ -122,8 +128,8 @@ const perf:module_perf = {
             perf.storage.push([sentInsecure, sentSecure, 0]);
             log([
                 "",
-                `${humanTime(false)} Index ${perf.storage.length}. Send time without message queues for ${vars.text.cyan + common.commas(perf.frequency) + vars.text.none} messages: ${vars.text.green + sentInsecure + vars.text.none} seconds, or ${vars.text.green + common.commas(Math.round(perf.frequency / sentInsecure)) + vars.text.none} messages per second.`,
-                `${humanTime(false)} Index ${perf.storage.length}. Preferred send time with a queue for ${vars.text.cyan + common.commas(perf.frequency) + vars.text.none} messages: ${vars.text.green + sentSecure + vars.text.none} seconds, or ${vars.text.green + common.commas(Math.round(perf.frequency / sentSecure)) + vars.text.none} messages per second.`
+                `${humanTime(false)} Index ${perf.storage.length}. Send time without message queues for ${vars.text.cyan + common.commas(perf.frequency) + vars.text.none} messages of size ${common.prettyBytes(perf.size)}: ${vars.text.green + sentInsecure + vars.text.none} seconds, or ${vars.text.green + common.commas(Math.round(perf.frequency / sentInsecure)) + vars.text.none} messages per second.`,
+                `${humanTime(false)} Index ${perf.storage.length}. Preferred send time with a queue for ${vars.text.cyan + common.commas(perf.frequency) + vars.text.none} messages of size ${common.prettyBytes(perf.size)}: ${vars.text.green + sentSecure + vars.text.none} seconds, or ${vars.text.green + common.commas(Math.round(perf.frequency / sentSecure)) + vars.text.none} messages per second.`
             ]);
             transmit_ws.queue({
                 data: ["Performance test", "complete"],
@@ -163,6 +169,7 @@ const perf:module_perf = {
             }
         }
     },
+    size: 0,
     socket: null,
     start: function terminal_commands_library_perf_start(config:config_perf_start):void {
         const secure:string = (config.secure === true)

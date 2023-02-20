@@ -22,10 +22,38 @@ const log = function terminal_utilities_log(output:string[], end?:boolean):void 
     });
     if (end === true) {
         if (vars.settings.verbose === true || command === "service" || command === "version" || command === "test_browser") {
+            const difference:string = (function terminal_utilities_log_difference():string {
+                const duration:number = Date.now() - vars.environment.dateRaw,
+                    day:number = (1000 * 60 * 60 * 24),
+                    days:number = Math.floor(duration / day),
+                    plural = function terminal_utilities_log_difference_plural(input:number):""|"s" {
+                        if (input === 1) {
+                            return "";
+                        }
+                        return "s";
+                    };
+                if (days < 1) {
+                    return "within last day";
+                } else {
+                    const month:number = (day * 30),
+                        months:number = Math.floor(duration / month);
+                    if (months < 1) {
+                        return `${days} day${plural(days)} ago`;
+                    } else {
+                        const year:number = (day * 365),
+                            years:number = Math.floor(duration / year);
+                        if (years < 1) {
+                            return `${months} month${plural(months)} ago`;
+                        } else {
+                            return `${years} year${plural(years)} ago`;
+                        }
+                    }
+                }
+            }());
             logger("");
             logger("________________________________________________");
             logger(`Version ${vars.text.angry + vars.environment.version + vars.text.none}`);
-            logger(`Updated ${vars.environment.date}`);
+            logger(`Updated ${vars.environment.date} (${difference})`);
             logger(`git Log ${vars.text.cyan + vars.text.bold + vars.environment.git_hash + vars.text.none}`);
             logger("\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e");
         }

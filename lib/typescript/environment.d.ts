@@ -205,11 +205,13 @@ interface ui_data {
  * interface version {
  *     date: string;
  *     git_hash: string;
+ *     mtime: number;
  *     version: string;
  * }
  * ``` */
 interface version {
     date: string;
     git_hash: string;
+    mtime: number;
     version: string;
 }
