@@ -692,7 +692,6 @@ interface module_share {
  *     dragBox          : (event:MouseEvent|TouchEvent, callback:(event:MouseEvent, dragBox:HTMLElement) => void) => void; // Draw a selection box to capture a collection of items into a selection.
  *     dragList         : (event:MouseEvent, dragBox:HTMLElement) => void;   // Selects list items in response to drawing a drag box.
  *     fileAgent        : (element:HTMLElement, copyElement:HTMLElement, address?:string) => [fileAgent, fileAgent, fileAgent]; // Produces fileAgent objects for service_fileSystem and service_copy.
- *     fixHeight        : () => void;                                        // Resizes the interactive area to fit the browser viewport.
  *     formKeys         : (event:KeyboardEvent, submit:() => void) => void;  // Provides form execution on key down of 'Enter' key to input fields not in a form.
  *     getAgent         : (element:HTMLElement) => agency;                   // Get the agent of a given modal.
  *     keys             : (event:KeyboardEvent) => void;                     // Executes shortcut key combinations.
@@ -711,7 +710,6 @@ interface module_util {
     dragBox: (event:MouseEvent|TouchEvent, callback:(event:MouseEvent, dragBox:HTMLElement) => void) => void;
     dragList: (event:MouseEvent, dragBox:HTMLElement) => void;
     fileAgent: (element:HTMLElement, copyElement:HTMLElement, address?:string) => [fileAgent, fileAgent, fileAgent];
-    fixHeight: () => void;
     formKeys: (event:KeyboardEvent, submit:() => void) => void;
     getAgent: (element:HTMLElement) => agency;
     keys: (event:KeyboardEvent) => void;

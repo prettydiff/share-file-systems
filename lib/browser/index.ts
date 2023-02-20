@@ -55,9 +55,6 @@ import disallowed from "../common/disallowed.js";
             };
         }());
 
-        window.onresize = util.fixHeight;
-        document.getElementsByTagName("head")[0].appendChild(browser.style);
-
         // Extend the browser interface
         dom();
         disallowed(true);
@@ -281,22 +278,20 @@ import disallowed from "../common/disallowed.js";
                 } else {
                     restoreState();
                 }
+            },
+
+            // Resizes the interactive area to fit the browser viewport.
+            fixHeight = function browser_init_fixHeight():void {
+                const height:number   = window.innerHeight || document.getElementsByTagName("body")[0].clientHeight;
+                browser.content.style.height = `${(height - 51) / 10}em`;
+                document.getElementById("agentList").style.height = `${(window.innerHeight - 80) / 10}em`;
+                document.getElementById("tray").style.width = `${(window.innerWidth - 17.5) / 10}em`;
             };
-        // set state from artifacts supplied to the page
-        if (stateItem.getAttribute("type") === "hidden") {
-            state = JSON.parse(stateItem.value);
-            if (state.settings.configuration !== undefined) {
-                if (state.settings.configuration.hashDevice !== undefined) {
-                    hashDevice = state.settings.configuration.hashDevice;
-                }
-                if (state.settings.configuration.hashUser !== undefined) {
-                    hashUser = state.settings.configuration.hashUser;
-                }
-            }
-        }
 
         // readjusting the visual appearance of artifacts in the DOM to fit the screen before they are visible to eliminate load drag from page repaint
-        util.fixHeight();
+        window.onresize = fixHeight;
+        document.getElementsByTagName("head")[0].appendChild(browser.style);
+        fixHeight();
         agentList.style.right = (function browser_init_scrollBar():string {
             // agent list is position:fixed, which is outside of parent layout, so I need to ensure it does not overlap the parent scrollbar
             let width:number = 0;
@@ -310,6 +305,19 @@ import disallowed from "../common/disallowed.js";
             browser.pageBody.removeChild(div);
             return `${(width / 10)}em`;
         }());
+
+        // set state from artifacts supplied to the page
+        if (stateItem.getAttribute("type") === "hidden") {
+            state = JSON.parse(stateItem.value);
+            if (state.settings.configuration !== undefined) {
+                if (state.settings.configuration.hashDevice !== undefined) {
+                    hashDevice = state.settings.configuration.hashDevice;
+                }
+                if (state.settings.configuration.hashUser !== undefined) {
+                    hashUser = state.settings.configuration.hashUser;
+                }
+            }
+        }
 
         browser.network = state.network;
         browser.loadComplete = loadComplete;
