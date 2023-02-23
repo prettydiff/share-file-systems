@@ -3,7 +3,6 @@
 import browser from "../utilities/browser.js";
 import common from "../../common/common.js";
 import context from "./context.js";
-import global_events from "./global_events.js";
 import modal from "../utilities/modal.js";
 import network from "../utilities/network.js";
 import util from "../utilities/util.js";
@@ -1099,7 +1098,7 @@ const file_browser:module_fileBrowser = {
         /* Select a file system item for an action */
         select: function browser_content_fileBrowser_select(event:KeyboardEvent|MouseEvent):void {
             event.preventDefault();
-            global_events.contextMenuRemove();
+            context.events.contextMenuRemove();
             const keyboardEvent:KeyboardEvent = event as KeyboardEvent,
                 element:HTMLElement = (function browser_content_fileBrowser_select_element():HTMLElement {
                     const el:HTMLElement = event.target;

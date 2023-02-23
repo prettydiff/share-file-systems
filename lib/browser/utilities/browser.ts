@@ -14,6 +14,7 @@ const browser:browser = {
         hashDevice: "",
         hashType: "sha3-512",
         hashUser: "",
+        minimizeAll: false,
         modals: {},
         modalTypes: [],
         nameDevice: "",
@@ -24,7 +25,6 @@ const browser:browser = {
         zIndex: 0
     },
     device: {},
-    loadComplete: null,
     loading: true,
     network: null,
     message: [],

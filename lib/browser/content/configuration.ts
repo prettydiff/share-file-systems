@@ -212,13 +212,6 @@ const configuration:module_configuration = {
 
         perAgentType("device");
         perAgentType("user");
-        common.agents({
-            countBy: "agent",
-            perAgent: function browser_content_configuration_content_perAgent(agentNames:agentNames):void {
-                configuration.tools.addUserColor(agentNames.agent, agentNames.agentType, configurationBody);
-            },
-            source: browser
-        });
         return configurationBody;
     },
 

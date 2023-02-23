@@ -271,11 +271,12 @@ interface module_configuration {
  *     content: (event:MouseEvent) => HTMLElement; // Creates the HTML content of the context menu.
  *     element: HTMLElement;                       // Stores a reference to the element.target associated with a given menu item.
  *     events: {
- *         copy      : (event:Event) => void; // Handler for the *Copy* menu button, which stores file system address information in the application's clipboard.
- *         destroy   : (event:Event) => void; // Handler for the *Destroy* menu button, which is responsible for deleting file system artifacts.
- *         fsNew     : (event:Event) => void; // Handler for the *New Directory* and *New File* menu buttons.
- *         menu      : (event:Event) => void; // Generates the context menu which populates with different menu items depending upon event.target of the right click.
- *         paste     : (event:Event) => void; // Handler for the *Paste* menu item which performs the file copy operation over the network.
+ *         contextMenuRemove: () => void;            // Removes the file system context menu from the DOM
+ *         copy             : (event:Event) => void; // Handler for the *Copy* menu button, which stores file system address information in the application's clipboard.
+ *         destroy          : (event:Event) => void; // Handler for the *Destroy* menu button, which is responsible for deleting file system artifacts.
+ *         fsNew            : (event:Event) => void; // Handler for the *New Directory* and *New File* menu buttons.
+ *         menu             : (event:Event) => void; // Generates the context menu which populates with different menu items depending upon event.target of the right click.
+ *         paste            : (event:Event) => void; // Handler for the *Paste* menu item which performs the file copy operation over the network.
  *     };
  *     type: contextType; // Stores a context action type for awareness to the context action event handler.
  * }
@@ -286,6 +287,7 @@ interface module_context {
     content:(event:MouseEvent) => HTMLElement;
     element: HTMLElement;
     events: {
+        contextMenuRemove: () => void;
         copy: (event:Event) => void;
         destroy: (event:Event) => void;
         fsNew: (event:Event) => void;
@@ -363,29 +365,6 @@ interface module_fileBrowser {
         listItem: (item:directory_item, extraClass:string) => HTMLElement;
         modalAddress: (event:FocusEvent|KeyboardEvent|MouseEvent, config:config_modal_history) => void;
     };
-}
-
-/**
- * Provides a common location to store events associated with the application at large opposed to content or utility specific events.
- * ```typescript
- * interface module_globalEvents {
- *     contextMenuRemove: () => void;            // Removes a context menu if one is visible.
- *     fullscreen       : (event:Event) => void; // An event handler that launches the browser into fullscreen mode.
- *     fullscreenChange : (event:Event) => void; // An event handler that executes when the browser moves in or out of fullscreen mode.
- *     menu             : (event:Event) => void; // Displays the primary modal in the top left corner of the application.
- *     minimizeAll      : (event:Event) => void; // Forcefully minimizes all modals to the tray at the bottom of the application.
- *     minimizeAllFlag  : boolean;               // A flag that halts state saving until all modals are minimized.
- *     visibility: () => void;                   // Determines whether the current browser tab is visible or hidden.
- * }
- * ``` */
-interface module_globalEvents {
-    contextMenuRemove: () => void;
-    fullscreen: (event:Event) => void;
-    fullscreenChange: (event:Event) => void;
-    menu: (event:Event) => void;
-    minimizeAll: (event:Event) => void;
-    minimizeAllFlag: boolean;
-    visibility: () => void;
 }
 
 /**

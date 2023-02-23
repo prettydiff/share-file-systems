@@ -9,7 +9,6 @@
  *     content: HTMLElement;
  *     data: ui_data;
  *     device: agents;
- *     loadComplete: () => void;
  *     loadFlag: boolean;
  *     localNetwork: localNetwork;
  *     message: service_message;
@@ -26,7 +25,6 @@ interface browser {
     content: HTMLElement;
     data: ui_data;
     device: agents;
-    loadComplete: () => void;
     loading: boolean;
     message: service_message;
     network: localNetwork;
@@ -166,6 +164,7 @@ interface terminalVariables_settings {
  *     hashDevice: string;
  *     hashType: hash;
  *     hashUser: string;
+ *     minimizeAll: boolean;
  *     modals: {
  *         [key:string]: modal;
  *     };
@@ -187,6 +186,7 @@ interface ui_data {
     hashDevice: string;
     hashType: hash;
     hashUser: string;
+    minimizeAll: boolean;
     modals: {
         [key:string]: config_modal;
     };
