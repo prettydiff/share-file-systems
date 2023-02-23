@@ -1539,7 +1539,6 @@ const build = function terminal_commands_library_build(config:config_command_bui
             // write the current version, change date, and modify html
             version: function terminal_commands_library_build_version():void {
                 const pack:string = `${vars.path.project}package.json`,
-                    html:string = `${vars.path.project}index.html`,
                     configPath:string = `${vars.path.project}lib${vars.path.sep}configurations.json`,
                     packStat = function terminal_commands_library_build_version_packStat(ers:Error, stats:Stats):void {
                         if (ers !== null) {
@@ -1552,27 +1551,7 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                         commitHash = function terminal_commands_library_build_version_packStat_readPack_commitHash(hashErr:Error, stdout:string, stderr:string):void {
                                             const flag:flagList = {
                                                     config: false,
-                                                    html: false,
                                                     package: false
-                                                },
-                                                readHTML = function terminal_commands_library_build_version_packStat_readPack_commitHash_readHTML(err:Error, fileData:string):void {
-                                                    if (err !== null) {
-                                                        error(["Error reading index.html file."], err);
-                                                        return;
-                                                    }
-                                                    const regex:RegExp = new RegExp("<h1>\\s*(\\w+\\s*)*\\s*<span\\s+class=(\"|')application-version(\"|')>(version\\s+\\d+(\\.\\d+)+)?\\s*<\\/span>\\s*<\\/h1>", "g"),
-                                                        writeHTML = function terminal_commands_library_build_version_packStat_readPack_commitHash_readHTML_writeHTML(erh:Error):void {
-                                                            if (erh !== null) {
-                                                                error(["Error writing updated index.html file."], erh);
-                                                                return;
-                                                            }
-                                                            flag.html = true;
-                                                            if (flag.config === true && flag.package === true) {
-                                                                next("Version data written");
-                                                            }
-                                                        };
-                                                    fileData = fileData.replace(regex, `<h1>${vars.environment.name} <span class="application-version">version ${vars.environment.version}</span></h1>`);
-                                                    writeFile(html, fileData, "utf8", writeHTML);
                                                 },
                                                 readConfig = function terminal_commands_library_build_version_packStat_readPack_commitHash_readConfig(err:Error, configFile:string):void {
                                                     if (err !== null) {
@@ -1586,14 +1565,14 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                                                 return;
                                                             }
                                                             flag.config = true;
-                                                            if (flag.html === true && flag.package === true) {
+                                                            if (flag.package === true) {
                                                                 next("Version data written");
                                                             }
                                                         },
                                                         versionWrite = function terminal_commands_library_build_version_packStat_readPack_commitHash_packageWrite(err:Error):void {
                                                             if (err === null) {
                                                                 flag.package = true;
-                                                                if (flag.config === true && flag.html === true) {
+                                                                if (flag.config === true) {
                                                                     next("Version data written");
                                                                 }
                                                             }
@@ -1700,9 +1679,6 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                                 ], null);
                                                 return;
                                             }
-
-                                            // modify index.html
-                                            readFile(html, "utf8", readHTML);
 
                                             // modify configuration.json
                                             readFile(configPath, "utf8", readConfig);
