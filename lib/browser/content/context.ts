@@ -3,8 +3,6 @@
 
 import browser from "../utilities/browser.js";
 import file_browser from "./file_browser.js";
-import global_events from "./global_events.js";
-import modal from "../utilities/modal.js";
 import modal_configuration from "../utilities/modal_configurations.js";
 import network from "../utilities/network.js";
 import share from "./share.js";
@@ -20,11 +18,12 @@ import util from "../utilities/util.js";
  *     content: (event:MouseEvent) => HTMLElement; // Creates the HTML content of the context menu.
  *     element: HTMLElement;                       // Stores a reference to the element.target associated with a given menu item.
  *     events: {
- *         copy      : (event:Event) => void; // Handler for the *Copy* menu button, which stores file system address information in the application's clipboard.
- *         destroy   : (event:Event) => void; // Handler for the *Destroy* menu button, which is responsible for deleting file system artifacts.
- *         fsNew     : (event:Event) => void; // Handler for the *New Directory* and *New File* menu buttons.
- *         menu      : (event:Event) => void; // Generates the context menu which populates with different menu items depending upon event.target of the right click.
- *         paste     : (event:Event) => void; // Handler for the *Paste* menu item which performs the file copy operation over the network.
+ *         contextMenuRemove: () => void;            // Removes the file system context menu from the DOM
+ *         copy             : (event:Event) => void; // Handler for the *Copy* menu button, which stores file system address information in the application's clipboard.
+ *         destroy          : (event:Event) => void; // Handler for the *Destroy* menu button, which is responsible for deleting file system artifacts.
+ *         fsNew            : (event:Event) => void; // Handler for the *New Directory* and *New File* menu buttons.
+ *         menu             : (event:Event) => void; // Generates the context menu which populates with different menu items depending upon event.target of the right click.
+ *         paste            : (event:Event) => void; // Handler for the *Paste* menu item which performs the file copy operation over the network.
  *     };
  *     type: contextType; // Stores a context action type for awareness to the context action event handler.
  * }
@@ -220,11 +219,11 @@ const context:module_context = {
             reverse:boolean = false,
             a:number = 0;
         context.element = element;
-        global_events.contextMenuRemove();
+        context.events.contextMenuRemove();
         event.preventDefault();
         event.stopPropagation();
         menu.setAttribute("id", "contextMenu");
-        menu.onclick = global_events.contextMenuRemove;
+        menu.onclick = context.events.contextMenuRemove;
         if (nodeName === "ul") {
             functions.details();
             if (readOnly === false) {
@@ -311,6 +310,14 @@ const context:module_context = {
     element: null,
 
     events: {
+
+        /* Removes the file system context menu from the DOM */
+        contextMenuRemove: function browser_content_context_contextMenuRemove():void {
+            const menu:HTMLElement = document.getElementById("contextMenu");
+            if (menu !== null) {
+                menu.parentNode.removeChild(menu);
+            }
+        },
 
         /* Handler for file system artifact copy */
         copy: function browser_content_context_copy(event:Event):void {

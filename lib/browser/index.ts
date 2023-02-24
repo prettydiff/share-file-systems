@@ -5,14 +5,14 @@ import agent_hash from "./utilities/agent_hash.js";
 import agent_management from "./content/agent_management.js";
 import agent_status from "./utilities/agent_status.js";
 import browser from "./utilities/browser.js";
-import global_events from "./content/global_events.js";
+import context from "./content/context.js";
 import dom from "./utilities/dom.js";
 import message from "./content/message.js";
 import modal_configuration from "./utilities/modal_configurations.js";
+import modal from "./utilities/modal.js";
 import network from "./utilities/network.js";
 import remote from "./utilities/remote.js";
 import tutorial from "./content/tutorial.js";
-import util from "./utilities/util.js";
 import webSocket from "./utilities/webSocket.js";
 
 import disallowed from "../common/disallowed.js";
@@ -114,7 +114,68 @@ import disallowed from "../common/disallowed.js";
             loadComplete = function browser_init_complete():void {
                 // change status to idle
                 const allDevice:HTMLElement = agentList.getElementsByClassName("device-all-shares")[0] as HTMLElement,
-                    allUser:HTMLElement = agentList.getElementsByClassName("user-all-shares")[0] as HTMLElement;
+                    allUser:HTMLElement = agentList.getElementsByClassName("user-all-shares")[0] as HTMLElement,
+                    fullscreen = function browser_init_complete_fullscreen():void {
+                        if (document.fullscreenEnabled === true) {
+                            if (document.fullscreenElement === null) {
+                                browser.pageBody.requestFullscreen();
+                            } else {
+                                document.exitFullscreen();
+                            }
+                        }
+                    },
+                    fullscreenChange = function browser_init_complete_fullscreenChange():void {
+                        const button:HTMLElement = document.getElementById("fullscreen"),
+                            span:HTMLElement = button.getElementsByTagName("span")[0];
+                        let text:string = (document.fullscreenElement === null)
+                            ? "Toggle Fullscreen"
+                            : "Exit Fullscreen";
+                        span.appendText(text);
+                        button.title = text;
+                        button.firstChild.textContent = (document.fullscreenElement === null)
+                            ? "\u26f6"
+                            : "\u26cb";
+                    },
+                    menu = function browser_init_complete_menu():void {
+                        const menu:HTMLElement = document.getElementById("menu");
+                        if (menu.style.display !== "block") {
+                            menu.style.display = "block";
+                            if (browser.testBrowser === null) {
+                                const move = function browser_init_complete_menu_move(event:MouseEvent):void {
+                                    if (event.clientX > menu.clientWidth || event.clientY > menu.clientHeight + 51) {
+                                        menu.style.display = "none";
+                                        document.onmousemove = null;
+                                    }
+                                };
+                                document.onmousemove = move;
+                            }
+                        } else {
+                            menu.style.display = "none";
+                        }
+                    },
+                    minimizeAll = function browser_init_complete_minimizeAll():void {
+                        const keys:string[] = Object.keys(browser.data.modals),
+                            length:number = keys.length;
+                        let a:number = 0,
+                            status:modalStatus;
+                        browser.data.minimizeAll = true;
+                        do {
+                            status = browser.data.modals[keys[a]].status;
+                            if (status === "normal" || status === "maximized") {
+                                modal.tools.forceMinimize(keys[a]);
+                            }
+                            a = a + 1;
+                        } while (a < length);
+                        browser.data.minimizeAll = false;
+                        network.configuration();
+                    },
+                    visibility = function browser_init_complete_visibility():void {
+                        if (document.visibilityState === "visible") {
+                            browser.visible = true;
+                        } else {
+                            browser.visible = false;
+                        }
+                    };
 
                 // create menu buttons from modal type names and associated icons/text
                 {
@@ -158,16 +219,16 @@ import disallowed from "../common/disallowed.js";
 
                 // assign key default events
                 modal_configuration.modals.configuration(null, null);
-                browser.content.onclick                             = global_events.contextMenuRemove;
-                document.getElementById("menuToggle").onclick       = global_events.menu;
+                browser.content.onclick                             = context.events.contextMenuRemove;
+                document.getElementById("menuToggle").onclick       = menu;
                 agentList.getElementsByTagName("button")[0].onclick = modal_configuration.modals.shares;
                 allDevice.onclick                                   = modal_configuration.modals.shares;
                 allUser.onclick                                     = modal_configuration.modals.shares;
-                document.getElementById("minimize-all").onclick     = global_events.minimizeAll;
-                document.onvisibilitychange                         = global_events.visibility;
+                document.getElementById("minimize-all").onclick     = minimizeAll;
+                document.onvisibilitychange                         = visibility;
                 if (document.fullscreenEnabled === true) {
-                    document.onfullscreenchange                   = global_events.fullscreenChange;
-                    document.getElementById("fullscreen").onclick = global_events.fullscreen;
+                    document.onfullscreenchange                   = fullscreenChange;
+                    document.getElementById("fullscreen").onclick = fullscreen;
                 } else {
                     const fullscreen:HTMLElement = document.getElementById("fullscreen");
                     fullscreen.parentNode.removeChild(fullscreen);
@@ -205,7 +266,7 @@ import disallowed from "../common/disallowed.js";
                                 len:number = indexes.length,
                                 uiModal:config_modal,
                                 modalItem:HTMLElement = null;
-                            const restoreShares = function browser_init_restoreState_restoreShares(type:agentType):void {
+                            const restoreShares = function browser_init_restoreState_z_restoreShares(type:agentType):void {
                                 const list:string[] = Object.keys(state.settings[type]),
                                     listLength:number = list.length;
                                 let a:number = 0;
@@ -221,7 +282,7 @@ import disallowed from "../common/disallowed.js";
                                 }
                             };
                             browser.data.zIndex = modalKeys.length;
-                            indexes.sort(function browser_init_z_sort(aa:[number, string], bb:[number, string]):number {
+                            indexes.sort(function browser_init_restoreState_z_sort(aa:[number, string], bb:[number, string]):number {
                                 if (aa[0] < bb[0]) {
                                     return -1;
                                 }
@@ -259,9 +320,9 @@ import disallowed from "../common/disallowed.js";
                 browser.device = state.settings.device;
                 browser.user = state.settings.user;
                 browser.pageBody.setAttribute("class", browser.data.color);
-                modalKeys.forEach(function browser_init_modalKeys(value:string) {
+                modalKeys.forEach(function browser_init_restoreState_modalKeys(value:string) {
                     modalItem = state.settings.configuration.modals[value];
-                    modalItem.callback = function browser_init_modalKeys_callback():void {
+                    modalItem.callback = function browser_init_restoreState_modalKeys_callback():void {
                         z(value);
                     };
                     if (value === "configuration-modal") {
@@ -320,7 +381,6 @@ import disallowed from "../common/disallowed.js";
         }
 
         browser.network = state.network;
-        browser.loadComplete = loadComplete;
         browser.title        = state.name;
         if (state.settings !== undefined && state.settings !== null && state.settings.message !== undefined) {
             browser.message = state.settings.message;

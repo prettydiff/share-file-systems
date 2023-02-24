@@ -92,6 +92,7 @@ const modal_configuration:module_modalConfiguration = {
                     payloadModal.callback = config.callback;
                     payloadModal.height = config.height;
                     payloadModal.left = config.left;
+                    payloadModal.status = config.status;
                     payloadModal.top = config.top;
                     payloadModal.width = config.width;
                     payloadModal.zIndex = config.zIndex;
@@ -194,19 +195,22 @@ const modal_configuration:module_modalConfiguration = {
             const textArea:HTMLTextAreaElement = document.createElement("textarea"),
                 label:HTMLElement = document.createElement("label"),
                 span:HTMLElement = document.createElement("span"),
-                payload:config_modal = {
-                    agent: browser.data.hashDevice,
-                    agentIdentity: false,
-                    agentType: "device",
-                    content: label,
-                    inputs: ["cancel", "close", "confirm", "maximize", "minimize"],
-                    read_only: false,
-                    single: true,
-                    type: "export"
-                };
+                payload:config_modal = (config === null || config === undefined)
+                    ? {
+                        agent: browser.data.hashDevice,
+                        agentIdentity: false,
+                        agentType: "device",
+                        content: null,
+                        inputs: ["cancel", "close", "confirm", "maximize", "minimize"],
+                        read_only: false,
+                        single: true,
+                        type: "export"
+                    }
+                    : config;
             if (config !== null && config !== undefined) {
                 payload.callback = config.callback;
             }
+            payload.content = label;
             document.getElementById("menu").style.display = "none";
             textArea.onblur = modal.events.textSave;
             textArea.value = JSON.stringify(browser.data);

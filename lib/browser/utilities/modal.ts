@@ -5,7 +5,6 @@ import agent_management from "../content/agent_management.js";
 import browser from "./browser.js";
 import common from "../../common/common.js";
 import file_browser from "../content/file_browser.js";
-import global_events from "../content/global_events.js";
 import media from "../content/media.js";
 import modal_configuration from "./modal_configurations.js";
 import network from "./network.js";
@@ -423,9 +422,11 @@ const modal:module_modal = {
             browser.data.modals[options.id].status = "normal";
             modal.events.minimize(null, options.callback, minimize);
         } else if (options.callback !== undefined) {
+            if (browser.loading === false) {
+                network.configuration();
+            }
             options.callback();
-        }
-        if (browser.loading === false) {
+        } else if (browser.loading === false) {
             network.configuration();
         }
 
@@ -632,7 +633,9 @@ const modal:module_modal = {
                     return `${height / 10}em`;
                 }());
             }
-            network.configuration();
+            if (browser.loading === false) {
+                network.configuration();
+            }
             if (callback !== undefined) {
                 callback();
             }
@@ -703,11 +706,11 @@ const modal:module_modal = {
                 document.getElementById("tray").getElementsByTagName("ul")[0].appendChild(li);
                 browser.data.modals[id].status = "minimized";
             }
+            if (browser.loading === false) {
+                network.configuration();
+            }
             if (callback !== undefined) {
                 callback();
-            }
-            if (global_events.minimizeAllFlag === false) {
-                network.configuration();
             }
         },
     

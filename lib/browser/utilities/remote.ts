@@ -323,9 +323,15 @@ const remote:module_remote = {
             property = function browser_utilities_remote_getProperty_property(origin:HTMLElement|Window):primitive {
                 let b:number = 1,
                     item:Object = method(origin, test.target[0]);
+                if (item === null) {
+                    return null;
+                }
                 if (pLength > 1) {
                     do {
                         item = method(item, test.target[b]);
+                        if (item === null) {
+                            return null;
+                        }
                         b = b + 1;
                     } while (b < pLength);
                 }

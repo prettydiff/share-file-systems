@@ -101,6 +101,7 @@ const vars:module_terminalVariables = {
                 hashDevice: "",
                 hashType: "sha3-512",
                 hashUser: "",
+                minimizeAll: false,
                 modals: {},
                 modalTypes: [],
                 nameDevice: "",

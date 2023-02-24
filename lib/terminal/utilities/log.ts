@@ -25,6 +25,10 @@ const log = function terminal_utilities_log(output:string[], end?:boolean):void 
             const difference:string = (function terminal_utilities_log_difference():string {
                 const duration:number = Date.now() - vars.environment.dateRaw,
                     day:number = (1000 * 60 * 60 * 24),
+                    month:number = (day * 30),
+                    months:number = Math.floor(duration / month),
+                    year:number = (day * 365),
+                    years:number = Math.floor(duration / year),
                     days:number = Math.floor(duration / day),
                     plural = function terminal_utilities_log_difference_plural(input:number):""|"s" {
                         if (input === 1) {
@@ -34,21 +38,14 @@ const log = function terminal_utilities_log(output:string[], end?:boolean):void 
                     };
                 if (days < 1) {
                     return "within last day";
-                } else {
-                    const month:number = (day * 30),
-                        months:number = Math.floor(duration / month);
-                    if (months < 1) {
-                        return `${days} day${plural(days)} ago`;
-                    } else {
-                        const year:number = (day * 365),
-                            years:number = Math.floor(duration / year);
-                        if (years < 1) {
-                            return `${months} month${plural(months)} ago`;
-                        } else {
-                            return `${years} year${plural(years)} ago`;
-                        }
-                    }
                 }
+                if (months < 1) {
+                    return `${days} day${plural(days)} ago`;
+                }
+                if (years < 1) {
+                    return `${months} month${plural(months)} ago`;
+                }
+                return `${years} year${plural(years)} ago`;
             }());
             logger("");
             logger("________________________________________________");
