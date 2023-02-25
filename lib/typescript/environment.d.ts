@@ -9,8 +9,8 @@
  *     content: HTMLElement;
  *     data: ui_data;
  *     device: agents;
- *     loadFlag: boolean;
- *     localNetwork: localNetwork;
+ *     loading: boolean;
+ *     loadQueue: socketData[];
  *     message: service_message;
  *     pageBody: HTMLElement;
  *     socket: WebSocket;
@@ -26,6 +26,7 @@ interface browser {
     data: ui_data;
     device: agents;
     loading: boolean;
+    loadQueue: socketData[];
     message: service_message;
     network: localNetwork;
     pageBody: HTMLElement;
