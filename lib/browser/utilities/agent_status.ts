@@ -40,7 +40,7 @@ const agent_status:module_agentStatus = {
             clearTimeout(agent_status.idleDelay);
             if (browser.socket !== null) {
                 socket();
-            } else {
+            } else if (browser.loading === false) {
                 webSocket.start(socket, browser.data.hashDevice);
             }
             if (Notification.permission === "default") {

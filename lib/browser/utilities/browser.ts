@@ -26,6 +26,7 @@ const browser:browser = {
     },
     device: {},
     loading: true,
+    loadQueue: [],
     network: null,
     message: [],
     pageBody: document.getElementsByTagName("body")[0],

@@ -431,7 +431,7 @@ body.login #spaces{padding:2.5em 0 0}
 
 /* terminal */
 #spaces .terminal-list{min-height:100%;margin:0;padding:0;width:100%}
-#spaces .terminal-list li{display:block;font-family:var(--fontMonospace);font-size:var(--textSize);height:1em;letter-spacing:0.1em;list-style:none;white-space:pre}
+#spaces .terminal-list li{display:block;font-family:var(--fontMonospace);font-size:var(--textSize);letter-spacing:0.1em;line-height:1.2em;list-style:none;min-height:1em;white-space:pre}
 #spaces .terminal-list .underline{text-decoration:underline}
 #spaces .terminal-list .bold{font-weight:bold;letter-spacing:0.1em}
 #spaces .terminal-list .italic{font-style:italic}

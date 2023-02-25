@@ -169,6 +169,15 @@ import disallowed from "../common/disallowed.js";
                         browser.data.minimizeAll = false;
                         network.configuration();
                     },
+                    messageDelay = function browser_init_complete_messageDelay():void {
+                        if (browser.loadQueue.length > 0) {
+                            network.send(browser.loadQueue[0].data, browser.loadQueue[0].service);
+                            browser.loadQueue.splice(0, 1);
+                            if (browser.loadQueue.length > 0) {
+                                setTimeout(browser_init_complete_messageDelay, 5);
+                            }
+                        }
+                    },
                     visibility = function browser_init_complete_visibility():void {
                         if (document.visibilityState === "visible") {
                             browser.visible = true;
@@ -245,6 +254,10 @@ import disallowed from "../common/disallowed.js";
 
                 // loading data and modals is complete
                 browser.loading = false;
+                webSocket.start(messageDelay, (state.test !== null && testBrowser === true)
+                    ? "test-browser"
+                    : hashDevice
+                );
             },
 
             // on page load restore the application to exactly the way it was
@@ -332,15 +345,6 @@ import disallowed from "../common/disallowed.js";
                 });
             },
 
-            // callback once the socket tunnel is operational
-            socketCallback = function browser_init_socketCallback():void {
-                if (hashUser === "") {
-                    applyLogin();
-                } else {
-                    restoreState();
-                }
-            },
-
             // Resizes the interactive area to fit the browser viewport.
             fixHeight = function browser_init_fixHeight():void {
                 const height:number   = window.innerHeight || document.getElementsByTagName("body")[0].clientHeight;
@@ -381,7 +385,7 @@ import disallowed from "../common/disallowed.js";
         }
 
         browser.network = state.network;
-        browser.title        = state.name;
+        browser.title   = state.name;
         if (state.settings !== undefined && state.settings !== null && state.settings.message !== undefined) {
             browser.message = state.settings.message;
         }
@@ -391,9 +395,15 @@ import disallowed from "../common/disallowed.js";
                 return;
             }
             browser.testBrowser = state.test;
-            webSocket.start(socketCallback, "test-browser");
+        }
+        if (hashUser === "") {
+            browser.loading = false;
+            webSocket.start(applyLogin, (state.test !== null && testBrowser === true)
+                ? "test-browser"
+                : hashDevice
+            );
         } else {
-            webSocket.start(socketCallback, hashDevice);
+            restoreState();
         }
     }
 }());
