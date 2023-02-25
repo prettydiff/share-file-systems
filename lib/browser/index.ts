@@ -397,7 +397,11 @@ import disallowed from "../common/disallowed.js";
             browser.testBrowser = state.test;
         }
         if (hashUser === "") {
-            applyLogin();
+            browser.loading = false;
+            webSocket.start(applyLogin, (state.test !== null && testBrowser === true)
+                ? "test-browser"
+                : hashDevice
+            );
         } else {
             restoreState();
         }
