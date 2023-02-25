@@ -1473,6 +1473,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     hashDevice: vars.settings.hashDevice,
                     hashType: "sha3-512",
                     hashUser: vars.settings.hashUser,
+                    minimizeAll: false,
                     modals: {
                         "configuration-modal": {
                             agent: vars.settings.hashDevice,
@@ -1526,6 +1527,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     hashDevice: vars.settings.hashDevice,
                     hashType: "sha3-512",
                     hashUser: vars.settings.hashUser,
+                    minimizeAll: false,
                     modals: {
                         "configuration-modal": {
                             agent: vars.settings.hashDevice,

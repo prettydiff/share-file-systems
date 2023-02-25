@@ -29,7 +29,6 @@ const agent_hash:module_agentHash = {
         agent_management.tools.addAgent({
             callback: function browser_utilities_agentHash_receive_addAgent():void {
                 browser.pageBody.setAttribute("class", "default");
-                browser.loadComplete();
             },
             hash: hashes.device,
             name: browser.data.nameDevice,
