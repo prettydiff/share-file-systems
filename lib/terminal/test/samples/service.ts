@@ -8,12 +8,11 @@ import vars from "../../utilities/vars.js";
 
 const serviceTests = function terminal_test_samples_services():test_service[] {
     const service:test_service[] = [],
-        base64:string = "ewogICAgImNvbXBpbGVyT3B0aW9ucyI6IHsKICAgICAgICAiYWx3YXlzU3RyaWN0IjogdHJ1ZSwKICAgICAgICAibW9kdWxlIjogIkVTMjAyMCIsCiAgICAgICAgIm1vZHVsZVJlc29sdXRpb24iOiAibm9kZSIsCiAgICAgICAgIm91dERpciI6ICIuL2pzL2xpYiIsCiAgICAgICAgIm5vSW1wbGljaXRBbnkiOiB0cnVlLAogICAgICAgICJwcmV0dHkiOiB0cnVlLAogICAgICAgICJzdHJpY3RGdW5jdGlvblR5cGVzIjogdHJ1ZSwKICAgICAgICAidGFyZ2V0IjogIkVTMjAyMCIsCiAgICAgICAgInR5cGVzIjogWyJub2RlIl0sCiAgICAgICAgInR5cGVSb290cyI6IFsiLi9ub2RlX21vZHVsZXMvQHR5cGVzIl0KICAgIH0sCiAgICAiZXhjbHVkZSI6IFsKICAgICAgICAianMiLAogICAgICAgICJsaWIvdGVybWluYWwvdGVzdC9zdG9yYWdlVGVzdC90ZW1wIiwKICAgICAgICAiKiovbm9kZV9tb2R1bGVzIiwKICAgICAgICAiKiovLiovIgogICAgXSwKICAgICJpbmNsdWRlIjogWwogICAgICAgICIqKi8qLnRzIgogICAgXQp9",
-        hash:string = "fc36ada9101a3769de2c020988a0d897ea29e7b073e8414a5aa03f2c7608eba61ffb8b40fee2a8b696b7bc72e6437c6512ce559a3d5cc215eeaa613f0ee760af",
+        base64:string = "ewogICAgImNvbXBpbGVyT3B0aW9ucyI6IHsKICAgICAgICAiYWx3YXlzU3RyaWN0IjogdHJ1ZSwKICAgICAgICAibW9kdWxlIjogIkVTMjAyMCIsCiAgICAgICAgIm1vZHVsZVJlc29sdXRpb24iOiAibm9kZSIsCiAgICAgICAgIm91dERpciI6ICIuL2pzL2xpYiIsCiAgICAgICAgIm5vRW1pdCI6IHRydWUsCiAgICAgICAgIm5vSW1wbGljaXRBbnkiOiB0cnVlLAogICAgICAgICJwcmV0dHkiOiB0cnVlLAogICAgICAgICJzdHJpY3RGdW5jdGlvblR5cGVzIjogdHJ1ZSwKICAgICAgICAidGFyZ2V0IjogIkVTMjAyMCIsCiAgICAgICAgInR5cGVzIjogWyJub2RlIl0sCiAgICAgICAgInR5cGVSb290cyI6IFsiLi9ub2RlX21vZHVsZXMvQHR5cGVzIl0KICAgIH0sCiAgICAiZXhjbHVkZSI6IFsKICAgICAgICAianMiLAogICAgICAgICJsaWIvdGVybWluYWwvdGVzdC9zdG9yYWdlVGVzdC90ZW1wIiwKICAgICAgICAiKiovbm9kZV9tb2R1bGVzIiwKICAgICAgICAiKiovLiovIgogICAgXSwKICAgICJpbmNsdWRlIjogWwogICAgICAgICIqKi8qLnRzIgogICAgXQp9",
+        hash:string = "7afd87e5c2ba29c3b437413d16e239fd4757881ffae55e347bbe2b4f1ab41bc97f1434523e06bc51101029a029f2eb13388117481321137af7bee17b452014e9",
         remoteDevice1:string = "a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e",
         remoteDevice2:string = "fa042a71aee124b7b667d97fd84c0a309e72aefcae5d95762bc05d39cbeedae88122758f8625910a669271251d5f561a1c2749c6d66664f5d35dcc8c608c1a89",
         storagePath:string = "lib/terminal/test/storageTest/temp/",
-        loopback:string = "127.0.0.1",
         inviteResponse = function terminal_test_samples_services_inviteResponse(message:string, status:string, action:string):socketData {
             return {
                 data: {
@@ -31,17 +30,13 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                                     osVersion: "",
                                     platform: ""
                                 },
-                                ipAll: {
-                                    IPv4: ["127.0.0.1"],
-                                    IPv6: ["::1"]
-                                },
-                                ipSelected: "127.0.0.1",
+                                ipAll: null,
+                                ipSelected: "",
                                 name: "test local device",
                                 ports: {
                                     http: 9999,
                                     ws: 9999
                                 },
-                                queue: [],
                                 shares: {
                                     "a89e4ac7eec0c4b557aab68ad7499dd136d21d8eb2e5f51a6973dcf5f854b9a1895bec63f3a9d1b5e6243524e6bb8bc29d34c9741c1fc7fc77a7f0e8a934d153": {
                                         execute: false,
@@ -75,17 +70,13 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                                     osVersion: "",
                                     platform: ""
                                 },
-                                ipAll: {
-                                    IPv4: ["127.0.0.1"],
-                                    IPv6: ["::1"]
-                                },
-                                ipSelected: "127.0.0.1",
+                                ipAll: null,
+                                ipSelected: "",
                                 name: "test local laptop",
                                 ports: {
                                     http: 9999,
                                     ws: 9999
                                 },
-                                queue: [],
                                 shares: {
                                     "ccd7be8a1603ae4ca8d39f142e538c18fa16b157ce8f315a0f8a66060b3fbe71fa429bc309c964e8b8ce6c7cf699b4802777a99b5c961e8419ae24d6bfaf241b": {
                                         execute: false,
@@ -119,17 +110,13 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                                     osVersion: "",
                                     platform: ""
                                 },
-                                ipAll: {
-                                    IPv4: ["127.0.0.1"],
-                                    IPv6: ["::1"]
-                                },
-                                ipSelected: "127.0.0.1",
+                                ipAll: null,
+                                ipSelected: "",
                                 name: "test device device",
                                 ports: {
                                     http: 9999,
                                     ws: 9999
                                 },
-                                queue: [],
                                 shares: {
                                     "36b0d1a2ddc81858b0339d3296b4f69513b779a122ec279ea71a1cb50231952e5f5ba9197c6438e91cd3d8bd6b3d5feee78ce4fd0e4386abe3af0487449a02d7": {
                                         execute: false,
@@ -155,11 +142,8 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                         },
                         hashDevice: vars.settings.hashDevice,
                         hashUser: vars.settings.hashUser,
-                        ipAll: {
-                            IPv4: ["127.0.0.1"],
-                            IPv6: ["::1"]
-                        },
-                        ipSelected: "127.0.0.1",
+                        ipAll: null,
+                        ipSelected: "",
                         modal: "test-modal-requestor",
                         nameDevice: "old desktop computer",
                         nameUser: "local user name",
@@ -174,7 +158,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                         hashDevice: "",
                         hashUser: "",
                         ipAll: null,
-                        ipSelected: "127.0.0.1",
+                        ipSelected: "",
                         modal: "test-modal-responder",
                         nameDevice: "responding device",
                         nameUser: "responding user",
@@ -916,7 +900,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     [filePathEncode("absolute", `${storagePath}serviceLocal.json`),"file","",0,0,null, ""],
                     [filePathEncode("absolute", `${storagePath}serviceRemote.json`),"file","",0,0,null, ""]
                 ],
-                message: `search-Directory Fragment Search "<em>.json</em>" returned <strong>2</strong> matches from <em>${testLocation}</em>.`
+                message: `search-Directory fragment search "<em>.json</em>" returned <strong>2</strong> matches from <em>${testLocation}</em>.`
             },
             service: "file-system-status"
         }
@@ -954,7 +938,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     [filePathEncode("absolute", `${storagePath}serviceLocal.json`),"file","",0,0,null, ""],
                     [filePathEncode("absolute", `${storagePath}serviceRemote.json`),"file","",0,0,null, ""]
                 ],
-                message: `search-Directory Fragment Search "<em>.json</em>" returned <strong>2</strong> matches from <em>${testLocation}</em>.`
+                message: `search-Directory fragment search "<em>.json</em>" returned <strong>2</strong> matches from <em>${testLocation}</em>.`
             },
             service: "file-system-status"
         }
@@ -1188,7 +1172,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     [filePathEncode("absolute", `${storagePath}temp.txt`),"file","",0,0,null,""],
                     [filePathEncode("absolute", `${storagePath}tsconfig.json`),"file","",0,0,null,""]
                 ],
-                message: "Copying XXXX 00% complete. XXXX file written at size XXXX (XXXX bytes) with XXXX integrity failures."
+                message: "Writing XXXX 00% complete. XXXX file written at size XXXX (XXXX bytes) with XXXX integrity failures."
             },
             service: "file-system-status"
         }
@@ -1228,7 +1212,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     [filePathEncode("absolute", `${storagePath}tsconfig.json`),"file","",0,0,null,""],
                     [filePathEncode("absolute", `${storagePath}tsconfig_0.json`),"file","",0,0,null,""]
                 ],
-                message: "Copying XXXX 00% complete. XXXX file written at size XXXX (XXXX bytes) with XXXX integrity failures."
+                message: "Writing XXXX 00% complete. XXXX file written at size XXXX (XXXX bytes) with XXXX integrity failures."
             },
             service: "file-system-status"
         }
@@ -1264,7 +1248,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     [filePathEncode("absolute", `${storagePath}tsconfig_0.json`),"file","",0,0,null,""],
                     [filePathEncode("absolute", `${storagePath}tsconfig_1.json`),"file","",0,0,null,""]
                 ],
-                message: "Copying XXXX 00% complete. XXXX file written at size XXXX (XXXX bytes) with XXXX integrity failures."
+                message: "Writing XXXX 00% complete. XXXX file written at size XXXX (XXXX bytes) with XXXX integrity failures."
             },
             service: "file-system-status"
         }
@@ -1310,7 +1294,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     [filePathEncode("absolute", `${storagePath}tsconfig_1.json`),"file","",0,0,null,""],
                     [filePathEncode("absolute", `${storagePath}version.json`),"file","",0,0,null,""]
                 ],
-                message: "Copying XXXX 00% complete. XXXX file written at size XXXX (XXXX bytes) with XXXX integrity failures."
+                message: "Writing XXXX 00% complete. XXXX file written at size XXXX (XXXX bytes) with XXXX integrity failures."
             },
             service: "file-system-status"
         }
@@ -1358,7 +1342,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     [filePathEncode("absolute", `${storagePath}tsconfig_2.json`),"file","",0,0,null,""],
                     [filePathEncode("absolute", `${storagePath}version.json`),"file","",0,0,null,""]
                 ],
-                message: "Copying XXXX 00% complete. XXXX file written at size XXXX (XXXX bytes) with XXXX integrity failures."
+                message: "Writing XXXX 00% complete. XXXX file written at size XXXX (XXXX bytes) with XXXX integrity failures."
             },
             service: "file-system-status"
         }
@@ -1371,11 +1355,8 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
             data: {
                 settings: {
                     [vars.settings.hashDevice]: {
-                        ipAll: {
-                            IPv4: [loopback],
-                            IPv6: []
-                        },
-                        ipSelected: loopback,
+                        ipAll: null,
+                        ipSelected: "",
                         name: "local device name",
                         ports: {
                             http: 443,
@@ -1401,11 +1382,8 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
             data: {
                 settings: {
                     [vars.settings.hashDevice]: {
-                        ipAll: {
-                            IPv4: [loopback],
-                            IPv6: ["::1"]
-                        },
-                        ipSelected: loopback,
+                        ipAll: null,
+                        ipSelected: "",
                         name: "local device name",
                         ports: {
                             http: 9999,
@@ -1569,11 +1547,8 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
             data: {
                 settings: {
                     [vars.settings.hashDevice]: {
-                        ipAll: {
-                            IPv4: [loopback],
-                            IPv6: ["::1"]
-                        },
-                        ipSelected: loopback,
+                        ipAll: null,
+                        ipSelected: "",
                         name: "remote user name",
                         ports: {
                             http: 443,
@@ -1599,11 +1574,8 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
             data: {
                 settings: {
                     [vars.settings.hashDevice]: {
-                        ipAll: {
-                            IPv4: [loopback],
-                            IPv6: ["::1"]
-                        },
-                        ipSelected: loopback,
+                        ipAll: null,
+                        ipSelected: "",
                         name: "remote user name",
                         ports: {
                             http: 9999,
@@ -1635,11 +1607,8 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     devices: vars.settings.device,
                     hashDevice: vars.settings.hashDevice,
                     hashUser: vars.settings.hashUser,
-                    ipAll: {
-                        IPv4: [loopback],
-                        IPv6: ["::1"]
-                    },
-                    ipSelected: loopback,
+                    ipAll: null,
+                    ipSelected: "",
                     modal: "test-modal-requestor",
                     nameDevice: "old desktop",
                     nameUser: "local user name",
@@ -1653,7 +1622,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     hashDevice: "",
                     hashUser: "",
                     ipAll: null,
-                    ipSelected: loopback,
+                    ipSelected: "",
                     modal: "",
                     nameDevice: "",
                     nameUser: "",
@@ -1687,17 +1656,13 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                                 osVersion: "",
                                 platform: ""
                             },
-                            ipAll: {
-                                IPv4: ["127.0.0.1"],
-                                IPv6: ["::1"]
-                            },
-                            ipSelected: "127.0.0.1",
+                            ipAll: null,
+                            ipSelected: "",
                             name: "test local device",
                             ports: {
                                 http: 9999,
                                 ws: 9999
                             },
-                            queue: [],
                             shares: {
                                 "a89e4ac7eec0c4b557aab68ad7499dd136d21d8eb2e5f51a6973dcf5f854b9a1895bec63f3a9d1b5e6243524e6bb8bc29d34c9741c1fc7fc77a7f0e8a934d153": {
                                     execute: false,
@@ -1731,17 +1696,13 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                                 osVersion: "",
                                 platform: ""
                             },
-                            ipAll: {
-                                IPv4: ["127.0.0.1"],
-                                IPv6: ["::1"]
-                            },
-                            ipSelected: "127.0.0.1",
+                            ipAll: null,
+                            ipSelected: "",
                             name: "test local laptop",
                             ports: {
                                 http: 9999,
                                 ws: 9999
                             },
-                            queue: [],
                             shares: {
                                 "ccd7be8a1603ae4ca8d39f142e538c18fa16b157ce8f315a0f8a66060b3fbe71fa429bc309c964e8b8ce6c7cf699b4802777a99b5c961e8419ae24d6bfaf241b": {
                                     execute: false,
@@ -1775,17 +1736,13 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                                 osVersion: "",
                                 platform: ""
                             },
-                            ipAll: {
-                                IPv4: ["127.0.0.1"],
-                                IPv6: ["::1"]
-                            },
-                            ipSelected: "127.0.0.1",
+                            ipAll: null,
+                            ipSelected: "",
                             name: "test device device",
                             ports: {
                                 http: 9999,
                                 ws: 9999
                             },
-                            queue: [],
                             shares: {
                                 "36b0d1a2ddc81858b0339d3296b4f69513b779a122ec279ea71a1cb50231952e5f5ba9197c6438e91cd3d8bd6b3d5feee78ce4fd0e4386abe3af0487449a02d7": {
                                     execute: false,
@@ -1811,11 +1768,8 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     },
                     hashDevice: vars.settings.hashDevice,
                     hashUser: vars.settings.hashUser,
-                    ipAll: {
-                        IPv4: ["127.0.0.1"],
-                        IPv6: ["::1"]
-                    },
-                    ipSelected: "127.0.0.1",
+                    ipAll: null,
+                    ipSelected: "",
                     modal: "test-modal-requestor",
                     nameDevice: "old desktop",
                     nameUser: "local user name",
@@ -1838,17 +1792,13 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                                 osVersion: "",
                                 platform: ""
                             },
-                            ipAll: {
-                                IPv4: ["127.0.0.1"],
-                                IPv6: ["::1"]
-                            },
-                            ipSelected: "127.0.0.1",
+                            ipAll: null,
+                            ipSelected: "",
                             name: "test local device",
                             ports: {
                                 http: 9999,
                                 ws: 9999
                             },
-                            queue: [],
                             shares: {
                                 "a89e4ac7eec0c4b557aab68ad7499dd136d21d8eb2e5f51a6973dcf5f854b9a1895bec63f3a9d1b5e6243524e6bb8bc29d34c9741c1fc7fc77a7f0e8a934d153": {
                                     execute: false,
@@ -1882,17 +1832,13 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                                 osVersion: "",
                                 platform: ""
                             },
-                            ipAll: {
-                                IPv4: ["127.0.0.1"],
-                                IPv6: ["::1"]
-                            },
-                            ipSelected: "127.0.0.1",
+                            ipAll: null,
+                            ipSelected: "",
                             name: "test local laptop",
                             ports: {
                                 http: 9999,
                                 ws: 9999
                             },
-                            queue: [],
                             shares: {
                                 "ccd7be8a1603ae4ca8d39f142e538c18fa16b157ce8f315a0f8a66060b3fbe71fa429bc309c964e8b8ce6c7cf699b4802777a99b5c961e8419ae24d6bfaf241b": {
                                     execute: false,
@@ -1926,17 +1872,13 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                                 osVersion: "",
                                 platform: ""
                             },
-                            ipAll: {
-                                IPv4: ["127.0.0.1"],
-                                IPv6: ["::1"]
-                            },
-                            ipSelected: "127.0.0.1",
+                            ipAll: null,
+                            ipSelected: "",
                             name: "test device device",
                             ports: {
                                 http: 9999,
                                 ws: 9999
                             },
-                            queue: [],
                             shares: {
                                 "36b0d1a2ddc81858b0339d3296b4f69513b779a122ec279ea71a1cb50231952e5f5ba9197c6438e91cd3d8bd6b3d5feee78ce4fd0e4386abe3af0487449a02d7": {
                                     execute: false,
@@ -1962,11 +1904,8 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     },
                     hashDevice: "7f22346707be198af81ac14d5f718875ba67f67fb94bd2256c226fb8c676301f153bdd972818bc5b00aab7ee38190e9374d8e75e600ed5bbbddf4dbc5d5ca594",
                     hashUser: vars.settings.hashUser,
-                    ipAll: {
-                        IPv4: ["127.0.0.1"],
-                        IPv6: ["::1"]
-                    },
-                    ipSelected: "127.0.0.1",
+                    ipAll: null,
+                    ipSelected: "",
                     modal: "",
                     nameDevice: "test local device",
                     nameUser: "test local user",
@@ -1974,7 +1913,26 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                         http: 9999,
                         ws: 9999
                     },
-                    shares: {}
+                    shares: {
+                        "a89e4ac7eec0c4b557aab68ad7499dd136d21d8eb2e5f51a6973dcf5f854b9a1895bec63f3a9d1b5e6243524e6bb8bc29d34c9741c1fc7fc77a7f0e8a934d153": {
+                            "execute": false,
+                            "name": "C:\\mp3\\deviceLocal",
+                            "readOnly": true,
+                            "type": "directory"
+                        },
+                        "16f07e8ed7225f07912da48e0d51308e8fbf9dafc89d8accaa58abc1da8a2832a046082bfc2534eb4933a00bd673019cb90437c8a94cc0d0adaf9cff40c5083b": {
+                            "execute": false,
+                            "name": "E:\\deviceLocal",
+                            "readOnly": false,
+                            "type": "directory"
+                        },
+                        "2772fe10a1f1efe6a34c01408dc6bf51fa43ba657c72cff9f77c02a96eb61490b995325330a1b954e1e8e6e55d87003840e65c223e1e465d1a30486dfdef1211": {
+                            "execute": false,
+                            "name": "C:\\deviceLocal\\notes.pdf",
+                            "readOnly": true,
+                            "type": "file"
+                        }
+                    }
                 },
                 message: "Accepted invitation. Request processed at responding terminal XXXX for type device.  Agent already present, so auto accepted and returned to requesting terminal.",
                 status: "accepted",
@@ -1991,11 +1949,8 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     devices: vars.settings.device,
                     hashDevice: vars.settings.hashDevice,
                     hashUser: vars.settings.hashUser,
-                    ipAll: {
-                        IPv4: [loopback],
-                        IPv6: []
-                    },
-                    ipSelected: loopback,
+                    ipAll: null,
+                    ipSelected: "",
                     modal: "test-modal-requestor",
                     nameDevice: "old desktop computer",
                     nameUser: "local user name",
@@ -2010,7 +1965,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     hashDevice: "",
                     hashUser: "",
                     ipAll: null,
-                    ipSelected: loopback,
+                    ipSelected: "",
                     modal: "test-modal-responder",
                     nameDevice: "responding device",
                     nameUser: "responding user",
@@ -2044,17 +1999,13 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                                 osVersion: "",
                                 platform: ""
                             },
-                            ipAll: {
-                                IPv4: ["127.0.0.1"],
-                                IPv6: ["::1"]
-                            },
-                            ipSelected: "127.0.0.1",
+                            ipAll: null,
+                            ipSelected: "",
                             name: "test local device",
                             ports: {
                                 http: 9999,
                                 ws: 9999
                             },
-                            queue: [],
                             shares: {
                                 "a89e4ac7eec0c4b557aab68ad7499dd136d21d8eb2e5f51a6973dcf5f854b9a1895bec63f3a9d1b5e6243524e6bb8bc29d34c9741c1fc7fc77a7f0e8a934d153": {
                                     execute: false,
@@ -2088,17 +2039,13 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                                 osVersion: "",
                                 platform: ""
                             },
-                            ipAll: {
-                                IPv4: ["127.0.0.1"],
-                                IPv6: ["::1"]
-                            },
-                            ipSelected: "127.0.0.1",
+                            ipAll: null,
+                            ipSelected: "",
                             name: "test local laptop",
                             ports: {
                                 http: 9999,
                                 ws: 9999
                             },
-                            queue: [],
                             shares: {
                                 "ccd7be8a1603ae4ca8d39f142e538c18fa16b157ce8f315a0f8a66060b3fbe71fa429bc309c964e8b8ce6c7cf699b4802777a99b5c961e8419ae24d6bfaf241b": {
                                     execute: false,
@@ -2132,17 +2079,13 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                                 osVersion: "",
                                 platform: ""
                             },
-                            ipAll: {
-                                IPv4: ["127.0.0.1"],
-                                IPv6: ["::1"]
-                            },
-                            ipSelected: "127.0.0.1",
+                            ipAll: null,
+                            ipSelected: "",
                             name: "test device device",
                             ports: {
                                 http: 9999,
                                 ws: 9999
                             },
-                            queue: [],
                             shares: {
                                 "36b0d1a2ddc81858b0339d3296b4f69513b779a122ec279ea71a1cb50231952e5f5ba9197c6438e91cd3d8bd6b3d5feee78ce4fd0e4386abe3af0487449a02d7": {
                                     execute: false,
@@ -2168,11 +2111,8 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     },
                     hashDevice: vars.settings.hashDevice,
                     hashUser: vars.settings.hashUser,
-                    ipAll: {
-                        IPv4: ["127.0.0.1"],
-                        IPv6: ["::1"]
-                    },
-                    ipSelected: "127.0.0.1",
+                    ipAll: null,
+                    ipSelected: "",
                     modal: "test-modal-requestor",
                     nameDevice: "old desktop computer",
                     nameUser: "local user name",
@@ -2187,7 +2127,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     hashDevice: "",
                     hashUser: "",
                     ipAll: null,
-                    ipSelected: "127.0.0.1",
+                    ipSelected: "",
                     modal: "test-modal-responder",
                     nameDevice: "responding device",
                     nameUser: "responding user",
@@ -2212,11 +2152,8 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     devices: vars.settings.device,
                     hashDevice: vars.settings.hashDevice,
                     hashUser: vars.settings.hashUser,
-                    ipAll: {
-                        IPv4: [loopback],
-                        IPv6: []
-                    },
-                    ipSelected: loopback,
+                    ipAll: null,
+                    ipSelected: "",
                     modal: "test-modal-requestor",
                     nameDevice: "old desktop computer",
                     nameUser: "local user name",
@@ -2231,7 +2168,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     hashDevice: "",
                     hashUser: "",
                     ipAll: null,
-                    ipSelected: loopback,
+                    ipSelected: "",
                     modal: "test-modal-responder",
                     nameDevice: "responding device",
                     nameUser: "responding user",
@@ -2259,11 +2196,8 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     devices: vars.settings.device,
                     hashDevice: vars.settings.hashDevice,
                     hashUser: vars.settings.hashUser,
-                    ipAll: {
-                        IPv4: [loopback],
-                        IPv6: []
-                    },
-                    ipSelected: loopback,
+                    ipAll: null,
+                    ipSelected: "",
                     modal: "test-modal-requestor",
                     nameDevice: "old desktop computer",
                     nameUser: "local user name",
@@ -2278,7 +2212,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     hashDevice: "",
                     hashUser: "",
                     ipAll: null,
-                    ipSelected: loopback,
+                    ipSelected: "",
                     modal: "test-modal-responder",
                     nameDevice: "responding device",
                     nameUser: "responding user",
@@ -2306,11 +2240,8 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     devices: vars.settings.device,
                     hashDevice: vars.settings.hashDevice,
                     hashUser: vars.settings.hashUser,
-                    ipAll: {
-                        IPv4: [loopback],
-                        IPv6: []
-                    },
-                    ipSelected: loopback,
+                    ipAll: null,
+                    ipSelected: "",
                     modal: "test-modal-requestor",
                     nameDevice: "old desktop computer",
                     nameUser: "local user name",
@@ -2325,7 +2256,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     hashDevice: "",
                     hashUser: "",
                     ipAll: null,
-                    ipSelected: loopback,
+                    ipSelected: "",
                     modal: "test-modal-responder",
                     nameDevice: "responding device",
                     nameUser: "responding user",
@@ -2353,11 +2284,8 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     devices: vars.settings.device,
                     hashDevice: vars.settings.hashDevice,
                     hashUser: vars.settings.hashUser,
-                    ipAll: {
-                        IPv4: [loopback],
-                        IPv6: []
-                    },
-                    ipSelected: loopback,
+                    ipAll: null,
+                    ipSelected: "",
                     modal: "test-modal-requestor",
                     nameDevice: "old desktop computer",
                     nameUser: "local user name",
@@ -2372,7 +2300,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     hashDevice: "",
                     hashUser: "",
                     ipAll: null,
-                    ipSelected: loopback,
+                    ipSelected: "",
                     modal: "test-modal-responder",
                     nameDevice: "responding device",
                     nameUser: "responding user",
@@ -2400,11 +2328,8 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     devices: vars.settings.device,
                     hashDevice: vars.settings.hashDevice,
                     hashUser: vars.settings.hashUser,
-                    ipAll: {
-                        IPv4: [loopback],
-                        IPv6: []
-                    },
-                    ipSelected: loopback,
+                    ipAll: null,
+                    ipSelected: "",
                     modal: "test-modal-requestor",
                     nameDevice: "old desktop computer",
                     nameUser: "local user name",
@@ -2419,7 +2344,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     hashDevice: "",
                     hashUser: "",
                     ipAll: null,
-                    ipSelected: loopback,
+                    ipSelected: "",
                     modal: "test-modal-responder",
                     nameDevice: "responding device",
                     nameUser: "responding user",

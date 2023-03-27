@@ -505,7 +505,9 @@ const fileSystem:module_fileSystem = {
                         data: status,
                         service: "file-system-status"
                     };
-                if (data.agentRequest.device === vars.settings.hashDevice && data.agentRequest.user === vars.settings.hashUser) {
+                if (vars.test.type === "service") {
+                    service.evaluation(socketData);
+                } else if (data.agentRequest.device === vars.settings.hashDevice && data.agentRequest.user === vars.settings.hashUser) {
                     sender.broadcast(socketData, "browser");
                 } else {
                     fileSystem.route(socketData);

@@ -184,13 +184,18 @@ const testEvaluation = function terminal_test_application_testEvaluation(output:
             output.values[0] = output.values[0].replace(/"port":\d+,/g, "\"port\":0,");
             // replace port numbers in the standard output
             output.values[0] = output.values[0].replace(/\\"port\\":\d+,/g, "\\\"port\\\":0,");
-            // replace wildcard IPv6 address
-            output.values[0] = output.values[0].replace(/\s::1?(\s|\.)/g, " XXXX ");
-            // replace IPv6 addresses framed in square braces
-            output.values[0] = output.values[0].replace(/\[::1\](:\d+)?(\.|\s)/g, "XXXX ");
             // replace full IPv6 addresses
-            output.values[0] = output.values[0].replace(/\s([0-9a-f]{4}:)+:?[0-9a-f]{4}\s/, " XXXX ");
+            output.values[0] = output.values[0].replace(/[0-9a-f]{1,4}:+[0-9a-f]{1,4}/g, "XXXX").replace(/(XXXX)?::[0-9a-f]{1,4}/g, "XXXX").replace(/XXXX:XXXX/g, "XXXX").replace(/XXXX:XXXX/g, "XXXX");
+            // replace full IPv4 addresses
+            output.values[0] = output.values[0].replace(/(\d{1,3}\.){3}\d{1,3}/g, "XXXX");
+            // replace list of addresses
+            output.values[0] = output.values[0].replace(/\["XXXX"(,"XXXX")*\]/g, "[]");
+            // replace address collections
+            output.values[0] = output.values[0].replace(/"ipAll":\{"IPv(4|6)":\[\],"IPv(4|6)":\[\]\}/g, "\"ipAll\":null");
+            // replace ipSelected
+            output.values[0] = output.values[0].replace(/"ipSelected":\s*"XXXX"/g, "\"ipSelected\":\"\"");
         }
+        //["2600:1700:70e1:14b0:cdd2:46fd:3c2c:b594","2600:1700:70e1:14b0:bdfb:ea9c:e507:f419","2600:1700:70e1:14b0:98e5:45dd:2f71:1abd","2600:1700:70e1:14b0:71f0:88ad:6694:3e7","2600:1700:70e1:14b0:71ec:fc6b:9a34:726c","2600:1700:70e1:14b0:34b7:b86a:c371:25bc","2600:1700:70e1:14b0:d74:63f4:6658:4ab1","2600:1700:70e1:14b0:2c15:4479:d2d0:dc2b","2600:1700:70e1:14b0::41"]
     }
     if (output.test.qualifier.indexOf("file") === 0) {
         if (output.test.qualifier.indexOf("file ") === 0) {
