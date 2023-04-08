@@ -233,7 +233,7 @@ const common:module_common = {
                 return b;
             }()),
             //kilobytes, megabytes, and so forth...
-            unit    = [
+            unit:string[] = [
                 "",
                 "KiB",
                 "MiB",

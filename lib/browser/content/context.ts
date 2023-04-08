@@ -480,7 +480,7 @@ const context:module_context = {
                         parent:HTMLElement = (context.element === null)
                             ? null
                             : context.element.parentNode,
-                        box = (parent === null)
+                        box:modal = (parent === null)
                             ? null
                             : parent.getAncestor("box", "class"),
                         type:contextType = (context.type !== "")

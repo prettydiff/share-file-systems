@@ -190,7 +190,7 @@ import disallowed from "../common/disallowed.js";
                 {
                     const buttons:string[] = Object.keys(modal_configuration.titles),
                         buttonLength:number = buttons.length,
-                        menu = document.getElementById("menu"),
+                        menu:HTMLElement = document.getElementById("menu"),
                         menuBlur = function browser_init_complete_menuBlur():void {
                             menu.style.display = "none"; 
                         };

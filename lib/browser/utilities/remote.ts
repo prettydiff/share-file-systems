@@ -310,7 +310,7 @@ const remote:module_remote = {
         const element:HTMLElement = (test.node.length > 0)
                 ? remote.node(test.node, test.target[0])
                 : null,
-            pLength = test.target.length - 1,
+            pLength:number = test.target.length - 1,
             method = function browser_utilities_remote_getProperty_method(prop:Object, name:string):primitive {
                 if (name.slice(name.length - 2) === "()") {
                     name = name.slice(0, name.length - 2);

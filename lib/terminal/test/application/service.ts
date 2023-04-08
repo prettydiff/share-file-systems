@@ -57,7 +57,7 @@ const loopback:string = "127.0.0.1",
             const projectPath:string = vars.path.project,
                 removePath:string = `${vars.path.project}lib${vars.path.sep}terminal${vars.path.sep}test${vars.path.sep}storageTest${vars.path.sep}temp`,
                 sep:string = vars.path.sep,
-                flags = {
+                flags:flagList = {
                     removal: false,
                     settings: false
                 },

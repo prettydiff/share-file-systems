@@ -273,7 +273,7 @@ const terminal:module_browserTerminal = {
                         },
                         ansi:RegExp = (/(\u001b\[\d{1,2}(;\d{1,2})*m)+/),
                         list = function browser_content_terminalPopulate_list(result:string):string {
-                            let formatList = result.replace(/^\u001b\[/, "").replace(/m\u001b\[/g, "|").replace(/m$/, "").replace(/;/g, "|").split("|"),
+                            let formatList:string[] = result.replace(/^\u001b\[/, "").replace(/m\u001b\[/g, "|").replace(/m$/, "").replace(/;/g, "|").split("|"),
                                 index:number = formatList.indexOf("0"),
                                 endString:string = "";
                             if (result === "\u001b[0m") {

@@ -39,7 +39,7 @@ const testEvaluation = function terminal_test_application_testEvaluation(output:
                 serviceItem:test_service = (output.testType === "service")
                     ? output.test as test_service
                     : null,
-                name = (output.testType === "service")
+                name:string = (output.testType === "service")
                     ? serviceItem.name
                     : command,
                 interval = function terminal_test_application_testEvaluation_increment_interval():void {
@@ -80,7 +80,7 @@ const testEvaluation = function terminal_test_application_testEvaluation(output:
                             const test:string = (typeof output.test.test === "string")
                                     ? output.test.test as string
                                     : JSON.stringify(output.test.test),
-                                difference = (function terminal_test_application_testEvaluation_increment_testMessage_difference():[string, number] {
+                                difference:[string, number] = (function terminal_test_application_testEvaluation_increment_testMessage_difference():[string, number] {
                                     const end:number = Math.min(test.length, messages[1].length),
                                         diffs:[string, string] = ["", ""];
                                     let a:number = 0,

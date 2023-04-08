@@ -33,7 +33,7 @@ const share:module_share = {
         let shareListUL:HTMLElement = document.createElement("ul"),
             agent:HTMLElement,
             user:boolean = false;
-        const sections = {
+        const sections:share_content_sections = {
                 device: document.createElement("div"),
                 user: document.createElement("div")
             },
@@ -463,7 +463,7 @@ const share:module_share = {
         /* Updates the contents of share modals */
         update: function browser_content_share_update(exclusion:string):void {
             const modals:string[] = Object.keys(browser.data.modals),
-                modalLength = modals.length,
+                modalLength:number = modals.length,
                 closer = function browser_content_share_update_closer(id:string):void {
                     const button:HTMLButtonElement = document.getElementById(id).getElementsByClassName("close")[0] as HTMLButtonElement;
                     button.click();

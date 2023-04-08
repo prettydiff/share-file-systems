@@ -422,7 +422,7 @@ const transmit_ws:module_transmit_ws = {
                                 }
                                 return null;
                             },
-                            IPv6 = ipList("IPv6");
+                            IPv6:string = ipList("IPv6");
                         if (attempts.length < 1) {
                             return agent.ipSelected;
                         }
@@ -538,7 +538,7 @@ const transmit_ws:module_transmit_ws = {
                                 finish = true;
                                 return dataPackage;
                             }
-                            const fragment = dataPackage.slice(0, fragmentSize);
+                            const fragment:Buffer = dataPackage.slice(0, fragmentSize);
                             dataPackage = dataPackage.slice(fragmentSize);
                             len = dataPackage.length;
                             if (len < fragmentSize) {
@@ -686,7 +686,7 @@ const transmit_ws:module_transmit_ws = {
                                         } else if (type === "test-browser") {
                                             headers.push(`hash: ${hashName}`);
                                         } else if (socket.type === "device" || socket.type === "user") {
-                                            const agent = vars.settings[socket.type][hashName];
+                                            const agent:agent = vars.settings[socket.type][hashName];
                                             if (agent === undefined || agent === null) {
                                                 socket.destroy();
                                                 return;

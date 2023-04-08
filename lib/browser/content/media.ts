@@ -110,8 +110,8 @@ const media:module_media = {
             const element:HTMLElement = event.target,
                 touch:boolean = (event !== null && event.type === "touchstart"),
                 coords = function browser_content_media_selfDrag_coords(eventCoords:Event):[number, number] {
-                    const mouseEvent = eventCoords as MouseEvent,
-                        touchEvent = eventCoords as TouchEvent,
+                    const mouseEvent:MouseEvent = eventCoords as MouseEvent,
+                        touchEvent:TouchEvent = eventCoords as TouchEvent,
                         x:number = (touch === true)
                             ? touchEvent.touches[0].clientX
                             : mouseEvent.clientX,

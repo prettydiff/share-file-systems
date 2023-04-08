@@ -7,7 +7,7 @@ import vars from "../../utilities/vars.js";
 
 const interfaceCertificate = function terminal_commands_interface_certificate(callback:commandCallback):void {
     const indexes:number[] = [],
-        config = {
+        config:config_command_certificate = {
             callback: callback,
             days: 16384,
             location: "",

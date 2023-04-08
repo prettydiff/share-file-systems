@@ -171,8 +171,8 @@ const util:module_util = {
             drag:HTMLElement = document.createElement("div"),
             oldDrag:HTMLElement = document.getElementById("dragBox"),
             touch:boolean = (event !== null && event.type === "touchstart"),
-            mouseEvent = event as MouseEvent,
-            touchEvent = event as TouchEvent,
+            mouseEvent:MouseEvent = event as MouseEvent,
+            touchEvent:TouchEvent = event as TouchEvent,
             x:number = (touch === true)
                 ? touchEvent.touches[0].clientX
                 : mouseEvent.clientX,

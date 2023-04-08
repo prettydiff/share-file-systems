@@ -725,8 +725,8 @@ const modal:module_modal = {
                 border:HTMLElement = box.getElementsByTagName("div")[0],
                 minifyTest:boolean = (boxParent.lowName() === "li"),
                 touch:boolean = (event !== null && event.type === "touchstart"),
-                mouseEvent = event as MouseEvent,
-                touchEvent = event as TouchEvent,
+                mouseEvent:MouseEvent = event as MouseEvent,
+                touchEvent:TouchEvent = event as TouchEvent,
                 mouseX:number = (touch === true)
                     ? 0
                     : mouseEvent.clientX,

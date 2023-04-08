@@ -310,7 +310,7 @@ const agent_management:module_agentManagement = {
                             let p:HTMLElement = document.createElement("p"),
                                 label:HTMLElement = document.createElement("label"),
                                 input:HTMLInputElement = document.createElement("input");
-                            const li = document.createElement("li");
+                            const li:HTMLElement = document.createElement("li");
 
                             // agent hash
                             p.appendText(key);
@@ -381,8 +381,8 @@ const agent_management:module_agentManagement = {
         /* Handles the confirmation button for the agent management modal type. */
         confirm: function browser_content_agentManagement_confirm(event:MouseEvent):void {
             const target:HTMLElement = event.target,
-                box = target.getAncestor("box", "class"),
-                firstInput = box.getElementsByTagName("input")[0],
+                box:modal = target.getAncestor("box", "class"),
+                firstInput:HTMLElement = box.getElementsByTagName("input")[0],
                 type:string = (function browser_content_agentManagement_confirm_type():string {
                     const radios:NodeListOf<HTMLInputElement> = document.getElementsByName(firstInput.getAttribute("name")) as NodeListOf<HTMLInputElement>;
                     let len:number = radios.length;
@@ -416,7 +416,7 @@ const agent_management:module_agentManagement = {
                 input:HTMLElement = (function browser_content_agentManagement_confirmInvite_input():HTMLElement {
                     // value attainment and form validation
                     const inputs:HTMLCollectionOf<HTMLInputElement> = content.getElementsByTagName("input"),
-                        length = inputs.length,
+                        length:number = inputs.length,
                         indexes:invite_indexes = {
                             type: -1,
                             ip: -1,
@@ -893,7 +893,7 @@ const agent_management:module_agentManagement = {
                     ? null
                     : button.parentNode;
             let a:number = 0,
-                shareLength = shareModals.length,
+                shareLength:number = shareModals.length,
                 closeButton:HTMLButtonElement = null;
     
             // loop through the color swatches in the settings modal to remove the agent's colors

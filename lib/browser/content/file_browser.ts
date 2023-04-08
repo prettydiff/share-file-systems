@@ -573,7 +573,7 @@ const file_browser:module_fileBrowser = {
                 box:modal = element.getAncestor("box", "class"),
                 id:string = box.getAttribute("id"),
                 address:HTMLInputElement = box.getElementsByClassName("fileAddress")[0].getElementsByTagName("input")[0] as HTMLInputElement,
-                history = browser.data.modals[id].history;
+                history:string[] = browser.data.modals[id].history;
             if (history.length > 1) {
                 history.pop();
                 address.value = history[history.length - 1];
@@ -1207,7 +1207,7 @@ const file_browser:module_fileBrowser = {
                     }
                 } else {
                     const inputs:HTMLCollectionOf<HTMLInputElement> = body.getElementsByTagName("input"),
-                        inputsLength = inputs.length,
+                        inputsLength:number = inputs.length,
                         selected:boolean = (p.getAttribute("class") !== null && p.getAttribute("class").indexOf("selected") > -1);
                     let a:number = 0,
                         item:HTMLElement,

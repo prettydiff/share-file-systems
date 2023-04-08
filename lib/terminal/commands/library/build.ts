@@ -1577,7 +1577,7 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                                                 }
                                                             }
                                                         },
-                                                        versionCheck = (function terminal_commands_library_build_version_packStat_versionCheck():boolean {
+                                                        versionCheck:boolean = (function terminal_commands_library_build_version_packStat_versionCheck():boolean {
                                                             if (vars.environment.version === "") {
                                                                 return true;
                                                             }

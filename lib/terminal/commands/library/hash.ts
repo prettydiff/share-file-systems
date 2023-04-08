@@ -95,7 +95,7 @@ const hash = function terminal_commands_library_hash(input:config_command_hash):
                 },
                 recursive = function terminal_commands_library_hash_dirComplete_recursive():void {
                     let b:number = 0,
-                        end = (listLength - a < shortLimit)
+                        end:number = (listLength - a < shortLimit)
                             ? listLength - a
                             : shortLimit;
                     do {

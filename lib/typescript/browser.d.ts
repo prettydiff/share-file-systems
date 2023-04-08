@@ -211,6 +211,19 @@ interface network_actions {
 }
 
 /**
+ * Stores generated HTML content per agent and agent type for share modal types.
+ * ```typescript
+ * interface share_content_sections {
+ *     device: HTMLElement,
+ *     user: HTMLElement
+ * }
+ * ``` */
+interface share_content_sections {
+    device: HTMLElement;
+    user: HTMLElement;
+}
+
+/**
  * A means to step through entries to the browser terminal.
  * ```typescript
  * interface terminal_scroll {

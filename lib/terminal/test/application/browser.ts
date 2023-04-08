@@ -229,7 +229,7 @@ const defaultCommand:commands = vars.environment.command,
                         `${vars.text.angry}*${vars.text.none} ${vars.text.cyan}WS   Send${vars.text.none}    - ${common.commas(vars.network.size.ws.send)}`,
                         `${vars.text.angry}*${vars.text.none} ${vars.text.cyan + vars.text.bold + vars.text.underline}Total${vars.text.none}        - ${common.commas(vars.network.size.http.receive + vars.network.size.http.send + vars.network.size.ws.receive + vars.network.size.ws.send)}`
                     ],
-                    closing = (browser.args.noClose === true)
+                    closing:() => void = (browser.args.noClose === true)
                         ? function terminal_test_application_browser_exit_noClose():void {
                             log(exitMessage, true);
                         }
@@ -569,7 +569,7 @@ const defaultCommand:commands = vars.environment.command,
                         testString = function terminal_test_application_browser_result_testString(pass:boolean, config:test_browserTest):string {
                             const valueStore:primitive = config.value,
                                 valueType:string = typeof valueStore,
-                                value = (valueStore === null)
+                                value:string = (valueStore === null)
                                     ? "null"
                                     : (valueType === "string")
                                         ? `"${valueStore}"`
@@ -611,7 +611,7 @@ const defaultCommand:commands = vars.environment.command,
                                                             : (pass === true)
                                                                 ? "does not contain"
                                                                 : `${vars.text.angry}contains${vars.text.none}`,
-                                nodeString = `${vars.text.none} ${buildNode(config, false)} ${qualifier} ${value.replace(/^"/, "").replace(/"$/, "")}`;
+                                nodeString:string = `${vars.text.none} ${buildNode(config, false)} ${qualifier} ${value.replace(/^"/, "").replace(/"$/, "")}`;
                             return star + resultString + nodeString;
                         },
                         failureMessage = function terminal_test_application_browser_result_failureMessage():void {
