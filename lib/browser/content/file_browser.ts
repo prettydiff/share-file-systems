@@ -69,7 +69,7 @@ const file_browser:module_fileBrowser = {
                 label.setAttribute("class", "text-pad");
                 label.appendChild(span);
                 label.appendChild(textArea);
-                modalResult = document.getElementById(data.files[a].id),
+                modalResult = document.getElementById(data.files[a].id);
                 body = modalResult.getElementsByClassName("body")[0] as HTMLElement;
                 textArea.onblur = modal.events.textSave;
                 heading = modalResult.getElementsByTagName("h2")[0].getElementsByTagName("button")[0];

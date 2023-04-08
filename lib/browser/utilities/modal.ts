@@ -132,9 +132,11 @@ const modal:module_modal = {
                     text.push("All Shares");
                     span.appendText("⌘");
                 } else {
-                    (options.agentType === "device")
-                        ? span.appendText("🖳")
-                        : span.appendText("👤");
+                    if (options.agentType === "device") {
+                        span.appendText("🖳");
+                    } else {
+                        span.appendText("👤");
+                    }
                     if (options.agent === "") {
                         text.push(`All ${common.capitalize(options.agentType)} Shares`);
                     } else if (browser[options.agentType][options.agent].name === undefined) {
