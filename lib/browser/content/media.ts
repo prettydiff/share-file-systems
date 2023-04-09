@@ -57,8 +57,9 @@ const media:module_media = {
                         play.then(function browser_content_media_element_apply_play():void {
                           return null;
                         })
-                        .catch(function browser_content_media_element_apply_error():void {
-                          return null;
+                        .catch(function browser_content_media_element_apply_error(error:Error):void {
+                            failPrimary = document.createElement("p");
+                            failPrimary.appendText(`Video stream error: ${error.toString()}`);
                         });
                     }
                     mediaElement.setAttribute("class", className);

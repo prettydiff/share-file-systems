@@ -29,7 +29,7 @@ const simulation:module_test_simulationApplication = {
         }
         exec(vars.terminal.command_instruction + command, {cwd: vars.terminal.cwd, maxBuffer: 2048 * 500}, function terminal_test_application_simulations_execution_child(errs:Error, stdout:string, stdError:Buffer | string) {
             const test:string = (typeof simulation.tests[config.index].test === "string")
-                    ? simulation.tests[config.index].test as string
+                    ? simulation.tests[config.index].test
                     : JSON.stringify(simulation.tests[config.index].test),
                 error:string = (errs === null)
                     ? ""

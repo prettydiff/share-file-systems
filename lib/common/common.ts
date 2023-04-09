@@ -123,9 +123,9 @@ const common:module_common = {
 
     /* takes a number returns a string of that number with commas separating segments of 3 digits */
     commas:  function common_commas(input:number):string {
-        const str:string = String(input);
+        const str:string = String(input),
+            period:number = str.indexOf(".");
         let arr:string[] = [],
-            period:number = str.indexOf("."),
             a:number   = (period > -1)
                 ? period
                 : str.length;

@@ -29,7 +29,7 @@ const entry = function terminal_entry(callback:(title:string, text:string[]) => 
         if (erStat === null) {
             readFile(version, "utf8", function terminal_entry_version_read(er:Error, versionFile:string):void {
                 if (er === null) {
-                    const data:version = JSON.parse(versionFile);
+                    const data:version = JSON.parse(versionFile) as version;
                     vars.environment.date = data.date;
                     vars.environment.dateRaw = data.mtime;
                     vars.environment.git_hash = data.git_hash;

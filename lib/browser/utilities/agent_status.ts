@@ -44,7 +44,7 @@ const agent_status:module_agentStatus = {
                 webSocket.start(socket, browser.data.hashDevice);
             }
             if (Notification.permission === "default") {
-                Notification.requestPermission();
+                void Notification.requestPermission();
             }
         },
         idle: function browser_utilities_agentStatus_idle():void {

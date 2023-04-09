@@ -12,6 +12,8 @@ const browserLog = function terminal_server_services_browserLog(socketData:socke
         return;
     }
     if (browserIndex < 0 || (browserIndex === 0 && logData[0] !== null)) {
+        // the log function accepts string[] but service_log = any[] to capture error and object logging from the browser
+        // eslint-disable-next-line
         log(logData);
     }
     transmit_http.respondEmpty(transmit);

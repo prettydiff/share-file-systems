@@ -23,7 +23,7 @@ const testEvaluation = function terminal_test_application_testEvaluation(output:
             ? JSON.stringify(serviceItem.command)
             : output.test.command as string,
         test:string = (typeof output.test.test === "string")
-            ? output.test.test as string
+            ? output.test.test
             : JSON.stringify(serviceItem.test),
         name:string = (output.testType === "service")
             ? serviceItem.name
@@ -34,7 +34,7 @@ const testEvaluation = function terminal_test_application_testEvaluation(output:
         },
         increment = function terminal_test_application_testEvaluation_increment(messages:[string, string]):void {
             const command:string = (typeof output.test.command === "string")
-                    ? output.test.command as string
+                    ? output.test.command
                     : JSON.stringify(output.test.command),
                 serviceItem:test_service = (output.testType === "service")
                     ? output.test as test_service
@@ -78,7 +78,7 @@ const testEvaluation = function terminal_test_application_testEvaluation(output:
                         log([`${humanTime(false) + vars.text.angry}Failed ${output.testType} ${output.index + 1}: ${vars.text.none + name} ${vars.text.angry + messages[0].replace("fail - ", "") + vars.text.none}`]);
                         if (messages[1] !== "") {
                             const test:string = (typeof output.test.test === "string")
-                                    ? output.test.test as string
+                                    ? output.test.test
                                     : JSON.stringify(output.test.test),
                                 difference:[string, number] = (function terminal_test_application_testEvaluation_increment_testMessage_difference():[string, number] {
                                     const end:number = Math.min(test.length, messages[1].length),
@@ -195,14 +195,13 @@ const testEvaluation = function terminal_test_application_testEvaluation(output:
             // replace ipSelected
             output.values[0] = output.values[0].replace(/"ipSelected":\s*"XXXX"/g, "\"ipSelected\":\"\"");
         }
-        //["2600:1700:70e1:14b0:cdd2:46fd:3c2c:b594","2600:1700:70e1:14b0:bdfb:ea9c:e507:f419","2600:1700:70e1:14b0:98e5:45dd:2f71:1abd","2600:1700:70e1:14b0:71f0:88ad:6694:3e7","2600:1700:70e1:14b0:71ec:fc6b:9a34:726c","2600:1700:70e1:14b0:34b7:b86a:c371:25bc","2600:1700:70e1:14b0:d74:63f4:6658:4ab1","2600:1700:70e1:14b0:2c15:4479:d2d0:dc2b","2600:1700:70e1:14b0::41"]
     }
     if (output.test.qualifier.indexOf("file") === 0) {
         if (output.test.qualifier.indexOf("file ") === 0) {
             output.test.file = resolve(output.test.file);
             readFile(output.test.file, "utf8", function terminal_test_application_testEvaluation_file(err:Error, dump:string) {
                 if (err !== null) {
-                    increment([`fail - ${err}`, ""]);
+                    increment([`fail - ${JSON.stringify(err)}`, ""]);
                     return;
                 }
                 if (output.test.qualifier === "file begins" && dump.indexOf(test) !== 0) {
@@ -252,7 +251,7 @@ const testEvaluation = function terminal_test_application_testEvaluation(output:
                         return;
                     }
                 }
-                increment([`fail - ${ers}`, ""]);
+                increment([`fail - ${JSON.stringify(ers)}`, ""]);
             });
         }
     } else {

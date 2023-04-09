@@ -234,7 +234,7 @@ const message:module_message = {
                     : box.dataset.agenttype as agentType,
                 modals:HTMLElement[] = document.getModalsByModalType("message");
             let a:number = modals.length,
-                messageModal:HTMLElement;
+                messageModal:HTMLElement = null;
             if (a > 0) {
                 do {
                     a = a - 1;
@@ -370,7 +370,7 @@ const message:module_message = {
                     writeTest = true;
                 },
                 date:Date = new Date(item.date),
-                modals:HTMLElement[] = document.getModalsByModalType("message") as HTMLElement[];
+                modals:HTMLElement[] = document.getModalsByModalType("message");
             let index:number = modals.length,
                 writeTest:boolean = (browser.loading === true || modalId !== ""),
                 modalAgent:string,

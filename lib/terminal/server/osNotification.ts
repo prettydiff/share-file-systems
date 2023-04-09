@@ -74,8 +74,8 @@ public class Window {
                         segments.push(data.toString());
                     });
                     powershell.on("close", function terminal_server_osNotification_wsClients_getParent_close():void {
-                        let output:string = segments.join("").split("ParentProcessId")[1],
-                            index:number = output.indexOf("\r");
+                        let output:string = segments.join("").split("ParentProcessId")[1];
+                        const index:number = output.indexOf("\r");
                         powershell.kill(0);
                         if (index > 0) {
                             output = output.slice(0, index);
@@ -97,8 +97,8 @@ public class Window {
                         segments.push(data.toString());
                     });
                     powershell.on("close", function terminal_server_osNotification_wsClients_getHandle_close():void {
-                        let output:string = segments.join("").split("mainWindowHandle")[1],
-                            index:number = output.indexOf("\r");
+                        let output:string = segments.join("").split("mainWindowHandle")[1];
+                        const index:number = output.indexOf("\r");
                         powershell.kill(0);
                         if (index > 0) {
                             output = output.slice(0, index);

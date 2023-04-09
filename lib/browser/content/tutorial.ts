@@ -378,6 +378,7 @@ const tutorial = function browser_content_tutorial():void {
         dataLength:number = tutorialData.length,
         currentNode = function browser_content_tutorial_currentNode(current:HTMLElement):void {
             current.highlight();
+            // eslint-disable-next-line
             action = (current === null || current === undefined)
                 ? null
                 // @ts-ignore - TS cannot resolve a string to a GlobalEventHandlersEventMap object key name

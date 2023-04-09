@@ -46,10 +46,7 @@ const fileCopy:module_fileCopy = {
             // agentSource - send list
             const security = function terminal_server_services_fileCopy_copyList_security():void {
                 // send messaging back to agentRequest to populate status text on agentWrite modals
-                let locationIndex:number = 0,
-                    directories:number = 0,
-                    fileCount:number = 0,
-                    fileSize:number = 0;
+                let locationIndex:number = 0;
                 const action:"copy"|"cut" = (data.cut === true)
                         ? "cut"
                         : "copy",
@@ -92,17 +89,17 @@ const fileCopy:module_fileCopy = {
                                                     listData: listData,
                                                     port: vars.network.ports.http
                                                 },
-                                                directoryPlural:string = (directories === 1)
+                                                directoryPlural:string = (listData.dirs === 1)
                                                     ? "y"
                                                     : "ies",
-                                                plural:string = (fileCount === 1)
+                                                plural:string = (listData.files === 1)
                                                     ? ""
                                                     : "s",
                                                 status:service_fileSystem_status = {
                                                     agentRequest: data.agentRequest,
                                                     agentSource: data.agentWrite,
                                                     fileList: null,
-                                                    message: `Preparing to transfer ${directories} director${directoryPlural} and ${fileCount} file${plural} at size ${common.prettyBytes(fileSize)}.`
+                                                    message: `Preparing to transfer ${listData.dirs} director${directoryPlural} and ${listData.files} file${plural} at size ${common.prettyBytes(listData.size)}.`
                                                 };
 
                                             if (vars.test.type !== "service") {

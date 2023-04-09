@@ -32,7 +32,7 @@ const websocket = function terminal_commands_interface_websocket(callback:comman
                 output.push(`],"port":${addressInfo.port}}`);
                 callback("", [output.join(",").replace("[,", "[").replace(",]", "]")], null);
             } else {
-                output.push(`${vars.text.cyan}Web Sockets${vars.text.none} on port: ${vars.text.bold + vars.text.green + addressInfo.port + vars.text.none}`);
+                output.push(`${vars.text.cyan}Web Sockets${vars.text.none} on port: ${vars.text.bold + vars.text.green + String(addressInfo.port) + vars.text.none}`);
                 output.push("");
 
                 output.push("Listening on addresses:");

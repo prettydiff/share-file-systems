@@ -89,7 +89,7 @@ const perf:module_perf = {
         socket: function terminal_commands_library_perf_concludeSocket():void {
             const duration:number = Number(process.hrtime.bigint() - perf.startTime) / 1e9,
                 storageLength:number = perf.storage.length;
-            log([`${humanTime(false)} Index ${storageLength}. Complete send/receive execution for ${vars.text.cyan + common.commas(perf.frequency) + vars.text.none} messages of size ${common.prettyBytes(perf.size)}: ${vars.text.green + duration + vars.text.none} seconds, or ${vars.text.green + common.commas(Math.round(perf.frequency / duration)) + vars.text.none} messages per second.`]);
+            log([`${humanTime(false)} Index ${storageLength}. Complete send/receive execution for ${vars.text.cyan + common.commas(perf.frequency) + vars.text.none} messages of size ${common.prettyBytes(perf.size)}: ${vars.text.green + String(duration) + vars.text.none} seconds, or ${vars.text.green + common.commas(Math.round(perf.frequency / duration)) + vars.text.none} messages per second.`]);
             perf.storage[storageLength - 1][2] = duration;
             perf.averages("socket");
         }
@@ -128,8 +128,8 @@ const perf:module_perf = {
             perf.storage.push([sentInsecure, sentSecure, 0]);
             log([
                 "",
-                `${humanTime(false)} Index ${perf.storage.length}. Send time without message queues for ${vars.text.cyan + common.commas(perf.frequency) + vars.text.none} messages of size ${common.prettyBytes(perf.size)}: ${vars.text.green + sentInsecure + vars.text.none} seconds, or ${vars.text.green + common.commas(Math.round(perf.frequency / sentInsecure)) + vars.text.none} messages per second.`,
-                `${humanTime(false)} Index ${perf.storage.length}. Preferred send time with a queue for ${vars.text.cyan + common.commas(perf.frequency) + vars.text.none} messages of size ${common.prettyBytes(perf.size)}: ${vars.text.green + sentSecure + vars.text.none} seconds, or ${vars.text.green + common.commas(Math.round(perf.frequency / sentSecure)) + vars.text.none} messages per second.`
+                `${humanTime(false)} Index ${perf.storage.length}. Send time without message queues for ${vars.text.cyan + common.commas(perf.frequency) + vars.text.none} messages of size ${common.prettyBytes(perf.size)}: ${vars.text.green + String(sentInsecure) + vars.text.none} seconds, or ${vars.text.green + common.commas(Math.round(perf.frequency / sentInsecure)) + vars.text.none} messages per second.`,
+                `${humanTime(false)} Index ${perf.storage.length}. Preferred send time with a queue for ${vars.text.cyan + common.commas(perf.frequency) + vars.text.none} messages of size ${common.prettyBytes(perf.size)}: ${vars.text.green + String(sentSecure) + vars.text.none} seconds, or ${vars.text.green + common.commas(Math.round(perf.frequency / sentSecure)) + vars.text.none} messages per second.`
             ]);
             transmit_ws.queue({
                 data: ["Performance test", "complete"],

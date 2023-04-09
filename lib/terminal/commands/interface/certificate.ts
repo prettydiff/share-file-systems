@@ -45,7 +45,7 @@ const interfaceCertificate = function terminal_commands_interface_certificate(ca
                 config.names[names[0] as "intermediate"|"root"|"server"][names[1] as "domain"|"fileName"] = value;
             }
         };
-    let indexLength:number,
+    let indexLength:number = 0,
         index:number = process.argv.length,
         orgTest:boolean = false,
         argNames:string[];

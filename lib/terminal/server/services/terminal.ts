@@ -185,6 +185,7 @@ const terminal:module_terminal = {
         }
     },
     kill: function terminal_server_services_terminal_kill(id:string):void {
+        // eslint-disable-next-line
         const shell:ChildProcess = (terminal.processes[id] === undefined)
             // eslint-disable-next-line
             ? (this.stdout === undefined)

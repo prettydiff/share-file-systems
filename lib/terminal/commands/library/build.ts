@@ -106,13 +106,12 @@ const build = function terminal_commands_library_build(config:config_command_bui
         },
         // indicates how long each phase took
         sectionTimer = function terminal_commands_library_build_sectionTime(input:string):void {
-            let now:string[] = input.replace(`${vars.text.cyan}[`, "").replace(`]${vars.text.none} `, "").split(":"),
-                numb:[number, number] = [(Number(now[0]) * 3600) + (Number(now[1]) * 60) + Number(now[2].split(".")[0]), Number(now[2].split(".")[1])],
-                difference:[number, number],
+            const now:string[] = input.replace(`${vars.text.cyan}[`, "").replace(`]${vars.text.none} `, "").split(":"),
                 times:string[] = [],
-                time:number = 0,
+                numb:[number, number] = [(Number(now[0]) * 3600) + (Number(now[1]) * 60) + Number(now[2].split(".")[0]), Number(now[2].split(".")[1])],
+                difference:[number, number] = [numb[0] - sectionTime[0], (numb[1] + 1000000000) - (sectionTime[1] + 1000000000)];
+            let time:number = 0,
                 str:string = "";
-            difference = [numb[0] - sectionTime[0], (numb[1] + 1000000000) - (sectionTime[1] + 1000000000)];
             sectionTime = numb;
             if (difference[1] < 0) {
                 difference[0] = difference[0] - 1;
@@ -158,7 +157,7 @@ const build = function terminal_commands_library_build(config:config_command_bui
         },
         // the transition to the next phase or completion
         next = function terminal_commands_library_build_next(message:string):void {
-            let phase:buildPhase = order[type][0] as buildPhase,
+            const phase:buildPhase = order[type][0],
                 time:string = humanTime(false);
             if (message !== "") {
                 log([time + message]);
@@ -562,7 +561,7 @@ const build = function terminal_commands_library_build(config:config_command_bui
             configurations: function terminal_commands_library_build_configurations():void {
                 readFile(`${vars.path.project}lib${vars.path.sep}configurations.json`, "utf8", function terminal_commands_library_build_configurations_readFile(err:Error, fileData:string) {
                     if (err === null) {
-                        const config:configuration_application = JSON.parse(fileData),
+                        const config:configuration_application = JSON.parse(fileData) as configuration_application,
                             keys:string[] = Object.keys(config),
                             length:number = keys.length,
                             writeCallback = function terminal_commands_library_build_configurations_readFile_writeCallback(wErr:Error):void {
@@ -639,13 +638,13 @@ const build = function terminal_commands_library_build(config:config_command_bui
                         let writeStart:number = 0,
                             writeEnd:number = 0,
                             master:number = 0,
+                            a:number = 0,
+                            codeLength:number = 0;
+                        const length:number = dirList.length,
                             modules:stringStore = {
                                 browser: "",
                                 terminal: ""
                             },
-                            a:number = 0,
-                            codeLength:number = 0;
-                        const length:number = dirList.length,
 
                             // write the documentation/library_list.md file
                             masterList = function terminal_commands_library_build_libReadme_masterList():void {
@@ -1107,14 +1106,14 @@ const build = function terminal_commands_library_build(config:config_command_bui
                             distributions = function terminal_commands_library_build_osSpecific_distributions(dist:posix):void {
                                 let taskIndex:number = 0,
                                     taskLength:number = 0,
-                                    statCount:number = 0,
-                                    flags:flagList = {
+                                    statCount:number = 0;
+                                const flags:flagList = {
                                         certInstall: false,
                                         statError: false,
                                         toolCAP: false,
                                         toolNSS: false
-                                    };
-                                const certCA:string = `${certFlags.path}share-file-ca.crt`,
+                                    },
+                                    certCA:string = `${certFlags.path}share-file-ca.crt`,
                                     certRoot:string = `${certFlags.path}share-file-root.crt`,
                                     cert:string = `${certFlags.path}share-file.crt`,
                                     signed:string = (certFlags.selfSign === true)
@@ -1547,7 +1546,7 @@ const build = function terminal_commands_library_build(config:config_command_bui
                         }
                         const readPack = function terminal_commands_library_build_version_packStat_readPack(err:Error, data:string):void {
                                 if (err === null) {
-                                    const packageData:configuration_packageJSON = JSON.parse(data),
+                                    const packageData:configuration_packageJSON = JSON.parse(data) as configuration_packageJSON,
                                         commitHash = function terminal_commands_library_build_version_packStat_readPack_commitHash(hashErr:Error, stdout:string, stderr:string):void {
                                             const flag:flagList = {
                                                     config: false,
@@ -1558,7 +1557,7 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                                         error(["Error reading configuration.json file."], err);
                                                         return;
                                                     }
-                                                    const config:configuration_application = JSON.parse(configFile),
+                                                    const config:configuration_application = JSON.parse(configFile) as configuration_application,
                                                         writeConfig = function terminal_commands_library_build_version_packStat_readPack_commitHash_readConfig_writeConfig(erc:Error):void {
                                                             if (erc !== null) {
                                                                 error(["Error writing configuration.json file."], erc);
@@ -1601,7 +1600,7 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                                             : config.versionDate,
                                                         dateObj:Date = new Date(dateRaw),
                                                         month:string = (function terminal_commands_library_build_version_packStat_month():string {
-                                                            let numb:number = dateObj.getMonth();
+                                                            const numb:number = dateObj.getMonth();
                                                             if (numb === 0) {
                                                                 return "JAN";
                                                             }

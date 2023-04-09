@@ -235,8 +235,8 @@ declare global {
      * For serviceCopy.status.copy of terminal/server/services/fileCopy.
      * ```typescript
      * interface config_copy_status {
-     *     agentSource: fileAgent;
      *     agentRequest: fileAgent;
+     *     agentSource: fileAgent;
      *     agentWrite: fileAgent;
      *     countFile: number;
      *     directory: boolean;
@@ -248,8 +248,8 @@ declare global {
      * }
      * ``` */
     interface config_copy_status {
-        agentSource: fileAgent;
         agentRequest: fileAgent;
+        agentSource: fileAgent;
         agentWrite: fileAgent;
         countFile: number;
         directory: boolean;

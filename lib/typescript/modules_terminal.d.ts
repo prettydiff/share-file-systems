@@ -300,8 +300,8 @@ declare global {
      *         dateRaw     : number;                // raw numeric version of date or prior change
      *         domain      : string[];              // supported domains that resolves to a localhost IP
      *         git_hash    : string;                // dynamically populated static value of hash from prior git commit at latest build
-     *         module_type : "commonjs" | "module"  // the type of module system the application is currently using
      *         log         : string[]               // a storage of console.log items
+     *         module_type : "commonjs" | "module"  // the type of module system the application is currently using
      *         name        : string;                // a static name of the application
      *         startTime   : bigint;                // nanosecond precision time the application starts for measuring execution performance
      *         stateDefault: settings_item          // stores default keys/values for passing and resetting state
@@ -345,11 +345,11 @@ declare global {
      *         executionKeyword   : string;               // an OS specific keyword to execute an application by name from the terminal
      *     };
      *     test: {
+     *         browser: service_testBrowser;  // current test_browser object when running test automation in the browser
      *         flags: {
      *             error: boolean;
      *             write: string;
      *         };                             // properties used by service and simulation tests so that error message is identified independent of other test execution
-     *         browser: service_testBrowser;  // current test_browser object when running test automation in the browser
      *         socket : agentStream | Socket; // holds a socket for service tests
      *         type   : test_listType;        // type of test automation running in the application
      *     };
@@ -367,8 +367,8 @@ declare global {
             date        : string;
             dateRaw     : number;
             git_hash    : string;
-            module_type : "commonjs" | "module";
             log         : string[];
+            module_type : "commonjs" | "module";
             name        : string;
             startTime   : bigint;
             stateDefault: settings_item;
@@ -400,11 +400,11 @@ declare global {
             executionKeyword   : string;
         };
         test: {
+            browser: service_testBrowser;
             flags: {
                 error: boolean;
                 write: string;
             };
-            browser: service_testBrowser;
             socket : ServerResponse | Socket;
             type   : test_listType;
         };

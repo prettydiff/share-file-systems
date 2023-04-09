@@ -118,18 +118,18 @@ import disallowed from "../common/disallowed.js";
                     fullscreen = function browser_init_complete_fullscreen():void {
                         if (document.fullscreenEnabled === true) {
                             if (document.fullscreenElement === null) {
-                                browser.pageBody.requestFullscreen();
+                                void browser.pageBody.requestFullscreen();
                             } else {
-                                document.exitFullscreen();
+                                void document.exitFullscreen();
                             }
                         }
                     },
                     fullscreenChange = function browser_init_complete_fullscreenChange():void {
                         const button:HTMLElement = document.getElementById("fullscreen"),
-                            span:HTMLElement = button.getElementsByTagName("span")[0];
-                        let text:string = (document.fullscreenElement === null)
-                            ? "Toggle Fullscreen"
-                            : "Exit Fullscreen";
+                            span:HTMLElement = button.getElementsByTagName("span")[0],
+                            text:string = (document.fullscreenElement === null)
+                                ? "Toggle Fullscreen"
+                                : "Exit Fullscreen";
                         span.appendText(text);
                         button.title = text;
                         button.firstChild.textContent = (document.fullscreenElement === null)
@@ -276,24 +276,24 @@ import disallowed from "../common/disallowed.js";
                         }
                         if (count === modalKeys.length) {
                             let index:number = 0,
-                                len:number = indexes.length,
                                 uiModal:config_modal,
                                 modalItem:HTMLElement = null;
-                            const restoreShares = function browser_init_restoreState_z_restoreShares(type:agentType):void {
-                                const list:string[] = Object.keys(state.settings[type]),
-                                    listLength:number = list.length;
-                                let a:number = 0;
-                                if (listLength > 0) {
-                                    do {
-                                        agent_management.tools.addAgent({
-                                            hash: list[a],
-                                            name: browser[type][list[a]].name,
-                                            type: type
-                                        });
-                                        a = a + 1;
-                                    } while (a < listLength);
-                                }
-                            };
+                            const len:number = indexes.length,
+                                restoreShares = function browser_init_restoreState_z_restoreShares(type:agentType):void {
+                                    const list:string[] = Object.keys(state.settings[type]),
+                                        listLength:number = list.length;
+                                    let a:number = 0;
+                                    if (listLength > 0) {
+                                        do {
+                                            agent_management.tools.addAgent({
+                                                hash: list[a],
+                                                name: browser[type][list[a]].name,
+                                                type: type
+                                            });
+                                            a = a + 1;
+                                        } while (a < listLength);
+                                    }
+                                };
                             browser.data.zIndex = modalKeys.length;
                             indexes.sort(function browser_init_restoreState_z_sort(aa:[number, string], bb:[number, string]):number {
                                 if (aa[0] < bb[0]) {
@@ -373,7 +373,7 @@ import disallowed from "../common/disallowed.js";
 
         // set state from artifacts supplied to the page
         if (stateItem.getAttribute("type") === "hidden") {
-            state = JSON.parse(stateItem.value);
+            state = JSON.parse(stateItem.value) as stateData;
             if (state.settings.configuration !== undefined) {
                 if (state.settings.configuration.hashDevice !== undefined) {
                     hashDevice = state.settings.configuration.hashDevice;

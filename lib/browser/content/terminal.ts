@@ -204,7 +204,7 @@ const terminal:module_browserTerminal = {
             if (key === "pagedown" && event.shiftKey === true) {
                 const items:HTMLCollectionOf<HTMLElement> = list.getElementsByTagName("li"),
                     parent:HTMLElement = list.parentNode,
-                    scroll:terminal_scroll = JSON.parse(list.dataset.scroll),
+                    scroll:terminal_scroll = JSON.parse(list.dataset.scroll) as terminal_scroll,
                     scrollPosition:number = scroll.position + 1,
                     position:number = (scroll.entries[scrollPosition] === undefined || items[scroll.entries[scrollPosition]] === undefined)
                         ? parent.scrollHeight
@@ -224,7 +224,7 @@ const terminal:module_browserTerminal = {
             if (key === "pageup" && event.shiftKey === true) {
                 const items:HTMLCollectionOf<HTMLElement> = list.getElementsByTagName("li"),
                     parent:HTMLElement = list.parentNode,
-                    scroll:terminal_scroll = JSON.parse(list.dataset.scroll),
+                    scroll:terminal_scroll = JSON.parse(list.dataset.scroll) as terminal_scroll,
                     scrollPosition:number = scroll.position - 1,
                     position:number = (scroll.entries[scrollPosition] === undefined || items[scroll.entries[scrollPosition]] === undefined)
                         ? 0
@@ -322,7 +322,7 @@ const terminal:module_browserTerminal = {
                     li.innerHTML = logItem;
                     element.appendChild(li);
                 },
-                oldScroll:terminal_scroll = JSON.parse(element.dataset.scroll),
+                oldScroll:terminal_scroll = JSON.parse(element.dataset.scroll) as terminal_scroll,
                 scroll:terminal_scroll = {
                     position: oldScroll.entries.length,
                     entries: oldScroll.entries

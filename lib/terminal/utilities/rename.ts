@@ -58,7 +58,7 @@ const rename = function terminal_utilities_rename(config:config_rename):void {
                 count = (countTest.test(noExtension) === true)
                     ? Number(noExtension.slice(noExtension.lastIndexOf("_") + 1)) + 1
                     : 0;
-                config.list[index][0][6] = `${config.destination + vars.path.sep + noExtension.replace(countTest, "")}_${count + extension}`;
+                config.list[index][0][6] = `${config.destination + vars.path.sep + noExtension.replace(countTest, "")}_${String(count) + extension}`;
                 stat(config.list[index][0][6], terminal_utilities_rename_statCallback);
                 return;
             }

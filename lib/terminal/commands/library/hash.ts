@@ -94,10 +94,10 @@ const hash = function terminal_commands_library_hash(input:config_command_hash):
                     }
                 },
                 recursive = function terminal_commands_library_hash_dirComplete_recursive():void {
-                    let b:number = 0,
-                        end:number = (listLength - a < shortLimit)
-                            ? listLength - a
-                            : shortLimit;
+                    let b:number = 0;
+                    const end:number = (listLength - a < shortLimit)
+                        ? listLength - a
+                        : shortLimit;
                     do {
                         typeHash(a, end);
                         a = a + 1;
@@ -190,6 +190,7 @@ const hash = function terminal_commands_library_hash(input:config_command_hash):
                             search: "",
                             symbolic: true
                         };
+                        hashList = true;
                         directory(dirConfig);
                     } else {
                         // coming from the directory library
@@ -198,11 +199,11 @@ const hash = function terminal_commands_library_hash(input:config_command_hash):
                 } else {
                     if (ers.code === "ENOENT") {
                         error([
-                            `File path ${vars.text.angry + input.source + vars.text.none} is not a file or directory.`,
+                            `File path ${vars.text.angry + input.source.toString() + vars.text.none} is not a file or directory.`,
                             `See ${vars.text.cyan + vars.terminal.command_instruction} commands hash${vars.text.none} for examples.`
                         ], null, true);
                     } else {
-                        error([`Error retrieving stat from ${input.source}`], ers);
+                        error([`Error retrieving stat from ${input.source.toString()}`], ers);
                     }
                 }
             });

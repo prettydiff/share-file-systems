@@ -18,7 +18,7 @@ import terminal from "../services/terminal.js";
 import vars from "../../utilities/vars.js";
 
 const receiver = function terminal_server_transmission_receiver(socketData:socketData, transmit:transmit_type):void {
-    const data:socketData = socketData as socketData,
+    const data:socketData = socketData,
         services:service_type = data.service,
         actions:transmit_receiver = {
             "agent-hash": agent_hash,

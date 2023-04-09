@@ -8,8 +8,11 @@ const transmitLogger = function terminal_server_transmission_transmitLogger(conf
     vars.network.size[config.transmit.type][config.direction] = vars.network.size[config.transmit.type][config.direction] + config.size;
     if (vars.settings.verbose === true) {
         if (config.socketData.service === "GET") {
+            const data:string = (typeof config.socketData.data === "string")
+                ? config.socketData.data
+                : JSON.stringify(config.socketData.data);
             log([
-                `GET response to browser for ${config.socketData.data}`
+                `GET response to browser for ${data}`
             ]);
         } else {
             log([

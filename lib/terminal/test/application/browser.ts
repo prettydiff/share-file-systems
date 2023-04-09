@@ -360,52 +360,52 @@ const defaultCommand:commands = vars.environment.command,
                 }
             },
             reset: function terminal_test_application_browser_reset():void {
-                let timeStore:[string, number] = time("Resetting Test Environment", false, 0);
-                const launch = function terminal_test_application_browser_reset_start_launch():void {
-                    const start = function terminal_test_application_browser_reset_readdir_browserLaunch():void {
-                        const keyword:string = (process.platform === "darwin")
-                                ? "open"
-                                : (process.platform === "win32")
-                                    ? "start"
-                                    : "xdg-open",
-                            port:string = (vars.network.ports.http === 443)
-                                ? ""
-                                : `:${String(vars.network.ports.http)}`,
-                            verboseFlag:string = (browser.args.mode !== "remote" && vars.settings.verbose === true)
-                                ? "test_browser_verbose"
-                                : "test_browser",
-                            path:string = `https://${vars.network.domain[0] + port}/?${verboseFlag}`,
-                            // execute a browser by file path to the browser binary
-                            browserCommand:string = (process.argv.length > 0 && (process.argv[0].indexOf("\\") > -1 || process.argv[0].indexOf("/") > -1))
-                                ? (function terminal_test_application_browser_reset_readdir_browserLaunch_browserCommand():string {
-                                    if (process.platform === "win32") {
-                                        // yes, this is ugly.  Windows old cmd shell doesn't play well with file paths
-                                        process.argv[0] = `${process.argv[0].replace(/\\/g, "\"\\\"").replace("\"\\", "\\") + "\""}`;
-                                    } else {
-                                        process.argv[0] = `"${process.argv[0]}"`;
+                const timeStore:[string, number] = time("Resetting Test Environment", false, 0),
+                    launch = function terminal_test_application_browser_reset_start_launch():void {
+                        const start = function terminal_test_application_browser_reset_readdir_browserLaunch():void {
+                            const keyword:string = (process.platform === "darwin")
+                                    ? "open"
+                                    : (process.platform === "win32")
+                                        ? "start"
+                                        : "xdg-open",
+                                port:string = (vars.network.ports.http === 443)
+                                    ? ""
+                                    : `:${String(vars.network.ports.http)}`,
+                                verboseFlag:string = (browser.args.mode !== "remote" && vars.settings.verbose === true)
+                                    ? "test_browser_verbose"
+                                    : "test_browser",
+                                path:string = `https://${vars.network.domain[0] + port}/?${verboseFlag}`,
+                                // execute a browser by file path to the browser binary
+                                browserCommand:string = (process.argv.length > 0 && (process.argv[0].indexOf("\\") > -1 || process.argv[0].indexOf("/") > -1))
+                                    ? (function terminal_test_application_browser_reset_readdir_browserLaunch_browserCommand():string {
+                                        if (process.platform === "win32") {
+                                            // yes, this is ugly.  Windows old cmd shell doesn't play well with file paths
+                                            process.argv[0] = `${process.argv[0].replace(/\\/g, "\"\\\"").replace("\"\\", "\\") + "\""}`;
+                                        } else {
+                                            process.argv[0] = `"${process.argv[0]}"`;
+                                        }
+                                        if (process.argv.length > 1) {
+                                            return `${keyword} ${process.argv[0]} ${path} "${process.argv.slice(1).join(" ")}"`;
+                                        }
+                                        return `${keyword} ${process.argv[0]} ${path}`;
+                                    }())
+                                    : `${keyword} ${path}`,
+                                child = function terminal_test_application_browser_reset_readdir_browserLaunch_child(errs:Error, stdout:string, stderr:Buffer | string):void {
+                                    if (errs !== null) {
+                                        error(["Error opening browser in test automation."], errs);
+                                        return;
                                     }
-                                    if (process.argv.length > 1) {
-                                        return `${keyword} ${process.argv[0]} ${path} "${process.argv.slice(1).join(" ")}"`;
+                                    if (stdout !== "") {
+                                        log([stdout]);
                                     }
-                                    return `${keyword} ${process.argv[0]} ${path}`;
-                                }())
-                                : `${keyword} ${path}`,
-                            child = function terminal_test_application_browser_reset_readdir_browserLaunch_child(errs:Error, stdout:string, stderr:Buffer | string):void {
-                                if (errs !== null) {
-                                    error(["Error opening browser in test automation."], errs);
-                                    return;
-                                }
-                                if (stdout !== "") {
-                                    log([stdout]);
-                                }
-                                if (stderr !== "") {
-                                    log([stderr.toString()]);
-                                }
-                            };
-                        exec(browserCommand, {
-                            cwd: vars.path.project
-                        }, child);
-                    };
+                                    if (stderr !== "") {
+                                        log([stderr.toString()]);
+                                    }
+                                };
+                            exec(browserCommand, {
+                                cwd: vars.path.project
+                            }, child);
+                        };
                     log(["", "", timeStore[0]]);
                     vars.settings.device = {};
                     vars.settings.user = {};
@@ -452,8 +452,8 @@ const defaultCommand:commands = vars.environment.command,
                         color:string = (complete === false)
                             ? vars.text.angry
                             : vars.text.bold + vars.text.green,
-                        count:string = color + browser.remote.count + vars.text.none,
-                        total:string = vars.text.bold + vars.text.green + browser.remote.total + vars.text.none,
+                        count:string = color + String(browser.remote.count) + vars.text.none,
+                        total:string = vars.text.bold + vars.text.green + String(browser.remote.total) + vars.text.none,
                         machine:string = (item.exit === "self")
                             ? "local"
                             : item.exit,
@@ -511,7 +511,7 @@ const defaultCommand:commands = vars.environment.command,
                                     : "s",
                                 exitMessage:string = (pass === true)
                                     ? `${humanTime(false) + vars.text.green + vars.text.bold}Passed${vars.text.none} all ${totalTests} evaluations from ${index + 1} test${passPlural}.`
-                                    : `${humanTime(false) + vars.text.angry}Failed${vars.text.none} on test ${vars.text.angry + (index + 1) + vars.text.none}: "${vars.text.cyan + tests[index].name + vars.text.none}" out of ${tests.length} total test${plural} and ${totalTests} evaluations.`;
+                                    : `${humanTime(false) + vars.text.angry}Failed${vars.text.none} on test ${vars.text.angry + String(index + 1) + vars.text.none}: "${vars.text.cyan + tests[index].name + vars.text.none}" out of ${tests.length} total test${plural} and ${totalTests} evaluations.`;
                             browser.exitMessage = exitMessage;
                             browser.methods.exit(index);
                             browser.fail = true;
@@ -572,7 +572,7 @@ const defaultCommand:commands = vars.environment.command,
                                 value:string = (valueStore === null)
                                     ? "null"
                                     : (valueType === "string")
-                                        ? `"${valueStore}"`
+                                        ? `"${valueStore as string}"`
                                         : String(valueStore),
                                 star:string = `   ${vars.text.angry}*${vars.text.none} `,
                                 resultString:string = (pass === true)
@@ -651,7 +651,7 @@ const defaultCommand:commands = vars.environment.command,
                             const qualifier:string = (tests[index].delay.qualifier === "not")
                                 ? " not"
                                 : "";
-                            failure.push(`     DOM node is${qualifier} ${tests[index].delay.value}: ${vars.text.cyan + result[1][1] + vars.text.none}`);
+                            failure.push(`     DOM node is${qualifier} ${tests[index].delay.value as string}: ${vars.text.cyan + result[1][1] + vars.text.none}`);
                         } else {
                             failure.push(`     ${vars.text.green}Actual value:${vars.text.none}\n${vars.text.cyan + result[1][1].replace(/^"/, "").replace(/"$/, "").replace(/\\"/g, "\"") + vars.text.none}`);
                         }

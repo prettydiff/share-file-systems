@@ -51,15 +51,15 @@ declare global {
      * Creates the files for the global shell command respective of whether the code uses commonjs or standard modules.
      * ```typescript
      * interface build_moduleType {
-     *     importPath: string;
      *     exportString: RegExp|string;
      *     extension: string;
+     *     importPath: string;
      * }
      * ``` */
     interface build_moduleType {
-        importPath: string;
         exportString: RegExp|string;
         extension: string;
+        importPath: string;
     }
 
     /**
@@ -197,10 +197,6 @@ declare global {
      *     // cspell:disable-next-line
      *     ".npmignore": string[];
      *     "package-lock.json": {
-     *         name: string;
-     *         version: string;
-     *         lockfileVersion: number;
-     *         requires: boolean;
      *         dependencies: {
      *             [key:string]: {
      *                 integrity: string;
@@ -209,6 +205,10 @@ declare global {
      *             };
      *         };
      *         devDependencies: stringStore;
+     *         lockfileVersion: number;
+     *         name: string;
+     *         requires: boolean;
+     *         version: string;
      *     };
      *     versionDate: number;
      * }
@@ -236,10 +236,6 @@ declare global {
         // cspell:disable-next-line
         ".npmignore": string[];
         "package-lock.json": {
-            name: string;
-            version: string;
-            lockfileVersion: number;
-            requires: boolean;
             dependencies: {
                 [key:string]: {
                     integrity: string;
@@ -248,6 +244,10 @@ declare global {
                 };
             };
             devDependencies: stringStore;
+            lockfileVersion: number;
+            name: string;
+            requires: boolean;
+            version: string;
         };
         versionDate: number;
     }
@@ -372,15 +372,15 @@ declare global {
      *
      * ```typescript
      * interface directory_list extends Array<directory_item> {
-     *     [index:number]: directoryItem;
      *     failures?: string[];
+     *     [index:number]: directoryItem;
      * }
      * type directory_item = [string, fileType, string, number, number, directory_data, string];
      * type fileType = "directory" | "error" | "file" | "link";
      * ``` */
     interface directory_list extends Array<directory_item> {
-        [index:number]: directory_item;
         failures?: string[];
+        [index:number]: directory_item;
     }
 
     /**
@@ -523,9 +523,9 @@ declare global {
      *     agentTo: string;
      *     agentType: agentType;
      *     date: number;
-     *     offline?: boolean;
      *     message: string;
      *     mode: messageMode;
+     *     offline?: boolean;
      * }
      * ``` */
     interface message_item {
@@ -533,9 +533,9 @@ declare global {
         agentTo: string;
         agentType: agentType;
         date: number;
-        offline?: boolean;
         message: string;
         mode: messageMode;
+        offline?: boolean;
     }
 
     /**
@@ -706,28 +706,28 @@ declare global {
      * Stores options for starting a TLS server.
      * ```typescript
      * interface transmit_tlsOptions {
-     *     options: {
-     *         ca: string;
-     *         cert: string;
-     *         key: string;
-     *     };
      *     fileFlag: {
      *         ca: boolean;
      *         crt: boolean;
      *         key: boolean;
      *     };
+     *     options: {
+     *         ca: string;
+     *         cert: string;
+     *         key: string;
+     *     };
      * }
      * ``` */
     interface transmit_tlsOptions {
-        options: {
-            ca: string;
-            cert: string;
-            key: string;
-        };
         fileFlag: {
             ca: boolean;
             crt: boolean;
             key: boolean;
+        };
+        options: {
+            ca: string;
+            cert: string;
+            key: string;
         };
     }
 
@@ -751,8 +751,8 @@ declare global {
      *     fragment: Buffer[];
      *     frame: Buffer[];
      *     frameExtended: number;
-     *     hash: string;
      *     handler: websocket_messageHandler;
+     *     hash: string;
      *     ping: (ttl:bigint, callback:(err:NodeJS.ErrnoException, roundtrip:bigint) => void) => void;
      *     pong: {
      *         [key:string]: websocket_pong;
@@ -767,8 +767,8 @@ declare global {
         fragment: Buffer[];
         frame: Buffer[];
         frameExtended: number;
-        hash: string;
         handler: websocket_messageHandler;
+        hash: string;
         ping: (ttl:number, callback:(err:NodeJS.ErrnoException, roundtrip:bigint) => void) => void;
         pong: {
             [key:string]: websocket_pong;
@@ -783,28 +783,28 @@ declare global {
      * A construct necessary to describe the binary frame header of a websocket message as defined in RFC 6455.
      * ```typescript
      * interface websocket_frame {
+     *     extended: number;
      *     fin: boolean;
+     *     len: number;
+     *     mask: boolean;
+     *     maskKey: Buffer;
+     *     opcode: number;
      *     rsv1: boolean;
      *     rsv2: boolean;
      *     rsv3: boolean;
-     *     opcode: number;
-     *     mask: boolean;
-     *     len: number;
-     *     extended: number;
-     *     maskKey: Buffer;
      *     startByte: number;
      * }
      * ``` */
     interface websocket_frame {
+        extended: number;
         fin: boolean;
+        len: number;
+        mask: boolean;
+        maskKey: Buffer;
+        opcode: number;
         rsv1: boolean;
         rsv2: boolean;
         rsv3: boolean;
-        opcode: number;
-        mask: boolean;
-        len: number;
-        extended: number;
-        maskKey: Buffer;
         startByte: number;
     }
 

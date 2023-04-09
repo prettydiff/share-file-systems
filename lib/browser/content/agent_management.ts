@@ -20,8 +20,8 @@ import util from "../utilities/util.js";
  *         deleteAgents: () => HTMLElement;
  *         inviteRemote: (invitation:service_invite, name:string) => HTMLElement;
  *         inviteStart: () => HTMLElement;
- *         modifyAgents: () => HTMLElement;
  *         menu: (view:"delete"|"edit_names"|"invite") => HTMLElement;
+ *         modifyAgents: () => HTMLElement;
  *     };
  *     events: {
  *         confirm: (event:MouseEvent) => void;
@@ -122,10 +122,10 @@ const agent_management:module_agentManagement = {
                 em:HTMLElement = document.createElement("em"),
                 ip:string = (agentInvite.ipSelected.indexOf(":") < 0)
                     ? `${agentInvite.ipSelected}:${agentInvite.ports.http}`
-                    : `[${agentInvite.ipSelected}]:${agentInvite.ports.http}`;
-            let text:HTMLElement = document.createElement("h3"),
+                    : `[${agentInvite.ipSelected}]:${agentInvite.ports.http}`,
                 label:HTMLElement = document.createElement("label"),
                 textarea:HTMLTextAreaElement = document.createElement("textarea");
+            let text:HTMLElement = document.createElement("h3");
 
             div.setAttribute("class", "agentInvitation");
             div.setAttribute("data-agent", invitation.type);
@@ -184,9 +184,9 @@ const agent_management:module_agentManagement = {
                     section.appendChild(p);
                 },
                 ul:HTMLElement = document.createElement("ul"),
+                h3:HTMLElement = document.createElement("h3"),
                 name:string = `invite-type${Math.random()}`;
             let p:HTMLElement = document.createElement("p"),
-                h3:HTMLElement = document.createElement("h3"),
                 h4:HTMLElement = document.createElement("h4"),
                 section:HTMLElement = document.createElement("div");
 
@@ -238,9 +238,9 @@ const agent_management:module_agentManagement = {
                 ul:HTMLElement = document.createElement("ul"),
                 h3:HTMLElement = document.createElement("h3"),
                 name:string = `agent-management-${Math.random()}`,
-                bodyDelete:HTMLElement = agent_management.content.deleteAgents() as HTMLElement,
-                bodyInvite:HTMLElement = agent_management.content.inviteStart() as HTMLElement,
-                bodyModify:HTMLElement = agent_management.content.modifyAgents() as HTMLElement;
+                bodyDelete:HTMLElement = agent_management.content.deleteAgents(),
+                bodyInvite:HTMLElement = agent_management.content.inviteStart(),
+                bodyModify:HTMLElement = agent_management.content.modifyAgents();
 
             util.radioListItem({
                 defaultValue: view,
@@ -307,10 +307,10 @@ const agent_management:module_agentManagement = {
                             ? document.createElement("p")
                             : document.createElement("ul"),
                         item = function browser_content_agentManagement_modifyAgents_section_item(key:string):HTMLElement {
-                            let p:HTMLElement = document.createElement("p"),
-                                label:HTMLElement = document.createElement("label"),
-                                input:HTMLInputElement = document.createElement("input");
-                            const li:HTMLElement = document.createElement("li");
+                            let p:HTMLElement = document.createElement("p");
+                            const label:HTMLElement = document.createElement("label"),
+                                input:HTMLInputElement = document.createElement("input"),
+                                li:HTMLElement = document.createElement("li");
 
                             // agent hash
                             p.appendText(key);
@@ -687,7 +687,7 @@ const agent_management:module_agentManagement = {
             const element:HTMLElement = event.target,
                 boxLocal:HTMLElement = element.getAncestor("box", "class"),
                 inviteBody:HTMLElement = boxLocal.getElementsByClassName("agentInvitation")[0] as HTMLElement,
-                invitation:service_invite = JSON.parse(inviteBody.dataset.invitation);
+                invitation:service_invite = JSON.parse(inviteBody.dataset.invitation) as service_invite;
             invitation.status = "declined";
             network.send(invitation, "invite");
             modal.events.close(event);
@@ -801,7 +801,7 @@ const agent_management:module_agentManagement = {
                     }
                 },
                 status = function browser_content_agentManagement_addUser_status(status:activityStatus):HTMLElement {
-                    let em:HTMLElement = document.createElement("em"),
+                    const em:HTMLElement = document.createElement("em"),
                         span:HTMLElement = document.createElement("span");
                     em.setAttribute("class", `status-${status}`);
                     em.appendText("●");
@@ -937,7 +937,7 @@ const agent_management:module_agentManagement = {
         /* Accept an invitation, handler on a modal's confirm button */
         inviteAccept: function browser_content_agentManagement_inviteAccept(box:modal):void {
             const div:HTMLElement = box.getElementsByClassName("agentInvitation")[0] as HTMLElement,
-                invitation:service_invite = JSON.parse(div.dataset.invitation);
+                invitation:service_invite = JSON.parse(div.dataset.invitation) as service_invite;
             invitation.action = "invite-response";
             invitation.message = `Invite accepted: ${common.dateFormat(new Date())}`;
             invitation.status = "accepted";

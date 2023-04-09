@@ -35,6 +35,7 @@ const settings = function terminal_server_services_settings(dataPackage:socketDa
                         keyLength = keyLength - 1;
                         if (configs[keyLength] !== "hashUser" && configs[keyLength] !== "nameUser" && configs[keyLength] !== "hashDevice" && configs[keyLength] !== "nameDevice") {
                             // @ts-ignore - The following line forces an implicit any, but in this dynamic assignment is lower risk than type analysis
+                            // eslint-disable-next-line
                             vars.settings[configs[keyLength]] = settingsData[configs[keyLength]];
                         }
                     } while (keyLength > 0);

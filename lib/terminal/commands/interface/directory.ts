@@ -135,16 +135,16 @@ const interfaceDirectory = function terminal_commands_interface_directory(callba
         }()),
         path: (function terminal_commands_interface_directory_path():string {
             const resolved = function terminal_commands_interface_directory_path_resolved(input:string):string {
-                if ((/^\w:$/).test(input) === true) {
-                    return `${input}\\`;
-                }
-                if (input === "\\" || input === "\\\\") {
-                    return "\\";
-                }
-                return resolve(input);
-            };
-            let len:number = process.argv.length,
-                a:number = 0;
+                    if ((/^\w:$/).test(input) === true) {
+                        return `${input}\\`;
+                    }
+                    if (input === "\\" || input === "\\\\") {
+                        return "\\";
+                    }
+                    return resolve(input);
+                },
+                len:number = process.argv.length;
+            let a:number = 0;
             if (process.argv.length < 1) {
                 return resolved(vars.terminal.cwd);
             }

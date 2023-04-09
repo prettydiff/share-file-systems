@@ -30,11 +30,11 @@ const commandName = function terminal_utilities_command(globalName:string):strin
         } while (index > 0);
     }
 
-    let comKeys:string[] = Object.keys(vars.terminal.commands),
-        filtered:string[] = [],
+    let filtered:string[] = [],
         a:number = 0,
         b:number = 0;
-    const arg:string = (process.argv[0] === globalName)
+    const comKeys:string[] = Object.keys(vars.terminal.commands),
+        arg:string = (process.argv[0] === globalName)
             ? process.argv[1]
             : process.argv[2],
         boldArg:string = vars.text.angry + arg + vars.text.none,

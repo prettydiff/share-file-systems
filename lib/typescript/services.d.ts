@@ -22,21 +22,21 @@
  * ```typescript
  * interface service_agentManagement {
  *     action: "add" | "delete" | "modify" | "rename";
+ *     agentFrom: string;
  *     agents: {
  *         device: agents;
  *         user: agents;
  *     };
- *     agentFrom: string;
  *     deviceUser: string;
  * }
  * ``` */
 interface service_agentManagement {
     action: "add" | "delete" | "modify" | "rename";
+    agentFrom: string;
     agents: {
         device: agents;
         user: agents;
     };
-    agentFrom: string;
     deviceUser: string;
 }
 

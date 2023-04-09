@@ -6,9 +6,9 @@
 interface Document {
     activeElement: HTMLElement;
     getElementsByAttribute: (name:string, value:string) => HTMLElement[];
+    getElementsByText: (textValue:string, caseSensitive?:boolean) => HTMLElement[];
     getModalsByModalType: (type:modalType|"all") => HTMLElement[];
     getNodesByType: (typeValue:number | string) => Node[];
-    getElementsByText: (textValue:string, caseSensitive?:boolean) => HTMLElement[];
     highlight: (element:HTMLElement) => void;
     removeHighlight: (element:HTMLElement) => void;
 }
@@ -21,8 +21,8 @@ interface Element {
     appendText: (text:string, empty?:boolean) => void;
     getAncestor: (identifier:string, selector:selector) => HTMLElement;
     getElementsByAttribute: (name:string, value:string) => HTMLElement[];
-    getNodesByType: (typeValue:number | string) => Node[];
     getElementsByText: (textValue:string, caseSensitive?:boolean) => HTMLElement[];
+    getNodesByType: (typeValue:number | string) => Node[];
     highlight: () => void;
     lowName: () => string;
     parentNode: HTMLElement;
@@ -64,8 +64,8 @@ interface module_agentHash {
  *         deleteAgents: () => HTMLElement;
  *         inviteRemote: (invitation:service_invite, name:string) => HTMLElement;
  *         inviteStart: () => HTMLElement;
- *         modifyAgents: () => HTMLElement;
  *         menu: (view:"delete"|"edit_names"|"invite") => HTMLElement;
+ *         modifyAgents: () => HTMLElement;
  *     };
  *     events: {
  *         confirm: (event:MouseEvent) => void;
@@ -96,8 +96,8 @@ interface module_agentManagement {
         deleteAgents: () => HTMLElement;
         inviteRemote: (invitation:service_invite, name:string) => HTMLElement;
         inviteStart: () => HTMLElement;
-        modifyAgents: () => HTMLElement;
         menu: (view:"delete"|"edit_names"|"invite") => HTMLElement;
+        modifyAgents: () => HTMLElement;
     };
     events: {
         confirm: (event:MouseEvent) => void;

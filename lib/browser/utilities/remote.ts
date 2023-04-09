@@ -125,9 +125,11 @@ const remote:module_remote = {
             }
         }
         if (typeof value === "number") {
+            // @ts-ignore - value is type primitive but operator > requires type number
             if (qualifier === "greater" && value > test.value) {
                 return [true, "", test.node.nodeString];
             }
+            // @ts-ignore - value is type primitive but operator < requires type number
             if (qualifier === "lesser" && value < test.value) {
                 return [true, "", test.node.nodeString];
             }
@@ -194,7 +196,7 @@ const remote:module_remote = {
                             }
                             window.resizeTo(Number(config.coords[0]), Number(config.coords[1]));
                         } else if (config.event !== "refresh-interaction") {
-                            element = remote.node(config.node, null) as HTMLElement;
+                            element = remote.node(config.node, null);
                             if (remote.domFailure === true) {
                                 remote.domFailure = false;
                                 return;
@@ -311,18 +313,20 @@ const remote:module_remote = {
                 ? remote.node(test.node, test.target[0])
                 : null,
             pLength:number = test.target.length - 1,
-            method = function browser_utilities_remote_getProperty_method(prop:Object, name:string):primitive {
+            method = function browser_utilities_remote_getProperty_method(prop:primitive|object, name:string):primitive {
                 if (name.slice(name.length - 2) === "()") {
                     name = name.slice(0, name.length - 2);
                     // @ts-ignore - prop is some unknown DOM element or element property
+                    // eslint-disable-next-line
                     return prop[name]();
                 }
                 // @ts-ignore - prop is some unknown DOM element or element property
+                // eslint-disable-next-line
                 return prop[name];
             },
             property = function browser_utilities_remote_getProperty_property(origin:HTMLElement|Window):primitive {
                 let b:number = 1,
-                    item:Object = method(origin, test.target[0]);
+                    item:primitive = method(origin, test.target[0]);
                 if (item === null) {
                     return null;
                 }
@@ -392,6 +396,7 @@ const remote:module_remote = {
             if (node[1] === "" || node[1] === null || node[0] === "activeElement" || node[0] === "documentElement" || node[0] === "firstChild" || node[0] === "lastChild" || node[0] === "nextSibling" || node[0] === "parentNode" || node[0] === "previousSibling") {
                 if (fail === "") {
                     // @ts-ignore - TypeScript's DOM types do not understand custom extensions to the Document object
+                    // eslint-disable-next-line
                     element = element[node[0]];
                 }
                 str.push(".");
@@ -406,6 +411,7 @@ const remote:module_remote = {
             } else if (node[2] === null || node[0] === "getElementById") {
                 if (fail === "") {
                     // @ts-ignore - TypeScript cannot implicitly walk the DOM by combining data structures and DOM methods
+                    // eslint-disable-next-line
                     element = element[node[0]](node[1]);
                 }
                 str.push(".");
@@ -415,6 +421,7 @@ const remote:module_remote = {
                 str.push("\")");
             } else {
                 // @ts-ignore - TypeScript cannot implicitly walk the DOM by combining data structures and DOM methods
+                // eslint-disable-next-line
                 const el:HTMLElement[] = element[node[0]](node[1]),
                     len:number = (el === null || el.length < 1)
                         ? -1

@@ -108,7 +108,7 @@ const network:module_network = {
                 "terminal": terminal.events.receive,
                 "test-browser": remote.receive
             },
-            socketData:socketData = JSON.parse(dataString),
+            socketData:socketData = JSON.parse(dataString) as socketData,
             type:service_type = socketData.service;
         actions[type](socketData);
     },

@@ -416,7 +416,7 @@ const share:module_share = {
                     },
                     deviceUser: null
                 };
-            let item:agentShare;
+            let item:agentShare = null;
             if (hashDevice === null) {
                 return;
             }
@@ -452,7 +452,7 @@ const share:module_share = {
                 execute: false,
                 name: hash.share,
                 readOnly: true,
-                type: hash.type as fileType
+                type: hash.type
             };
             // update any share modals
             share.tools.update("");

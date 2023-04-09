@@ -210,12 +210,12 @@ const context:module_context = {
                     itemList.push(item);
                 }
             },
+            box:modal = element.getAncestor("box", "class"),
+            readOnly:boolean = browser.data.modals[box.getAttribute("id")].read_only,
             clientHeight:number = browser.content.clientHeight;
         let clientX:number,
             clientY:number,
-            menuTop:number,
-            box:modal = element.getAncestor("box", "class"),
-            readOnly:boolean = browser.data.modals[box.getAttribute("id")].read_only,
+            menuTop:number = null,
             reverse:boolean = false,
             a:number = 0;
         context.element = element;
@@ -347,7 +347,7 @@ const context:module_context = {
                 },
                 clipStore:context_clipboard = (context.clipboard === "")
                     ? null
-                    : JSON.parse(context.clipboard);
+                    : JSON.parse(context.clipboard) as context_clipboard;
             if (selected.length < 1) {
                 addresses.push(element.getElementsByTagName("label")[0].innerHTML.replace(/&amp;/g, "&"));
             } else {
@@ -370,10 +370,9 @@ const context:module_context = {
     
         /* Handler for removing file system artifacts via context menu */
         destroy: function browser_content_context_destroy():void {
-            let element:HTMLElement = (context.element.lowName() === "li")
+            const element:HTMLElement = (context.element.lowName() === "li")
                     ? context.element
                     : context.element.getAncestor("li", "tag"),
-                selected:[string, fileType, string][],
                 box:modal = element.getAncestor("box", "class"),
                 menu:HTMLElement = document.getElementById("contextMenu"),
                 agents:[fileAgent, fileAgent, fileAgent] = util.fileAgent(box, null),
@@ -385,8 +384,8 @@ const context:module_context = {
                     depth: 1,
                     location: [],
                     name: box.getElementsByClassName("header")[0].getElementsByTagName("input")[0].value
-                };
-            selected = util.selectedAddresses(element, "destroy");
+                },
+                selected:[string, fileType, string][] = util.selectedAddresses(element, "destroy");
             if (selected.length < 1) {
                 payload.location.push(element.getElementsByTagName("label")[0].innerHTML);
             } else {
@@ -487,14 +486,13 @@ const context:module_context = {
                             ? context.type
                             : (element.innerHTML.indexOf("New File") === 0)
                                 ? "file"
-                                : "directory";
+                                : "directory",
+                        span:HTMLElement = document.createElement("span");
     
                     if (parent === null) {
                         return;
                     }
-    
-                    let span:HTMLElement,
-                        slash:"/"|"\\" = "/",
+                    let slash:"/"|"\\" = "/",
                         path:string = box.getElementsByTagName("input")[0].value;
     
                     li.setAttribute("class", type);
@@ -528,7 +526,6 @@ const context:module_context = {
                     field.setAttribute("data-location", path);
                     text.appendChild(field);
                     li.appendChild(p);
-                    span = document.createElement("span");
                     span.onclick = file_browser.events.select;
                     span.oncontextmenu = context.events.menu;
                     li.appendChild(span);
@@ -562,8 +559,8 @@ const context:module_context = {
         paste: function browser_content_context_paste():void {
             const box:modal = context.element.getAncestor("box", "class"),
                 clipData:context_clipboard = (context.clipboard === "")
-                    ? {}
-                    : JSON.parse(context.clipboard),
+                    ? null
+                    : JSON.parse(context.clipboard) as context_clipboard,
                 sourceModal:HTMLElement = document.getElementById(clipData.id),
                 menu:HTMLElement = document.getElementById("contextMenu"),
                 cut:boolean = (clipData.type === "cut"),
