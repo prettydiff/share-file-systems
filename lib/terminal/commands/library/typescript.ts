@@ -28,7 +28,7 @@ const typescript = function terminal_commands_library_typescript(typePath:string
                 exec(command, args, function terminal_commands_library_typescript_stat_exec(err:Error, stdout:string):void {
                     const control:string = "\u001b[91m";
                     if (stdout !== "") {
-                        let compileErrors = stdout.slice(stdout.indexOf("Found"));
+                        let compileErrors:string = stdout.slice(stdout.indexOf("Found"));
                         if (stdout.indexOf(` ${control}error${vars.text.none} `) > -1) {
                             errorOut([
                                 "TypeScript reported warnings.",

@@ -378,6 +378,7 @@ const tutorial = function browser_content_tutorial():void {
         dataLength:number = tutorialData.length,
         currentNode = function browser_content_tutorial_currentNode(current:HTMLElement):void {
             current.highlight();
+            // eslint-disable-next-line
             action = (current === null || current === undefined)
                 ? null
                 // @ts-ignore - TS cannot resolve a string to a GlobalEventHandlersEventMap object key name
@@ -441,7 +442,7 @@ const tutorial = function browser_content_tutorial():void {
             const wrapper:HTMLElement = document.createElement("div"),
                 heading:HTMLElement = document.createElement("h3"),
                 dataItem:tutorial_data = tutorialData[index],
-                node = remote.node(tutorialData[index].node, null);
+                node:HTMLElement = remote.node(tutorialData[index].node, null);
             let parent:HTMLElement = wrapper;
             eventName = `on${dataItem.event}`;
             clearTimeout(delay);
@@ -478,7 +479,7 @@ const tutorial = function browser_content_tutorial():void {
         body:HTMLElement = contentModal.getElementsByClassName("body")[0] as HTMLElement;
     contentModal.style.zIndex = "10001";
     close.onclick = function browser_content_tutorial_close(event:MouseEvent):void {
-        const node = remote.node(tutorialData[index].node, null);
+        const node:HTMLElement = remote.node(tutorialData[index].node, null);
         browser.data.tutorial = false;
         browser.pageBody.onkeydown = null;
         if (node !== undefined && node !== null && node.nodeType === 1) {

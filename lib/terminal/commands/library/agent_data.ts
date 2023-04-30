@@ -93,8 +93,8 @@ const agentData = function terminal_commands_library_agentData(type:agentType, c
                                 do {
                                     text.push(`    ${vars.text.angry}*${vars.text.none} ${vars.text.green + vars.text.bold + shares[shareNames[b]].name + vars.text.none}`);
                                     text.push(`      ${vars.text.angry}-${vars.text.none} ${vars.text.cyan}ID${vars.text.none}       : ${shareNames[b]}`);
-                                    text.push(`      ${vars.text.angry}-${vars.text.none} ${vars.text.cyan}Execute${vars.text.none}  : ${shares[shareNames[b]].execute}`);
-                                    text.push(`      ${vars.text.angry}-${vars.text.none} ${vars.text.cyan}Read Only${vars.text.none}: ${shares[shareNames[b]].readOnly}`);
+                                    text.push(`      ${vars.text.angry}-${vars.text.none} ${vars.text.cyan}Execute${vars.text.none}  : ${String(shares[shareNames[b]].execute)}`);
+                                    text.push(`      ${vars.text.angry}-${vars.text.none} ${vars.text.cyan}Read Only${vars.text.none}: ${String(shares[shareNames[b]].readOnly)}`);
                                     text.push(`      ${vars.text.angry}-${vars.text.none} ${vars.text.cyan}Type${vars.text.none}     : ${shares[shareNames[b]].type}`);
                                     b = b + 1;
                                 } while (b < shareLength);
@@ -133,8 +133,8 @@ const agentData = function terminal_commands_library_agentData(type:agentType, c
                                 do {
                                     text.push(`  ${vars.text.angry}-${vars.text.none} ${vars.text.green + vars.text.bold + shares[shareNames[a]].name + vars.text.none}`);
                                     text.push(`    ${vars.text.angry}*${vars.text.none} ${vars.text.cyan}ID${vars.text.none}       : ${shareNames[a]}`);
-                                    text.push(`    ${vars.text.angry}*${vars.text.none} ${vars.text.cyan}Execute${vars.text.none}  : ${shares[shareNames[a]].execute}`);
-                                    text.push(`    ${vars.text.angry}*${vars.text.none} ${vars.text.cyan}Read Only${vars.text.none}: ${shares[shareNames[a]].readOnly}`);
+                                    text.push(`    ${vars.text.angry}*${vars.text.none} ${vars.text.cyan}Execute${vars.text.none}  : ${String(shares[shareNames[a]].execute)}`);
+                                    text.push(`    ${vars.text.angry}*${vars.text.none} ${vars.text.cyan}Read Only${vars.text.none}: ${String(shares[shareNames[a]].readOnly)}`);
                                     text.push(`    ${vars.text.angry}*${vars.text.none} ${vars.text.cyan}Type${vars.text.none}     : ${shares[shareNames[a]].type}`);
                                     a = a + 1;
                                 } while (a < shareLength);
@@ -189,7 +189,7 @@ const agentData = function terminal_commands_library_agentData(type:agentType, c
         },
         deviceCallback = function terminal_commands_library_agentData_deviceCallback(readErr:NodeJS.ErrnoException, fileData:string):void {
             if (readErr === null) {
-                agents.device = JSON.parse(fileData);
+                agents.device = JSON.parse(fileData) as agents;
                 readFlag[0] = true;
                 if (readFlag[1] === true) {
                     output();
@@ -207,7 +207,7 @@ const agentData = function terminal_commands_library_agentData(type:agentType, c
         },
         userCallback = function terminal_commands_library_agentData_userCallback(readErr:NodeJS.ErrnoException, fileData:string):void {
             if (readErr === null) {
-                agents.user = JSON.parse(fileData);
+                agents.user = JSON.parse(fileData) as agents;
                 readFlag[1] = true;
                 if (readFlag[0] === true) {
                     output();

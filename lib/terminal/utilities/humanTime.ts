@@ -62,7 +62,7 @@ const humanTime = function terminal_utilities_humanTime(finished:boolean):string
     //last line for additional instructions without bias to the timer
     if (finished === true) {
         const finalMem:string    = common.prettyBytes(process.memoryUsage.rss()),
-            finalTime = hourString + minuteString + secondString,
+            finalTime:string = hourString + minuteString + secondString,
             // eslint-disable-next-line
             logger:(input:string) => void = console.log;
         logger("");

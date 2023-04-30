@@ -48,7 +48,7 @@ const transmit_http:module_transmit_http = {
     receive: function terminal_server_transmission_transmitHttp_receive(request:IncomingMessage, serverResponse:ServerResponse):void {
         let ended:boolean = false,
             host:string = (function terminal_server_transmission_transmitHttp_receive_host():string {
-                let name:string = request.headers.host.split("[")[0].split(":")[0];
+                const name:string = request.headers.host.split("[")[0].split(":")[0];
                 if (name === undefined) {
                     return "";
                 }
@@ -93,7 +93,7 @@ const transmit_http:module_transmit_http = {
                         });
                     },
                     post = function terminal_server_transmission_transmitHttp_receive_post():void {
-                        const socketData:socketData = JSON.parse(body);
+                        const socketData:socketData = JSON.parse(body) as socketData;
                         transmitLogger({
                             direction: "receive",
                             size: receivedLength,
@@ -195,7 +195,7 @@ const transmit_http:module_transmit_http = {
                 if (errorMessage.code !== "ETIMEDOUT" && (ended === false || (ended === true && errorString.indexOf("Error: aborted") < 0))) {
                     const body:string = chunks.join("");
                     log([
-                        `${vars.text.cyan}HTTP POST request, type: ${request.headers["request-type"] + vars.text.none}`,
+                        `${vars.text.cyan}HTTP POST request, type: ${String(request.headers["request-type"]) + vars.text.none}`,
                         body.slice(0, 1024),
                         "",
                         `body length: ${body.length}`,
@@ -209,7 +209,7 @@ const transmit_http:module_transmit_http = {
                 if (errorMessage.code !== "ETIMEDOUT") {
                     const body:string = chunks.join("");
                     log([
-                        `${vars.text.cyan}HTTP POST response, type: ${request.headers["request-type"] + vars.text.none}`,
+                        `${vars.text.cyan}HTTP POST response, type: ${String(request.headers["request-type"]) + vars.text.none}`,
                         (body.length > 1024)
                             ? `${body.slice(0, 512)}  ...  ${body.slice(body.length - 512)}`
                             : body,
@@ -293,7 +293,7 @@ const transmit_http:module_transmit_http = {
                                 ? Buffer.concat(chunks).toString()
                                 : chunks.join("");
                             if (config.callback !== null && body !== "") {
-                                config.callback(JSON.parse(body), fsResponse);
+                                config.callback(JSON.parse(body) as socketData, fsResponse);
                             }
                         });
                         fsResponse.on("error", function terminal_server_transmission_transmitHttp_request_requestCallback_onError(erResponse:NodeJS.ErrnoException):void {
@@ -468,7 +468,7 @@ const transmit_http:module_transmit_http = {
                     });
                 }
                 if (serverOptions.browser === true) {
-                    const browserCommand:string = `${vars.terminal.executionKeyword} ${scheme}://${vars.network.domain + portString}/`;
+                    const browserCommand:string = `${vars.terminal.executionKeyword} ${scheme}://${vars.network.domain[0] + portString}/`;
                     exec(browserCommand, {cwd: vars.terminal.cwd}, function terminal_server_transmission_transmitHttp_server_browser_child(errs:Error, stdout:string, stdError:Buffer | string):void {
                         if (errs !== null) {
                             error([], errs);
@@ -498,7 +498,7 @@ const transmit_http:module_transmit_http = {
             start = function terminal_server_transmission_transmitHttp_server_start(server:Server):void {
                 const serverError = function terminal_server_transmission_transmitHttp_server_start_serverError(errorMessage:NetworkError):void {
                         if (errorMessage.code === "EADDRINUSE") {
-                            error([`Specified port, ${vars.text.cyan + port + vars.text.none}, is in use!`], null, true);
+                            error([`Specified port, ${vars.text.cyan + String(port) + vars.text.none}, is in use!`], null, true);
                         } else if (errorMessage.code === "EACCES" && process.platform === "linux" && errorMessage.syscall === "listen" && errorMessage.port < 1025) {
                             error([
                                 `${vars.text.angry}Restricted access to reserved port.${vars.text.none}`,
@@ -556,8 +556,8 @@ const transmit_http:module_transmit_http = {
 
                                         section([
                                             "Ports",
-                                            `HTTP server: ${vars.text.bold + vars.text.green + portWeb + vars.text.none}`,
-                                            `Web Sockets: ${vars.text.bold + vars.text.green + portWs + vars.text.none}`
+                                            `HTTP server: ${vars.text.bold + vars.text.green + String(portWeb) + vars.text.none}`,
+                                            `Web Sockets: ${vars.text.bold + vars.text.green + String(portWs) + vars.text.none}`
                                         ], "white");
 
                                         if (vars.settings.secure === true) {

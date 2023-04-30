@@ -1,7 +1,7 @@
 
 /* lib/terminal/server/services/message - Process and send text messages. */
 
-import { createReadStream, createWriteStream, readdir } from "fs";
+import { createReadStream, createWriteStream, readdir, ReadStream, WriteStream } from "fs";
 
 import error from "../../utilities/error.js";
 import osNotification from "../osNotification.js";
@@ -75,8 +75,8 @@ const message = function terminal_server_services_message(socketData:socketData)
                             }
                             return "message0.json";
                         }()),
-                        readStream = createReadStream(JSON.stringify(vars.settings.message.slice(0, count))),
-                        writeStream = createWriteStream(`${vars.path.project}lib${vars.path.sep}settings${vars.path.sep}message_archive${vars.path.sep + fileName}`);
+                        readStream:ReadStream = createReadStream(JSON.stringify(vars.settings.message.slice(0, count))),
+                        writeStream:WriteStream = createWriteStream(`${vars.path.project}lib${vars.path.sep}settings${vars.path.sep}message_archive${vars.path.sep + fileName}`);
                         readStream.pipe(writeStream);
                         writeStream.on("finish", function terminal_server_services_message_readdir_writeFinish():void {
                             vars.settings.message = vars.settings.message.slice(count);

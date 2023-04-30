@@ -23,7 +23,7 @@ const testEvaluation = function terminal_test_application_testEvaluation(output:
             ? JSON.stringify(serviceItem.command)
             : output.test.command as string,
         test:string = (typeof output.test.test === "string")
-            ? output.test.test as string
+            ? output.test.test
             : JSON.stringify(serviceItem.test),
         name:string = (output.testType === "service")
             ? serviceItem.name
@@ -34,12 +34,12 @@ const testEvaluation = function terminal_test_application_testEvaluation(output:
         },
         increment = function terminal_test_application_testEvaluation_increment(messages:[string, string]):void {
             const command:string = (typeof output.test.command === "string")
-                    ? output.test.command as string
+                    ? output.test.command
                     : JSON.stringify(output.test.command),
                 serviceItem:test_service = (output.testType === "service")
                     ? output.test as test_service
                     : null,
-                name = (output.testType === "service")
+                name:string = (output.testType === "service")
                     ? serviceItem.name
                     : command,
                 interval = function terminal_test_application_testEvaluation_increment_interval():void {
@@ -78,9 +78,9 @@ const testEvaluation = function terminal_test_application_testEvaluation(output:
                         log([`${humanTime(false) + vars.text.angry}Failed ${output.testType} ${output.index + 1}: ${vars.text.none + name} ${vars.text.angry + messages[0].replace("fail - ", "") + vars.text.none}`]);
                         if (messages[1] !== "") {
                             const test:string = (typeof output.test.test === "string")
-                                    ? output.test.test as string
+                                    ? output.test.test
                                     : JSON.stringify(output.test.test),
-                                difference = (function terminal_test_application_testEvaluation_increment_testMessage_difference():[string, number] {
+                                difference:[string, number] = (function terminal_test_application_testEvaluation_increment_testMessage_difference():[string, number] {
                                     const end:number = Math.min(test.length, messages[1].length),
                                         diffs:[string, string] = ["", ""];
                                     let a:number = 0,
@@ -184,12 +184,16 @@ const testEvaluation = function terminal_test_application_testEvaluation(output:
             output.values[0] = output.values[0].replace(/"port":\d+,/g, "\"port\":0,");
             // replace port numbers in the standard output
             output.values[0] = output.values[0].replace(/\\"port\\":\d+,/g, "\\\"port\\\":0,");
-            // replace wildcard IPv6 address
-            output.values[0] = output.values[0].replace(/\s::1?(\s|\.)/g, " XXXX ");
-            // replace IPv6 addresses framed in square braces
-            output.values[0] = output.values[0].replace(/\[::1\](:\d+)?(\.|\s)/g, "XXXX ");
             // replace full IPv6 addresses
-            output.values[0] = output.values[0].replace(/\s([0-9a-f]{4}:)+:?[0-9a-f]{4}\s/, " XXXX ");
+            output.values[0] = output.values[0].replace(/[0-9a-f]{1,4}:+[0-9a-f]{1,4}/g, "XXXX").replace(/(XXXX)?::[0-9a-f]{1,4}/g, "XXXX").replace(/XXXX:XXXX/g, "XXXX").replace(/XXXX:XXXX/g, "XXXX");
+            // replace full IPv4 addresses
+            output.values[0] = output.values[0].replace(/(\d{1,3}\.){3}\d{1,3}/g, "XXXX");
+            // replace list of addresses
+            output.values[0] = output.values[0].replace(/\["XXXX"(,"XXXX")*\]/g, "[]");
+            // replace address collections
+            output.values[0] = output.values[0].replace(/"ipAll":\{"IPv(4|6)":\[\],"IPv(4|6)":\[\]\}/g, "\"ipAll\":null");
+            // replace ipSelected
+            output.values[0] = output.values[0].replace(/"ipSelected":\s*"XXXX"/g, "\"ipSelected\":\"\"");
         }
     }
     if (output.test.qualifier.indexOf("file") === 0) {
@@ -197,7 +201,7 @@ const testEvaluation = function terminal_test_application_testEvaluation(output:
             output.test.file = resolve(output.test.file);
             readFile(output.test.file, "utf8", function terminal_test_application_testEvaluation_file(err:Error, dump:string) {
                 if (err !== null) {
-                    increment([`fail - ${err}`, ""]);
+                    increment([`fail - ${JSON.stringify(err)}`, ""]);
                     return;
                 }
                 if (output.test.qualifier === "file begins" && dump.indexOf(test) !== 0) {
@@ -247,7 +251,7 @@ const testEvaluation = function terminal_test_application_testEvaluation(output:
                         return;
                     }
                 }
-                increment([`fail - ${ers}`, ""]);
+                increment([`fail - ${JSON.stringify(ers)}`, ""]);
             });
         }
     } else {

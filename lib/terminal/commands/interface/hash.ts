@@ -39,7 +39,7 @@ const interfaceHash = function terminal_commands_interface_hash(callback:command
             algorithm: "sha3-512",
             callback: function terminal_commands_interface_hash_callback(title:string, output:hash_output):void {
                 if (vars.settings.verbose === true) {
-                    callback(title, [`${vars.environment.name} hashed ${vars.text.cyan + input.source + vars.text.none}`, output.hash], null);
+                    callback(title, [`${vars.environment.name} hashed ${vars.text.cyan + input.source.toString() + vars.text.none}`, output.hash], null);
                 } else if (listIndex > -1) {
                     callback("", [`${output.filePath}:${output.hash}`], null);
                 } else {
@@ -71,12 +71,12 @@ const interfaceHash = function terminal_commands_interface_hash(callback:command
                 a = a - 1;
                 length = length - 1;
             } else if (lower === "base64" || lower === "hex") {
-                input.digest = lower as "base64" | "hex";
+                input.digest = lower;
                 process.argv.splice(a, 1);
                 a = a - 1;
                 length = length - 1;
             } else if (lower.indexOf("string:") === 0) {
-                let len:number = input.source.length - 8;
+                const len:number = input.source.length - 8;
                 input.directInput = true;
                 input.source = process.argv[a].slice(7);
                 if ((input.source.charAt(0) === "\"" && input.source.charAt(len) === "\"") || (input.source.charAt(0) === "\"" && input.source.charAt(len) === "\"")) {

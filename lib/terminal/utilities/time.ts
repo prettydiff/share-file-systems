@@ -10,8 +10,8 @@ const time = function terminal_utility_time(message:string, difference:boolean, 
             let hours:number = 0,
                 minutes:number = 0,
                 seconds:number = 0,
-                span:number = dateValue - reference,
-                list:string[] = [];
+                span:number = dateValue - reference;
+            const list:string[] = [];
             if (span > 3600000) {
                 hours = Math.floor(span / 3600000);
                 span = span - (hours * 3600000);

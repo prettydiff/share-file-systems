@@ -163,7 +163,7 @@ const modal_configuration:module_modalConfiguration = {
                     agentSource: agents[1],
                     agentWrite: null,
                     depth: 0,
-                    location: JSON.parse(config.text_value),
+                    location: JSON.parse(config.text_value) as string[],
                     name: config.id
                 };
             network.send(payloadNetwork, "file-system");
@@ -418,7 +418,7 @@ const modal_configuration:module_modalConfiguration = {
 
         "invite-accept": function browser_utilities_modalConfiguration_inviteAccept(event:Event, config?:config_modal, content?:HTMLElement):modal {
             if (config === null || config === undefined) {
-                const invitation:service_invite = JSON.parse(content.dataset.invitation),
+                const invitation:service_invite = JSON.parse(content.dataset.invitation) as service_invite,
                     agentInvite:agentInvite = invitation.agentRequest;
                 config = {
                     agent: browser.data.hashDevice,
@@ -621,7 +621,7 @@ const modal_configuration:module_modalConfiguration = {
                         width: 800
                     }
                     : config;
-            let box:modal;
+            let box:modal = null;
             span.appendText("Text Pad");
             label.setAttribute("class", "text-pad");
             label.appendChild(span);

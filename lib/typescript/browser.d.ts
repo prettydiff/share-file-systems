@@ -169,9 +169,17 @@ interface invite_saved {
     type: agentType;
 }
 
+/**
+ * An HTML Element plus properties specifically describing modals in the UI.
+ * ```typescript
+ * interface modal extends HTMLElement {
+ *     socket?: WebSocket;
+ *     timer?: number;
+ * }
+ * ``` */
 interface modal extends HTMLElement {
-    timer?: number;
     socket?: WebSocket;
+    timer?: number;
 }
 
 /**
@@ -211,16 +219,29 @@ interface network_actions {
 }
 
 /**
+ * Stores generated HTML content per agent and agent type for share modal types.
+ * ```typescript
+ * interface share_content_sections {
+ *     device: HTMLElement,
+ *     user: HTMLElement
+ * }
+ * ``` */
+interface share_content_sections {
+    device: HTMLElement;
+    user: HTMLElement;
+}
+
+/**
  * A means to step through entries to the browser terminal.
  * ```typescript
  * interface terminal_scroll {
- *     position: number;
  *     entries: number[]
+ *     position: number;
  * }
  * ``` */
 interface terminal_scroll {
-    position: number;
     entries: number[];
+    position: number;
 }
 
 /**

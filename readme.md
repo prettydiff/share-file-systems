@@ -18,7 +18,7 @@ This application seeks to be inherently private.  Everything is directly point t
 
 ## Features
 * Point-to-point communications, no servers and no third party.
-* Less than 150ms to fully load graphic user interface in the browser with full state restoration.
+* Fully load graphic user interface as fast as 80ms on old hardware in the browser with full state restoration. [See the white paper.](https://github.com/prettydiff/wisdom/blob/master/performance_frontend.md)
 * End-to-end encryption.
 * Share anything you want and communicate between your personal devices or allow discretionary sharing with friends and family.
 * Works the same on Windows, Linux, and Mac OSX on modern terminals and modern browsers.

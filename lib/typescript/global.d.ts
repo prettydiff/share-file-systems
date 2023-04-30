@@ -175,19 +175,19 @@ interface common_fileSorts {
  * interface deviceData {
  *     cpuCores: number;
  *     cpuID: string;
- *     platform: string;
  *     memTotal: number;
  *     osType: string;
  *     osVersion: string;
+ *     platform: string;
  * }
  * ``` */
 interface deviceData {
     cpuCores: number;
     cpuID: string;
-    platform: string;
     memTotal: number;
     osType: string;
     osVersion: string;
+    platform: string;
 }
 
 /**

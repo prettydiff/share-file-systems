@@ -84,7 +84,7 @@ const deviceMask:module_deviceMask = {
                     source: "",
                     stat: null
                 };
-            let index = devices.length - 1;
+            let index:number = devices.length - 1;
             hashInput.source = deviceMask.token(date, devices[index]);
             hash(hashInput);
         } else {

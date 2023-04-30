@@ -69,7 +69,7 @@ const file_browser:module_fileBrowser = {
                 label.setAttribute("class", "text-pad");
                 label.appendChild(span);
                 label.appendChild(textArea);
-                modalResult = document.getElementById(data.files[a].id),
+                modalResult = document.getElementById(data.files[a].id);
                 body = modalResult.getElementsByClassName("body")[0] as HTMLElement;
                 textArea.onblur = modal.events.textSave;
                 heading = modalResult.getElementsByTagName("h2")[0].getElementsByTagName("button")[0];
@@ -163,15 +163,15 @@ const file_browser:module_fileBrowser = {
                     tr.appendChild(th);
                     tr.appendChild(td);
                     tbody.appendChild(tr);
-                };
+                },
+                mTime:Date = new Date(Number(list[0][5].mtimeMs)),
+                aTime:Date = new Date(Number(list[0][5].atimeMs)),
+                cTime:Date = new Date(Number(list[0][5].ctimeMs));
             let a:number = 0,
                 p:HTMLElement = null,
                 heading:HTMLElement = document.createElement("h3"),
                 table:HTMLElement = document.createElement("table"),
-                tbody:HTMLElement = document.createElement("tbody"),
-                mTime:Date,
-                aTime:Date,
-                cTime:Date;
+                tbody:HTMLElement = document.createElement("tbody");
             if (length > 0) {
                 do {
                     if (list[a][1] === "directory") {
@@ -186,7 +186,7 @@ const file_browser:module_fileBrowser = {
                     a = a + 1;
                 } while (a < length);
             }
-    
+
             output.setAttribute("class", "fileDetailOutput");
             heading.appendText(`File System Details - ${common.commas(listLength)} item${plural}`);
             output.appendChild(heading);
@@ -211,10 +211,7 @@ const file_browser:module_fileBrowser = {
             row("Symbolic Links", common.commas(details.links), tbody);
             table.appendChild(tbody);
             output.appendChild(table);
-    
-            mTime = new Date(Number(list[0][5].mtimeMs));
-            aTime = new Date(Number(list[0][5].atimeMs));
-            cTime = new Date(Number(list[0][5].ctimeMs));
+
             heading = document.createElement("h3");
             heading.appendText("MAC");
             output.appendChild(heading);
@@ -225,7 +222,7 @@ const file_browser:module_fileBrowser = {
             row("Created", common.dateFormat(cTime), tbody);
             table.appendChild(tbody);
             output.appendChild(table);
-    
+
             if (list[0][1] === "directory" && details.files > 0) {
                 const dataLength:number = fileList.length,
                     hundred:number = Math.min(dataLength, 100),
@@ -572,8 +569,8 @@ const file_browser:module_fileBrowser = {
             const element:HTMLElement = event.target,
                 box:modal = element.getAncestor("box", "class"),
                 id:string = box.getAttribute("id"),
-                address:HTMLInputElement = box.getElementsByClassName("fileAddress")[0].getElementsByTagName("input")[0] as HTMLInputElement,
-                history = browser.data.modals[id].history;
+                address:HTMLInputElement = box.getElementsByClassName("fileAddress")[0].getElementsByTagName("input")[0],
+                history:string[] = browser.data.modals[id].history;
             if (history.length > 1) {
                 history.pop();
                 address.value = history[history.length - 1];
@@ -616,8 +613,8 @@ const file_browser:module_fileBrowser = {
         drag: function browser_content_fileBrowser_drag(event:MouseEvent|TouchEvent):void {
             const element:HTMLElement = event.target,
                 item:HTMLElement = (function browser_content_fileBrowser_drag_item():HTMLElement {
-                    let el:HTMLElement = element;
-                    const name:string = el.lowName();
+                    const el:HTMLElement = element,
+                        name:string = el.lowName();
                     if (name !== "label" && name !== "span") {
                         event.preventDefault();
                     }
@@ -983,30 +980,24 @@ const file_browser:module_fileBrowser = {
                     } else if (action.type === "keyup") {
                         field.value = field.value.replace(/\?|<|>|"|\||\*|:|\\|\/|\u0000/g, "");
                     }
-                };
-            let label:HTMLElement,
-                slash:"/" | "\\" = "/",
-                last:string,
-                text:string,
-                dirs:string[],
-                dir:string;
+                },
+                label:HTMLElement = li.getElementsByTagName("label")[0],
+                text:string = label.innerHTML,
+                slash:"/" | "\\" = (text.indexOf("/") < 0 || (text.indexOf("\\") < text.indexOf("/") && text.indexOf("\\") > -1 && text.indexOf("/") > -1))
+                    ? "\\"
+                    : "/",
+                dirs:string[] = text.split(slash),
+                last:string = dirs.pop(),
+                dir:string = dirs.join(slash) + slash;
             if (document.getElementById("fsRename") !== null) {
                 return;
             }
-            label = li.getElementsByTagName("label")[0];
-            text = label.innerHTML;
-            if (text.indexOf("/") < 0 || (text.indexOf("\\") < text.indexOf("/") && text.indexOf("\\") > -1 && text.indexOf("/") > -1)) {
-                slash = "\\";
-            }
             li.onkeydown = null;
-            dirs = text.split(slash);
-            last = dirs.pop();
             input.setAttribute("id", "fsRename");
             input.type = "text";
             input.value = last;
             input.onblur = action as (event:Event) => void;
             input.onkeyup = action;
-            dir = dirs.join(slash) + slash;
             label.appendText(dir);
             label.appendChild(input);
             input.focus();
@@ -1130,9 +1121,9 @@ const file_browser:module_fileBrowser = {
                 p:HTMLElement = element.getElementsByTagName("p")[0],
                 classy:string = p.getAttribute("class"),
                 parent:HTMLElement = p.parentNode,
-                input:HTMLInputElement = parent.getElementsByTagName("input")[0];
-            let state:boolean = input.checked,
-                body:HTMLElement = p,
+                input:HTMLInputElement = parent.getElementsByTagName("input")[0],
+                state:boolean = input.checked;
+            let body:HTMLElement = p,
                 box:modal,
                 modalData:config_modal;
             if (document.getElementById("newFileItem") === null) {
@@ -1169,12 +1160,12 @@ const file_browser:module_fileBrowser = {
                                     index = index + 1;
                                 } while (index < end);
                             }
-                        };
-                    let a:number = 0,
-                        focus:HTMLElement = browser.data.modals[box.getAttribute("id")].focus as HTMLElement,
-                        elementIndex:number = -1,
-                        focusIndex:number = -1,
+                        },
                         listLength:number = liList.length;
+                    let a:number = 0,
+                        focus:HTMLElement = browser.data.modals[box.getAttribute("id")].focus,
+                        elementIndex:number = -1,
+                        focusIndex:number = -1;
                     if (focus === null || focus === undefined) {
                         browser.data.modals[box.getAttribute("id")].focus = liList[0];
                         focus = liList[0];
@@ -1207,7 +1198,7 @@ const file_browser:module_fileBrowser = {
                     }
                 } else {
                     const inputs:HTMLCollectionOf<HTMLInputElement> = body.getElementsByTagName("input"),
-                        inputsLength = inputs.length,
+                        inputsLength:number = inputs.length,
                         selected:boolean = (p.getAttribute("class") !== null && p.getAttribute("class").indexOf("selected") > -1);
                     let a:number = 0,
                         item:HTMLElement,

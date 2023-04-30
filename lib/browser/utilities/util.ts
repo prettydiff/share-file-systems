@@ -47,7 +47,7 @@ const util:module_util = {
             bytes[a] = binary.charCodeAt(a);
             a = a + 1;
         } while (a < byteLength);
-        audioContext.decodeAudioData(buff, function load_util_audio_decode(buffer:AudioBuffer):void {
+        void audioContext.decodeAudioData(buff, function browser_utilities_util_audio_decode(buffer:AudioBuffer):void {
             source.buffer = buffer;
             source.loop   = false;
             source.connect(audioContext.destination);
@@ -171,8 +171,8 @@ const util:module_util = {
             drag:HTMLElement = document.createElement("div"),
             oldDrag:HTMLElement = document.getElementById("dragBox"),
             touch:boolean = (event !== null && event.type === "touchstart"),
-            mouseEvent = event as MouseEvent,
-            touchEvent = event as TouchEvent,
+            mouseEvent:MouseEvent = event as MouseEvent,
+            touchEvent:TouchEvent = event as TouchEvent,
             x:number = (touch === true)
                 ? touchEvent.touches[0].clientX
                 : mouseEvent.clientX,
@@ -462,8 +462,8 @@ const util:module_util = {
             windowEvent:KeyboardEvent = window.event as KeyboardEvent,
             target:HTMLElement = event.target,
             element:HTMLElement = (function browser_utilities_util_keys_element():HTMLElement {
-                let el:HTMLElement = document.activeElement;
-                const name:string = el.lowName();
+                const el:HTMLElement = document.activeElement,
+                    name:string = el.lowName();
                 if (el.parentNode === null || name === "li" || name === "ul") {
                     return el;
                 }
@@ -630,6 +630,7 @@ const util:module_util = {
             width: Math.round(output.width),
             x: Math.round(output.x),
             y: Math.round(output.y),
+            // eslint-disable-next-line
             toJSON: output.toJSON
         };
     },
@@ -645,23 +646,20 @@ const util:module_util = {
                     ? item.innerHTML
                     : item.getElementsByTagName("label")[0].innerHTML;
                 output.push([text, classItem.getAttribute("class").replace(" lastType", "").replace(" selected", "").replace(" cut", "") as fileType, agent]);
-            };
+            },
+            box:modal = element.getAncestor("box", "class"),
+            dataModal:config_modal = browser.data.modals[box.getAttribute("id")],
+            itemList:HTMLCollectionOf<Element> = (drag === true)
+                ? parent.getElementsByTagName("p")
+                : box.getElementsByClassName("fileList")[0].getElementsByTagName("p");
         let a:number = 0,
             length:number = 0,
             itemParent:HTMLElement,
             classy:string,
-            itemList:HTMLCollectionOf<Element>,
-            box:modal,
-            dataModal:config_modal,
             addressItem:HTMLElement;
         if (element.lowName() !== "li") {
             element = element.parentNode;
         }
-        box = element.getAncestor("box", "class");
-        dataModal = browser.data.modals[box.getAttribute("id")];
-        itemList = (drag === true)
-            ? parent.getElementsByTagName("p")
-            : box.getElementsByClassName("fileList")[0].getElementsByTagName("p");
         length = itemList.length;
         do {
             itemParent = itemList[a].parentNode;

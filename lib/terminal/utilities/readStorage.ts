@@ -61,6 +61,7 @@ const readStorage = function terminal_utilities_readStorage(fromFile:boolean, ca
                     do {
                         keyLength = keyLength - 1;
                         // @ts-ignore - The following line forces an implicit any, but in this dynamic assignment is lower risk than type analysis
+                        // eslint-disable-next-line
                         vars.settings[configs[keyLength]] = settings.configuration[configs[keyLength]];
                     } while (keyLength > 0);
                     vars.settings.device = settings.device;
@@ -77,6 +78,7 @@ const readStorage = function terminal_utilities_readStorage(fromFile:boolean, ca
                     readFile(vars.path.settings + fileName, "utf8", function terminal_utilities_readStorage_readdir_read_readFile(err:Error, fileData:string):void {
                         if (err === null) {
                             const item:settingsType = fileName.replace(".json", "") as settingsType;
+                            // eslint-disable-next-line
                             settings[item] = JSON.parse(fileData);
                             flag[item] = true;
                             complete();

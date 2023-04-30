@@ -104,9 +104,9 @@ const transmit_ws:module_transmit_ws = {
         hash({
             algorithm: "sha1",
             callback: function terminal_server_transmission_transmitWs_createSocket_hash(title:string, hashOutput:hash_output):void {
-                let a:number = 0,
-                    len:number = config.headers.length;
-                const client:websocket_client = (vars.settings.secure === true)
+                let a:number = 0;
+                const len:number = config.headers.length,
+                    client:websocket_client = (vars.settings.secure === true)
                         ? connectSecure({
                             host: config.ip,
                             port: config.port,
@@ -148,7 +148,7 @@ const transmit_ws:module_transmit_ws = {
                         transmit_ws.open.agent({
                             agent: client.hash,
                             callback: config.callbackRequest,
-                            type: client.type as agentType
+                            type: client.type
                         });
                     }
                     if (vars.settings.verbose === true) {
@@ -298,12 +298,12 @@ const transmit_ws:module_transmit_ws = {
                     if (frame === null) {
                         return null;
                     }
-                    let frameSize:number = frame.extended + frame.startByte,
-                        index:number = 0,
+                    let index:number = 0,
                         size:number = 0,
-                        frameLength:number = socket.frame.length,
-                        complete:Buffer = null;
-
+                        complete:Buffer = null,
+                        bulk:Buffer = null;
+                    const frameLength:number = socket.frame.length,
+                        frameSize:number = frame.extended + frame.startByte;
                     do {
                         size = size + socket.frame[index].length;
                         index = index + 1;
@@ -311,7 +311,7 @@ const transmit_ws:module_transmit_ws = {
                     if (size < frameSize) {
                         return null;
                     }
-                    const bulk:Buffer = Buffer.concat(socket.frame.slice(0, index));
+                    bulk = Buffer.concat(socket.frame.slice(0, index));
                     if (bulk.length === frameSize) {
                         complete = unmask(bulk.slice(frame.startByte));
                         socket.frame.splice(0, index);
@@ -422,7 +422,7 @@ const transmit_ws:module_transmit_ws = {
                                 }
                                 return null;
                             },
-                            IPv6 = ipList("IPv6");
+                            IPv6:string = ipList("IPv6");
                         if (attempts.length < 1) {
                             return agent.ipSelected;
                         }
@@ -538,7 +538,7 @@ const transmit_ws:module_transmit_ws = {
                                 finish = true;
                                 return dataPackage;
                             }
-                            const fragment = dataPackage.slice(0, fragmentSize);
+                            const fragment:Buffer = dataPackage.slice(0, fragmentSize);
                             dataPackage = dataPackage.slice(fragmentSize);
                             len = dataPackage.length;
                             if (len < fragmentSize) {
@@ -633,7 +633,7 @@ const transmit_ws:module_transmit_ws = {
             }
         } else {
             error([
-                `Error queueing message for socket transmission. Opcode ${vars.text.angry + opcode + vars.text.none} is not supported.`
+                `Error queueing message for socket transmission. Opcode ${vars.text.angry + String(opcode) + vars.text.none} is not supported.`
             ], null);
         }
     },
@@ -686,7 +686,7 @@ const transmit_ws:module_transmit_ws = {
                                         } else if (type === "test-browser") {
                                             headers.push(`hash: ${hashName}`);
                                         } else if (socket.type === "device" || socket.type === "user") {
-                                            const agent = vars.settings[socket.type][hashName];
+                                            const agent:agent = vars.settings[socket.type][hashName];
                                             if (agent === undefined || agent === null) {
                                                 socket.destroy();
                                                 return;

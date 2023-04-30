@@ -59,7 +59,7 @@ const copy = function terminal_commands_library_copy(params:config_command_copy)
                                 },
                                 mkdirCallback = function terminal_commands_library_copy_dirCallback_renameCallback_mkdirCallback(title:string, text:string[], fail:boolean):void {
                                     const errorText:Error = (fail === true)
-                                        ? JSON.parse(text[0])
+                                        ? JSON.parse(text[0]) as Error
                                         : null;
                                     types(errorText);
                                 },

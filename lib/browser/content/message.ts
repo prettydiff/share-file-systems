@@ -110,10 +110,10 @@ const message:module_message = {
             const textArea:HTMLTextAreaElement = document.createElement("textarea"),
                 label:HTMLElement = document.createElement("label"),
                 span:HTMLElement = document.createElement("span"),
-                button = document.createElement("button"),
-                paragraph = document.createElement("p"),
-                footer = document.createElement("div"),
-                clear = document.createElement("span");
+                button:HTMLElement = document.createElement("button"),
+                paragraph:HTMLElement = document.createElement("p"),
+                footer:HTMLElement = document.createElement("div"),
+                clear:HTMLElement = document.createElement("span");
             textArea.onmouseup = modal.events.footerResize;
             textArea.onblur = modal.events.textSave;
             textArea.onkeyup = modal.events.textTimer;
@@ -234,7 +234,7 @@ const message:module_message = {
                     : box.dataset.agenttype as agentType,
                 modals:HTMLElement[] = document.getModalsByModalType("message");
             let a:number = modals.length,
-                messageModal:HTMLElement;
+                messageModal:HTMLElement = null;
             if (a > 0) {
                 do {
                     a = a - 1;
@@ -370,7 +370,7 @@ const message:module_message = {
                     writeTest = true;
                 },
                 date:Date = new Date(item.date),
-                modals:HTMLElement[] = document.getModalsByModalType("message") as HTMLElement[];
+                modals:HTMLElement[] = document.getModalsByModalType("message");
             let index:number = modals.length,
                 writeTest:boolean = (browser.loading === true || modalId !== ""),
                 modalAgent:string,

@@ -22,7 +22,7 @@ const interfaceGet = function terminal_commands_interface_get(callback:commandCa
         return;
     }
     get(address, function terminal_commands_interface_get_callback(title:string, file:Buffer|string):void {
-        callback(title, [file[0].toString()], null);
+        callback(title, [file.toString()], null);
     });
 };
 

@@ -1,6 +1,6 @@
 
 /* lib/terminal/server/transmission/methodGET - The library for handling all traffic related to HTTP requests with method GET. */
-import { createReadStream, readdir, stat, Stats } from "fs";
+import { createReadStream, readdir, stat, ReadStream, Stats } from "fs";
 import { IncomingMessage } from "http";
 
 import common from "../../../common/common.js";
@@ -175,7 +175,7 @@ const methodGET = function terminal_server_transmission_methodGET(request:Incomi
                                     serverResponse: serverResponse
                                 }, true, request.url);
                             },
-                            readStream = createReadStream(localPath);
+                            readStream:ReadStream = createReadStream(localPath);
                         readStream.on("data", function terminal_server_transmission_methodGET_readData(chunk:Buffer):void {
                             dataStore.push(chunk);
                         });

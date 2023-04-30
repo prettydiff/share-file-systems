@@ -20,7 +20,7 @@ const agentOnline = function terminal_commands_library_agentOnline(callback:comm
         if (Object.keys(settings.device).length < 1) {
             error([
                 `${vars.text.angry}Device data is not present in settings.${vars.text.angry}`,
-                `Run the ${vars.text.cyan}service${vars.text.none} command and go to address ${vars.text.cyan + vars.network.domain + vars.text.none} in the web browser to initiate device data.`
+                `Run the ${vars.text.cyan}service${vars.text.none} command and go to address ${vars.text.cyan + vars.network.domain[0] + vars.text.none} in the web browser to initiate device data.`
             ], null, true);
             return;
         }
@@ -50,7 +50,7 @@ const agentOnline = function terminal_commands_library_agentOnline(callback:comm
             const report = function terminal_commands_library_agentOnline_readStorage_report(summary:string):void {
                 const output:string[] = [],
                     data:agentSummary = ((arg === "all" || arg === "device" || arg === "user") && summary !== "none")
-                        ? JSON.parse(summary)
+                        ? JSON.parse(summary) as agentSummary
                         : null,
                     devices:string[] = (data !== null)
                         ? Object.keys(data.device)

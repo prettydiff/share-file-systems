@@ -44,10 +44,10 @@ const lists = function terminal_utilities_lists(lists:config_list):void {
                     // list all items
                     if (lists.property === "each") {
                         // all items keys and their primitive value
-                        wrapIt(output, `${vars.text.angry}* ${vars.text.none + vars.text.cyan + comm + vars.text.none}: ${lists.obj[keyList[b]]}`);
+                        wrapIt(output, `${vars.text.angry}* ${vars.text.none + vars.text.cyan + comm + vars.text.none}: ${JSON.stringify(lists.obj[keyList[b]])}`);
                     } else {
                         // a list by key and specified property
-                        wrapIt(output, `${vars.text.angry}* ${vars.text.none + vars.text.cyan + comm + vars.text.none}: ${lists.obj[keyList[b]][lists.property]}`);
+                        wrapIt(output, `${vars.text.angry}* ${vars.text.none + vars.text.cyan + comm + vars.text.none}: ${lists.obj[keyList[b]][lists.property] as string}`);
                     }
                     if (lists.empty_line === true) {
                         output.push("");

@@ -11,7 +11,7 @@ const hashShare = function terminal_server_services_hashShare(socketData:socketD
         input:config_command_hash = {
             algorithm: "sha3-512",
             callback: function terminal_server_services_shareHash(title:string, hashOutput:hash_output):void {
-                const outputBody:service_hashShare = JSON.parse(hashOutput.id),
+                const outputBody:service_hashShare = JSON.parse(hashOutput.id) as service_hashShare,
                     hashResponse:service_hashShare = {
                         device: outputBody.device,
                         hash: hashOutput.hash,

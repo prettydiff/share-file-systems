@@ -32,8 +32,7 @@ const directory = function terminal_commands_library_directory(args:config_comma
             size:number = 0,
             dirs:number = 0,
             longest:number = 0,
-            
-            startItem:string,
+            startItem:string = null,
             summary:string;
         const dirCount:number[] = [],
             dirNames:string[] = [],
@@ -94,8 +93,8 @@ const directory = function terminal_commands_library_directory(args:config_comma
                 return fileList;
             },
             dirCounter = function terminal_commands_library_directory_dirCounter(item:string):void {
-                let dirList:string[] = item.split(vars.path.sep),
-                    dirPath:string = "",
+                const dirList:string[] = item.split(vars.path.sep);
+                let dirPath:string = "",
                     index:number = 0;
                 summary = `Total file size of ${vars.text.green + common.commas(size) + vars.text.none} bytes and ${vars.text.angry + common.commas(list.failures.length) + vars.text.none} errors.`;
                 dirList.pop();
@@ -451,7 +450,7 @@ const directory = function terminal_commands_library_directory(args:config_comma
             : args.path;
         startItem = (args.path === "/")
             ? "/"
-            : args.path + vars.path.sep;
+            : args.path + vars.path.sep
         list.failures = [];
         statWrapper(args.path, 0);
     };

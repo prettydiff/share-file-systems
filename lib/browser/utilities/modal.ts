@@ -47,7 +47,7 @@ const modal:module_modal = {
             extra:HTMLElement;
         const id:string = (options.type === "configuration")
                 ? "configuration-modal"
-                : (options.id || `${options.type}-${Math.random().toString() + browser.data.zIndex + 1}`),
+                : (options.id || `${options.type}-${Math.random().toString() + String(browser.data.zIndex + 1)}`),
             titleButton:HTMLButtonElement = document.createElement("button"),
             box:modal = document.createElement("article"),
             body:HTMLElement = document.createElement("div"),
@@ -84,7 +84,7 @@ const modal:module_modal = {
                 do {
                     if (browser.data.modals[keys[a]].type === options.type) {
                         modalSingle = document.getElementById(keys[a]);
-                        modal.events.zTop(null, modalSingle as HTMLElement);
+                        modal.events.zTop(null, modalSingle);
                         return modalSingle;
                     }
                     a = a + 1;
@@ -132,9 +132,11 @@ const modal:module_modal = {
                     text.push("All Shares");
                     span.appendText("⌘");
                 } else {
-                    (options.agentType === "device")
-                        ? span.appendText("🖳")
-                        : span.appendText("👤");
+                    if (options.agentType === "device") {
+                        span.appendText("🖳");
+                    } else {
+                        span.appendText("👤");
+                    }
                     if (options.agent === "") {
                         text.push(`All ${common.capitalize(options.agentType)} Shares`);
                     } else if (browser[options.agentType][options.agent].name === undefined) {
@@ -457,7 +459,7 @@ const modal:module_modal = {
             // modal type specific instructions
             if (type === "invite-accept") {
                 const inviteBody:HTMLElement = box.getElementsByClassName("agentInvitation")[0] as HTMLElement,
-                    invitation:service_invite = JSON.parse(inviteBody.dataset.invitation);
+                    invitation:service_invite = JSON.parse(inviteBody.dataset.invitation) as service_invite;
                 invitation.status = "ignored";
                 network.send(invitation, "invite");
             } else if (type === "media") {
@@ -551,7 +553,7 @@ const modal:module_modal = {
                 button:HTMLButtonElement = document.getElementsByClassName("cancel")[0] as HTMLButtonElement,
                 textArea:HTMLTextAreaElement = box.getElementsByTagName("textarea")[0];
             if (textArea.value !== dataString) {
-                browser.data = JSON.parse(textArea.value);
+                browser.data = JSON.parse(textArea.value) as ui_data;
             }
             button.click();
             if (textArea.value !== dataString) {
@@ -613,8 +615,8 @@ const modal:module_modal = {
                 box.style.left = "0em";
                 body.style.width = `${(contentArea.clientWidth - 20) / 10}em`;
                 body.style.height = (function browser_utilities_modal_maximize_maxHeight():string {
-                    let height:number = contentArea.clientHeight,
-                        header:HTMLElement = box.getElementsByClassName("header")[0] as HTMLElement;
+                    let height:number = contentArea.clientHeight;
+                    const header:HTMLElement = box.getElementsByClassName("header")[0] as HTMLElement;
                     height = (height - title.clientHeight) - 27;
                     if (footer !== undefined) {
                         height = height - footer.clientHeight;
@@ -651,9 +653,9 @@ const modal:module_modal = {
                 id:string = box.getAttribute("id"),
                 title:HTMLElement = border.getElementsByTagName("h2")[0],
                 titleButton:HTMLElement = title.getElementsByTagName("button")[0] as HTMLElement,
+                children:NodeListOf<ChildNode> = border.childNodes,
                 statusBar:HTMLElement = box.getElementsByClassName("status-bar")[0] as HTMLElement;
             let buttons:HTMLElement,
-                children:NodeListOf<ChildNode>,
                 borders:number,
                 child:HTMLElement,
                 a:number = 1;
@@ -661,7 +663,6 @@ const modal:module_modal = {
                 return;
             }
             title.onmousedown = modal.events.move;
-            children = border.childNodes;
             if (browser.data.modals[id].status === "minimized") {
                 const li:HTMLElement = box.parentNode,
                     body:HTMLElement = border.getElementsByClassName("body")[0] as HTMLElement;
@@ -723,8 +724,8 @@ const modal:module_modal = {
                 border:HTMLElement = box.getElementsByTagName("div")[0],
                 minifyTest:boolean = (boxParent.lowName() === "li"),
                 touch:boolean = (event !== null && event.type === "touchstart"),
-                mouseEvent = event as MouseEvent,
-                touchEvent = event as TouchEvent,
+                mouseEvent:MouseEvent = event as MouseEvent,
+                touchEvent:TouchEvent = event as TouchEvent,
                 mouseX:number = (touch === true)
                     ? 0
                     : mouseEvent.clientX,
@@ -793,10 +794,10 @@ const modal:module_modal = {
                     box.style.left      = `${(boxLeft + (clientX - x)) / 10}em`;
                     box.style.top       = `${(boxTop + (clientY - y)) / 10}em`;
                     return false;
-                };
-            let boxLeft:number    = box.offsetLeft,
-                boxTop:number     = box.offsetTop,
+                },
                 max:number        = browser.content.clientHeight;
+            let boxLeft:number    = box.offsetLeft,
+                boxTop:number     = box.offsetTop;
             if (minifyTest === true) {
                 if (touch === true) {
                     const button:HTMLButtonElement = box.getElementsByClassName("minimize")[0] as HTMLButtonElement;

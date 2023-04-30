@@ -11,6 +11,7 @@ const disallowed = function common_disallowed(browser:boolean):void {
             const list:any = [];
             // eslint-disable-next-line
             new Error(`Disallowed feature used on: ${this}\n The feature is not supported in this application.`);
+            // eslint-disable-next-line
             return list;
         };
 
@@ -30,8 +31,11 @@ const disallowed = function common_disallowed(browser:boolean):void {
         window.history.replaceState        = forbidden;
 
         // Prevent third party authors from overriding these performance measures
+        // eslint-disable-next-line
         Object.freeze(document.write);
+        // eslint-disable-next-line
         Object.freeze(document.querySelector);
+        // eslint-disable-next-line
         Object.freeze(document.querySelectorAll);
         Object.freeze(Element.prototype);
         Object.freeze(Document);
