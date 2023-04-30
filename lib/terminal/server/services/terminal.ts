@@ -3,7 +3,7 @@
 
 import { ChildProcess, spawn } from "child_process";
 import { readdir, stat } from "fs";
-import { resolve } from "path";
+import { isAbsolute, resolve } from "path";
 
 import sender from "../transmission/sender.js";
 import vars from "../../utilities/vars.js";
@@ -23,13 +23,15 @@ import vars from "../../utilities/vars.js";
 const terminal:module_terminal = {
     input: function terminal_server_services_terminal_input(socketData:socketData):void {
         const data:service_terminal = socketData.data as service_terminal,
+            cdTest:RegExp = (/cd(dir)?\s+/),
             autoComplete = function terminal_server_services_terminal_input_autoComplete(data:service_terminal):void {
                 let indexStart:number = data.autoComplete,
                     indexEnd:number = data.autoComplete,
                     last:string = "",
                     fragment:string = (function terminal_server_services_terminal_input_autoComplete_fragment():string {
                         let quote:string = "",
-                            space:number = -1;
+                            space:number = -1,
+                            address:string = "";
                         const len:number = data.instruction.length,
                             escape:string = (process.platform === "win32")
                                 ? "`^"
@@ -39,6 +41,9 @@ const terminal:module_terminal = {
                                 indexStart = indexStart - 1;
                                 if (space < 0 && (/\s/).test(data.instruction.charAt(indexStart - 1)) === true && escape.indexOf(data.instruction.charAt(indexStart - 2)) < 0) {
                                     space = indexStart - 1;
+                                    if (quote === "") {
+                                        break;
+                                    }
                                 }
                                 if (data.instruction.charAt(indexStart - 1) === "\"" || data.instruction.charAt(indexStart - 1) === "'") {
                                     quote = data.instruction.charAt(indexStart - 1);
@@ -54,7 +59,10 @@ const terminal:module_terminal = {
                                 indexEnd = indexEnd + 1;
                             } while (indexEnd < len);
                         }
-                        return resolve(data.instruction.slice(indexStart, indexEnd));
+                        address = data.instruction.slice(indexStart, indexEnd);
+                        return (isAbsolute(address) === true)
+                            ? resolve(address)
+                            : resolve(data.directory + vars.path.sep + address);
                     }());
                 const complete = function terminal_server_services_terminal_input_autoComplete_complete():void {
                         const slashFix = function terminal_server_services_terminal_input_autoComplete_complete_slashFix(str:string):string {
@@ -101,7 +109,7 @@ const terminal:module_terminal = {
                 stat(fragment, statCallback);
             },
             changeDirectory = function terminal_server_services_terminal_input_changeDirectory():void {
-                let address:string = data.instruction.replace(/cd\s+/, "");
+                let address:string = data.instruction.replace(cdTest, "");
                 if ((address.charAt(0) === "\"" || address.charAt(0) === "'") && address.slice(1).indexOf(address.charAt(0)) > 0) {
                     const quote:string = address.charAt(0);
                     address = address.slice(1);
@@ -110,7 +118,9 @@ const terminal:module_terminal = {
                     const space:string = (/\s/).exec(address)[0];
                     address = address.slice(0, address.indexOf(space));
                 }
-                address = resolve(address);
+                address = (isAbsolute(address) === true)
+                    ? resolve(address)
+                    : resolve(data.directory + vars.path.sep + address);
                 stat(address, function terminal_server_services_terminal_input_stat(err:NodeJS.ErrnoException):void {
                     if (err === null) {
                         data.directory = address;
@@ -173,7 +183,7 @@ const terminal:module_terminal = {
             } else if (data.autoComplete > -1) {
                 // file system auto completion
                 autoComplete(data);
-            } else if ((/^cd\s/).test(data.instruction) === true) {
+            } else if (cdTest.test(data.instruction) === true) {
                 // change directory
                 changeDirectory();
             } else {

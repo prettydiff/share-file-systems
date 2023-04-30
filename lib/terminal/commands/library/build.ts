@@ -595,8 +595,6 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                     stringItem = list(config[".npmignore"]);
                                 } else if (keys[a] === ".eslintrc.json") {
                                     stringItem = JSON.stringify(config[".eslintrc.json"]);
-                                } else if (keys[a] === "package-lock.json") {
-                                    stringItem = JSON.stringify(config["package-lock.json"]);
                                 }
                                 if (stringItem !== "") {
                                     writeFile(vars.path.project + keys[a], stringItem, "utf8", writeCallback);
@@ -1655,7 +1653,6 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                                             mtime: dateRaw,
                                                             version: packageData.version
                                                         };
-                                                    config["package-lock.json"].version = vars.environment.version;
                                                     config.versionDate = dateRaw;
                                                     vars.environment.git_hash = version.git_hash;
                                                     vars.environment.version = packageData.version;

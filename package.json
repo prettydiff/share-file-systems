@@ -47,6 +47,7 @@
         "tauri": "tauri",
         "test": "share test"
     },
+    "types": "/lib/typescript",
     "type": "module",
     "version": "0.2.25"
 }

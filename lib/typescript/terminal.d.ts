@@ -196,20 +196,6 @@ declare global {
      *     ".gitignore": string[];
      *     // cspell:disable-next-line
      *     ".npmignore": string[];
-     *     "package-lock.json": {
-     *         dependencies: {
-     *             [key:string]: {
-     *                 integrity: string;
-     *                 resolved: string;
-     *                 version: string;
-     *             };
-     *         };
-     *         devDependencies: stringStore;
-     *         lockfileVersion: number;
-     *         name: string;
-     *         requires: boolean;
-     *         version: string;
-     *     };
      *     versionDate: number;
      * }
      * ``` */
@@ -235,20 +221,6 @@ declare global {
         ".gitignore": string[];
         // cspell:disable-next-line
         ".npmignore": string[];
-        "package-lock.json": {
-            dependencies: {
-                [key:string]: {
-                    integrity: string;
-                    resolved: string;
-                    version: string;
-                };
-            };
-            devDependencies: stringStore;
-            lockfileVersion: number;
-            name: string;
-            requires: boolean;
-            version: string;
-        };
         versionDate: number;
     }
 
