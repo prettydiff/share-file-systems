@@ -99,7 +99,7 @@ const directory = function terminal_commands_library_directory(args:config_comma
                         loop = function terminal_commands_library_directory_output_hashLoop():void {
                             do {
                                 index = index + 1;
-                            } while (index < listLength && (list[index][1] !== "file" || (/\.(m|M)(p|P)3$/).test(list[index][0]) === false));
+                            } while (index < listLength && list[index][1] !== "file");
                             if (index === listLength) {
                                 args.callback(title, [summary, String(longest)], list);
                             } else {
