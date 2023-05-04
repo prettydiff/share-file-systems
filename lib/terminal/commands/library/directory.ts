@@ -347,29 +347,6 @@ const directory = function terminal_commands_library_directory(args:config_comma
                                     } else {
                                         output();
                                     }
-                                } else if (args.mode === "hash") {
-                                    const hashInput:config_command_hash = {
-                                        algorithm: "sha3-512",
-                                        callback: function terminal_commands_library_directory_statWrapper_stat_populate_hashCallback(title:string, hashOutput:hash_output):void {
-                                            const hashRel:string = (relative === true)
-                                                ? hashOutput.filePath.replace(args.path, "")
-                                                : hashOutput.filePath;
-                                            list.push([hashRel, "file", hashOutput.hash, hashOutput.parent, 0, hashOutput.stat, ""]);
-                                            if (dirs > 0) {
-                                                dirCounter(filePath);
-                                            } else {
-                                                output();
-                                            }
-                                        },
-                                        digest: "hex",
-                                        directInput: false,
-                                        id: null,
-                                        list: false,
-                                        parent: parent,
-                                        source: filePath,
-                                        stat: statData
-                                    };
-                                    hash(hashInput);
                                 } else {
                                     list.push([relPath, type, "", parent, 0, statData, ""]);
                                     if (dirs > 0) {
