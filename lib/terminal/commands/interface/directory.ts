@@ -181,16 +181,18 @@ const interfaceDirectory = function terminal_commands_interface_directory(callba
             defaultValue:fileSort = "alphabetically-ascending";
         let a:number = process.argv.length,
             sortValue:fileSort;
-        do {
-            a = a - 1;
-            if (process.argv[a].indexOf("sort:") === 0) {
-                sortValue = process.argv[a].replace(/^sort:\s*/, "").replace(/\s+/g, "-").toLowerCase() as fileSort;
-                if (sortList.indexOf(sortValue) > -1) {
-                    return sortValue;
+        if (a > 0) {
+            do {
+                a = a - 1;
+                if (process.argv[a].indexOf("sort:") === 0) {
+                    sortValue = process.argv[a].replace(/^sort:\s*/, "").replace(/\s+/g, "-").toLowerCase() as fileSort;
+                    if (sortList.indexOf(sortValue) > -1) {
+                        return sortValue;
+                    }
+                    return defaultValue;
                 }
-                return defaultValue;
-            }
-        } while (a > 0);
+            } while (a > 0);
+        }
         return defaultValue;
     }());
     directory(config);
