@@ -169,12 +169,12 @@ const // the tsconfig.json file hash used in multiple tests
         {
             command: `directory ${filePathEncode("absolute", "")} list depth:1`,
             qualifier: "contains",
-            test: `file       34,085  ${filePathEncode("absolute", "license")}`
+            test: `file        34,085  ${filePathEncode("absolute", "license")}`
         },
         {
             command: `directory ${filePathEncode("absolute", "")} list relative depth:1`,
             qualifier: "contains",
-            test: "file       34,085  license"
+            test: "file        34,085  license"
         },
         {
             command: `directory ${filePathEncode("absolute", "js")} typeof`,

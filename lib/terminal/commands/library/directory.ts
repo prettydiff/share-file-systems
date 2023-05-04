@@ -71,6 +71,70 @@ const directory = function terminal_commands_library_directory(args:config_comma
             }()),
             list:directory_list = [],
             fileList:string[] = [],
+            output = function terminal_commands_library_directory_output():void {
+                if (args.mode === "array" || args.mode === "list") {
+                    const sortStrings = function terminal_commands_library_directory_output_sortStrings():string[] {
+                        if (vars.path.sep === "\\") {
+                            fileList.sort(function terminal_commands_library_directory_output_sortStrings_sortFunction(a:string, b:string):-1|1 {
+                                if (a.toLowerCase() < b.toLowerCase()) {
+                                    return -1;
+                                }
+                                return 1;
+                            });
+                        } else {
+                            fileList.sort();
+                        }
+                        if (args.path === vars.path.sep) {
+                            const index:number = fileList.indexOf(vars.path.sep);
+                            fileList.splice(index, 1);
+                            fileList.splice(0, 0, vars.path.sep);
+                        }
+                        return fileList;
+                    };
+                    args.callback(title, [summary, String(longest)], sortStrings());
+                } else if (args.mode === "hash") {
+                    let index:number = 0,
+                        fileCount:number = 0;
+                    const listLength:number = list.length,
+                        loop = function terminal_commands_library_directory_output_hashLoop():void {
+                            do {
+                                index = index + 1;
+                            } while (index < listLength && (list[index][1] !== "file" || (/\.(m|M)(p|P)3$/).test(list[index][0]) === false));
+                            if (index === listLength) {
+                                args.callback(title, [summary, String(longest)], list);
+                            } else {
+                                hashInput.parent = list[index][3];
+                                hashInput.source = list[index][0];
+                                hashInput.stat = list[index][5];
+                                hash(hashInput);
+                            }
+                        },
+                        hashInput:config_command_hash = {
+                            algorithm: "sha3-512",
+                            callback: function terminal_commands_library_directory_output_hashCallback(title:string, output:hash_output):void {
+                                list[index][2] = output.hash;
+                                fileCount = fileCount + 1;
+                                if (index > 0) {
+                                    loop();
+                                } else {
+                                    args.callback(title, [summary, String(longest)], list);
+                                }
+                            },
+                            digest: "hex",
+                            directInput: false,
+                            id: null,
+                            list: false,
+                            parent: null,
+                            source: null,
+                            stat: null
+                        };
+                    loop();
+                } else if (args.mode === "search") {
+                    args.callback(title, [summary, String(longest)], list);
+                } else {
+                    args.callback(title, [summary, String(longest)], list);
+                }
+            },
             method:(filePath:string, callback:(er:Error, stat:Stats) => void) => void = (args.symbolic === true)
                 ? lstat
                 : stat,
@@ -112,26 +176,14 @@ const directory = function terminal_commands_library_directory(args:config_comma
                 // 
                 if (dirNames.length === 0 && item === args.path) {
                     // empty directory, nothing to traverse
-                    if (args.mode === "array") {
-                        args.callback(title, [summary], sortStrings());
-                    } else if (args.mode === "list") {
-                        args.callback(title, [summary, String(longest)], fileList);
-                    } else {
-                        args.callback(title, [summary], list);
-                    }
+                    output();
                 } else if (dirCount[index] < 1) {
                     // dirCount and dirNames are parallel arrays
                     dirCount.splice(index, 1);
                     dirNames.splice(index, 1);
                     dirs = dirs - 1;
                     if (dirs < 1) {
-                        if (args.mode === "array") {
-                            args.callback(title, [summary], sortStrings());
-                        } else if (args.mode === "list") {
-                            args.callback(title, [summary, String(longest)], fileList);
-                        } else {
-                            args.callback(title, [summary], list);
-                        }
+                        output();
                     } else {
                         terminal_commands_library_directory_dirCounter(dirPath);
                     }
@@ -222,7 +274,7 @@ const directory = function terminal_commands_library_directory(args:config_comma
                                         if (dirs > 0) {
                                             dirCounter(item);
                                         } else {
-                                            args.callback(title, [summary, String(longest)], sortStrings());
+                                            output();
                                         }
                                     } else {
                                         const drives:string[] = stdout.replace(/Name\s+/, "").replace(/\s+$/, "").replace(/\s+/g, " ").split(" ");
@@ -236,7 +288,7 @@ const directory = function terminal_commands_library_directory(args:config_comma
                                         if (dirs > 0) {
                                             dirCounter(item);
                                         } else {
-                                            args.callback(title, [summary, String(longest)], sortStrings());
+                                            output();
                                         }
                                     } else {
                                         dirBody(files);
@@ -256,14 +308,14 @@ const directory = function terminal_commands_library_directory(args:config_comma
                                 if (dirs > 0) {
                                     dirCounter(filePath);
                                 } else {
-                                    args.callback(title, [summary], sortStrings());
+                                    output();
                                 }
                             } else {
                                 if (vars.terminal.exclusions.indexOf(filePath.replace(args.path + vars.path.sep, "")) > -1) {
                                     if (dirs > 0) {
                                         dirCounter(filePath);
                                     } else {
-                                        args.callback(title, [summary], sortStrings());
+                                        output();
                                     }
                                 } else if (args.mode === "search") {
                                     if (search(filePath) === true) {
@@ -272,7 +324,7 @@ const directory = function terminal_commands_library_directory(args:config_comma
                                     if (dirs > 0) {
                                         dirCounter(filePath);
                                     } else {
-                                        args.callback(title, [summary, String(longest)], list);
+                                        output();
                                     }
                                 } else if (args.mode === "array" || args.mode === "list") {
                                     if (args.mode === "array") {
@@ -293,20 +345,20 @@ const directory = function terminal_commands_library_directory(args:config_comma
                                     if (dirs > 0) {
                                         dirCounter(filePath);
                                     } else {
-                                        args.callback(title, [summary, String(longest)], sortStrings());
+                                        output();
                                     }
                                 } else if (args.mode === "hash") {
                                     const hashInput:config_command_hash = {
                                         algorithm: "sha3-512",
-                                        callback: function terminal_commands_library_directory_statWrapper_stat_populate_hashCallback(title:string, output:hash_output):void {
+                                        callback: function terminal_commands_library_directory_statWrapper_stat_populate_hashCallback(title:string, hashOutput:hash_output):void {
                                             const hashRel:string = (relative === true)
-                                                ? output.filePath.replace(args.path, "")
-                                                : output.filePath;
-                                            list.push([hashRel, "file", output.hash, output.parent, 0, output.stat, ""]);
+                                                ? hashOutput.filePath.replace(args.path, "")
+                                                : hashOutput.filePath;
+                                            list.push([hashRel, "file", hashOutput.hash, hashOutput.parent, 0, hashOutput.stat, ""]);
                                             if (dirs > 0) {
                                                 dirCounter(filePath);
                                             } else {
-                                                args.callback(title, [summary], list);
+                                                output();
                                             }
                                         },
                                         digest: "hex",
