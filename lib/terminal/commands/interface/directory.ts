@@ -10,7 +10,7 @@ import vars from "../../utilities/vars.js";
 const interfaceDirectory = function terminal_commands_interface_directory(callback:commandCallback):void {
     let search:string = "";
     const config:config_command_directory = {
-        callback: function terminal_commands_directory_callback(title:string, text:string[], result:directory_list|string[]):void {
+        callback: function terminal_commands_directory_callback(title:string, text:[string, number], result:directory_list|string[]):void {
             const count:number = (result === null)
                     ? 0
                     : result.length,
@@ -21,10 +21,10 @@ const interfaceDirectory = function terminal_commands_interface_directory(callba
             if (config.mode ==="type") {
                 if (vars.settings.verbose === true) {
                     log.title(title);
-                    log(text, true);
+                    log([text[0]], true);
                     return;
                 }
-                log(text);
+                log([text[0]]);
                 return;
             }
             if (config.mode === "list") {

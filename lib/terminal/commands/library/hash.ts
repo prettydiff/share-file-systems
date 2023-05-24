@@ -179,7 +179,7 @@ const hash = function terminal_commands_library_hash(input:config_command_hash):
                     if (stats.isDirectory() === true || input.parent === undefined || (input.parent !== undefined && typeof input.id === "string" && input.id.length > 0)) {
                         // not coming from the directory library.  The directory library will always pass a parent property and not an id property
                         const dirConfig:config_command_directory = {
-                            callback: function terminal_commands_library_hash_stat_dirCallback(title:string, text:string[], list:directory_list|string[]) {
+                            callback: function terminal_commands_library_hash_stat_dirCallback(title:string, text:[string, number], list:directory_list|string[]) {
                                 const dir:directory_list = list as directory_list;
                                 dirComplete(dir);
                             },

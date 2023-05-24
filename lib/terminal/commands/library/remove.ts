@@ -50,7 +50,7 @@ const remove = function terminal_commands_library_remove(filePath:string, exclus
                 out.push(" bytes.");
                 return ["", out.join(""), `Removed ${vars.text.cyan + dirConfig.path + vars.text.none}`];
             },
-            removeItems = function terminal_commands_library_remove_removeItems(dirTitle:string, text:string[], list:directory_list|string[]):void {
+            removeItems = function terminal_commands_library_remove_removeItems(dirTitle:string, text:[string, number], list:directory_list|string[]):void {
                 // directory_list: [].failures
                 // 0. absolute path (string)
                 // 1. type (fileType)

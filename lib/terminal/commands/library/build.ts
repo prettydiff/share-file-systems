@@ -623,7 +623,7 @@ const build = function terminal_commands_library_build(config:config_command_bui
             // libReadme builds out the readme file that indexes code files in the current directory
             libReadme: function terminal_commands_library_build_libReadme():void {
                 let dirList:directory_list = [];
-                const callback = function terminal_commands_library_build_dirCallback(title:string, text:string[], dir:directory_list|string[]):void {
+                const callback = function terminal_commands_library_build_dirCallback(title:string, text:[string, number], dir:directory_list|string[]):void {
                         const list:directory_list = dir as directory_list;
                         if (dirList.length < 1) {
                             dirList = list;
