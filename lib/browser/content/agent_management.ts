@@ -999,8 +999,8 @@ const agent_management:module_agentManagement = {
             if (index > 0) {
                 do {
                     index = index - 1;
-                    if (modals[index].getElementsByClassName("heading")[0].getElementsByTagName("button")[0].innerHTML.indexOf(`Invitation from ${name}`) > -1) {
-                        // there should only be one invitation at a time from a given user otherwise there is spam
+                    if ((invitation.type === "device" && modals[index].dataset.agent === invitation.agentSource.hashDevice) || (invitation.type === "user" && modals[index].dataset.agent === invitation.agentSource.hashUser)) {
+                        // there should only be one invitation at a time from a given agent otherwise there is spam
                         return;
                     }
                 } while (index > 0);

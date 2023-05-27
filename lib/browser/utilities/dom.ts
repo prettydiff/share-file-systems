@@ -129,6 +129,27 @@ const dom = function browser_utilities_dom():void {
             });
             return out;
         },
+        // getModalsByType - Returns a list of modals matching a given modal type
+        // * The optional type argument indicates what type of modals to return
+        // * The default type value is "all" or undefined which returns all modals
+        getModalsByModalType = function browser_utilities_dom_getModalsByModalType(type:modalType|"all"):HTMLElement[] {
+            const keys:string[] = Object.keys(browser.data.modals),
+                keyLength:number = keys.length,
+                output:HTMLElement[] = [];
+            let a:number = 0;
+            if (typeof type !== "string") {
+                type = "all";
+            }
+            if (keyLength > 0) {
+                do {
+                    if (type === "all" || browser.data.modals[keys[a]].type === type) {
+                        output.push(document.getElementById(keys[a]));
+                    }
+                    a = a + 1;
+                } while (a < keyLength);
+            }
+            return output;
+        },
         // getNodesByType - Returns an array of DOM nodes matching the provided node type.
         // * typeValue: string|number = The value must be a node type name or a node type number (0-12)
         // - An empty string, "all", or 0 means gather all descendant nodes regardless of type.
@@ -211,25 +232,6 @@ const dom = function browser_utilities_dom():void {
 
             // eslint-disable-next-line
             child((this === document) ? document.documentElement : this);
-            return output;
-        },
-        // getModalsByType - Returns a list of modals matching a given modal type
-        // * The optional type argument indicates what type of modals to return
-        // * The default type value is "all" or undefined which returns all modals
-        getModalsByModalType = function browser_utilities_dom_getModalsByModalType(type:modalType|"all"):HTMLElement[] {
-            const keys:string[] = Object.keys(browser.data.modals),
-                length:number = keys.length,
-                output:HTMLElement[] = [];
-            let a:number = 0;
-            if (typeof type !== "string") {
-                type = "all";
-            }
-            do {
-                if (type === "all" || browser.data.modals[keys[a]].type === type) {
-                    output.push(document.getElementById(keys[a]));
-                }
-                a = a + 1;
-            } while (a < length);
             return output;
         },
         // highlight - Adds a class name to an element where that class name results in a CSS animated outline and focuses the element
