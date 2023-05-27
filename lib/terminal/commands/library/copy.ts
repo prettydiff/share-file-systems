@@ -26,7 +26,7 @@ const copy = function terminal_commands_library_copy(params:config_command_copy)
             size : 0
         },
         // location where to write
-        dirCallback = function terminal_commands_library_copy_dirCallback(title:string, text:string[], dirList:directory_list|string[]):void {
+        dirCallback = function terminal_commands_library_copy_dirCallback(title:string, text:[string, number], dirList:directory_list|string[]):void {
             const renameConfig:config_rename = {
                     callback: function terminal_commands_library_copy_dirCallback_renameCallback(renameError:NodeJS.ErrnoException, renameList:directory_list[]):void {
                         if (renameError === null) {

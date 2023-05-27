@@ -30,7 +30,7 @@ const agent_status:module_agentStatus = {
                 },
                 active:boolean = (agent_status.selfStatus.status === "active"),
                 localDevice:HTMLElement = document.getElementById(browser.data.hashDevice);
-            if (active === false) {
+            if (active === false && localDevice !== null) {
                 localDevice.setAttribute("class", "active");
                 agent_status.selfStatus.status = "active";
             }

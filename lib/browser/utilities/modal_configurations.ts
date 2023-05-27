@@ -48,9 +48,9 @@ import util from "./util.js";
 const modal_configuration:module_modalConfiguration = {
     modals: {
         "agent-management": function browser_utilities_modalConfiguration_agentManagement(event:Event, config?:config_modal):modal {
+            const content:HTMLElement = agent_management.content.menu("invite");
             document.getElementById("menu").style.display = "none";
             if (config === null || config === undefined) {
-                const content:HTMLElement = agent_management.content.menu("invite");
                 config = {
                     agent: browser.data.hashDevice,
                     agentIdentity: false,
@@ -66,7 +66,7 @@ const modal_configuration:module_modalConfiguration = {
             } else {
                 config.agent = browser.data.hashDevice;
                 config.agentIdentity = false;
-                config.content = agent_management.content.menu("invite");
+                config.content = content;
                 config.single = true;
                 config.type = "agent-management";
             }

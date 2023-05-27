@@ -14,26 +14,28 @@ import network from "./network.js";
  * ``` */
 const agent_hash:module_agentHash = {
     receive: function browser_utilities_agentHash_receive(socketData:socketData):void {
-        const hashes:service_agentHash = socketData.data as service_agentHash;
-        browser.data.hashDevice = hashes.device;
-        browser.data.hashUser = hashes.user;
-        browser.device[hashes.device] = {
-            deviceData: hashes.deviceData,
-            ipAll: browser.network.addresses,
-            ipSelected: "",
-            name: browser.data.nameDevice,
-            ports: browser.network.ports,
-            shares: {},
-            status: "idle"
-        };
-        agent_management.tools.addAgent({
-            callback: function browser_utilities_agentHash_receive_addAgent():void {
-                browser.pageBody.setAttribute("class", "default");
-            },
-            hash: hashes.device,
-            name: browser.data.nameDevice,
-            type: "device"
-        });
+        if (browser.data.hashDevice === "") {
+            const hashes:service_agentHash = socketData.data as service_agentHash;
+            browser.data.hashDevice = hashes.device;
+            browser.data.hashUser = hashes.user;
+            browser.device[hashes.device] = {
+                deviceData: hashes.deviceData,
+                ipAll: browser.network.addresses,
+                ipSelected: "",
+                name: browser.data.nameDevice,
+                ports: browser.network.ports,
+                shares: {},
+                status: "idle"
+            };
+            agent_management.tools.addAgent({
+                callback: function browser_utilities_agentHash_receive_addAgent():void {
+                    browser.pageBody.setAttribute("class", "default");
+                },
+                hash: hashes.device,
+                name: browser.data.nameDevice,
+                type: "device"
+            });
+        }
     },
     send: function browser_utilities_agentHash_send(nameDevice:HTMLInputElement, nameUser:HTMLInputElement):void {
         if (nameUser.value.replace(/\s+/, "") === "") {

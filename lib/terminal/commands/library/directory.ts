@@ -33,7 +33,7 @@ const directory = function terminal_commands_library_directory(args:config_comma
             dirs:number = 0,
             longest:number = 0,
             startItem:string = null,
-            summary:string;
+            summary:string = "";
         const dirCount:number[] = [],
             dirNames:string[] = [],
             searchLast:number = args.search.length - 1,
@@ -91,7 +91,7 @@ const directory = function terminal_commands_library_directory(args:config_comma
                         }
                         return fileList;
                     };
-                    args.callback(title, [summary, String(longest)], sortStrings());
+                    args.callback(title, [summary, longest], sortStrings());
                 } else if (args.mode === "hash") {
                     let index:number = 0,
                         fileCount:number = 0;
@@ -101,7 +101,7 @@ const directory = function terminal_commands_library_directory(args:config_comma
                                 index = index + 1;
                             } while (index < listLength && list[index][1] !== "file");
                             if (index === listLength) {
-                                args.callback(title, [summary, String(longest)], list);
+                                args.callback(title, [summary, longest], list);
                             } else {
                                 hashInput.parent = list[index][3];
                                 hashInput.source = list[index][0];
@@ -117,7 +117,7 @@ const directory = function terminal_commands_library_directory(args:config_comma
                                 if (index > 0) {
                                     loop();
                                 } else {
-                                    args.callback(title, [summary, String(longest)], list);
+                                    args.callback(title, [summary, longest], list);
                                 }
                             },
                             digest: "hex",
@@ -130,32 +130,14 @@ const directory = function terminal_commands_library_directory(args:config_comma
                         };
                     loop();
                 } else if (args.mode === "search") {
-                    args.callback(title, [summary, String(longest)], list);
+                    args.callback(title, [summary, longest], list);
                 } else {
-                    args.callback(title, [summary, String(longest)], list);
+                    args.callback(title, [summary, longest], list);
                 }
             },
             method:(filePath:string, callback:(er:Error, stat:Stats) => void) => void = (args.symbolic === true)
                 ? lstat
                 : stat,
-            sortStrings = function terminal_commands_library_directory_sortStrings():string[] {
-                if (vars.path.sep === "\\") {
-                    fileList.sort(function terminal_commands_library_directory_sort_sortFunction(a:string, b:string):-1|1 {
-                        if (a.toLowerCase() < b.toLowerCase()) {
-                            return -1;
-                        }
-                        return 1;
-                    });
-                } else {
-                    fileList.sort();
-                }
-                if (args.path === vars.path.sep) {
-                    const index:number = fileList.indexOf(vars.path.sep);
-                    fileList.splice(index, 1);
-                    fileList.splice(0, 0, vars.path.sep);
-                }
-                return fileList;
-            },
             dirCounter = function terminal_commands_library_directory_dirCounter(item:string):void {
                 const dirList:string[] = item.split(vars.path.sep);
                 let dirPath:string = "",
@@ -305,61 +287,42 @@ const directory = function terminal_commands_library_directory(args:config_comma
                                     log([`error     0  ${relPath}`]);
                                 }
                                 list.failures.push(filePath);
-                                if (dirs > 0) {
-                                    dirCounter(filePath);
-                                } else {
-                                    output();
-                                }
                             } else {
-                                if (vars.terminal.exclusions.indexOf(filePath.replace(args.path + vars.path.sep, "")) > -1) {
-                                    if (dirs > 0) {
-                                        dirCounter(filePath);
+                                if (vars.terminal.exclusions.indexOf(filePath.replace(args.path + vars.path.sep, "")) < 0) {
+                                    if (args.mode === "search") {
+                                        if (search(filePath) === true) {
+                                            list.push([relPath, type, "", parent, 0, statData, ""]);
+                                        }
+                                    } else if (args.mode === "array" || args.mode === "list") {
+                                        if (args.mode === "array") {
+                                            fileList.push(relPath);
+                                        } else {
+                                            const typePadding:string = (type === "link")
+                                                    ? "link     "
+                                                    : (type === "file")
+                                                        ? "file     "
+                                                        : "directory",
+                                                comma:string = common.commas(stats.size),
+                                                size:number = comma.length;
+                                            if (size > longest) {
+                                                longest = size;
+                                            }
+                                            fileList.push(`${typePadding}  ${comma}  ${relPath}`);
+                                        }
                                     } else {
-                                        output();
-                                    }
-                                } else if (args.mode === "search") {
-                                    if (search(filePath) === true) {
                                         list.push([relPath, type, "", parent, 0, statData, ""]);
                                     }
-                                    if (dirs > 0) {
-                                        dirCounter(filePath);
-                                    } else {
-                                        output();
-                                    }
-                                } else if (args.mode === "array" || args.mode === "list") {
-                                    if (args.mode === "array") {
-                                        fileList.push(relPath);
-                                    } else {
-                                        const typePadding:string = (type === "link")
-                                                ? "link     "
-                                                : (type === "file")
-                                                    ? "file     "
-                                                    : "directory",
-                                            comma:string = common.commas(stats.size),
-                                            size:number = comma.length;
-                                        if (size > longest) {
-                                            longest = size;
-                                        }
-                                        fileList.push(`${typePadding}  ${comma}  ${relPath}`);
-                                    }
-                                    if (dirs > 0) {
-                                        dirCounter(filePath);
-                                    } else {
-                                        output();
-                                    }
-                                } else {
-                                    list.push([relPath, type, "", parent, 0, statData, ""]);
-                                    if (dirs > 0) {
-                                        dirCounter(filePath);
-                                    } else {
-                                        args.callback(title, [summary], list);
-                                    }
                                 }
+                            }
+                            if (dirs > 0) {
+                                dirCounter(filePath);
+                            } else {
+                                output();
                             }
                         },
                         linkAction = function terminal_commands_library_directory_statWrapper_stat_linkAction():void {
                             if (args.mode === "type") {
-                                args.callback(title, ["link"], null);
+                                args.callback(title, ["link", 0], null);
                                 return;
                             }
                             populate("link");
@@ -421,7 +384,7 @@ const directory = function terminal_commands_library_directory(args:config_comma
                     if (er !== null) {
                         if (er.toString().indexOf("no such file or directory") > 0) {
                             if (args.mode === "type") {
-                                args.callback(title, ["error"], null);
+                                args.callback(title, ["error", 0], null);
                                 return;
                             }
                             if ((vars.environment.command !== "service" || (vars.environment.command === "service" && vars.settings.verbose === true)) && vars.test.type.indexOf("browser") < 0 && args.callback.name.indexOf("remove_") < 0 && args.callback.name.indexOf("_remove") < 0) {
@@ -436,7 +399,7 @@ const directory = function terminal_commands_library_directory(args:config_comma
                         populate("error");
                     } else if (stats.isDirectory() === true) {
                         if (args.mode === "type") {
-                            args.callback(title, ["directory"], null);
+                            args.callback(title, ["directory", 0], null);
                             return;
                         }
                         const dirs:number = (args.path === "\\" && (/\w:$/).test(filePath) === false)
@@ -457,15 +420,15 @@ const directory = function terminal_commands_library_directory(args:config_comma
                     } else {
                         if (args.mode === "type") {
                             if (stats.isBlockDevice() === true) {
-                                args.callback(title, ["blockDevice"], null);
+                                args.callback(title, ["blockDevice", 0], null);
                             } else if (stats.isCharacterDevice() === true) {
-                                args.callback(title, ["characterDevice"], null);
+                                args.callback(title, ["characterDevice", 0], null);
                             } else if (stats.isFIFO() === true) {
-                                args.callback(title, ["FIFO"], null);
+                                args.callback(title, ["FIFO", 0], null);
                             } else if (stats.isSocket() === true) {
-                                args.callback(title, ["socket"], null);
+                                args.callback(title, ["socket", 0], null);
                             } else {
-                                args.callback(title, ["file"], null);
+                                args.callback(title, ["file", 0], null);
                             }
                             return;
                         }
@@ -479,7 +442,7 @@ const directory = function terminal_commands_library_directory(args:config_comma
             : args.path;
         startItem = (args.path === "/")
             ? "/"
-            : args.path + vars.path.sep
+            : args.path + vars.path.sep;
         list.failures = [];
         statWrapper(args.path, 0);
     };

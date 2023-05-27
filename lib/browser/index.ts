@@ -216,18 +216,12 @@ import disallowed from "../common/disallowed.js";
                     } while (index < buttonLength);
                 }
 
-                if (browser.data.hashDevice === "") {
-                    // Terminate load completion dependent upon creation of device hash
-                    return;
-                }
-
                 // populate text messages
                 if (browser.data.modalTypes.indexOf("message") > -1) {
                     message.tools.populate("");
                 }
 
                 // assign key default events
-                modal_configuration.modals.configuration(null, null);
                 browser.content.onclick                             = context.events.contextMenuRemove;
                 document.getElementById("menuToggle").onclick       = menu;
                 agentList.getElementsByTagName("button")[0].onclick = modal_configuration.modals.shares;
@@ -317,6 +311,9 @@ import disallowed from "../common/disallowed.js";
                             restoreShares("device");
                             restoreShares("user");
                             loadComplete();
+                            if (document.getModalsByModalType("configuration")[0] === undefined) {
+                                modal_configuration.modals.configuration(null, null);
+                            }
                         }
                     };
                 logInTest = true;
@@ -402,6 +399,8 @@ import disallowed from "../common/disallowed.js";
                 ? "test-browser"
                 : hashDevice
             );
+            loadComplete();
+            modal_configuration.modals.configuration(null, null);
         } else {
             restoreState();
         }

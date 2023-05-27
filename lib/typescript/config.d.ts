@@ -125,7 +125,7 @@ declare global {
      * type searchType = "fragment" | "negation" | "regex";
      * ``` */
     interface config_command_directory {
-        callback: (title:string, text:string[], dir:directory_list | string[]) => void;
+        callback: (title:string, text:[string, number], dir:directory_list | string[]) => void;
         depth: number;
         exclusions: string[];
         mode: directory_mode;

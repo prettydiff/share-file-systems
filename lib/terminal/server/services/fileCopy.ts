@@ -58,7 +58,7 @@ const fileCopy:module_fileCopy = {
                         link: 0,
                         size: 0
                     },
-                    dirCallback = function terminal_server_services_fileCopy_copyList_dirCallback(title:string, text:string[], result:directory_list|string[]):void {
+                    dirCallback = function terminal_server_services_fileCopy_copyList_dirCallback(title:string, text:[string, number], result:directory_list|string[]):void {
                         const dir:directory_list = result as directory_list,
                             dirComplete = function terminal_server_services_fileCopy_copyList_dirCallback_dirComplete():void {
                                 locationIndex = locationIndex + 1;
@@ -752,7 +752,7 @@ const fileCopy:module_fileCopy = {
         resolve("agentWrite");
     },
     status: function terminal_server_services_fileCopy_copyStatus(config:config_copy_status):void {
-        const callbackDirectory = function terminal_server_services_fileCopy_copyStatus_callbackDirectory(title:string, text:string[], list:directory_list|string[]):void {
+        const callbackDirectory = function terminal_server_services_fileCopy_copyStatus_callbackDirectory(title:string, text:[string, number], list:directory_list|string[]):void {
                 const dirs:directory_list = list as directory_list,
                     copyStatus:service_fileSystem_status = {
                         agentRequest: config.agentRequest,
@@ -805,7 +805,7 @@ const fileCopy:module_fileCopy = {
         if (config.directory === true) {
             directory(dirConfig);
         } else {
-            callbackDirectory("", [""], null);
+            callbackDirectory("", ["", 0], null);
         }
     }
 };

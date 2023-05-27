@@ -260,6 +260,9 @@ body.login #spaces{padding:2.5em 0 0}
 #spaces .box .video-self{border-style:solid;border-width:0.1em;bottom:0;cursor:move;height:33.33%;position:absolute;right:0;width:33.33%}
 
 /* agent management */
+#spaces .delete-agents,
+#spaces .modify-agents,
+#spaces .inviteAgent{display:none}
 #spaces .delete-agents li{display:block;list-style:none;margin:0 0 1em}
 #spaces .delete-agents p{font-size:var(--textSize)}
 #spaces .delete-agents input{display:inline-block;margin:0 1em 0 0}

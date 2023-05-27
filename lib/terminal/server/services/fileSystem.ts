@@ -78,7 +78,7 @@ const fileSystem:module_fileSystem = {
                         fileSystem.status.generate(data, result);
                     }
                 },
-                callback = function terminal_server_services_fileSystem_directory_callback(title:string, text:string[], dirs:directory_list|string[]):void {
+                callback = function terminal_server_services_fileSystem_directory_callback(title:string, text:[string, number], dirs:directory_list|string[]):void {
                     const result:directory_list = dirs as directory_list;
                     count = count + 1;
                     store = result;
@@ -155,7 +155,7 @@ const fileSystem:module_fileSystem = {
                 let counter:number = 0,
                     index:number = 0;
                 const dirList:fileTypeList = [],
-                    directoryCallback = function terminal_server_services_fileSystem_execute_directoryCallback(title:string, text:string[], dir:directory_list|string[]):void {
+                    directoryCallback = function terminal_server_services_fileSystem_execute_directoryCallback(title:string, text:[string, number], dir:directory_list|string[]):void {
                         if (typeof dir[0][0] === "string") {
                             const dirs:directory_list = dir as directory_list;
                             dirList.push([dirs[0][0], dirs[0][1]]);
@@ -515,7 +515,7 @@ const fileSystem:module_fileSystem = {
             };
             if (dirs === null) {
                 const dirConfig:config_command_directory = {
-                    callback: function terminal_server_services_fileSystem_statusGenerate_dirCallback(title:string, text:string[], list:directory_list|string[]):void {
+                    callback: function terminal_server_services_fileSystem_statusGenerate_dirCallback(title:string, text:[string, number], list:directory_list|string[]):void {
                         const dirs:directory_list = list as directory_list;
                         callback(dirs);
                     },

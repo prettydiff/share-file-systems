@@ -254,19 +254,16 @@ const agent_management:module_agentManagement = {
             h3.appendText("Select An Action");
             div.appendChild(h3);
             div.appendChild(ul);
-            if (view === "delete") {
-                bodyInvite.style.display = "none";
-                bodyModify.style.display = "none";
-            } else if (view === "invite") {
-                bodyDelete.style.display = "none";
-                bodyModify.style.display = "none";
-            } else if (view === "edit_names") {
-                bodyInvite.style.display = "none";
-                bodyModify.style.display = "none";
-            }
             div.appendChild(bodyInvite);
             div.appendChild(bodyModify);
             div.appendChild(bodyDelete);
+            if (view === "delete") {
+                bodyDelete.style.display = "block";
+            } else if (view === "invite") {
+                bodyInvite.style.display = "block";
+            } else if (view === "edit_names") {
+                bodyModify.style.display = "block";
+            }
             div.setAttribute("class", "agent-management");
             return div;
         },
@@ -409,7 +406,7 @@ const agent_management:module_agentManagement = {
                 ip:string,
                 port:string,
                 portNumber:number;
-            const element:HTMLElement = event.target,
+            const element:HTMLButtonElement = event.target as HTMLButtonElement,
                 box:modal = element.getAncestor("box", "class"),
                 body:HTMLElement = box.getElementsByClassName("body")[0] as HTMLElement,
                 content:HTMLElement = body.getElementsByClassName("inviteAgent")[0] as HTMLElement,
@@ -530,6 +527,7 @@ const agent_management:module_agentManagement = {
             if (content.getElementsByClassName("error").length > 0) {
                 content.removeChild(content.getElementsByClassName("error")[0]);
             }
+            element.disabled = true;
             body.appendChild(util.delay());
             network.send(invitation, "invite");
         },
@@ -958,6 +956,10 @@ const agent_management:module_agentManagement = {
                     delay:HTMLElement = modal.getElementsByClassName("delay")[0] as HTMLElement,
                     footer:HTMLElement = modal.getElementsByClassName("footer")[0] as HTMLElement,
                     inviteAgent:HTMLElement = modal.getElementsByClassName("inviteAgent")[0] as HTMLElement,
+                    lastChild:HTMLElement = inviteAgent.lastChild as HTMLElement,
+                    lastClass:string = (inviteAgent.lastChild.nodeType === 1)
+                        ? lastChild.getAttribute("class")
+                        : null,
                     prepOutput = function browser_content_agentManagement_inviteComplete_prepOutput(output:HTMLElement):void {
                         if (invitation.status === "accepted") {
                             output.appendText("Invitation accepted!", true);
@@ -973,13 +975,13 @@ const agent_management:module_agentManagement = {
                     };
                 footer.style.display = "none";
                 if (delay !== undefined) {
-                    delay.style.display = "none";
+                    delay.parentNode.removeChild(delay);
                 }
                 inviteAgent.style.display = "block";
-                if (error === null || error === undefined) {
+                if ((error === null || error === undefined) && lastClass !== "accepted" && lastClass !== "error") {
                     const p:HTMLElement = document.createElement("p");
                     prepOutput(p);
-                    modal.getElementsByClassName("inviteAgent")[0].appendChild(p);
+                    inviteAgent.appendChild(p);
                 } else {
                     prepOutput(error);
                 }
