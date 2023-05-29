@@ -70,5 +70,5 @@ type userData = [agentShares, transmit_addresses_IP];
 type directory_sort = (a:directory_item, b:directory_item) => -1 | 1;
 type receiver = (socketData:socketData, transmit:transmit_type) => void;
 type commandCallback = (title:string, text:string[], fail:boolean) => void;
-type modal_open = (event:Event, config?:config_modal, content?:HTMLElement) => modal;
+type modal_open = (event:Event, config?:config_modal) => modal;
 type websocket_messageHandler = (resultBuffer:Buffer) => void;

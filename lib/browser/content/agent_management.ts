@@ -461,7 +461,6 @@ const agent_management:module_agentManagement = {
                 ipSelected:string = ((/(\d{1,3}\.){3}\d{1,3}/).test(ip) === false && browser.network.addresses.IPv6.length > 0)
                     ? browser.network.addresses.IPv6[0]
                     : browser.network.addresses.IPv4[0],
-                footer:HTMLElement = box.getElementsByClassName("footer")[0] as HTMLElement,
                 saved:invite_saved = {
                     ip: ip,
                     message: content.getElementsByTagName("textarea")[0].value.replace(/"/g, "\\\""),
@@ -523,11 +522,9 @@ const agent_management:module_agentManagement = {
                 return;
             }
             content.style.display = "none";
-            footer.style.display = "none";
             if (content.getElementsByClassName("error").length > 0) {
                 content.removeChild(content.getElementsByClassName("error")[0]);
             }
-            element.disabled = true;
             body.appendChild(util.delay());
             network.send(invitation, "invite");
         },
@@ -991,27 +988,44 @@ const agent_management:module_agentManagement = {
         /* Receive an invitation from another user */
         inviteReceive: function browser_content_agentManagement_inviteReceive(invitation:service_invite):void {
             const agentInvite:agentInvite = invitation.agentRequest,
-                name:string = (invitation.type === "device")
-                    ? agentInvite.nameDevice
-                    : agentInvite.nameUser,
-                modals:HTMLElement[] = document.getModalsByModalType("invite-accept");
-            let index:number = modals.length;
-            if (index > 0) {
-                do {
-                    index = index - 1;
-                    if ((invitation.type === "device" && modals[index].dataset.agent === invitation.agentSource.hashDevice) || (invitation.type === "user" && modals[index].dataset.agent === invitation.agentSource.hashUser)) {
-                        // there should only be one invitation at a time from a given agent otherwise there is spam
-                        return;
-                    }
-                } while (index > 0);
-            }
-            invitation.agentSource.modal = modal_configuration.modals["invite-accept"](null, null, agent_management.content.inviteRemote(invitation, name)).getAttribute("id");
+                config:config_modal = {
+                    agent: (invitation.type === "device")
+                        ? invitation.agentRequest.hashDevice
+                        : invitation.agentRequest.hashUser,
+                    agentIdentity: false,
+                    agentType: invitation.type,
+                    content: null,
+                    read_only: false,
+                    title_supplement: JSON.stringify(invitation),
+                    type: "invite-accept"
+                };
+            invitation.agentSource.modal = modal_configuration.modals["invite-accept"](null, config).getAttribute("id");
             util.audio("invite");
         },
 
         /* Routes invitation messaging from the network to the appropriate method. */
         inviteTransmissionReceipt: function browser_content_agentManagement_inviteTransmissionReceipt(socketData:socketData):void {
-            const invitation:service_invite = socketData.data as service_invite;
+            const invitation:service_invite = socketData.data as service_invite,
+                modalType:modalType = (invitation.action === "invite-complete")
+                    ? "agent-management"
+                    : "invite-accept",
+                modals:HTMLElement[] = document.getModalsByModalType(modalType),
+                agentInvite:agentInvite = (modalType === "agent-management")
+                    ? invitation.agentSource
+                    : invitation.agentRequest,
+                hashType:"hashDevice"|"hashUser" = (invitation.type === "device")
+                    ? "hashDevice"
+                    : "hashUser";
+            let index:number = modals.length;
+            if (index > 0) {
+                do {
+                    index = index - 1;
+                    if (modals[index].dataset.agent === agentInvite[hashType]) {
+                        // there should only be one invitation at a time from a given agent otherwise there is spam
+                        return;
+                    }
+                } while (index > 0);
+            }
             if (invitation.action === "invite-complete") {
                 agent_management.tools.inviteComplete(invitation);
             } else {
