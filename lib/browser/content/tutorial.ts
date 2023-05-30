@@ -474,7 +474,18 @@ const tutorial = function browser_content_tutorial():void {
             wrapper.setAttribute("class", "document");
             return wrapper;
         },
-        contentModal:modal = modal_configuration.modals.document(null, null, content()),
+        contentModal:modal = modal_configuration.modals.document(null, {
+            agent: browser.data.hashDevice,
+            agentIdentity: false,
+            agentType: "device",
+            content: content(),
+            height: 600,
+            inputs: ["close"],
+            move: false,
+            read_only: true,
+            title_supplement: "Tutorial",
+            type: "document"
+        }),
         close:HTMLElement = contentModal.getElementsByClassName("buttons")[0].getElementsByClassName("close")[0] as HTMLElement,
         body:HTMLElement = contentModal.getElementsByClassName("body")[0] as HTMLElement;
     contentModal.style.zIndex = "10001";

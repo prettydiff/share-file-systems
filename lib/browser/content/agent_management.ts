@@ -989,15 +989,21 @@ const agent_management:module_agentManagement = {
         inviteReceive: function browser_content_agentManagement_inviteReceive(invitation:service_invite):void {
             const agentInvite:agentInvite = invitation.agentRequest,
                 config:config_modal = {
-                    agent: (invitation.type === "device")
-                        ? invitation.agentRequest.hashDevice
-                        : invitation.agentRequest.hashUser,
+                    agent: browser.data.hashDevice,
                     agentIdentity: false,
-                    agentType: invitation.type,
+                    agentType: "device",
+                    closeHandler: agent_management.events.inviteDecline,
                     content: null,
+                    height: 300,
+                    inputs: ["cancel", "confirm", "close"],
                     read_only: false,
-                    title_supplement: JSON.stringify(invitation),
-                    type: "invite-accept"
+                    share: browser.data.hashDevice,
+                    text_value: JSON.stringify(invitation),
+                    title_supplement: (invitation.type === "device")
+                        ? `Device ${agentInvite.nameDevice}`
+                        : `User ${agentInvite.nameUser}`,
+                    type: "invite-accept",
+                    width: 500
                 };
             invitation.agentSource.modal = modal_configuration.modals["invite-accept"](null, config).getAttribute("id");
             util.audio("invite");

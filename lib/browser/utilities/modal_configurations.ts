@@ -417,7 +417,7 @@ const modal_configuration:module_modalConfiguration = {
         },
 
         "invite-accept": function browser_utilities_modalConfiguration_inviteAccept(event:Event, config?:config_modal):modal {
-            const invitation:service_invite = JSON.parse(config.title_supplement) as service_invite,
+            const invitation:service_invite = JSON.parse(config.text_value) as service_invite,
                 agentInvite:agentInvite = invitation.agentRequest,
                 inviteName:string = (invitation.type === "device")
                     ? invitation.agentRequest.nameDevice
