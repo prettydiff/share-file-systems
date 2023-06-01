@@ -110,7 +110,7 @@ import disallowed from "../common/disallowed.js";
             },
 
             // page initiation once state restoration completes
-            loadComplete = function browser_init_complete():void {
+            loadComplete = function browser_init_complete(socket:boolean):void {
                 // change status to idle
                 const allDevice:HTMLElement = agentList.getElementsByClassName("device-all-shares")[0] as HTMLElement,
                     allUser:HTMLElement = agentList.getElementsByClassName("user-all-shares")[0] as HTMLElement,
@@ -252,10 +252,12 @@ import disallowed from "../common/disallowed.js";
 
                 // loading data and modals is complete
                 browser.loading = false;
-                webSocket.start(messageDelay, (state.test !== null && testBrowser === true)
-                    ? "test-browser"
-                    : hashDevice
-                );
+                if (socket === true) {
+                    webSocket.start(messageDelay, (state.test !== null && testBrowser === true)
+                        ? "test-browser"
+                        : hashDevice
+                    );
+                }
             },
 
             // on page load restore the application to exactly the way it was
@@ -314,7 +316,7 @@ import disallowed from "../common/disallowed.js";
                             }
                             restoreShares("device");
                             restoreShares("user");
-                            loadComplete();
+                            loadComplete(true);
                         }
                     };
                 logInTest = true;
@@ -399,7 +401,7 @@ import disallowed from "../common/disallowed.js";
                 ? "test-browser"
                 : hashDevice
             );
-            loadComplete();
+            loadComplete(false);
         } else {
             restoreState();
         }
