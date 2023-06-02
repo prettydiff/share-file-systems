@@ -106,12 +106,11 @@ import disallowed from "../common/disallowed.js";
                 nameUser.onkeyup = handlerKeyboard;
                 nameDevice.onkeyup = handlerKeyboard;
                 button.onclick = handlerMouse;
-                modal_configuration.modals.configuration(null);
                 testBrowserLoad(500);
             },
 
             // page initiation once state restoration completes
-            loadComplete = function browser_init_complete():void {
+            loadComplete = function browser_init_complete(socket:boolean):void {
                 // change status to idle
                 const allDevice:HTMLElement = agentList.getElementsByClassName("device-all-shares")[0] as HTMLElement,
                     allUser:HTMLElement = agentList.getElementsByClassName("user-all-shares")[0] as HTMLElement,
@@ -237,6 +236,11 @@ import disallowed from "../common/disallowed.js";
                     fullscreen.parentNode.removeChild(fullscreen);
                 }
 
+                // build out the configuration modal, if not already present as a part of state restoration
+                if (document.getModalsByModalType("configuration")[0] === undefined) {
+                    modal_configuration.modals.configuration(null, null);
+                }
+
                 // initiate webSocket and activity status
                 agent_status.start();
                 if (logInTest === true) {
@@ -248,10 +252,12 @@ import disallowed from "../common/disallowed.js";
 
                 // loading data and modals is complete
                 browser.loading = false;
-                webSocket.start(messageDelay, (state.test !== null && testBrowser === true)
-                    ? "test-browser"
-                    : hashDevice
-                );
+                if (socket === true) {
+                    webSocket.start(messageDelay, (state.test !== null && testBrowser === true)
+                        ? "test-browser"
+                        : hashDevice
+                    );
+                }
             },
 
             // on page load restore the application to exactly the way it was
@@ -310,10 +316,7 @@ import disallowed from "../common/disallowed.js";
                             }
                             restoreShares("device");
                             restoreShares("user");
-                            loadComplete();
-                            if (document.getModalsByModalType("configuration")[0] === undefined) {
-                                modal_configuration.modals.configuration(null, null);
-                            }
+                            loadComplete(true);
                         }
                     };
                 logInTest = true;
@@ -394,13 +397,11 @@ import disallowed from "../common/disallowed.js";
             browser.testBrowser = state.test;
         }
         if (hashUser === "") {
-            browser.loading = false;
             webSocket.start(applyLogin, (state.test !== null && testBrowser === true)
                 ? "test-browser"
                 : hashDevice
             );
-            loadComplete();
-            modal_configuration.modals.configuration(null, null);
+            loadComplete(false);
         } else {
             restoreState();
         }

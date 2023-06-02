@@ -416,16 +416,19 @@ const modal_configuration:module_modalConfiguration = {
             return modal.content(payloadModal);
         },
 
-        "invite-accept": function browser_utilities_modalConfiguration_inviteAccept(event:Event, config?:config_modal, content?:HTMLElement):modal {
+        "invite-accept": function browser_utilities_modalConfiguration_inviteAccept(event:Event, config?:config_modal):modal {
+            const invitation:service_invite = JSON.parse(config.text_value) as service_invite,
+                agentInvite:agentInvite = invitation.agentRequest,
+                inviteName:string = (invitation.type === "device")
+                    ? invitation.agentRequest.nameDevice
+                    : invitation.agentRequest.nameUser;
             if (config === null || config === undefined) {
-                const invitation:service_invite = JSON.parse(content.dataset.invitation) as service_invite,
-                    agentInvite:agentInvite = invitation.agentRequest;
                 config = {
                     agent: browser.data.hashDevice,
                     agentIdentity: false,
                     agentType: "device",
                     closeHandler: agent_management.events.inviteDecline,
-                    content: content,
+                    content: null,
                     height: 300,
                     inputs: ["cancel", "confirm", "close"],
                     read_only: false,
@@ -437,9 +440,7 @@ const modal_configuration:module_modalConfiguration = {
                     width: 500
                 };
             }
-            if (content !== null && content !== undefined) {
-                config.content = content;
-            }
+            config.content = agent_management.content.inviteRemote(invitation, inviteName);
             return modal.content(config);
         },
 

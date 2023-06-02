@@ -144,10 +144,6 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                             }
                         });
                     }
-                    sender.broadcast({
-                        data: data,
-                        service: "invite"
-                    }, "browser");
                 }
             },
             "invite-request": function terminal_server_services_invite_inviteRequest():void {

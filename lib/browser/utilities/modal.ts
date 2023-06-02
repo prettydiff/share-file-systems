@@ -423,13 +423,17 @@ const modal:module_modal = {
             const minimize:HTMLElement = box.getElementsByClassName("minimize")[0] as HTMLElement;
             browser.data.modals[options.id].status = "normal";
             modal.events.minimize(null, options.callback, minimize);
-        } else if (options.callback !== undefined) {
+        } else {
+            if (options.status === "hidden") {
+                browser.data.modals[options.id].status = "hidden";
+                box.style.display = "none";
+            }
             if (browser.loading === false) {
                 network.configuration();
             }
-            options.callback();
-        } else if (browser.loading === false) {
-            network.configuration();
+            if (options.callback !== undefined) {
+                options.callback();
+            }
         }
 
         // return modal

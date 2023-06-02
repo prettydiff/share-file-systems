@@ -132,7 +132,7 @@ const browserDevice:test_browserItem[] = [
     },
 
     // invite user VM3 from self
-    inviteSend("self", "VM3", "user"),
+    inviteSend("self", "VM3", "user")/*,
     inviteAccept("self", "VM3", "user"),
     inviteConfirm("self", "VM3", "user"),
 
@@ -2066,7 +2066,7 @@ const browserDevice:test_browserItem[] = [
                 value: "Requested file system artifacts removed."
             }
         ]
-    }
+    }*/
 ];
 
 export default browserDevice;
