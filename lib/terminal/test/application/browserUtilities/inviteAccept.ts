@@ -28,7 +28,7 @@ const inviteAccept = function terminal_test_application_browserUtilities_inviteA
             {
                 event: "click",
                 node: [
-                    ["getModalsByModalType", "invite-accept", 0]
+                    ["getElementById", "spaces", null]
                 ]
             }
         ],

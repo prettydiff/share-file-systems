@@ -874,7 +874,7 @@ const transmit_ws:module_transmit_ws = {
                             delay = function terminal_server_transmission_transmitWs_socketExtension_close_delay():void {
                                 transmit_ws.open.agent(configData);
                             };
-                        setTimeout(delay, 15000);
+                        setTimeout(delay, vars.settings.statusTime);
                     });
                     if (config.type === "user") {
                         const management:service_agentManagement = {
