@@ -1,22 +1,19 @@
 
 /* lib/terminal/commands/library/firewall - A utility to open firewall settings for this application. */
 
-import { exec, ExecException } from "child_process";
-import { writeFile } from "fs";
-import { EOL } from "os";
-
 import error from "../../utilities/error.js";
+import node from "../../utilities/node.js";
 import vars from "../../utilities/vars.js";
 
 // cspell: words advfirewall netsh runas
 
 const firewall = function terminal_commands_library_firewall(callback:commandCallback):void {
-    const errorOut = function terminal_commands_library_fireWall_errorOut(message:string, errorObject:ExecException|NodeJS.ErrnoException):void {
+    const errorOut = function terminal_commands_library_fireWall_errorOut(message:string, errorObject:node_childProcess_ExecException|NodeJS.ErrnoException):void {
         error([message], errorObject);
         process.exit(1);
     };
     if (process.platform === "win32") {
-        exec("nvm root", function terminal_commands_library_firewall_nvm(nvmError:ExecException, stdout:string):void {
+        node.child_process.exec("nvm root", function terminal_commands_library_firewall_nvm(nvmError:node_childProcess_ExecException, stdout:string):void {
             let nvmPath:string = "",
                 nvm:boolean = (nvmError === null && stdout !== "");
             const instructions = function terminal_commands_library_firewall_nvm_instructions():void {
@@ -40,11 +37,11 @@ const firewall = function terminal_commands_library_firewall(callback:commandCal
                     commands.push(`netsh advfirewall firewall add rule name="node nvm" program="${nvmPath}" action="allow" protocol=TCP profile="any" dir=out`);
                 }
                 commands.push("exit");
-                writeFile(writeLocation, commands.join(`;${EOL}`), function terminal_commands_library_firewall_nvm_instructions_write(writeError:NodeJS.ErrnoException):void {
+                node.fs.writeFile(writeLocation, commands.join(`;${node.os.EOL}`), function terminal_commands_library_firewall_nvm_instructions_write(writeError:NodeJS.ErrnoException):void {
                     if (writeError === null) {
-                        exec(`Start-Process powershell -verb runas -WindowStyle "hidden" -ArgumentList "-file ${writeLocation}"`, {
+                        node.child_process.exec(`Start-Process powershell -verb runas -WindowStyle "hidden" -ArgumentList "-file ${writeLocation}"`, {
                             shell: "powershell"
-                        }, function terminal_commands_library_firewall_nvm_instructions_write_execute(execError:ExecException):void {
+                        }, function terminal_commands_library_firewall_nvm_instructions_write_execute(execError:node_childProcess_ExecException):void {
                             if (execError === null) {
                                 callback("Firewall", ["Windows Defender Firewall updated."], false);
                             } else {
@@ -58,7 +55,7 @@ const firewall = function terminal_commands_library_firewall(callback:commandCal
             };
             if (nvm === true) {
                 nvmPath = stdout.replace(/^\s*Current Root:\s*/, "").replace(/\s+$/, "");
-                exec("nvm list", function terminal_commands_library_firewall_nvm_list(listError:ExecException, listOut:string):void {
+                node.child_process.exec("nvm list", function terminal_commands_library_firewall_nvm_list(listError:node_childProcess_ExecException, listOut:string):void {
                     if (listError === null) {
                         const star:number = listOut.indexOf("*");
                         if (star < 0) {

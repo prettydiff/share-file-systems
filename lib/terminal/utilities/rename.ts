@@ -1,7 +1,6 @@
 /* lib/terminal/utilities/rename - Before creating new file system artifacts this library determines if the artifact is already present and if so changes the name of the new artifacts to prevent overwrite. */
 
-import { stat } from "fs";
-
+import node from "./node.js";
 import vars from "./vars.js";
 
 // directoryList: [].failures
@@ -59,7 +58,7 @@ const rename = function terminal_utilities_rename(config:config_rename):void {
                     ? Number(noExtension.slice(noExtension.lastIndexOf("_") + 1)) + 1
                     : 0;
                 config.list[index][0][6] = `${config.destination + vars.path.sep + noExtension.replace(countTest, "")}_${String(count) + extension}`;
-                stat(config.list[index][0][6], terminal_utilities_rename_statCallback);
+                node.fs.stat(config.list[index][0][6], terminal_utilities_rename_statCallback);
                 return;
             }
 
@@ -87,7 +86,7 @@ const rename = function terminal_utilities_rename(config:config_rename):void {
             if (index < listLength) {
                 baseName = "";
                 extension = "";
-                stat(targetPath(index), terminal_utilities_rename_statCallback);
+                node.fs.stat(targetPath(index), terminal_utilities_rename_statCallback);
             } else {
                 config.callback(null, config.list);
             }
@@ -100,7 +99,7 @@ const rename = function terminal_utilities_rename(config:config_rename):void {
     config.destination = config.destination.replace(/(\\|\/)$/, "");
 
     // determine if artifact name already present, and if so then modify it
-    stat(targetPath(index), statCallback);
+    node.fs.stat(targetPath(index), statCallback);
 };
 
 export default rename;

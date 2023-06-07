@@ -1,9 +1,8 @@
 /* lib/terminal/commands/interface/hash - Shell interface to library hash, which generates a hash string. */
 
-import { resolve } from "path";
-
 import error from "../../utilities/error.js";
 import hash from "../library/hash.js";
+import node from "../../utilities/node.js";
 import vars from "../../utilities/vars.js";
 
 const interfaceHash = function terminal_commands_interface_hash(callback:commandCallback):void {
@@ -55,7 +54,7 @@ const interfaceHash = function terminal_commands_interface_hash(callback:command
             stat: null
         };
     if (http.test(input.source as string) === false) {
-        input.source = resolve(process.argv[0]);
+        input.source = node.path.resolve(process.argv[0]);
     }
     if (listIndex > -1) {
         process.argv.splice(listIndex);

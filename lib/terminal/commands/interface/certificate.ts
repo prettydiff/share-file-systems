@@ -1,8 +1,7 @@
 /* lib/terminal/commands/interface/certificate - Shell interface for creating certificates. */
 
-import { resolve } from "path";
-
 import certificate from "../library/certificate.js";
+import node from "../../utilities/node.js";
 import vars from "../../utilities/vars.js";
 
 const interfaceCertificate = function terminal_commands_interface_certificate(callback:commandCallback):void {
@@ -38,7 +37,7 @@ const interfaceCertificate = function terminal_commands_interface_certificate(ca
                 orgTest = true;
                 config.names.organization = value;
             } else if (key === "location") {
-                config.location = resolve(value);
+                config.location = node.path.resolve(value);
             } else {
                 const names:string[] = argNames[0].split("-");
                 names[1] = names[1].replace("filename", "fileName");

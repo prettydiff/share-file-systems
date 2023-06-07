@@ -1,11 +1,9 @@
 
 /* lib/terminal/commands/library/certificate - A command driven utility for creating an HTTPS certificate. */
 
-import { exec } from "child_process";
-import { stat } from "fs";
-
 import error from "../../utilities/error.js";
 import mkdir from "./mkdir.js";
+import node from "../../utilities/node.js";
 import vars from "../../utilities/vars.js";
 
 // cspell:word addstore, CAcreateserial, certutil, delstore, extfile, genpkey
@@ -14,7 +12,7 @@ const certificate = function terminal_commands_library_certificate(config:config
     let index:number = 0;
     const commands:string[] = [],
         crypto = function terminal_commands_library_certificate_crypto():void {
-            exec(commands[index], {
+            node.child_process.exec(commands[index], {
                 cwd: config.location
             }, function terminal_commands_library_certificate_child(erChild:Error):void {
                 if (erChild === null) {
@@ -30,7 +28,7 @@ const certificate = function terminal_commands_library_certificate(config:config
             });
         };
 
-    stat(config.location, function terminal_commands_library_certificate_createStat(stats:NodeJS.ErrnoException):void {
+    node.fs.stat(config.location, function terminal_commands_library_certificate_createStat(stats:NodeJS.ErrnoException):void {
 
         // OpenSSL features used:
         // * file extensions

@@ -1,12 +1,11 @@
 
 /* lib/terminal/commands/library/copy - A command driven utility to perform bit by bit file artifact copy. */
 
-import { readlink, stat, Stats, symlink } from "fs";
-
 import common from "../../../common/common.js";
 import directory from "./directory.js";
 import error from "../../utilities/error.js";
 import mkdir from "./mkdir.js";
+import node from "../../utilities/node.js";
 import rename from "../../utilities/rename.js";
 import vars from "../../utilities/vars.js";
 import writeStream from "../../utilities/writeStream.js";
@@ -34,12 +33,12 @@ const copy = function terminal_commands_library_copy(params:config_command_copy)
                                 len:number = list.length,
                                 // identifies the absolution path apart from the item to copy
                                 link = function terminal_commands_library_copy_dirCallback_renameCallback_link(source:string, path:string):void {
-                                    readlink(source, function terminal_commands_library_copy_dirCallback_renameCallback_link_readLink(linkError:Error, resolvedLink:string):void {
+                                    node.fs.readlink(source, function terminal_commands_library_copy_dirCallback_renameCallback_link_readLink(linkError:Error, resolvedLink:string):void {
                                         if (linkError === null) {
                                             numb.link = numb.link + 1;
-                                            stat(resolvedLink, function terminal_commands_library_copy_dirCallback_renameCallback_link_readLink_stat(statError:Error, stat:Stats):void {
+                                            node.fs.stat(resolvedLink, function terminal_commands_library_copy_dirCallback_renameCallback_link_readLink_stat(statError:Error, stat:node_fs_Stats):void {
                                                 if (statError === null) {
-                                                    symlink(
+                                                    node.fs.symlink(
                                                         resolvedLink,
                                                         path,
                                                         stat.isDirectory() === true
@@ -167,7 +166,7 @@ const copy = function terminal_commands_library_copy(params:config_command_copy)
                 };
                 rename(renameConfig);
             };
-    stat(params.destination, function terminal_commands_library_copy_stat(erStat:Error):void {
+    node.fs.stat(params.destination, function terminal_commands_library_copy_stat(erStat:Error):void {
         const dirConfig:config_command_directory = {
             callback: dirCallback,
             depth: 0,

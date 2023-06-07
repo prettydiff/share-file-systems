@@ -36,10 +36,10 @@ const loopback:string = "127.0.0.1",
      *     addServers: (callback:() => void) => void;     // Starts listeners on random ports simulating various connecting agents.
      *     agents: {
      *         device: {
-     *             [key:string]: Server;
+     *             [key:string]: node_http_Server;
      *         };
      *         user: {
-     *             [key:string]: Server;
+     *             [key:string]: node_http_Server;
      *         };
      *     };                                             // Stores simulated agent identities.
      *     complete: commandCallback;                     // Stores an action to perform once all test cases are executed.

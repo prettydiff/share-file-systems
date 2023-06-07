@@ -1,10 +1,9 @@
 
 /* lib/terminal/server/services/message - Process and send text messages. */
 
-import { createReadStream, createWriteStream, readdir, ReadStream, WriteStream } from "fs";
-
 import error from "../../utilities/error.js";
 import osNotification from "../osNotification.js";
+import node from "../../utilities/node.js";
 import sender from "../transmission/sender.js";
 import settings from "./settings.js";
 import vars from "../../utilities/vars.js";
@@ -50,7 +49,7 @@ const message = function terminal_server_services_message(socketData:socketData)
                 });
             };
             if (vars.settings.message.length > count) {
-                readdir(`${vars.path.project}lib${vars.path.sep}settings${vars.path.sep}message_archive`, function terminal_server_services_message_readdir(erd:Error, files:string[]):void {
+                node.fs.readdir(`${vars.path.project}lib${vars.path.sep}settings${vars.path.sep}message_archive`, function terminal_server_services_message_readdir(erd:Error, files:string[]):void {
                     if (erd === null) {
                         const fileName:string = (function terminal_server_services_message_readdir_fileName():string {
                             const test:RegExp = (/message\d+\.json/),
@@ -75,8 +74,8 @@ const message = function terminal_server_services_message(socketData:socketData)
                             }
                             return "message0.json";
                         }()),
-                        readStream:ReadStream = createReadStream(JSON.stringify(vars.settings.message.slice(0, count))),
-                        writeStream:WriteStream = createWriteStream(`${vars.path.project}lib${vars.path.sep}settings${vars.path.sep}message_archive${vars.path.sep + fileName}`);
+                        readStream:node_fs_ReadStream = node.fs.createReadStream(JSON.stringify(vars.settings.message.slice(0, count))),
+                        writeStream:node_fs_WriteStream = node.fs.createWriteStream(`${vars.path.project}lib${vars.path.sep}settings${vars.path.sep}message_archive${vars.path.sep + fileName}`);
                         readStream.pipe(writeStream);
                         writeStream.on("finish", function terminal_server_services_message_readdir_writeFinish():void {
                             vars.settings.message = vars.settings.message.slice(count);

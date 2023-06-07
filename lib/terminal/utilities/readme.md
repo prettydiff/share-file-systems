@@ -14,6 +14,7 @@ The various utility libraries for the terminal instance of the application.
 * **[ipList.ts](ipList.ts)**                                 - Returns a list of ip addresses for a specified agent.
 * **[lists.ts](lists.ts)**                                   - A utility for visually presenting lists of data to the terminal's console.
 * **[log.ts](log.ts)**                                       - A log utility for displaying multiple lines of text to the terminal.
+* **[node.ts](node.ts)**                                     - All the Node APIs used in the project stored in a single location.
 * **[readStorage.ts](readStorage.ts)**                       - Reads all the settings files and returns a data structure to a callback
 * **[rename.ts](rename.ts)**                                 - Before creating new file system artifacts this library determines if the artifact is already present and if so changes the name of the new artifacts to prevent overwrite.
 * **[resetState.ts](resetState.ts)**                         - A convenience tool to baseline environmental settings

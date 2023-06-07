@@ -1,9 +1,8 @@
 
 /* lib/terminal/server/readCerts - Reads certificates for secure transmission protocol support */
 
-import { readFile, stat } from "fs";
-
 import error from "../utilities/error.js";
+import node from "../utilities/node.js";
 import vars from "../utilities/vars.js";
 
 const readCerts = function terminal_server_readCerts(callback:(options:transmit_tlsOptions, certLogs:string[]) => void):void {
@@ -39,7 +38,7 @@ const readCerts = function terminal_server_readCerts(callback:(options:transmit_
             const location:string = (certType === "ca")
                 ? `${certLocation + caName}.crt`
                 : `${certLocation + certName}.${certType}`;
-            readFile(location, "utf8", function terminal_server_readCerts_httpsRead_readFile(fileError:Error, fileData:string):void {
+            node.fs.readFile(location, "utf8", function terminal_server_readCerts_httpsRead_readFile(fileError:Error, fileData:string):void {
                 https.fileFlag[certType] = true;
                 if (fileError === null) {
                     if (certType === "crt") {
@@ -55,7 +54,7 @@ const readCerts = function terminal_server_readCerts(callback:(options:transmit_
             const location:string = (certType === "ca")
                 ? `${certLocation + caName}.crt`
                 : `${certLocation + certName}.${certType}`;
-            stat(location, function terminal_server_readCerts_httpsFile_stat(statError:Error):void {
+            node.fs.stat(location, function terminal_server_readCerts_httpsFile_stat(statError:Error):void {
                 if (statError === null) {
                     httpsRead(certType);
                 } else {

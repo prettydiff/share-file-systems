@@ -1,9 +1,8 @@
 /* lib/terminal/commands/interface/copy - Shell interface for the file copy command. */
 
-import { resolve } from "path";
-
 import copy from "../library/copy.js";
 import error from "../../utilities/error.js";
+import node from "../../utilities/node.js";
 import vars from "../../utilities/vars.js";
 
 const interfaceCopy = function terminal_commands_interface_copy(callback:commandCallback):void {
@@ -18,10 +17,10 @@ const interfaceCopy = function terminal_commands_interface_copy(callback:command
         callback: function terminal_commands_interface_copy_callback(title:string, text:string[]):void {
             callback(title, text, null);
         },
-        destination: resolve(process.argv[1]),
+        destination: node.path.resolve(process.argv[1]),
         exclusions: vars.terminal.exclusions,
         replace: process.argv.indexOf("replace") > -1,
-        target: resolve(process.argv[0])
+        target: node.path.resolve(process.argv[0])
     };
     if (config.destination === "/") {
         config.destination = "/";

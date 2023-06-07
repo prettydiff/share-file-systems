@@ -1,14 +1,13 @@
 /* lib/terminal/utilities/readStorage - Reads all the settings files and returns a data structure to a callback */
 
-import { readdir, readFile } from "fs";
-
 import error from "./error.js";
+import node from "./node.js";
 import vars from "./vars.js";
 
 // cspell: words brotli
 
 const readStorage = function terminal_utilities_readStorage(fromFile:boolean, callback:(settings:settings_item) => void):void {
-    readdir(vars.path.settings, function terminal_utilities_readStorage_readdir(erd:Error, fileList:string[]):void {
+    node.fs.readdir(vars.path.settings, function terminal_utilities_readStorage_readdir(erd:Error, fileList:string[]):void {
         if (erd === null) {
             let length:number = fileList.length;
             const flag:flagList = {},
@@ -75,7 +74,7 @@ const readStorage = function terminal_utilities_readStorage(fromFile:boolean, ca
                     callback(settings);
                 },
                 read = function terminal_utilities_readStorage_readdir_read(fileName:string):void {
-                    readFile(vars.path.settings + fileName, "utf8", function terminal_utilities_readStorage_readdir_read_readFile(err:Error, fileData:string):void {
+                    node.fs.readFile(vars.path.settings + fileName, "utf8", function terminal_utilities_readStorage_readdir_read_readFile(err:Error, fileData:string):void {
                         if (err === null) {
                             const item:settingsType = fileName.replace(".json", "") as settingsType;
                             // eslint-disable-next-line

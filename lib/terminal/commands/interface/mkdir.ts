@@ -1,13 +1,12 @@
 /* lib/terminal/commands/interface/mkdir - Shell interface to utility mkdir for creating directory structures recursively. */
 
-import { resolve } from "path";
-
 import error from "../../utilities/error.js";
 import mkdir from "../library/mkdir.js";
+import node from "../../utilities/node.js";
 import vars from "../../utilities/vars.js";
 
 const interfaceMkdir = function terminal_commands_interface_mkdir(callback:commandCallback):void {
-    const dir:string = resolve(process.argv[0]);
+    const dir:string = node.path.resolve(process.argv[0]);
     if (dir === undefined) {
         error([
             "No directory name specified.",

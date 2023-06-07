@@ -1,11 +1,10 @@
 
 /* lib/terminal/commands/library/remove - A command driven utility to recursively remove file system artifacts. */
 
-import { rm, rmdir, unlink } from "fs";
-
 import common from "../../../common/common.js";
 import directory from "./directory.js";
 import error from "../../utilities/error.js";
+import node from "../../utilities/node.js";
 import vars from "../../utilities/vars.js";
 
 // similar to posix "rm -rf" command
@@ -99,15 +98,15 @@ const remove = function terminal_commands_library_remove(filePath:string, exclus
                                         return;
                                     }
                                 } while (b < 0);
-                                rmdir(item[0], destruction);
+                                node.fs.rmdir(item[0], destruction);
                             } else {
-                                rmdir(item[0], destruction);
+                                node.fs.rmdir(item[0], destruction);
                             }
                         } else if (exclusions.indexOf(item[0]) < 0) {
                             if (item[1] === "link") {
-                                rm(item[0], destruction);
+                                node.fs.rm(item[0], destruction);
                             } else {
-                                unlink(item[0], destruction);
+                                node.fs.unlink(item[0], destruction);
                             }
                         } else {
                             destruction(null);

@@ -1,11 +1,6 @@
 
 /* lib/terminal/server/services/fileCopy - A library that stores instructions for copy and cut of file system artifacts. */
 
-import { createHash, Hash } from "crypto";
-import { createReadStream, createWriteStream, ReadStream, unlink, WriteStream } from "fs";
-import { IncomingMessage } from "http";
-import { BrotliCompress, BrotliDecompress, constants, createBrotliCompress, createBrotliDecompress } from "zlib";
-
 import common from "../../../common/common.js";
 import copy from "../../commands/library/copy.js";
 import deviceMask from "../services/deviceMask.js";
@@ -14,6 +9,7 @@ import error from "../../utilities/error.js";
 import fileExecution from "./fileExecution.js";
 import fileSystem from "./fileSystem.js";
 import mkdir from "../../commands/library/mkdir.js";
+import node from "../../utilities/node.js";
 import remove from "../../commands/library/remove.js";
 import rename from "../../utilities/rename.js";
 import sender from "../transmission/sender.js";
@@ -299,10 +295,10 @@ const fileCopy:module_fileCopy = {
             const data:service_copy_send_file = socketData.data as service_copy_send_file,
                 response = function terminal_server_services_fileCopy_fileRespond_respond():void {
                     let failFlag:boolean = false;
-                    const hash:Hash = createHash("sha3-512"),
-                        hashStream:ReadStream = createReadStream(data.path_source);
+                    const hash:node_crypto_Hash = node.crypto.createHash("sha3-512"),
+                        hashStream:node_fs_ReadStream = node.fs.createReadStream(data.path_source);
                     hashStream.on("close", function terminal_fileService_serviceCopy_sendFile_close():void {
-                        const readStream:ReadStream = createReadStream(data.path_source),
+                        const readStream:node_fs_ReadStream = node.fs.createReadStream(data.path_source),
                             serverResponse:httpSocket_response = transmit.socket as httpSocket_response;
                         serverResponse.setHeader("path_source", data.path_source);
                         serverResponse.setHeader("path_write", data.path_write);
@@ -317,8 +313,8 @@ const fileCopy:module_fileCopy = {
                             serverResponse.setHeader("file_name", data.file_name);
                             serverResponse.setHeader("file_size", data.file_size.toString());
                             if (data.brotli > 0) {
-                                const compress:BrotliCompress = createBrotliCompress({
-                                        params: {[constants.BROTLI_PARAM_QUALITY]: data.brotli}
+                                const compress:node_zlib_BrotliCompress = node.zlib.createBrotliCompress({
+                                        params: {[node.zlib.constants.BROTLI_PARAM_QUALITY]: data.brotli}
                                     });
                                 serverResponse.setHeader("compression", "true");
                                 serverResponse.writeHead(200, {"Content-Type": "application/octet-stream; charset=binary"});
@@ -400,12 +396,12 @@ const fileCopy:module_fileCopy = {
                         listIndex = listIndex + 1;
                         terminal_server_services_fileCopy_write_nextFile();
                     },
-                    fileReceive = function terminal_server_services_fileCopy_write_fileReceive(socketData:socketData, fileResponse:IncomingMessage):void {
+                    fileReceive = function terminal_server_services_fileCopy_write_fileReceive(socketData:socketData, fileResponse:node_http_IncomingMessage):void {
                         const fileError = function terminal_server_services_fileCopy_write_fileReceive_fileError(message:string):void {
                                 status.failures = status.failures + 1;
                                 failList.push(path_source);
                                 error([message], null);
-                                unlink(path_write, function terminal_server_services_fileCopy_write_fileReceive_fileError_unlink(unlinkErr:NodeJS.ErrnoException):void {
+                                node.fs.unlink(path_write, function terminal_server_services_fileCopy_write_fileReceive_fileError_unlink(unlinkErr:NodeJS.ErrnoException):void {
                                     if (unlinkErr !== null) {
                                         error([`Error removing file system artifact ${path_write}`], unlinkErr);
                                     }
@@ -418,8 +414,8 @@ const fileCopy:module_fileCopy = {
                             file_size:number = Number(fileResponse.headers.file_size),
                             path_source:string = fileResponse.headers.path_source as string,
                             path_write:string = fileResponse.headers.path_write as string,
-                            writeStream:WriteStream = createWriteStream(path_write),
-                            decompress:BrotliDecompress = createBrotliDecompress();
+                            writeStream:node_fs_WriteStream = node.fs.createWriteStream(path_write),
+                            decompress:node_zlib_BrotliDecompress = node.zlib.createBrotliDecompress();
                         let responseEnd:boolean = false;
                         if (fileResponse.headers["file-fail"] === "true") {
                             status.failures = status.failures + 1;
@@ -445,8 +441,8 @@ const fileCopy:module_fileCopy = {
                             });
                             writeStream.on("close", function terminal_fileService_serviceCopy_requestFiles_callbackStream_streamer_writeClose():void {
                                 if (responseEnd === true) {
-                                    const hash:Hash = createHash("sha3-512"),
-                                        hashStream:ReadStream = createReadStream(path_write);
+                                    const hash:node_crypto_Hash = node.crypto.createHash("sha3-512"),
+                                        hashStream:node_fs_ReadStream = node.fs.createReadStream(path_write);
                                     decompress.end();
                                     hashStream.pipe(hash);
                                     totalWritten = totalWritten + file_size;

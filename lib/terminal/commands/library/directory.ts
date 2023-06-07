@@ -1,12 +1,10 @@
 
 /* lib/terminal/commands/library/directory - A utility to walk the file system and return a data structure. */
 
-import { exec } from "child_process";
-import { lstat, readdir, realpath, stat, Stats } from "fs";
-
 import common from "../../../common/common.js";
 import hash from "./hash.js";
 import log from "../../utilities/log.js";
+import node from "../../utilities/node.js";
 import vars from "../../utilities/vars.js";
 
 // similar to node's fs.readdir, but recursive
@@ -135,9 +133,9 @@ const directory = function terminal_commands_library_directory(args:config_comma
                     args.callback(title, [summary, longest], list);
                 }
             },
-            method:(filePath:string, callback:(er:Error, stat:Stats) => void) => void = (args.symbolic === true)
-                ? lstat
-                : stat,
+            method:(filePath:string, callback:(er:Error, stat:node_fs_Stats) => void) => void = (args.symbolic === true)
+                ? node.fs.lstat
+                : node.fs.stat,
             dirCounter = function terminal_commands_library_directory_dirCounter(item:string):void {
                 const dirList:string[] = item.split(vars.path.sep);
                 let dirPath:string = "",
@@ -172,7 +170,7 @@ const directory = function terminal_commands_library_directory(args:config_comma
                 }
             },
             statWrapper = function terminal_commands_library_directory_statWrapper(filePath:string, parent:number):void {
-                method(filePath, function terminal_commands_library_directory_statWrapper_stat(er:Error, stats:Stats):void {
+                method(filePath, function terminal_commands_library_directory_statWrapper_stat(er:Error, stats:node_fs_Stats):void {
                     const statData:directory_data = (stats === undefined)
                         ? null
                         : {
@@ -250,7 +248,7 @@ const directory = function terminal_commands_library_directory(args:config_comma
                             };
                             if (item === "\\") {
                                 //cspell:disable-next-line
-                                exec("wmic logicaldisk get name", function terminal_commands_library_directory_statWrapper_stat_dir_windowsRoot(erw:Error, stdout:string, stderr:string):void {
+                                node.child_process.exec("wmic logicaldisk get name", function terminal_commands_library_directory_statWrapper_stat_dir_windowsRoot(erw:Error, stdout:string, stderr:string):void {
                                     if (erw !== null || stderr !== "") {
                                         list.failures.push(item);
                                         if (dirs > 0) {
@@ -264,7 +262,7 @@ const directory = function terminal_commands_library_directory(args:config_comma
                                     }
                                 });
                             } else {
-                                readdir(item, {encoding: "utf8"}, function terminal_commands_library_directory_statWrapper_stat_dir_readDir(erd:Error, files:string[]):void {
+                                node.fs.readdir(item, {encoding: "utf8"}, function terminal_commands_library_directory_statWrapper_stat_dir_readDir(erd:Error, files:string[]):void {
                                     if (erd !== null) {
                                         list.failures.push(item);
                                         if (dirs > 0) {
@@ -327,12 +325,12 @@ const directory = function terminal_commands_library_directory(args:config_comma
                             }
                             populate("link");
                         },
-                        linkCallback = function terminal_commands_library_directory_statWrapper_stat_linkCallback(linkErr:Error, linkStat:Stats):void {
+                        linkCallback = function terminal_commands_library_directory_statWrapper_stat_linkCallback(linkErr:Error, linkStat:node_fs_Stats):void {
                             if (linkErr === null) {
                                 statData.linkType = (linkStat.isDirectory() === true)
                                     ? "directory"
                                     : "file";
-                                realpath(filePath, function terminal_Commands_directory_statWrapper_stat_linkCallback_realPath(realErr:Error, realPath:string):void {
+                                node.fs.realpath(filePath, function terminal_Commands_directory_statWrapper_stat_linkCallback_realPath(realErr:Error, realPath:string):void {
                                     if (realErr === null) {
                                         statData.linkPath = realPath;
                                         linkAction();
@@ -394,9 +392,6 @@ const directory = function terminal_commands_library_directory(args:config_comma
                         } else {
                             populate("error");
                         }
-                    } else if (stat === undefined) {
-                        log([`Requested artifact, ${vars.text.cyan + args.path + vars.text.none}, ${vars.text.angry}is missing${vars.text.none}.`]);
-                        populate("error");
                     } else if (stats.isDirectory() === true) {
                         if (args.mode === "type") {
                             args.callback(title, ["directory", 0], null);
@@ -415,7 +410,7 @@ const directory = function terminal_commands_library_directory(args:config_comma
                         if (args.symbolic === true) {
                             linkAction();
                         } else {
-                            stat(filePath, linkCallback);
+                            node.fs.stat(filePath, linkCallback);
                         }
                     } else {
                         if (args.mode === "type") {

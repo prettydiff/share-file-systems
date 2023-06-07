@@ -1,10 +1,9 @@
 
 /* lib/terminal/commands/interface/service - Shell interface for running the application's network services, the applications default command. */
 
-import { clearScreenDown, cursorTo } from "readline";
-
 import error from "../../utilities/error.js";
 import firewall from "../library/firewall.js";
+import node from "../../utilities/node.js";
 import transmit_http from "../../server/transmission/transmit_http.js";
 
 // runs services: http, web sockets, and file system watch.  Allows rapid testing with automated rebuilds
@@ -42,14 +41,14 @@ const service = function terminal_commands_interface_service(callback:commandCal
             if (fail === true) {
                 error(message, null);
             } else {
-                cursorTo(process.stdout, 0, 0);
-                clearScreenDown(process.stdout);
+                node.readline.cursorTo(process.stdout, 0, 0);
+                node.readline.clearScreenDown(process.stdout);
                 transmit_http.server(serverOptions, serverCallback);
             }
         });
     } else {
-        cursorTo(process.stdout, 0, 0);
-        clearScreenDown(process.stdout);
+        node.readline.cursorTo(process.stdout, 0, 0);
+        node.readline.clearScreenDown(process.stdout);
         transmit_http.server(serverOptions, serverCallback);
     }
 };

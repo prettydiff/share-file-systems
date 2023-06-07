@@ -46,7 +46,7 @@ import vars from "../../utilities/vars.js";
  *     };                                                                                      // methods to open sockets according to different security contexts
  *     queue           : (body:Buffer|socketData, socket:socketClient, opcode:number) => void; // Pushes outbound data into a managed queue to ensure data frames are not intermixed.
  *     queueSend       : (socket:websocket_client) => void;                                    // Pushes messages stored from the agent's offline queue into the transmission queue.
- *     server          : (config:config_websocket_server) => Server;                           // Creates a websocket server.
+ *     server          : (config:config_websocket_server) => node_net_Server;                  // Creates a websocket server.
  *     socketExtensions: (config:config_websocket_extensions) => void;                         // applies application specific extensions to sockets
  *     status          : () => websocket_status;                                               // Gather the status of agent web sockets.
  * }

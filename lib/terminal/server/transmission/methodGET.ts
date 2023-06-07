@@ -1,11 +1,10 @@
 
 /* lib/terminal/server/transmission/methodGET - The library for handling all traffic related to HTTP requests with method GET. */
-import { createReadStream, readdir, stat, ReadStream, Stats } from "fs";
-import { IncomingMessage } from "http";
 
 import common from "../../../common/common.js";
 import error from "../../utilities/error.js";
 import log from "../../utilities/log.js";
+import node from "../../utilities/node.js";
 import readStorage from "../../utilities/readStorage.js";
 import transmit_http from "./transmit_http.js";
 import vars from "../../utilities/vars.js";
@@ -13,7 +12,7 @@ import vars from "../../utilities/vars.js";
 
 // cspell:words msapplication, nofollow, noindex
 
-const methodGET = function terminal_server_transmission_methodGET(request:IncomingMessage, serverResponse:httpSocket_response):void {
+const methodGET = function terminal_server_transmission_methodGET(request:node_http_IncomingMessage, serverResponse:httpSocket_response):void {
     const quest:number = request.url.indexOf("?"),
         uri:string = (quest > 0)
             ? request.url.slice(0, quest)
@@ -119,7 +118,7 @@ const methodGET = function terminal_server_transmission_methodGET(request:Incomi
         };
         readStorage(false, appliedData);
     } else {
-        stat(localPath, function terminal_server_transmission_methodGET_stat(ers:NodeJS.ErrnoException, stat:Stats):void {
+        node.fs.stat(localPath, function terminal_server_transmission_methodGET_stat(ers:NodeJS.ErrnoException, stat:node_fs_Stats):void {
             const random:number = Math.random();
             if (request.url.indexOf("favicon.ico") < 0 && request.url.indexOf("images/apple") < 0) {
                 const page:string = [
@@ -128,7 +127,7 @@ const methodGET = function terminal_server_transmission_methodGET(request:Incomi
                 ].join("");
                 if (ers === null) {
                     if (stat.isDirectory() === true) {
-                        readdir(localPath, function terminal_server_transmission_methodGET_stat_dir(erd:Error, list:string[]) {
+                        node.fs.readdir(localPath, function terminal_server_transmission_methodGET_stat_dir(erd:Error, list:string[]) {
                             const dirList:string[] = [`<p>directory of ${localPath}</p> <ul>`];
                             if (erd !== null) {
                                 error([`Error reading directory of ${localPath}`], erd);
@@ -175,7 +174,7 @@ const methodGET = function terminal_server_transmission_methodGET(request:Incomi
                                     serverResponse: serverResponse
                                 }, true, request.url);
                             },
-                            readStream:ReadStream = createReadStream(localPath);
+                            readStream:node_fs_ReadStream = node.fs.createReadStream(localPath);
                         readStream.on("data", function terminal_server_transmission_methodGET_readData(chunk:Buffer):void {
                             dataStore.push(chunk);
                         });
