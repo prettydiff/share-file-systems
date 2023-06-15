@@ -188,6 +188,7 @@ const transmit_ws:module_transmit_ws = {
         device: {},
         user: {}
     },
+    // generate a summary list of open sockets on this device
     list: function terminal_server_transmission_transmitWs_list():string {
         const output:string[] = [],
             star:string = `${vars.text.angry}*${vars.text.none} `,
@@ -212,7 +213,7 @@ const transmit_ws:module_transmit_ws = {
             indexPrimary = indexPrimary - 1;
             // @ts-ignore
             socketList = transmit_ws.clientList[keysPrimary[indexPrimary]] as websocket_list;
-            if (keysPrimary[indexPrimary] === "browser" || keysPrimary[indexPrimary] === "device" || keysPrimary[indexPrimary] === "user") {
+            if (keysPrimary[indexPrimary] === "browser" || keysPrimary[indexPrimary] === "device" || keysPrimary[indexPrimary] === "testRemote" || keysPrimary[indexPrimary] === "user") {
                 child();
             } else if (socketList !== null) {
                 // @ts-ignore
@@ -754,7 +755,9 @@ const transmit_ws:module_transmit_ws = {
                                     }
                                     const identifier:string = (type === "browser")
                                         ? hashKey
-                                        : hashName;
+                                        : (type === "testRemote" && vars.test.type === "browser_remote")
+                                            ? "self"
+                                            : hashName;
                                     if ((type === "device" || type === "user") && transmit_ws.clientList[type][identifier] !== undefined) {
                                         transmit_ws.agentClose(transmit_ws.clientList[type][identifier]);
                                     }

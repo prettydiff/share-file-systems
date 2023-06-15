@@ -417,13 +417,14 @@ interface module_terminalVariables {
  *         close           : (data:service_testBrowser) => void;        // Sends a single that tests are complete and the respective browser window should close on the local device.
  *         delay           : (config:config_test_browserDelay) => void; // Provides a single point of logic to handle delays regardless of the cause, duration, or associated messaging.
  *         execute         : (args:config_test_browserExecute) => void; // Entry point to browser test automation that prepares the environment on the local device and tells the remote machines to reset their environments.
- *         exit            : (index:number) => void;                    // Closes out testing on the local device and informs remote machines that testing has concluded with the corresponding messaging and a single to close their respective browser window.
+ *         exit            : () => void;                                // Closes out testing on the local device and informs remote machines that testing has concluded with the corresponding messaging and a single to close their respective browser window.
  *         iterate         : (index:number) => void;                    // Validates the next browser test is properly formed and then either sends it to a browser on the local device or to the correct machine.
  *         reset           : () => void;                                // Sends a reset request to remote machines informing them to reset their environment and prepare to listen for incoming test items. Method executed from *methods.execute*.
  *         "reset-complete": (item:service_testBrowser) => void;        // Determines if the test environment is ready both locally and with remote agents.
  *         result          : (item:service_testBrowser) => void;        // Evaluation result provided by a browser and transforms that data into messaging for a human to read.
  *         route           : (socketData:socketData) => void;           // Entry point to the browser test automation library on all remote machines. Tasks are routed to the correct method based upon the action specified.
  *         send            : (testItem:service_testBrowser) => void;    // Encapsulates the transmission logic to send tests to the local browser.
+ *         sendAction      : (action:test_browserAction, machine:string, exitMessage?:string) => void; // a convenience method to send arbitrary test actions to/from remotes.
  *     };
  *     name        : string; // indicates identity of the local machine
  *     port        : number; // Stores the port number of the target machine for the current test index.
@@ -443,13 +444,14 @@ interface module_test_browserApplication {
         close: (data:service_testBrowser) => void;
         delay: (config:config_test_browserDelay) => void;
         execute: (args:config_test_browserExecute) => void;
-        exit: (index:number) => void;
+        exit: () => void;
         iterate: (index:number) => void;
         reset: () => void;
         "reset-complete": (item:service_testBrowser) => void;
         result: (item:service_testBrowser) => void;
         route: (socketData:socketData) => void;
         send: (testItem:service_testBrowser) => void;
+        sendAction: (action:test_browserAction, machine:string, exitMessage?:string) => void;
     };
     name: string;
     port: number;

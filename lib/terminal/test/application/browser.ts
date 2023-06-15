@@ -39,13 +39,14 @@ const defaultCommand:commands = vars.environment.command,
      *         close           : (data:service_testBrowser) => void;        // Sends a single that tests are complete and the respective browser window should close on the local device.
      *         delay           : (config:config_test_browserDelay) => void; // Provides a single point of logic to handle delays regardless of the cause, duration, or associated messaging.
      *         execute         : (args:config_test_browserExecute) => void; // Entry point to browser test automation that prepares the environment on the local device and tells the remote machines to reset their environments.
-     *         exit            : (index:number) => void;                    // Closes out testing on the local device and informs remote machines that testing has concluded with the corresponding messaging and a single to close their respective browser window.
+     *         exit            : () => void;                                // Closes out testing on the local device and informs remote machines that testing has concluded with the corresponding messaging and a single to close their respective browser window.
      *         iterate         : (index:number) => void;                    // Validates the next browser test is properly formed and then either sends it to a browser on the local device or to the correct machine.
      *         reset           : () => void;                                // Sends a reset request to remote machines informing them to reset their environment and prepare to listen for incoming test items. Method executed from *methods.execute*.
      *         "reset-complete": (item:service_testBrowser) => void;        // Determines if the test environment is ready both locally and with remote agents.
      *         result          : (item:service_testBrowser) => void;        // Evaluation result provided by a browser and transforms that data into messaging for a human to read.
      *         route           : (socketData:socketData) => void;           // Entry point to the browser test automation library on all remote machines. Tasks are routed to the correct method based upon the action specified.
      *         send            : (testItem:service_testBrowser) => void;    // Encapsulates the transmission logic to send tests to the local browser.
+     *         sendAction      : (action:test_browserAction, machine:string, exitMessage?:string) => void; // a convenience method to send arbitrary test actions to/from remotes.
      *     };
      *     name        : string; // indicates identity of the local machine
      *     port        : number; // Stores the port number of the target machine for the current test index.
@@ -70,19 +71,7 @@ const defaultCommand:commands = vars.environment.command,
         ip: "",
         methods: {
             close: function terminal_test_application_browser_close(data:service_testBrowser):void {
-                const close:service_testBrowser = {
-                    action: "close",
-                    exit: data.exit,
-                    index: -1,
-                    result: [],
-                    test: {
-                        interaction: null,
-                        machine: browser.name,
-                        name: "close",
-                        unit: null
-                    }
-                };
-                browser.methods.send(close);
+                browser.methods.sendAction("close", browser.name, data.exit);
                 log([data.exit]);
             },
             delay: function terminal_test_application_browser_delay(config:config_test_browserDelay):void {
@@ -105,18 +94,6 @@ const defaultCommand:commands = vars.environment.command,
                         log(list);
                     },
                     socketCallback = function terminal_test_application_browser_execute_socketCallback(socket:websocket_client):void {
-                        browser.methods.send({
-                            action: "reset",
-                            exit: "",
-                            index: 0,
-                            result: null,
-                            test: {
-                                interaction: null,
-                                machine: socket.hash,
-                                name: "",
-                                unit: null
-                            }
-                        });
                         log([`${humanTime(false)}Socket established to remote ${socket.hash}.`]);
                     },
                     agents = function terminal_test_application_browser_execute_agents():void {
@@ -200,26 +177,12 @@ const defaultCommand:commands = vars.environment.command,
                             : agents
                 });
             },
-            exit: function terminal_test_application_browser_exit(index:number):void {
+            exit: function terminal_test_application_browser_exit():void {
                 if (finished === true) {
                     return;
                 }
                 finished = true;
-                const close:service_testBrowser = {
-                        action: (browser.args.noClose === true)
-                            ? "nothing"
-                            : "close",
-                        exit: browser.exitMessage,
-                        index: index,
-                        result: [],
-                        test: {
-                            interaction: null,
-                            machine: browser.name,
-                            name: "close",
-                            unit: null
-                        }
-                    },
-                    exitMessage:string[] = [
+                const exitMessage:string[] = [
                         browser.exitMessage,
                         "",
                         `${vars.text.underline}Network Transmissions${vars.text.none}`,
@@ -242,8 +205,7 @@ const defaultCommand:commands = vars.environment.command,
                             console.log(transmit_ws.list());
                         }
                         : function terminal_test_application_browser_exit_closing():void {
-                            close.test.machine = browser.name;
-                            browser.methods.send(close);
+                            browser.methods.sendAction((browser.args.noClose === true) ? "nothing" : "close", browser.name, browser.exitMessage);
                             browser.methods.delay({
                                 action: function terminal_test_application_browser_exit_closing_delay():void {
                                     browser.index = -1;
@@ -262,8 +224,7 @@ const defaultCommand:commands = vars.environment.command,
                 if (browser.args.mode === "device" || browser.args.mode === "user") {
                     const agents:string[] = Object.keys(transmit_ws.clientList.testRemote);
                     agents.forEach(function terminal_test_application_browser_exit_agents(name:string):void {
-                        close.test.machine = name;
-                        browser.methods.send(close);
+                        browser.methods.sendAction("close", name, browser.exitMessage);
                     });
                 }
                 closing();
@@ -409,6 +370,9 @@ const defaultCommand:commands = vars.environment.command,
                                     if (stderr !== "") {
                                         log([stderr.toString()]);
                                     }
+                                    if (browser.args.mode === "remote") {
+                                        browser.methods.sendAction("reset-complete", "self");
+                                    }
                                 };
                             node.child_process.exec(browserCommand, {
                                 cwd: vars.path.project
@@ -419,19 +383,7 @@ const defaultCommand:commands = vars.environment.command,
                     vars.settings.user = {};
                     if (browser.args.mode === "remote") {
                         resetState(function terminal_test_application_browser_reset_readdir_browserLaunch_resetState():void {
-                            const close:service_testBrowser = {
-                                action: "close",
-                                exit: "",
-                                index: -1,
-                                result: [],
-                                test: {
-                                    interaction: null,
-                                    machine: browser.name,
-                                    name: "reset-request",
-                                    unit: null
-                                }
-                            };
-                            browser.methods.send(close);
+                            browser.methods.sendAction("close", browser.name);
                             browser.methods.delay({
                                 action: start,
                                 browser: false,
@@ -521,7 +473,7 @@ const defaultCommand:commands = vars.environment.command,
                                     ? `${humanTime(false) + vars.text.green + vars.text.bold}Passed${vars.text.none} all ${totalTests} evaluations from ${index + 1} test${passPlural}.`
                                     : `${humanTime(false) + vars.text.angry}Failed${vars.text.none} on test ${vars.text.angry + String(index + 1) + vars.text.none}: "${vars.text.cyan + tests[index].name + vars.text.none}" out of ${tests.length} total test${plural} and ${totalTests} evaluations.`;
                             browser.exitMessage = exitMessage;
-                            browser.methods.exit(index);
+                            browser.methods.exit();
                             browser.fail = true;
                         },
                         summary = function terminal_test_application_browser_result_summary(pass:boolean):string {
@@ -786,6 +738,21 @@ const defaultCommand:commands = vars.environment.command,
                 if (testItem.test !== null && testItem.test.interaction !== null && testItem.test.interaction[0].event === "refresh") {
                     vars.test.browser.test.interaction = null;
                 }
+            },
+            sendAction: function terminal_test_application_browser_sendAction(action:test_browserAction, machine:string, exitMessage?:string):void {
+                const service:service_testBrowser = {
+                    action: action,
+                    exit: (typeof exitMessage === "string") ? exitMessage : "",
+                    index: -1,
+                    result: [],
+                    test: {
+                        interaction: null,
+                        machine: machine,
+                        name: "",
+                        unit: null
+                    }
+                }
+                browser.methods.send(service);
             }
         },
         name: (function terminal_test_application_browser_name():string {
