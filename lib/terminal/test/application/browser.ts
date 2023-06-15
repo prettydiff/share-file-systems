@@ -1,13 +1,12 @@
 
 /* lib/terminal/test/application/browser - The functions necessary to run browser test automation. */
 
-import { exec } from "child_process";
-
 import common from "../../../common/common.js";
 import error from "../../utilities/error.js";
 import humanTime from "../../utilities/humanTime.js";
 import ipList from "../../utilities/ipList.js";
 import log from "../../utilities/log.js";
+import node from "../../utilities/node.js";
 import remove from "../../commands/library/remove.js";
 import resetState from "../../utilities/resetState.js";
 import sender from "../../server/transmission/sender.js";
@@ -54,9 +53,6 @@ const defaultCommand:commands = vars.environment.command,
      *         count: number;
      *         total: number;
      *     };                    // Counts the number of remote agents ready to receive tests.
-     *     sockets: {
-     *         [key:string]: websocket_client;
-     *     };                    // Stores sockets to remote agents.
      * }
      * ``` */
     browser:module_test_browserApplication = {
@@ -109,7 +105,18 @@ const defaultCommand:commands = vars.environment.command,
                         log(list);
                     },
                     socketCallback = function terminal_test_application_browser_execute_socketCallback(socket:websocket_client):void {
-                        browser.sockets[socket.hash] = socket;
+                        browser.methods.send({
+                            action: "reset",
+                            exit: "",
+                            index: 0,
+                            result: null,
+                            test: {
+                                interaction: null,
+                                machine: socket.hash,
+                                name: "",
+                                unit: null
+                            }
+                        });
                         log([`${humanTime(false)}Socket established to remote ${socket.hash}.`]);
                     },
                     agents = function terminal_test_application_browser_execute_agents():void {
@@ -134,7 +141,7 @@ const defaultCommand:commands = vars.environment.command,
                                     hash: list[index],
                                     ip: machines[list[index]].ip,
                                     port: machines[list[index]].port.ws,
-                                    type: "test-browser"
+                                    type: "testRemote"
                                 });
                             }
                             index = index + 1;
@@ -232,6 +239,7 @@ const defaultCommand:commands = vars.environment.command,
                     closing:() => void = (browser.args.noClose === true)
                         ? function terminal_test_application_browser_exit_noClose():void {
                             log(exitMessage, true);
+                            console.log(transmit_ws.list());
                         }
                         : function terminal_test_application_browser_exit_closing():void {
                             close.test.machine = browser.name;
@@ -252,7 +260,7 @@ const defaultCommand:commands = vars.environment.command,
                         };
                 exitMessage.push("\u0007");
                 if (browser.args.mode === "device" || browser.args.mode === "user") {
-                    const agents:string[] = Object.keys(browser.sockets);
+                    const agents:string[] = Object.keys(transmit_ws.clientList.testRemote);
                     agents.forEach(function terminal_test_application_browser_exit_agents(name:string):void {
                         close.test.machine = name;
                         browser.methods.send(close);
@@ -402,7 +410,7 @@ const defaultCommand:commands = vars.environment.command,
                                         log([stderr.toString()]);
                                     }
                                 };
-                            exec(browserCommand, {
+                            node.child_process.exec(browserCommand, {
                                 cwd: vars.path.project
                             }, child);
                         };
@@ -766,14 +774,11 @@ const defaultCommand:commands = vars.environment.command,
                         });
                     }
                 } else {
-                    const socket:websocket_client = (browser.args.mode === "remote")
-                        ? transmit_ws.clientList.testRemote
-                        : browser.sockets[testItem.test.machine];
                     // remote
                     transmit_ws.queue({
                         data: testItem,
                         service: "test-browser"
-                    }, socket, 1);
+                    }, transmit_ws.clientList.testRemote[testItem.test.machine], 1);
                 }
 
                 // Once a reset test is sent it is necessary to eliminate the event portion of the test.
@@ -802,8 +807,7 @@ const defaultCommand:commands = vars.environment.command,
         remote: {
             count: 0,
             total: 1
-        },
-        sockets: {}
+        }
     };
 
 export default browser;

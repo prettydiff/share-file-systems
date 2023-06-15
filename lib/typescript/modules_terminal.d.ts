@@ -431,9 +431,6 @@ interface module_terminalVariables {
  *         count: number;
  *         total: number;
  *     };                    // Counts the number of remote agents ready to receive tests.
- *     sockets: {
- *         [key:string]: websocket_client;
- *     };                    // Stores sockets to remote agents.
  * }
  * ``` */
 interface module_test_browserApplication {
@@ -459,9 +456,6 @@ interface module_test_browserApplication {
     remote: {
         count: number;
         total: number;
-    };
-    sockets: {
-        [key:string]: websocket_client;
     };
 }
 
@@ -546,10 +540,10 @@ interface module_transmit_http {
  * interface transmit_ws {
  *     agentClose      : (socket:websocket_client) => void;                                    // A uniform way to notify browsers when a remote agent goes offline
  *     clientList: {
- *         browser   : socketList;
- *         device    : socketList;
- *         testRemote: websocket_client;
- *         user      : socketList;
+ *         browser   : websocket_list;
+ *         device    : websocket_list;
+ *         testRemote: websocket_list;
+ *         user      : websocket_list;
  *     };                                                                                      // A store of open sockets by agent type.
  *     clientReceiver  : websocket_messageHandler;                                             // Processes data from regular agent websocket tunnels into JSON for processing by receiver library.
  *     createSocket    : (config:config_websocket_create) => void;                             // Creates a new socket for use by openAgent and openService methods.
@@ -561,6 +555,7 @@ interface module_transmit_http {
  *             [key:string]: string[];
  *         };
  *     };                                                                                      // stores connection attempts as a list of ip addresses by agent hash
+ *     list            : () => void;                                                           // generates a human readable list of active sockets
  *     listener        : (socket:websocket_client) => void;                                    // A handler attached to each socket to listen for incoming messages.
  *     open: {
  *         agent:   (config:config_websocket_openAgent) => void;   // Opens a long-term socket tunnel between known agents.
@@ -578,7 +573,7 @@ interface module_transmit_ws {
     clientList: {
         browser: websocket_list;
         device: websocket_list;
-        testRemote: websocket_client;
+        testRemote: websocket_list;
         user: websocket_list;
     };
     clientReceiver: websocket_messageHandler;
@@ -591,6 +586,7 @@ interface module_transmit_ws {
             [key:string]: string[];
         };
     };
+    list: () => void;
     listener: (socket:websocket_client) => void;
     open: {
         agent: (config:config_websocket_openAgent) => void;

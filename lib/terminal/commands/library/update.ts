@@ -1,11 +1,10 @@
 
 /* lib/terminal/commands/library/update - A command to update the application from git and then run the build. */
 
-import { ChildProcess, exec, spawn } from "child_process";
-
 import error from "../../utilities/error.js";
 import humanTime from "../../utilities/humanTime.js";
 import log from "../../utilities/log.js";
+import node from "../../utilities/node.js";
 import vars from "../../utilities/vars.js";
 
 // run the test suite using the build application
@@ -34,9 +33,9 @@ const update = function terminal_commands_library_update():void {
             const command:string = (process.argv.length < 1)
                     ? null
                     : process.argv.join(" "),
-                spawnItem:ChildProcess = (command === null)
+                spawnItem:node_childProcess_ChildProcess = (command === null)
                     ? null
-                    : spawn(vars.terminal.command_instruction + command, {
+                    : node.child_process.spawn(vars.terminal.command_instruction + command, {
                         cwd: vars.path.project,
                         shell: true
                     });
@@ -86,7 +85,7 @@ const update = function terminal_commands_library_update():void {
                         `${humanTime(false)}Rebuilding code...`
                     ]);
                     vars.settings.verbose = false;
-                    exec(`${vars.terminal.command_instruction}build`, {
+                    node.child_process.exec(`${vars.terminal.command_instruction}build`, {
                         cwd: vars.path.project
                     }, build);
                 }
@@ -96,7 +95,7 @@ const update = function terminal_commands_library_update():void {
         stash = function terminal_commands_library_update_stash(err:Error):void {
             if (childError(err, "stash") === false) {
                 log([`${humanTime(false)}Stashing changes to branch, if any.`]);
-                exec(`git pull origin ${branchName}`, {
+                node.child_process.exec(`git pull origin ${branchName}`, {
                     cwd: vars.path.project
                 }, git);
             }
@@ -112,7 +111,7 @@ const update = function terminal_commands_library_update():void {
                     log([`${humanTime(false)}Specified git branch is ${vars.text.green + process.argv[0] + vars.text.none}.`]);
                     branchName = process.argv[0];
                 }
-                exec("git stash", {
+                node.child_process.exec("git stash", {
                     cwd: vars.path.project
                 }, stash);
             }
@@ -125,7 +124,7 @@ const update = function terminal_commands_library_update():void {
     // 5. command - Executes a child command as instructions from process.argv
     log.title("Update the application");
     vars.settings.verbose = true;
-    exec("git branch", {
+    node.child_process.exec("git branch", {
         cwd: vars.path.project
     }, branch);
 };

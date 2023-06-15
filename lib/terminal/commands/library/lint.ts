@@ -1,9 +1,8 @@
 
 /* lib/terminal/commands/library/lint - Executes a TypeScript configured form of ESLint from the application's dev dependencies. */
 
-import { exec } from "child_process";
-
 import error from "../../utilities/error.js";
+import node from "../../utilities/node.js";
 import vars from "../../utilities/vars.js";
 
 // wrapper for ESLint usage
@@ -15,7 +14,7 @@ const lint = function terminal_commands_library_lint(lintPath:string, callback:c
         complete:string = `${vars.text.green}Lint complete${vars.text.none} for ${vars.text.cyan + vars.text.bold + lintPath + vars.text.none + bell}`,
         title:string = "Lint",
         text:string[] = [];
-    exec(`npx eslint ${lintPath} --ext ts`, {
+    node.child_process.exec(`npx eslint ${lintPath} --ext ts`, {
         cwd: vars.path.project
     }, function terminal_commands_lint_eslint(err:Error, stdout:string, stderr:string) {
         if (stdout.indexOf("error") > 0) {

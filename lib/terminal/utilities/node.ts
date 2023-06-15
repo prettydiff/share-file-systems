@@ -5,11 +5,13 @@ import { createHash, Hash } from "crypto";
 import { createReadStream, createWriteStream, lstat, mkdir, open, read, readdir, readFile, readlink, realpath, rename, rm, rmdir, stat, Stats, symlink, unlink, utimes, writeFile } from "fs";
 import { createServer as httpServer, get as httpGet, request as httpRequest, STATUS_CODES } from "http";
 import { createServer as httpsServer, get as httpsGet, request as httpsRequest } from "https";
+import { connect as netConnect, createServer as netCreateServer } from "net";
 import { arch, cpus, EOL, freemem, hostname, networkInterfaces, platform, release, totalmem, type } from "os";
 import { isAbsolute, resolve, sep } from "path";
 import { clearScreenDown, cursorTo } from "readline";
 import { Readable } from "stream";
 import { StringDecoder } from "string_decoder";
+import { connect as tlsConnect, createServer as tlsCreateServer } from "tls";
 import { constants, createBrotliCompress, createBrotliDecompress } from "zlib";
 
 const node = {
@@ -53,6 +55,10 @@ const node = {
         get: httpsGet,
         request: httpsRequest
     },
+    net: {
+        connect: netConnect,
+        createServer: netCreateServer
+    },
     os: {
         arch: arch,
         cpus: cpus,
@@ -79,6 +85,10 @@ const node = {
     },
     stringDecoder: {
         StringDecoder: StringDecoder
+    },
+    tls: {
+        connect: tlsConnect,
+        createServer: tlsCreateServer
     },
     zlib: {
         constants: constants,

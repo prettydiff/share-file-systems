@@ -1,10 +1,9 @@
 
 /* lib/terminal/server/services/fileExecute - A common file execution library used by both fileCopy and fileSystem. */
 
-import { exec, ExecException } from "child_process";
-
 import error from "../../utilities/error.js";
 import fileSystem from "./fileSystem.js";
+import node from "../../utilities/node.js";
 import vars from "../../utilities/vars.js";
 
 const fileExecution = function terminal_server_services_fileExecute(pathList:fileTypeList, agentRequest:fileAgent, agentSource:fileAgent):void {
@@ -21,7 +20,7 @@ const fileExecution = function terminal_server_services_fileExecute(pathList:fil
             const command:string = (vars.terminal.executionKeyword === "")
                 ? `"${path}"`
                 : `${vars.terminal.executionKeyword} "${path}"`;
-            exec(command, {cwd: vars.terminal.cwd}, function terminal_server_services_fileExecution_execute(errs:ExecException, stdout:string, stdError:Buffer | string):void {
+            node.child_process.exec(command, {cwd: vars.terminal.cwd}, function terminal_server_services_fileExecution_execute(errs:node_childProcess_ExecException, stdout:string, stdError:Buffer | string):void {
                 if (errs !== null && errs.message.indexOf("Access is denied.") < 0) {
                     error([`Access is denied to command: ${command}`], errs);
                     return;

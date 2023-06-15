@@ -170,7 +170,7 @@ const modal_configuration:module_modalConfiguration = {
             return modalInstance;
         },
 
-        "document": function browser_utilities_modalConfiguration_document(event:Event, config?:config_modal, content?:HTMLElement):modal {
+        "document": function browser_utilities_modalConfiguration_document(event:Event, config?:config_modal):modal {
             const payload:config_modal = (config === null || config === undefined)
                 ? {
                     agent: browser.data.hashDevice,
@@ -185,9 +185,6 @@ const modal_configuration:module_modalConfiguration = {
                     type: "document"
                 }
                 : config;
-            if (content !== null && config !== undefined) {
-                payload.content = content;
-            }
             return modal.content(payload);
         },
 

@@ -5,7 +5,7 @@ import { Hash } from "crypto";
 import { ReadStream, Stats, WriteStream } from "fs";
 import { ClientRequest, IncomingMessage, OutgoingHttpHeaders, Server as httpServer, ServerResponse } from "http";
 import { RequestOptions } from "https";
-import { AddressInfo, Server as netServer, Socket } from "net";
+import { AddressInfo, Server, Socket } from "net";
 import { NetworkInterfaceInfo, NetworkInterfaceInfoIPv4, NetworkInterfaceInfoIPv6 } from "os";
 import { Readable } from "stream";
 import { StringDecoder } from "string_decoder";
@@ -27,7 +27,7 @@ declare global {
     type node_http_ServerResponse = ServerResponse;
     type node_https_RequestOptions = RequestOptions;
     type node_net_AddressInfo = AddressInfo;
-    type node_net_Server = netServer;
+    type node_net_Server = Server;
     type node_net_Socket = Socket;
     type node_os_NetworkInterfaceInfo = NetworkInterfaceInfo;
     type node_os_NetworkInterfaceInfoIPv4 = NetworkInterfaceInfoIPv4;
