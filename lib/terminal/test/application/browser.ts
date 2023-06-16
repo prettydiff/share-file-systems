@@ -370,9 +370,6 @@ const defaultCommand:commands = vars.environment.command,
                                     if (stderr !== "") {
                                         log([stderr.toString()]);
                                     }
-                                    if (browser.args.mode === "remote") {
-                                        browser.methods.sendAction("reset-complete", "self");
-                                    }
                                 };
                             node.child_process.exec(browserCommand, {
                                 cwd: vars.path.project
@@ -406,6 +403,7 @@ const defaultCommand:commands = vars.environment.command,
                         name: "",
                         unit: null
                     };
+                    item.exit = browser.name;
                     browser.methods.send(item);
                 } else if (browser.remote.count < browser.remote.total + 1) {
                     const complete:boolean = ((browser.remote.count === browser.remote.total)),
