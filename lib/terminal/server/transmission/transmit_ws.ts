@@ -37,7 +37,7 @@ import vars from "../../utilities/vars.js";
  *             [key:string]: string[];
  *         };
  *     };                                                                                      // stores connection attempts as a list of ip addresses by agent hash
- *     list            : () => void;                                                           // generates a human readable list of active sockets
+ *     list            : () => string;                                                         // generates a human readable list of active sockets
  *     listener        : (socket:websocket_client) => void;                                    // A handler attached to each socket to listen for incoming messages.
  *     open: {
  *         agent:   (config:config_websocket_openAgent) => void;   // Opens a long-term socket tunnel between known agents.

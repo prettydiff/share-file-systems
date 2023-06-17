@@ -201,11 +201,12 @@ const defaultCommand:commands = vars.environment.command,
                     ],
                     closing:() => void = (browser.args.noClose === true)
                         ? function terminal_test_application_browser_exit_noClose():void {
+                            exitMessage.push(`${vars.text.underline}Open Sockets${vars.text.none}`);
+                            exitMessage.push(transmit_ws.list());
                             log(exitMessage, true);
-                            console.log(transmit_ws.list());
                         }
                         : function terminal_test_application_browser_exit_closing():void {
-                            browser.methods.sendAction((browser.args.noClose === true) ? "nothing" : "close", browser.name, browser.exitMessage);
+                            browser.methods.sendAction("close", browser.name, browser.exitMessage);
                             browser.methods.delay({
                                 action: function terminal_test_application_browser_exit_closing_delay():void {
                                     browser.index = -1;
@@ -221,7 +222,7 @@ const defaultCommand:commands = vars.environment.command,
                             });
                         };
                 exitMessage.push("\u0007");
-                if (browser.args.mode === "device" || browser.args.mode === "user") {
+                if (browser.args.noClose === false && (browser.args.mode === "device" || browser.args.mode === "user")) {
                     const agents:string[] = Object.keys(transmit_ws.clientList.testRemote);
                     agents.forEach(function terminal_test_application_browser_exit_agents(name:string):void {
                         browser.methods.sendAction("close", name, browser.exitMessage);
