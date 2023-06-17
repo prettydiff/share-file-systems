@@ -32,8 +32,9 @@ const agent_management = function terminal_server_services_agentManagement(socke
                         },
                         service: "settings"
                     });
-                    if (vars.settings.device[data.agentFrom] !== undefined && data.deviceUser !== null && data.deviceUser.length === 128) {
-                        vars.settings.hashUser = data.deviceUser;
+                    if (vars.settings.device[data.agentFrom] !== undefined && data.userHash !== null && data.userName !== null && data.userHash.length === 128) {
+                        vars.settings.nameUser = data.userName;
+                        vars.settings.hashUser = data.userHash;
                     }
                     sender.broadcast({
                         data: data,

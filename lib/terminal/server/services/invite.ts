@@ -71,8 +71,15 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                         }
                     },
                 agentFrom: vars.settings.hashDevice,
-                deviceUser: (data.type === "device")
-                    ? vars.settings.hashUser
+                userHash: (data.type === "device")
+                    ? (type === "agentRequest")
+                        ? data.agentRequest.hashUser
+                        : vars.settings.hashUser
+                    : null,
+                userName: (data.type === "device")
+                    ? (type === "agentRequest")
+                        ? data.agentRequest.nameUser
+                        : vars.settings.nameUser
                     : null
             };
             if (vars.test.type !== "service") {
@@ -81,7 +88,6 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                     service: "agent-management"
                 });
             }
-
             if (callback !== null) {
                 callback(addAgentData.agents[data.type]);
             }
@@ -190,14 +196,26 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                 // stage 3 - on remote terminal to start terminal, from remote browser
                 data.message = common.capitalize(data.status) + respond;
                 data.action = "invite-complete";
+
+                // a delay is required for accepted invitation of device type
+                // this delay allows peer devices to recognize the requesting device as a peer before that requesting device attempts to open sockets
                 if (data.status === "accepted" && (data.agentSource.hashDevice === vars.settings.hashDevice || data.agentSource.hashUser === vars.settings.hashUser)) {
                     if (data.type === "device") {
-                        vars.settings.hashUser = data.agentRequest.hashUser;
-                        vars.settings.nameUser = data.agentRequest.nameUser;
+                        addAgent("agentRequest", null);
+                        setTimeout(
+                            function terminal_server_services_invite_inviteResponse_delay():void {
+                                inviteHttp();
+                            },
+                            (vars.test.type.indexOf("browser_") === 0)
+                                ? 500
+                                : vars.settings.statusTime
+                        );
+                    } else {
+                        inviteHttp();
                     }
-                    addAgent("agentRequest", null);
+                } else {
+                    inviteHttp();
                 }
-                inviteHttp();
             },
             "invite-start": function terminal_server_services_invite_invite():void {
                 // stage 1 - on start terminal to remote terminal, from start browser

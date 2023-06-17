@@ -922,7 +922,8 @@ const transmit_ws:module_transmit_ws = {
                                 user: {[config.identifier]: vars.settings.user[config.identifier]}
                             },
                             agentFrom: config.identifier,
-                            deviceUser: null
+                            userName: null,
+                            userHash: null
                         };
                         agent_management({
                             data: management,
