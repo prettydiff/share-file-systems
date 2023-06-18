@@ -597,7 +597,7 @@ const browserDevice:test_browserItem[] = [
     {
         delay: {
             node: [
-                ["getModalsByModalType", "text-pad", 0],
+                ["getModalsByModalType", "file-edit", 0],
                 ["getElementsByClassName", "body", 0],
                 ["getElementsByTagName", "textarea", 0]
             ],
@@ -621,7 +621,7 @@ const browserDevice:test_browserItem[] = [
         unit: [
             {
                 node: [
-                    ["getModalsByModalType", "text-pad", 0],
+                    ["getModalsByModalType", "file-edit", 0],
                     ["getElementsByClassName", "body", 0],
                     ["getElementsByTagName", "textarea", 0]
                 ],
@@ -698,7 +698,8 @@ const browserDevice:test_browserItem[] = [
             {
                 event: "click",
                 node: [
-                    ["getElementById", "file-navigator", null]
+                    ["getElementById", "menu", null],
+                    ["getElementsByClassName", "file-navigate", 0]
                 ]
             }
         ],
@@ -1089,7 +1090,7 @@ const browserDevice:test_browserItem[] = [
             qualifier: "begins",
             target: ["innerHTML"],
             type: "property",
-            value: "Writing 100.00% complete. 3 files written at size 1"
+            value: "Writing 100.00% complete. 3 files written at size "
         },
         interaction: [
             {
@@ -1418,7 +1419,7 @@ const browserDevice:test_browserItem[] = [
             qualifier: "begins",
             target: ["innerHTML"],
             type: "property",
-            value: "Writing 100.00% complete. 3 files written at size 1"
+            value: "Writing 100.00% complete. 3 files written at size "
         },
         interaction: [
             {

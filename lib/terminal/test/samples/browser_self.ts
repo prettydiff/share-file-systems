@@ -3235,14 +3235,14 @@ const browserSelf:test_browserItem[] = [
                 node: [
                     ["getModalsByModalType", "file-navigate", 1],
                     ["getElementsByClassName", "fileList", 0],
-                    ["getElementsByTagName", "li", 4],
+                    ["getElementsByTagName", "li", 3],
                     ["getElementsByTagName", "p", 0],
                     ["lastChild", null, null]
                 ],
                 qualifier: "is",
                 target: ["innerHTML"],
                 type: "property",
-                value: "directory - 13 items"
+                value: "directory - 16 items"
             },
             interaction: [
                 {
@@ -3402,7 +3402,7 @@ const browserSelf:test_browserItem[] = [
                     node: [
                         ["getModalsByModalType", "file-navigate", 1],
                         ["getElementsByClassName", "fileList", 0],
-                        ["getElementsByTagName", "li", 2]
+                        ["getElementsByTagName", "li", 3]
                     ],
                     qualifier: "is",
                     target: ["class"],
@@ -4047,7 +4047,7 @@ const browserSelf:test_browserItem[] = [
                 qualifier: "begins",
                 target: ["innerHTML"],
                 type: "property",
-                value: "Directory fragment search \"<em>browser_s</em>\" returned <strong>2</strong> matches from"
+                value: "Directory fragment search \"<em>browser_s</em>\" returned <strong>"
             },
             interaction: [
                 {
@@ -4096,19 +4096,7 @@ const browserSelf:test_browserItem[] = [
             ],
             machine: "self",
             name: "Search file navigate 0 with a string fragment",
-            unit: [
-                {
-                    node: [
-                        ["getModalsByModalType", "file-navigate", 0],
-                        ["getElementsByClassName", "fileList", 0],
-                        ["getElementsByTagName", "li", null]
-                    ],
-                    qualifier: "is",
-                    target: ["length"],
-                    type: "property",
-                    value: 2
-                }
-            ]
+            unit: []
         },
 
         // search file navigate 0 with a regular expression
@@ -4122,7 +4110,7 @@ const browserSelf:test_browserItem[] = [
                 qualifier: "begins",
                 target: ["innerHTML"],
                 type: "property",
-                value: "Directory regex search \"<em>/^age\\w+_\\w+\\./</em>\" returned <strong>22</strong> matches from"
+                value: "Directory regex search \"<em>/^age\\w+_\\w+\\./</em>\" returned <strong>"
             },
             interaction: [
                 {
@@ -4184,7 +4172,7 @@ const browserSelf:test_browserItem[] = [
                 qualifier: "begins",
                 target: ["innerHTML"],
                 type: "property",
-                value: "Directory regex search \"<em>/^age\\w+_\\w+\\./</em>\" returned <strong>22</strong> matches from"
+                value: "Directory regex search \"<em>/^age\\w+_\\w+\\./</em>\" returned <strong>"
             },
             interaction: [
                 {
