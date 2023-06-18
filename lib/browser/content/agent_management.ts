@@ -596,11 +596,11 @@ const agent_management:module_agentManagement = {
                 parent:HTMLElement = element.parentNode,
                 box:modal = parent.getAncestor("box", "class"),
                 agent:string = (function browser_content_agentManagement_deleteShare_agency():string {
-                    const boxAgent:agency = util.getAgent(box);
-                    if (boxAgent[0] === null || boxAgent[0] === "") {
-                        return element.getAncestor("ul", "tag").getAncestor("div", "tag").dataset.hash;
-                    }
-                    return boxAgent[0];
+                    let agentNode:HTMLElement = parent;
+                    do {
+                        agentNode = agentNode.parentNode;
+                    } while (agentNode.getAttribute("class") !== "device" && agentNode.getAttribute("class") !== "user");
+                    return agentNode.dataset.hash;
                 }()),
                 address:string = parent.getElementsByClassName("read-only-status")[0].previousSibling.textContent,
                 shares:agentShares = (agent === null)
@@ -944,7 +944,6 @@ const agent_management:module_agentManagement = {
                 browser.data.nameUser = invitation.agentRequest.nameUser;
                 network.configuration();
             }
-            // this shares definition is what's written to settings when the remote agent accepts an invitation
             network.send(invitation, "invite");
         },
 
@@ -982,7 +981,7 @@ const agent_management:module_agentManagement = {
                     const p:HTMLElement = document.createElement("p");
                     prepOutput(p);
                     inviteAgent.appendChild(p);
-                } else {
+                } else if (error !== null && error !== undefined) {
                     prepOutput(error);
                 }
             }

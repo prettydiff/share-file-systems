@@ -204,6 +204,7 @@ import disallowed from "../common/disallowed.js";
                             span = document.createElement("span");
                             span.appendText(modal_configuration.titles[buttons[index]].icon);
                             button.setAttribute("class", buttons[index]);
+                            button.setAttribute("type", "button");
                             button.appendChild(span);
                             button.appendText(` ${modal_configuration.titles[buttons[index]].text}`);
                             button.onblur = menuBlur;

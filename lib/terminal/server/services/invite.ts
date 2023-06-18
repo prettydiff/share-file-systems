@@ -150,6 +150,10 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                             }
                         });
                     }
+                    sender.broadcast({
+                        data: data,
+                        service: "invite"
+                    }, "browser");
                 }
             },
             "invite-request": function terminal_server_services_invite_inviteRequest():void {
@@ -200,8 +204,8 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                 // a delay is required for accepted invitation of device type
                 // this delay allows peer devices to recognize the requesting device as a peer before that requesting device attempts to open sockets
                 if (data.status === "accepted" && (data.agentSource.hashDevice === vars.settings.hashDevice || data.agentSource.hashUser === vars.settings.hashUser)) {
+                    addAgent("agentRequest", null);
                     if (data.type === "device") {
-                        addAgent("agentRequest", null);
                         setTimeout(
                             function terminal_server_services_invite_inviteResponse_delay():void {
                                 inviteHttp();

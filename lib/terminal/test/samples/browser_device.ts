@@ -278,7 +278,8 @@ const browserDevice:test_browserItem[] = [
             {
                 event: "click",
                 node: [
-                    ["getElementById", "file-navigator", null]
+                    ["getElementById", "menu", null],
+                    ["getElementsByClassName", "file-navigate", 0]
                 ]
             }
         ],
@@ -438,6 +439,7 @@ const browserDevice:test_browserItem[] = [
             node: [
                 ["getModalsByModalType", "shares", 0],
                 ["getElementsByClassName", "body", 0],
+                ["getElementsByClassName", "device", 0],
                 ["getElementsByClassName", "share", 0],
                 ["getElementsByTagName", "button", 1]
             ],
