@@ -205,6 +205,11 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
             },
             interaction: [
                 {
+                    event: "wait",
+                    node: null,
+                    value: "250"
+                },
+                {
                     event: "click",
                     node: [
                         ["getElementById", "user", null],
@@ -249,7 +254,8 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
                 {
                     event: "click",
                     node: [
-                        ["getElementById", "file-navigator", null]
+                        ["getElementById", "menu", null],
+                        ["getElementsByClassName", "file-navigate", 0]
                     ]
                 }
             ],
@@ -536,7 +542,8 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
                 {
                     event: "click",
                     node: [
-                        ["getElementById", "file-navigator", null]
+                        ["getElementById", "menu", null],
+                        ["getElementsByClassName", "file-navigate", 0]
                     ]
                 }
             ],
@@ -927,7 +934,8 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
                 {
                     event: "click",
                     node: [
-                        ["getElementById", "file-navigator", null]
+                        ["getElementById", "menu", null],
+                        ["getElementsByClassName", "file-navigate", 0]
                     ]
                 }
             ],
@@ -1080,7 +1088,7 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
                 qualifier: "is",
                 target: ["lastChild", "textContent"],
                 type: "property",
-                value: " File Navigator - Device, VM2"
+                value: " File Navigate - Device, VM2"
             },
             interaction: [
                 {
@@ -1126,7 +1134,8 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
                 {
                     event: "click",
                     node: [
-                        ["getElementById", "file-navigator", null]
+                        ["getElementById", "menu", null],
+                        ["getElementsByClassName", "file-navigate", 0]
                     ]
                 }
             ],
@@ -1465,7 +1474,7 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
                     qualifier: "is",
                     target: ["lastChild", "textContent"],
                     type: "property",
-                    value: " File Navigator - User, User-VM3"
+                    value: " File Navigate - User, User-VM3"
                 }
             ]
         },
@@ -2186,7 +2195,7 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
                     qualifier: "is",
                     target: ["lastChild", "textContent"],
                     type: "property",
-                    value: " File Navigator - User, User-VM3"
+                    value: " File Navigate - User, User-VM3"
                 }
             ]
         },

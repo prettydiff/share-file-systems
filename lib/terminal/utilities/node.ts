@@ -14,6 +14,7 @@ import { StringDecoder } from "string_decoder";
 import { connect as tlsConnect, createServer as tlsCreateServer } from "tls";
 import { constants, createBrotliCompress, createBrotliDecompress } from "zlib";
 
+// eslint-disable-next-line
 const node = {
     child_process: {
         exec: exec,

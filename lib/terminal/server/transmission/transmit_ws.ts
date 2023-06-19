@@ -190,11 +190,17 @@ const transmit_ws:module_transmit_ws = {
     },
     // generate a summary list of open sockets on this device
     list: function terminal_server_transmission_transmitWs_list():string {
-        const output:string[] = [],
+        const output:[string, string, string][] = [],
             star:string = `${vars.text.angry}*${vars.text.none} `,
+            longest:[number, number] = [0, 0],
+            list:string[] = [],
             keysPrimary:string[] = Object.keys(transmit_ws.clientList),
+
+            // populate data from sockets that are children of a group
             child = function terminal_server_transmission_transmitWs_list_child():void {
-                const keysChild:string[] = Object.keys(socketList);
+                // @ts-ignore
+                const socketList:websocket_list = transmit_ws.clientList[keysPrimary[indexPrimary]] as websocket_list,
+                    keysChild:string[] = Object.keys(socketList);
                 let indexChild:number = keysChild.length,
                     socketItem:websocket_client;
                 if (indexChild < 1) {
@@ -203,25 +209,67 @@ const transmit_ws:module_transmit_ws = {
                 do {
                     indexChild = indexChild - 1;
                     socketItem = socketList[keysChild[indexChild]];
-                    output.push(`${star + keysPrimary[indexPrimary]} - ${socketItem.status} - ${keysChild[indexChild]}`);
+                    output.push([keysPrimary[indexPrimary], socketItem.status, keysChild[indexChild]]);
+                    if (keysPrimary[indexPrimary].length  > longest[0]) {
+                        longest[0] = keysPrimary[indexPrimary].length;
+                    }
+                    if (socketItem.status.length  > longest[1]) {
+                        longest[1] = socketItem.status.length;
+                    }
                 } while (indexChild > 0);
+            },
+
+            // populate data from sockets that are not children of a group
+            direct = function terminal_server_transmission_transmitWs_list_direct():void {
+                // @ts-ignore
+                const client:websocket_client = transmit_ws.clientList[keysPrimary[indexPrimary]] as websocket_client;
+                if (client !== null) {
+                    output.push([keysPrimary[indexPrimary], client.status, ""]);
+                    if (keysPrimary[indexPrimary].length  > longest[0]) {
+                        longest[0] = keysPrimary[indexPrimary].length;
+                    }
+                    if (client.status.length  > longest[1]) {
+                        longest[1] = client.status.length;
+                    }
+                }
+            },
+
+            // pad strings with spaces so that the output looks like a table
+            padding = function terminal_server_transmission_transmitWs_list_padding(index:number, long:0|1):string {
+                if (output[index][long].length < longest[long]) {
+                    do {
+                        output[index][long] = `${output[index][long]} `;
+                    } while (output[index][long].length < longest[long]);
+                }
+                return output[index][long];
             };
-        let indexPrimary = keysPrimary.length,
-            socketList:websocket_list = null,
-            client:websocket_client = null;
+
+        // loop through the socket groups
+        let indexPrimary:number = keysPrimary.length;
         do {
             indexPrimary = indexPrimary - 1;
-            // @ts-ignore
-            socketList = transmit_ws.clientList[keysPrimary[indexPrimary]] as websocket_list;
             if (keysPrimary[indexPrimary] === "browser" || keysPrimary[indexPrimary] === "device" || keysPrimary[indexPrimary] === "testRemote" || keysPrimary[indexPrimary] === "user") {
                 child();
-            } else if (socketList !== null) {
-                // @ts-ignore
-                client = transmit_ws.clientList[keysPrimary[indexPrimary]] as websocket_client;
-                output.push(`${star + keysPrimary[indexPrimary]} - ${client.status}`);
+            } else {
+                direct();
             }
         } while (indexPrimary > 0);
-        return output.join(node.os.EOL);
+
+        // sort the raw data by group name
+        output.sort(function terminal_server_transmission_transmitWs_list_sort(a:[string, string, string], b:[string, string, string]):-1|1 {
+            if (a[0] < b[0]) {
+                return 1;
+            }
+            return -1;
+        });
+
+        // generate the string output from the collected data matrix
+        indexPrimary = output.length;
+        do {
+            indexPrimary = indexPrimary - 1;
+            list.push(`${star + vars.text.cyan + padding(indexPrimary, 0) + vars.text.none} - ${padding(indexPrimary, 1)} - ${output[indexPrimary][2]}`);
+        } while (indexPrimary > 0);
+        return list.join(node.os.EOL);
     },
     // processes incoming service data for agent sockets
     listener: function terminal_server_transmission_transmitWs_listener(socket:websocket_client):void {
