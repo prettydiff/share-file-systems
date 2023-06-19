@@ -12,7 +12,7 @@ import modalAddress from "../application/browserUtilities/modalAddress.js";
 import moveToSandbox from "../application/browserUtilities/moveToSandbox.js";
 import newDirectory from "../application/browserUtilities/newDirectory.js";
 
-const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
+const docFiles:string = "Writing 100.00% complete. 21 files written at size ",
     browserUser:test_browserItem[] = [
         {
             interaction: [
@@ -1661,7 +1661,7 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
                 qualifier: "is",
                 target: ["innerHTML"],
                 type: "property",
-                value: "🖳 Shares - Device, Primary Device"
+                value: "<span>🖳</span> Device Primary Device Shares"
             },
             interaction: [
                 {

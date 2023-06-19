@@ -40,7 +40,7 @@ const defaultCommand:commands = vars.environment.command,
      *         close           : (data:service_testBrowser) => void;        // Sends a single that tests are complete and the respective browser window should close on the local device.
      *         delay           : (config:config_test_browserDelay) => void; // Provides a single point of logic to handle delays regardless of the cause, duration, or associated messaging.
      *         execute         : (args:config_test_browserExecute) => void; // Entry point to browser test automation that prepares the environment on the local device and tells the remote machines to reset their environments.
-     *         exit            : () => void;                                // Closes out testing on the local device and informs remote machines that testing has concluded with the corresponding messaging and a single to close their respective browser window.
+     *         exit            : (data:service_testBrowser) => void;        // Closes out testing on the local device and informs remote machines that testing has concluded with the corresponding messaging and a single to close their respective browser window.
      *         iterate         : (index:number) => void;                    // Validates the next browser test is properly formed and then either sends it to a browser on the local device or to the correct machine.
      *         reset           : () => void;                                // Sends a reset request to remote machines informing them to reset their environment and prepare to listen for incoming test items. Method executed from *methods.execute*.
      *         "reset-complete": (item:service_testBrowser) => void;        // Determines if the test environment is ready both locally and with remote agents.
@@ -201,40 +201,48 @@ const defaultCommand:commands = vars.environment.command,
                             : agents
                 });
             },
-            exit: function terminal_test_application_browser_exit():void {
+            exit: function terminal_test_application_browser_exit(data:service_testBrowser):void {
                 if (finished === true) {
                     return;
                 }
                 finished = true;
-                const summary:string[] = browser.exitSummary(),
-                    closing:() => void = (browser.args.noClose === true)
-                        ? function terminal_test_application_browser_exit_noClose():void {
-                            log(summary, true);
-                        }
-                        : function terminal_test_application_browser_exit_closing():void {
-                            browser.methods.sendAction("close", browser.name, browser.exitMessage);
-                            browser.methods.delay({
-                                action: function terminal_test_application_browser_exit_closing_delay():void {
-                                    browser.index = -1;
-                                    vars.environment.command = defaultCommand;
-                                    vars.network.addresses = defaultAddresses;
-                                    vars.path.settings = defaultStorage;
-                                    vars.test.browser = null;
-                                    browser.args.callback(`Browser ${browser.args.mode} Test`, summary, browser.fail);
-                                },
-                                browser: false,
-                                delay: 1000,
-                                message: "Closing out the test environment."
-                            });
-                        };
-                summary.push("\u0007");
-                if (browser.args.mode === "device" || browser.args.mode === "user") {
-                    const agents:string[] = Object.keys(transmit_ws.clientList.testRemote);
-                    agents.forEach(function terminal_test_application_browser_exit_agents(name:string):void {
-                        browser.methods.sendAction("close", name, browser.exitMessage);
-                    });
+                if (browser.args.mode === "remote") {
+                    browser.exitMessage = data.exit;
+                    log(browser.exitSummary());
+                } else {
+                    const summary:string[] = browser.exitSummary(),
+                        closing:() => void = (browser.args.noClose === true)
+                            ? function terminal_test_application_browser_exit_noClose():void {
+                                log(summary, true);
+                            }
+                            : function terminal_test_application_browser_exit_closing():void {
+                                browser.methods.sendAction("close", browser.name, browser.exitMessage);
+                                browser.methods.delay({
+                                    action: function terminal_test_application_browser_exit_closing_delay():void {
+                                        browser.index = -1;
+                                        vars.environment.command = defaultCommand;
+                                        vars.network.addresses = defaultAddresses;
+                                        vars.path.settings = defaultStorage;
+                                        vars.test.browser = null;
+                                        browser.args.callback(`Browser ${browser.args.mode} Test`, summary, browser.fail);
+                                    },
+                                    browser: false,
+                                    delay: 1000,
+                                    message: "Closing out the test environment."
+                                });
+                            };
+                    summary.push("\u0007");
+                    if (browser.args.mode === "device" || browser.args.mode === "user") {
+                        const agents:string[] = Object.keys(transmit_ws.clientList.testRemote);
+                        agents.forEach(function terminal_test_application_browser_exit_agents(name:string):void {
+                            const action:"close"|"exit" = (browser.args.noClose === true)
+                                ? "exit"
+                                : "close";
+                            browser.methods.sendAction(action, name, browser.exitMessage);
+                        });
+                    }
+                    closing();
                 }
-                closing();
             },
             iterate: function terminal_test_application_browser_iterate(index:number):void {
                 // not writing to settings
@@ -478,7 +486,7 @@ const defaultCommand:commands = vars.environment.command,
                                     ? `${humanTime(false) + vars.text.green + vars.text.bold}Passed${vars.text.none} all ${totalTests} evaluations from ${index + 1} test${passPlural}.`
                                     : `${humanTime(false) + vars.text.angry}Failed${vars.text.none} on test ${vars.text.angry + String(index + 1) + vars.text.none}: "${vars.text.cyan + tests[index].name + vars.text.none}" out of ${tests.length} total test${plural} and ${totalTests} evaluations.`;
                             browser.exitMessage = exitMessage;
-                            browser.methods.exit();
+                            browser.methods.exit(null);
                             browser.fail = true;
                         },
                         summary = function terminal_test_application_browser_result_summary(pass:boolean):string {
@@ -662,6 +670,7 @@ const defaultCommand:commands = vars.environment.command,
                 if (vars.settings.verbose === true) {
                     log([`On terminal receiving test index ${data.index}`]);
                 }
+
                 if (data.action !== "nothing") {
                     if (browser.methods[data.action] === undefined) {
                         error([`Unsupported action in browser test automation: ${data.action}`], null);
@@ -684,6 +693,10 @@ const defaultCommand:commands = vars.environment.command,
                 // close
                 // * tells the test browser to close
                 // * from browser.exit on primary computer sent to remotes
+                // -
+                // exit
+                // * data will only be routed to the exit method from the network if the agent is in mode "remote" and the test is executing with option "no_close"
+                // * from browser.exit of agent in modes "device" or "user"
                 // -
                 // request
                 // * sends a test from control computer to a specified remote
