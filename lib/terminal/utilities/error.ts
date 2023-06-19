@@ -1,16 +1,14 @@
 
 /* lib/terminal/utilities/error - A utility for processing and logging errors from the terminal application. */
 
-import { ExecException } from "child_process";
-import { arch, cpus, EOL, freemem, platform, release, totalmem } from "os";
-
 import common from "../../common/common.js";
 import humanTime from "./humanTime.js";
+import node from "./node.js";
 import sender from "../server/transmission/sender.js";
 import vars from "./vars.js";
 
 // uniform error formatting
-const error = function terminal_utilities_error(errText:string[], errObject:ExecException|NodeJS.ErrnoException, noStack?:boolean):void {
+const error = function terminal_utilities_error(errText:string[], errObject:node_childProcess_ExecException|NodeJS.ErrnoException, noStack?:boolean):void {
     // eslint-disable-next-line
     const logger:(input:string|object) => void = console.log,
         bell = function terminal_utilities_error_bell():void {
@@ -47,7 +45,7 @@ const error = function terminal_utilities_error(errText:string[], errObject:Exec
                 }, "browser");
             }
             if (noStack !== true && stackTrace !== null) {
-                const stackMessage:string = `${vars.text.cyan}Stack trace${vars.text.none + EOL}-----------${EOL}`;
+                const stackMessage:string = `${vars.text.cyan}Stack trace${vars.text.none + node.os.EOL}-----------${node.os.EOL}`;
                 vars.test.flags.error = true;
                 logger(stackMessage);
                 logger(stackTrace);
@@ -66,8 +64,8 @@ const error = function terminal_utilities_error(errText:string[], errObject:Exec
         },
         debug = function terminal_utilities_error_debug():void {
             const stack:string|undefined = new Error().stack,
-                total:number = totalmem(),
-                free:number = freemem();
+                total:number = node.os.totalmem(),
+                free:number = node.os.freemem();
             vars.test.flags.error = true;
             logger("");
             logger("---");
@@ -94,9 +92,9 @@ const error = function terminal_utilities_error(errText:string[], errObject:Exec
             }
             logger("");
             logger(`${vars.text.green}## Environment${vars.text.none}`);
-            logger(`* OS - **${platform()} ${release()}**`);
+            logger(`* OS - **${node.os.platform()} ${node.os.release()}**`);
             logger(`* Mem - ${common.commas(total)} - ${common.commas(free)} = **${common.commas(total - free)}**`);
-            logger(`* CPU - ${arch()} ${cpus().length} cores`);
+            logger(`* CPU - ${node.os.arch()} ${node.os.cpus().length} cores`);
             logger("");
             logger(`${vars.text.green}## Command Line Instruction${vars.text.none}`);
             logger("```");

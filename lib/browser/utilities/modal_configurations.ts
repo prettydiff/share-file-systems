@@ -170,7 +170,7 @@ const modal_configuration:module_modalConfiguration = {
             return modalInstance;
         },
 
-        "document": function browser_utilities_modalConfiguration_document(event:Event, config?:config_modal, content?:HTMLElement):modal {
+        "document": function browser_utilities_modalConfiguration_document(event:Event, config?:config_modal):modal {
             const payload:config_modal = (config === null || config === undefined)
                 ? {
                     agent: browser.data.hashDevice,
@@ -185,9 +185,6 @@ const modal_configuration:module_modalConfiguration = {
                     type: "document"
                 }
                 : config;
-            if (content !== null && config !== undefined) {
-                payload.content = content;
-            }
             return modal.content(payload);
         },
 
@@ -393,7 +390,6 @@ const modal_configuration:module_modalConfiguration = {
                         agentType: agentType,
                         content: null,
                         footer: null,
-                        inputs: ["close", "maximize", "minimize", "text"],
                         read_only: readOnly,
                         selection: {},
                         share: share,
@@ -408,6 +404,16 @@ const modal_configuration:module_modalConfiguration = {
                 width:number = (config === null || config === undefined)
                     ? 800
                     : config.width;
+            if (payloadModal.history === undefined || payloadModal.history === null || payloadModal.history.length < 1) {
+                payloadModal.history = [location];
+            }
+            if (payloadModal.search === undefined || payloadModal.search === null) {
+                payloadModal.search = ["", ""];
+            }
+            if (payloadModal.selection === undefined || payloadModal.selection === null) {
+                payloadModal.selection = {};
+            }
+            payloadModal.inputs = ["close", "maximize", "minimize", "text"];
             payloadModal.content = util.delay();
             payloadModal.footer = file_browser.content.footer(width);
             payloadModal.text_event = file_browser.events.text;

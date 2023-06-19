@@ -27,7 +27,8 @@
  *         device: agents;
  *         user: agents;
  *     };
- *     deviceUser: string;
+ *     userHash: string;
+ *     userName: string;
  * }
  * ``` */
 interface service_agentManagement {
@@ -37,7 +38,8 @@ interface service_agentManagement {
         device: agents;
         user: agents;
     };
-    deviceUser: string;
+    userHash: string;
+    userName: string;
 }
 
 /**

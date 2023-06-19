@@ -1,16 +1,13 @@
 
 /* lib/terminal/commands/library/hash - A utility to generate hash sequences on strings or file system artifacts. */
 
-import { exec } from "child_process";
-import { createHash, Hash } from "crypto";
-import { createReadStream, ReadStream, stat, Stats } from "fs";
-
 import common from "../../../common/common.js";
 import directory from "./directory.js";
 import error from "../../utilities/error.js";
 import get from "./get.js";
 import humanTime from "../../utilities/humanTime.js";
 import log from "../../utilities/log.js";
+import node from "../../utilities/node.js";
 import vars from "../../utilities/vars.js";
 
 // hash utility for strings or files
@@ -41,7 +38,7 @@ const hash = function terminal_commands_library_hash(input:config_command_hash):
                     stat: input.stat
                 },
                 hashComplete = function terminal_commands_library_hash_dirComplete_callback():void {
-                    const hash:Hash = createHash(input.algorithm);
+                    const hash:node_crypto_Hash = node.crypto.createHash(input.algorithm);
                     let hashString:string = "";
                     if (hashList === true) {
                         hashString = JSON.stringify(listObject);
@@ -55,8 +52,8 @@ const hash = function terminal_commands_library_hash(input:config_command_hash):
                     input.callback(title, hashOutput);
                 },
                 hashFile = function terminal_commands_library_hash_dirComplete_hashFile(index:number):void {
-                    const hash:Hash = createHash(input.algorithm),
-                        hashStream:ReadStream = createReadStream(list[index][0]),
+                    const hash:node_crypto_Hash = node.crypto.createHash(input.algorithm),
+                        hashStream:node_fs_ReadStream = node.fs.createReadStream(list[index][0]),
                         hashBack = function terminal_commands_library_hash_dirComplete_hashBack():void {
                             hashOutput.hash = hash.digest(input.digest).replace(/\s+/g, "");
                             hashOutput.filePath = list[index][0];
@@ -81,7 +78,7 @@ const hash = function terminal_commands_library_hash(input:config_command_hash):
                         }
                     };
                     if (list[index][1] === "directory" || list[index][1] === "link") {
-                        const hash:Hash = createHash(input.algorithm);
+                        const hash:node_crypto_Hash = node.crypto.createHash(input.algorithm);
                         hash.update(list[index][0]);
                         if (hashList === true) {
                             listObject[list[index][0]] = hash.digest(input.digest);
@@ -117,7 +114,7 @@ const hash = function terminal_commands_library_hash(input:config_command_hash):
             if (limit < 1 || listLength < limit) {
                 do {
                     if (list[a][1] === "directory" || list[a][1] === "link") {
-                        const hash:Hash = createHash(input.algorithm);
+                        const hash:node_crypto_Hash = node.crypto.createHash(input.algorithm);
                         hash.update(list[a][0]);
                         if (hashList === true) {
                             listObject[list[a][0]] = hash.digest(input.digest);
@@ -144,7 +141,7 @@ const hash = function terminal_commands_library_hash(input:config_command_hash):
             }
         };
     if (input.directInput === true) {
-        const hash:Hash = createHash(input.algorithm),
+        const hash:node_crypto_Hash = node.crypto.createHash(input.algorithm),
             hashOutput:hash_output = {
                 filePath: "",
                 hash: "",
@@ -159,7 +156,7 @@ const hash = function terminal_commands_library_hash(input:config_command_hash):
     }
     if (http.test(input.source as string) === true) {
         get(input.source as string, function terminal_commands_library_hash_get(fileData:Buffer|string) {
-            const hash:Hash = createHash(input.algorithm),
+            const hash:node_crypto_Hash = node.crypto.createHash(input.algorithm),
                 output:hash_output = {
                     filePath: input.source as string,
                     hash: ""
@@ -169,12 +166,12 @@ const hash = function terminal_commands_library_hash(input:config_command_hash):
             input.callback(title, output);
         });
     } else {
-        exec("ulimit -n", function terminal_commands_library_hash_ulimit(ulimit_err:Error, ulimit_out:string) {
+        node.child_process.exec("ulimit -n", function terminal_commands_library_hash_ulimit(ulimit_err:Error, ulimit_out:string) {
             if (ulimit_err === null && ulimit_out !== "unlimited" && isNaN(Number(ulimit_out)) === false) {
                 limit = Number(ulimit_out);
                 shortLimit = Math.ceil(limit / 5);
             }
-            stat(input.source, function terminal_commands_library_hash_stat(ers:NodeJS.ErrnoException, stats:Stats):void {
+            node.fs.stat(input.source, function terminal_commands_library_hash_stat(ers:NodeJS.ErrnoException, stats:node_fs_Stats):void {
                 if (ers === null) {
                     if (stats.isDirectory() === true || input.parent === undefined || (input.parent !== undefined && typeof input.id === "string" && input.id.length > 0)) {
                         // not coming from the directory library.  The directory library will always pass a parent property and not an id property

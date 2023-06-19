@@ -2,9 +2,8 @@
 
 /* lib/terminal/server/services/agent_hash - A library for creating a new user/device identification. */
 
-import { cpus, hostname, release, totalmem, type } from "os";
-
 import hash from "../../commands/library/hash.js";
+import node from "../../utilities/node.js";
 import sender from "../transmission/sender.js";
 import settings from "./settings.js";
 import vars from "../../utilities/vars.js";
@@ -14,12 +13,12 @@ const hashAgent = function terminal_server_services_hashAgent(socketData:socketD
         callbackUser = function terminal_server_services_hashUser(title:string, hashUser:hash_output):void {
             const callbackDevice = function terminal_server_services_hashUser_hashAgent(title:string, hashAgent:hash_output):void {
                 const deviceData:deviceData = {
-                        cpuCores: cpus().length,
-                        cpuID: cpus()[0].model,
+                        cpuCores: node.os.cpus().length,
+                        cpuID: node.os.cpus()[0].model,
                         platform: process.platform,
-                        memTotal: totalmem(),
-                        osType: type(),
-                        osVersion: release()
+                        memTotal: node.os.totalmem(),
+                        osType: node.os.type(),
+                        osVersion: node.os.release()
                     },
                     hashes:service_agentHash = {
                         device: hashAgent.hash,
@@ -63,7 +62,7 @@ const hashAgent = function terminal_server_services_hashAgent(socketData:socketD
             id: null,
             list: false,
             parent: null,
-            source: hashData.user + hostname() + process.env.os + process.hrtime.bigint().toString(),
+            source: hashData.user + node.os.hostname() + process.env.os + process.hrtime.bigint().toString(),
             stat: null
         };
     hash(input);

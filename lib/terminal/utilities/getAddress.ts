@@ -1,12 +1,10 @@
 /* lib/terminal/utilities/getAddress - Extracts IP addresses from a provided socket. */
 
-import { Socket } from "net";
-
 import ipResolve from "../server/transmission/ipResolve.js";
 
 const getAddress = function terminal_utilities_getAddress(transmit:transmit_type):transmit_addresses_socket {
     const response:httpSocket_response = transmit.socket as httpSocket_response,
-        socket:Socket = (transmit.type === "ws")
+        socket:node_net_Socket = (transmit.type === "ws")
             ? transmit.socket as websocket_client
             : response.socket;
     return {

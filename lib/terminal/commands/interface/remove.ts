@@ -1,13 +1,12 @@
 /* lib/terminal/commands/interface/remove - Shell interface for removing file system artifacts. */
 
-import { resolve } from "path";
-
 import error from "../../utilities/error.js";
+import node from "../../utilities/node.js";
 import remove from "../library/remove.js";
 import vars from "../../utilities/vars.js";
 
 const interfaceRemove = function terminal_commands_interface_remove(callback:commandCallback):void {
-    const pathItem:string = resolve(process.argv[0]);
+    const pathItem:string = node.path.resolve(process.argv[0]);
     if (process.argv.length < 1) {
         error([
             "Command remove requires a file path",

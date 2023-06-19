@@ -41,7 +41,7 @@ const modal:module_modal = {
 
     /* Modal creation factory */
     content: function browser_utilities_modal_content(options:config_modal):HTMLElement {
-        let buttonCount:number = 0,
+        let buttonCount:number = 1,
             section:HTMLElement = document.createElement("h2"),
             input:HTMLInputElement,
             extra:HTMLElement;
@@ -190,11 +190,11 @@ const modal:module_modal = {
         }
 
         // Top input controls
+        section = document.createElement("p");
+        section.setAttribute("class", "buttons");
         if (Array.isArray(options.inputs) === true) {
             // Universal input controls
-            if (options.inputs.indexOf("close") > -1 || options.inputs.indexOf("maximize") > -1 || options.inputs.indexOf("minimize") > -1) {
-                section = document.createElement("p");
-                section.setAttribute("class", "buttons");
+            if (options.inputs.indexOf("maximize") > -1 || options.inputs.indexOf("minimize") > -1) {
                 if (options.inputs.indexOf("minimize") > -1) {
                     button({
                         class: "minimize",
@@ -217,24 +217,7 @@ const modal:module_modal = {
                     });
                     buttonCount = buttonCount + 1;
                 }
-                if (options.inputs.indexOf("close") > -1) {
-                    button({
-                        class: "close",
-                        event: (typeof options.closeHandler === "function")
-                            ? options.closeHandler
-                            : modal.events.close,
-                        parent: section,
-                        spanText: "Close",
-                        text: "✖ ",
-                        title: "Close"
-                    });
-                    buttonCount = buttonCount + 1;
-                }
-                border.appendChild(section);
             }
-
-            // Adjust titleButton width to compensate for the presence of universal input controls
-            titleButton.style.width = `${(options.width - (buttonCount * 50)) / 18}em`;
 
             // Apply a text input control
             if (options.inputs.indexOf("text") > -1) {
@@ -295,11 +278,7 @@ const modal:module_modal = {
                     search.onclick = file_browser.events.searchFocus;
                     search.onfocus = file_browser.events.searchFocus;
                     search.onkeyup = file_browser.events.search;
-                    if (options.search !== undefined && options.search[1] !== "") {
-                        search.value = options.search[1];
-                    } else {
-                        browser.data.modals[id].search = ["", ""];
-                    }
+                    search.value = options.search[1];
                     span.appendText("Search for file system artifacts from this location. Searches starting with ! are negation searches and regular expressions are supported if the search starts and ends with a forward slash.");
                     searchLabel.appendChild(span);
                     searchLabel.setAttribute("class", "fileSearch");
@@ -321,13 +300,30 @@ const modal:module_modal = {
             if (options.type === "file-navigate" || options.type === "terminal") {
                 if (options.history === undefined) {
                     if (options.text_value === undefined) {
-                        options.history = [];
+                        browser.data.modals[id].history = [];
                     } else {
-                        options.history = [options.text_value];
+                        browser.data.modals[id].history = [options.text_value];
                     }
+                } else {
+                    browser.data.modals[id].history = options.history;
                 }
             }
         }
+        button({
+            class: "close",
+            event: (typeof options.closeHandler === "function")
+                ? options.closeHandler
+                : modal.events.close,
+            parent: section,
+            spanText: "Close",
+            text: "✖ ",
+            title: "Close"
+        });
+        buttonCount = buttonCount + 1;
+        border.appendChild(section);
+
+        // Adjust titleButton width to compensate for the presence of universal input controls
+        titleButton.style.width = `${(options.width - (buttonCount * 50)) / 18}em`;
 
         // Append body content after top areas and before bottom areas
         if (options.content !== null && options.content !== undefined) {

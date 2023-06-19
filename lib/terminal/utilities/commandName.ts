@@ -1,8 +1,7 @@
 
 /* lib/terminal/utilities/commandName - A library for visually presenting command documentation to the terminal. */
 
-import { resolve } from "path";
-
+import node from "./node.js";
 import vars from "./vars.js";
 
 // cspell:words tauri
@@ -53,7 +52,7 @@ const commandName = function terminal_utilities_command(globalName:string):strin
     // set paths
     vars.path.node = process.argv[0];
     if (globalName === "") {
-        vars.path.js = resolve(process.argv[1].replace(/terminal(\\|\/)utilities(\\|\/)terminal\.js$/, "").replace(/tauri\.js$/, "")) + vars.path.sep;
+        vars.path.js = node.path.resolve(process.argv[1].replace(/terminal(\\|\/)utilities(\\|\/)terminal\.js$/, "").replace(/tauri\.js$/, "")) + vars.path.sep;
         vars.path.project = vars.path.js.replace(/js(\\|\/)lib(\\|\/)/, "");
     }
 

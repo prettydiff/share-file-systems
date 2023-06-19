@@ -1,10 +1,7 @@
 
 /* lib/terminal/server/services/terminal - Processes terminal messaging for remote devices and display to the user in a browser. */
 
-import { ChildProcess, spawn } from "child_process";
-import { readdir, stat } from "fs";
-import { isAbsolute, resolve } from "path";
-
+import node from "../../utilities/node.js";
 import sender from "../transmission/sender.js";
 import vars from "../../utilities/vars.js";
 
@@ -60,9 +57,9 @@ const terminal:module_terminal = {
                             } while (indexEnd < len);
                         }
                         address = data.instruction.slice(indexStart, indexEnd);
-                        return (isAbsolute(address) === true)
-                            ? resolve(address)
-                            : resolve(data.directory + vars.path.sep + address);
+                        return (node.path.isAbsolute(address) === true)
+                            ? node.path.resolve(address)
+                            : node.path.resolve(data.directory + vars.path.sep + address);
                     }());
                 const complete = function terminal_server_services_terminal_input_autoComplete_complete():void {
                         const slashFix = function terminal_server_services_terminal_input_autoComplete_complete_slashFix(str:string):string {
@@ -92,7 +89,7 @@ const terminal:module_terminal = {
                             if (last === "") {
                                 complete();
                             } else {
-                                readdir(fragment, dirCallback);
+                                node.fs.readdir(fragment, dirCallback);
                             }
                         } else {
                             const fragments:string[] = fragment.split(vars.path.sep);
@@ -103,10 +100,10 @@ const terminal:module_terminal = {
                             if (fragment.charAt(fragment.length - 1) === ":") {
                                 fragment = fragment + vars.path.sep;
                             }
-                            stat(fragment, statCallback);
+                            node.fs.stat(fragment, statCallback);
                         }
                     };
-                stat(fragment, statCallback);
+                node.fs.stat(fragment, statCallback);
             },
             changeDirectory = function terminal_server_services_terminal_input_changeDirectory():void {
                 let address:string = data.instruction.replace(cdTest, "");
@@ -118,10 +115,10 @@ const terminal:module_terminal = {
                     const space:string = (/\s/).exec(address)[0];
                     address = address.slice(0, address.indexOf(space));
                 }
-                address = (isAbsolute(address) === true)
-                    ? resolve(address)
-                    : resolve(data.directory + vars.path.sep + address);
-                stat(address, function terminal_server_services_terminal_input_stat(err:NodeJS.ErrnoException):void {
+                address = (node.path.isAbsolute(address) === true)
+                    ? node.path.resolve(address)
+                    : node.path.resolve(data.directory + vars.path.sep + address);
+                node.fs.stat(address, function terminal_server_services_terminal_input_stat(err:NodeJS.ErrnoException):void {
                     if (err === null) {
                         data.directory = address;
                     } else {
@@ -135,7 +132,7 @@ const terminal:module_terminal = {
             },
             command = function terminal_server_services_terminal_input_command():void {
                 const spawnChild = function terminal_server_services_terminal_input_command_spawnChild():void {
-                    const shell:ChildProcess = spawn(data.instruction, [], {
+                    const shell:node_childProcess_ChildProcess = node.child_process.spawn(data.instruction, [], {
                             cwd: data.directory,
                             shell: true
                         }),
@@ -196,7 +193,7 @@ const terminal:module_terminal = {
     },
     kill: function terminal_server_services_terminal_kill(id:string):void {
         // eslint-disable-next-line
-        const shell:ChildProcess = (terminal.processes[id] === undefined)
+        const shell:node_childProcess_ChildProcess = (terminal.processes[id] === undefined)
             // eslint-disable-next-line
             ? (this.stdout === undefined)
                 ? null

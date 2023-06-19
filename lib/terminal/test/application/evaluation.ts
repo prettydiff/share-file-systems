@@ -1,13 +1,11 @@
 
 /* lib/terminal/test/application/evaluation - Evaluate a given test item and report appropriate failure messaging. */
 
-import { readFile, stat } from "fs";
-import { resolve } from "path";
-
 import common from "../../../common/common.js";
 import error from "../../utilities/error.js";
 import humanTime from "../../utilities/humanTime.js";
 import log from "../../utilities/log.js";
+import node from "../../utilities/node.js";
 import remove from "../../commands/library/remove.js";
 import vars from "../../utilities/vars.js";
 
@@ -142,7 +140,7 @@ const testEvaluation = function terminal_test_application_testEvaluation(output:
         },
         capital:string = common.capitalize(output.testType);
     if (typeof output.test.artifact === "string" && output.test.artifact.length > 0) {
-        output.test.artifact = resolve(output.test.artifact);
+        output.test.artifact = node.path.resolve(output.test.artifact);
         vars.test.flags.write = output.test.artifact;
     } else {
         vars.test.flags.write = "";
@@ -200,8 +198,8 @@ const testEvaluation = function terminal_test_application_testEvaluation(output:
     }
     if (output.test.qualifier.indexOf("file") === 0) {
         if (output.test.qualifier.indexOf("file ") === 0) {
-            output.test.file = resolve(output.test.file);
-            readFile(output.test.file, "utf8", function terminal_test_application_testEvaluation_file(err:Error, dump:string) {
+            output.test.file = node.path.resolve(output.test.file);
+            node.fs.readFile(output.test.file, "utf8", function terminal_test_application_testEvaluation_file(err:Error, dump:string) {
                 if (err !== null) {
                     increment([`fail - ${JSON.stringify(err)}`, ""]);
                     return;
@@ -233,8 +231,8 @@ const testEvaluation = function terminal_test_application_testEvaluation(output:
                 increment(["", ""]);
             });
         } else if (output.test.qualifier.indexOf("filesystem ") === 0) {
-            output.test.test = resolve(test);
-            stat(test, function terminal_test_application_testEvaluation_stat(ers:Error) {
+            output.test.test = node.path.resolve(test);
+            node.fs.stat(test, function terminal_test_application_testEvaluation_stat(ers:Error) {
                 if (ers === null) {
                     if (output.test.qualifier === "filesystem not contains") {
                         increment([`fail - ${capital} test ${vars.text.angry + name + vars.text.none} sees the following address in the local file system, but shouldn't: ${vars.text.cyan + output.test.test + vars.text.none}`, ""]);

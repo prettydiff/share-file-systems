@@ -1,10 +1,9 @@
 /* lib/terminal/commands/interface/directory - Shell interface to the directory library that walks the file system and returns a data structure. */
 
-import { resolve } from "path";
-
 import common from "../../../common/common.js";
 import directory from "../library/directory.js";
 import log from "../../utilities/log.js";
+import node from "../../utilities/node.js";
 import vars from "../../utilities/vars.js";
 
 const interfaceDirectory = function terminal_commands_interface_directory(callback:commandCallback):void {
@@ -141,7 +140,7 @@ const interfaceDirectory = function terminal_commands_interface_directory(callba
                     if (input === "\\" || input === "\\\\") {
                         return "\\";
                     }
-                    return resolve(input);
+                    return node.path.resolve(input);
                 },
                 len:number = process.argv.length;
             let a:number = 0;

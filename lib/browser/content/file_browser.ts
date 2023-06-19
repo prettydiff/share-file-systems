@@ -575,6 +575,7 @@ const file_browser:module_fileBrowser = {
                 history.pop();
                 address.value = history[history.length - 1];
                 file_browser.events.text(event);
+                network.configuration();
             }
         },
 
@@ -1400,7 +1401,9 @@ const file_browser:module_fileBrowser = {
         modalAddress: function browser_content_fileBrowser_modalAddress(event:FocusEvent|KeyboardEvent|MouseEvent, config:config_modal_history):void {
             const modalData:config_modal = browser.data.modals[config.id],
                 modalItem:HTMLElement = document.getElementById(config.id),
-                lastHistory:string = modalData.history[modalData.history.length - 1],
+                lastHistory:string = (modalData.history.length > 1)
+                    ? modalData.history[modalData.history.length - 1]
+                    : "",
                 windows:boolean = ((/^\w:/).test(config.address.replace(/\s+/, "")) || config.address === "\\");
 
             // if at root use the proper directory slash

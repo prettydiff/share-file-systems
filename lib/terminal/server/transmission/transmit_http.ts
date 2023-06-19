@@ -1,20 +1,6 @@
 
 /* lib/terminal/server/transmission/transmit_http - This library launches the HTTP service and all supporting service utilities. */
 
-import { exec } from "child_process";
-import { stat } from "fs";
-import {
-    createServer as httpServer,
-    request as httpRequest,
-    IncomingMessage,
-    OutgoingHttpHeaders,
-    ServerResponse
-} from "http";
-import { createServer as httpsServer, request as httpsRequest, RequestOptions } from "https";
-import { AddressInfo, Server } from "net";
-import { Readable } from "stream";
-import { StringDecoder } from "string_decoder";
-
 import agent_management from "../services/agent_management.js";
 import common from "../../../common/common.js";
 import deviceMask from "../services/deviceMask.js";
@@ -23,6 +9,7 @@ import hash from "../../commands/library/hash.js";
 import ipList from "../../utilities/ipList.js";
 import log from "../../utilities/log.js";
 import methodGET from "./methodGET.js";
+import node from "../../utilities/node.js";
 import readCerts from "../readCerts.js";
 import readStorage from "../../utilities/readStorage.js";
 import receiver from "./receiver.js";
@@ -37,15 +24,15 @@ import vars from "../../utilities/vars.js";
  * The HTTP library.
  * ```typescript
  * interface transmit_http {
- *     receive     : (request:IncomingMessage, serverResponse:ServerResponse) => void;           // Processes incoming HTTP requests.
- *     request     : (config:config_http_request) => void;                                       // Send an arbitrary HTTP request.
- *     respond     : (config:config_http_respond, get:boolean, url:string) => void;              // Formats and sends HTTP response messages.
- *     respondEmpty: (transmit:transmit_type)                                                    // Responds to a request with an empty payload.
- *     server      : (serverOptions:config_http_server, serverCallback:server_callback) => void; // Creates an HTTP server.
+ *     receive     : (request:node_http_IncomingMessage, serverResponse:node_http_ServerResponse) => void; // Processes incoming HTTP requests.
+ *     request     : (config:config_http_request) => void;                                                 // Send an arbitrary HTTP request.
+ *     respond     : (config:config_http_respond, get:boolean, url:string) => void;                        // Formats and sends HTTP response messages.
+ *     respondEmpty: (transmit:transmit_type)                                                              // Responds to a request with an empty payload.
+ *     server      : (serverOptions:config_http_server, serverCallback:server_callback) => void;           // Creates an HTTP server.
  * }
  * ``` */
 const transmit_http:module_transmit_http = {
-    receive: function terminal_server_transmission_transmitHttp_receive(request:IncomingMessage, serverResponse:ServerResponse):void {
+    receive: function terminal_server_transmission_transmitHttp_receive(request:node_http_IncomingMessage, serverResponse:node_http_ServerResponse):void {
         let ended:boolean = false,
             host:string = (function terminal_server_transmission_transmitHttp_receive_host():string {
                 const name:string = request.headers.host.split("[")[0].split(":")[0];
@@ -58,7 +45,7 @@ const transmit_http:module_transmit_http = {
                 return request.headers.host;
             }());
         const chunks:string[] = [],
-            decoder:StringDecoder = new StringDecoder("utf8"),
+            decoder:node_stringDecoder_StringDecoder = new node.stringDecoder.StringDecoder("utf8"),
             agentType:agentType = request.headers["agent-type"] as agentType,
             agent:string = request.headers["agent-hash"] as string,
             requestEnd = function terminal_server_transmission_transmitHttp_receive_requestEnd():void {
@@ -160,7 +147,7 @@ const transmit_http:module_transmit_http = {
                                 if (test() === true) {
                                     post();
                                 } else {
-                                    stat(`${vars.path.project}lib${vars.path.sep}settings${vars.path.sep}user.json`, function terminal_server_transmission_transmitHttp_receive_requestEnd_delay_userStat(err:Error):void {
+                                    node.fs.stat(`${vars.path.project}lib${vars.path.sep}settings${vars.path.sep}user.json`, function terminal_server_transmission_transmitHttp_receive_requestEnd_delay_userStat(err:NodeJS.ErrnoException):void {
                                         if (err === null) {
                                             destroy();
                                         }
@@ -237,9 +224,9 @@ const transmit_http:module_transmit_http = {
         }
         if (vars.settings.secure === true || vars.test.type.indexOf("browser_") === 0) {
             const dataString:string = JSON.stringify(config.payload),
-                headers:OutgoingHttpHeaders = {
+                headers:node_http_OutgoingHttpHeaders = {
                     "content-type": "application/x-www-form-urlencoded",
-                    "content-length": Buffer.byteLength(dataString),
+                    "content-length": Buffer.byteLength(dataString).toString(),
                     "agent-hash": (config.agentType === "device")
                         ? vars.settings.hashDevice
                         : vars.settings.hashUser,
@@ -249,7 +236,7 @@ const transmit_http:module_transmit_http = {
                     "agent-type": config.agentType,
                     "request-type": config.payload.service
                 },
-                payload:RequestOptions = {
+                payload:node_https_RequestOptions = {
                     headers: headers,
                     host: config.ip,
                     method: "POST",
@@ -279,7 +266,7 @@ const transmit_http:module_transmit_http = {
                         log(errorMessage("request", erRequest));
                     }
                 },
-                requestCallback = function terminal_server_transmission_transmitHttp_request_requestCallback(fsResponse:IncomingMessage):void {
+                requestCallback = function terminal_server_transmission_transmitHttp_request_requestCallback(fsResponse:node_http_IncomingMessage):void {
                     if (config.stream === true) {
                         config.callback(config.payload, fsResponse);
                     } else {
@@ -304,8 +291,8 @@ const transmit_http:module_transmit_http = {
                     }
                 },
                 fsRequest:httpSocket_request = (vars.settings.secure === true)
-                    ? httpsRequest(payload, requestCallback) as httpSocket_request
-                    : httpRequest(payload, requestCallback) as httpSocket_request;
+                    ? node.https.request(payload, requestCallback) as httpSocket_request
+                    : node.http.request(payload, requestCallback) as httpSocket_request;
             if (fsRequest.writableEnded === true) {
                 error([
                     "Attempt to write to HTTP request after end:",
@@ -361,7 +348,7 @@ const transmit_http:module_transmit_http = {
                         ["response-type", config.responseType],
                         ["x-content-type-options", "nosniff"]
                     ],
-                    readStream:Readable = Readable.from(config.message),
+                    readStream:node_stream_Readable = node.stream.Readable.from(config.message),
                     contains = function terminal_server_transmission_transmitHttp_respond_contains(input:string):boolean {
                         const stringMessage:string = (Buffer.isBuffer(config.message) === true)
                                 ? ""
@@ -453,7 +440,7 @@ const transmit_http:module_transmit_http = {
         const scheme:string = (vars.settings.secure === true)
                 ? "https"
                 : "http",
-            browser = function terminal_server_transmission_transmitHttp_server_browser(server:Server, startupLog:string[]):void {
+            browser = function terminal_server_transmission_transmitHttp_server_browser(server:node_http_Server, startupLog:string[]):void {
                 // open a browser from the command line
                 if (serverCallback !== null) {
                     serverCallback.callback({
@@ -469,7 +456,7 @@ const transmit_http:module_transmit_http = {
                 }
                 if (serverOptions.browser === true) {
                     const browserCommand:string = `${vars.terminal.executionKeyword} ${scheme}://${vars.network.domain[0] + portString}/`;
-                    exec(browserCommand, {cwd: vars.terminal.cwd}, function terminal_server_transmission_transmitHttp_server_browser_child(errs:Error, stdout:string, stdError:Buffer | string):void {
+                    node.child_process.exec(browserCommand, {cwd: vars.terminal.cwd}, function terminal_server_transmission_transmitHttp_server_browser_child(errs:Error, stdout:string, stdError:Buffer | string):void {
                         if (errs !== null) {
                             error([], errs);
                             return;
@@ -495,7 +482,7 @@ const transmit_http:module_transmit_http = {
                         ? 443
                         : 80;
             }()),
-            start = function terminal_server_transmission_transmitHttp_server_start(server:Server):void {
+            start = function terminal_server_transmission_transmitHttp_server_start(server:node_http_Server):void {
                 const serverError = function terminal_server_transmission_transmitHttp_server_start_serverError(errorMessage:NetworkError):void {
                         if (errorMessage.code === "EADDRINUSE") {
                             error([`Specified port, ${vars.text.cyan + String(port) + vars.text.none}, is in use!`], null, true);
@@ -510,9 +497,9 @@ const transmit_http:module_transmit_http = {
                         }
                     },
                     listen = function terminal_server_transmission_transmitHttp_server_start_listen():void {
-                        const serverAddress:AddressInfo = server.address() as AddressInfo;
+                        const serverAddress:node_net_AddressInfo = server.address() as node_net_AddressInfo;
                         transmit_ws.server({
-                            callback: function terminal_server_transmission_transmitHttp_server_start_listen_websocketCallback(addressInfo:AddressInfo):void {
+                            callback: function terminal_server_transmission_transmitHttp_server_start_listen_websocketCallback(addressInfo:node_net_AddressInfo):void {
                                 const logOutput = function terminal_server_transmission_transmitHttp_server_start_listen_websocketCallback_logOutput():void {
                                     const output:string[] = [],
                                         section = function terminal_server_transmission_transmitHttp_server_start_listen_websocketCallback_logOutput_section(text:string[], color:string):void {
@@ -607,7 +594,7 @@ const transmit_http:module_transmit_http = {
                                     logOutput();
                                 } else {
                                     readStorage(true, function terminal_server_transmission_transmitHttp_server_start_listen_websocketCallback_readComplete(storage:settings_item):void {
-                                        stat(storage.configuration.storage, function terminal_server_transmission_transmitHttp_server_start_listen_websocketCallback_readComplete_storageStat(storageError:NodeJS.ErrnoException):void {
+                                        node.fs.stat(storage.configuration.storage, function terminal_server_transmission_transmitHttp_server_start_listen_websocketCallback_readComplete_storageStat(storageError:NodeJS.ErrnoException):void {
                                             if (storageError === null) {
                                                 vars.settings.storage = storage.configuration.storage;
                                             }
@@ -652,7 +639,8 @@ const transmit_http:module_transmit_http = {
                                                                             user: {}
                                                                         },
                                                                         agentFrom: vars.settings.hashDevice,
-                                                                        deviceUser: null
+                                                                        userHash: null,
+                                                                        userName: null
                                                                     };
                                                                     agent_management({
                                                                         data: agentManagement,
@@ -749,10 +737,10 @@ const transmit_http:module_transmit_http = {
             readCerts(function terminal_server_transmission_transmitHttp_server_readCerts(options:transmit_tlsOptions, logs:string[]):void {
                 certLogs = logs;
                 tlsOptions = options;
-                start(httpsServer(tlsOptions.options, transmit_http.receive));
+                start(node.https.createServer(tlsOptions.options, transmit_http.receive));
             });
         } else {
-            start(httpServer(transmit_http.receive));
+            start(node.http.createServer(transmit_http.receive));
         }
     }
 };

@@ -1,7 +1,5 @@
 /* lib/terminal/server/services/fileSystem - Manages various file system services. */
 
-import { readFile, rename, stat, writeFile } from "fs";
-
 import base64 from "../../commands/library/base64.js";
 import common from "../../../common/common.js";
 import directory from "../../commands/library/directory.js";
@@ -10,6 +8,7 @@ import fileCopy from "./fileCopy.js";
 import fileExecution from "./fileExecution.js";
 import hash from "../../commands/library/hash.js";
 import mkdir from "../../commands/library/mkdir.js";
+import node from "../../utilities/node.js";
 import remove from "../../commands/library/remove.js";
 import sender from "../transmission/sender.js";
 import vars from "../../utilities/vars.js";
@@ -127,7 +126,7 @@ const fileSystem:module_fileSystem = {
                 if (value === "\\" || value === "\\\\") {
                     pathRead();
                 } else {
-                    stat(value, function terminal_server_services_fileSystem_directory_pathEach_stat(erp:Error):void {
+                    node.fs.stat(value, function terminal_server_services_fileSystem_directory_pathEach_stat(erp:Error):void {
                         if (erp === null) {
                             pathRead();
                         } else {
@@ -202,7 +201,7 @@ const fileSystem:module_fileSystem = {
                     fileSystem.status.generate(data, null);
                 });
             } else if (data.name === "file") {
-                writeFile(data.location[0], "", "utf8", function terminal_server_services_fileSystem_newArtifact_file(erNewFile:NodeJS.ErrnoException):void {
+                node.fs.writeFile(data.location[0], "", "utf8", function terminal_server_services_fileSystem_newArtifact_file(erNewFile:NodeJS.ErrnoException):void {
                     if (erNewFile === null) {
                         fileSystem.status.generate(data, null);
                     } else {
@@ -242,7 +241,7 @@ const fileSystem:module_fileSystem = {
                     }
                 },
                 fileReader = function terminal_server_services_fileSystem_read_fileReader(fileInput:config_command_base64):void {
-                    readFile(fileInput.source, "utf8", function terminal_server_services_fileSystem_read_fileReader_readFile(readError:NodeJS.ErrnoException, fileData:string) {
+                    node.fs.readFile(fileInput.source, "utf8", function terminal_server_services_fileSystem_read_fileReader_readFile(readError:NodeJS.ErrnoException, fileData:string) {
                         const inputConfig:base64Output = {
                             base64: fileData,
                             id: fileInput.id,
@@ -303,12 +302,12 @@ const fileSystem:module_fileSystem = {
                 tempPath.push(data.name);
                 return tempPath.join(vars.path.sep);
             }());
-            stat(newPath, function terminal_server_services_fileSystem_rename_stat(statError:NodeJS.ErrnoException):void {
+            node.fs.stat(newPath, function terminal_server_services_fileSystem_rename_stat(statError:NodeJS.ErrnoException):void {
                 if (statError === null) {
                     data.name = `File <em>${newPath}</em> already exists.`;
                     fileSystem.status.generate(data, null);
                 } else if (statError.code === "ENOENT") {
-                    rename(data.location[0], newPath, function terminal_server_services_fileSystem_rename_callback(erRename:NodeJS.ErrnoException):void {
+                    node.fs.rename(data.location[0], newPath, function terminal_server_services_fileSystem_rename_callback(erRename:NodeJS.ErrnoException):void {
                         if (erRename === null) {
                             data.name = `Renamed ${data.name} from ${data.location[0]}`;
                             fileSystem.status.generate(data, null);
@@ -324,7 +323,7 @@ const fileSystem:module_fileSystem = {
             
         },
         write: function terminal_server_services_fileSystem_write(data:service_fileSystem):void {
-            writeFile(data.location[0], data.name, "utf8", function terminal_server_services_fileSystem_write_callback(erw:Error):void {
+            node.fs.writeFile(data.location[0], data.name, "utf8", function terminal_server_services_fileSystem_write_callback(erw:Error):void {
                 const dirs:string[] = data.location[0].split(vars.path.sep);
                 dirs.pop();
                 data.agentSource.modalAddress = dirs.join(vars.path.sep);

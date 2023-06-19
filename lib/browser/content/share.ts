@@ -361,6 +361,7 @@ const share:module_share = {
             let a:number = 0,
                 b:number = 0;
             context.element = null;
+            // check to see if this share already exists
             if (shareLength > 0) {
                 do {
                     b = 0;
@@ -414,7 +415,8 @@ const share:module_share = {
                         device: {},
                         user: {}
                     },
-                    deviceUser: null
+                    userHash: null,
+                    userName: null
                 };
             let item:agentShare = null;
             if (hashDevice === null) {
@@ -446,7 +448,8 @@ const share:module_share = {
                         },
                         user: {}
                     },
-                    deviceUser: null
+                    userHash: null,
+                    userName: null
                 };
             browser.device[hash.device].shares[hash.hash] = {
                 execute: false,
@@ -475,7 +478,7 @@ const share:module_share = {
             do {
                 if (exclusion !== modals[a]) {
                     item = browser.data.modals[modals[a]];
-                    if (item !== undefined && browser[item.agentType][item.agent] === undefined && item.type !== "shares" && item.type !== "configuration" && item.type === "agent-management") {
+                    if (item !== undefined && (item.agentType === "device" || item.agentType === "user") && item.agent !== "" && browser[item.agentType][item.agent] === undefined && item.type !== "shares" && item.type !== "configuration" && item.type === "agent-management") {
                         closer(modals[a]);
                     } else if (item.type === "shares") {
                         modal = document.getElementById(modals[a]);

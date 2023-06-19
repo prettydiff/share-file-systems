@@ -1,7 +1,7 @@
 
 /* lib/terminal/utilities/vars - Globally available variables for the terminal utility. */
-import { hostname, networkInterfaces, NetworkInterfaceInfo, NetworkInterfaceInfoIPv4, NetworkInterfaceInfoIPv6 } from "os";
-import { sep } from "path";
+
+import node from "./node.js";
 
 // cspell:words brotli, prettydiff, sharefile
 
@@ -62,13 +62,13 @@ let nameDevice:string;
  *         executionKeyword   : string;               // an OS specific keyword to execute an application by name from the terminal
  *     };
  *     test: {
- *         browser: service_testBrowser;  // current test_browser object when running test automation in the browser
+ *         browser: service_testBrowser;                        // current test_browser object when running test automation in the browser
  *         flags: {
  *             error: boolean;
  *             write: string;
- *         };                             // properties used by service and simulation tests so that error message is identified independent of other test execution
- *         socket : agentStream | Socket; // holds a socket for service tests
- *         type   : test_listType;        // type of test automation running in the application
+ *         };                                                   // properties used by service and simulation tests so that error message is identified independent of other test execution
+ *         socket : node_http_ServerResponse | node_net_Socket; // holds a socket for service tests
+ *         type   : test_listType;                              // type of test automation running in the application
  *     };
  *     text: stringStore;                 // ANSI text formatting for terminal output
  * }
@@ -123,7 +123,7 @@ const vars:module_terminalVariables = {
     },
     network: {
         addresses: (function terminal_server_addresses():transmit_addresses_IP {
-            const interfaces:{ [index: string]: NetworkInterfaceInfo[]; } = networkInterfaces(),
+            const interfaces:{ [index: string]: node_os_NetworkInterfaceInfo[]; } = node.os.networkInterfaces(),
                 store:transmit_addresses_IP = {
                     IPv4: [],
                     IPv6: []
@@ -135,7 +135,7 @@ const vars:module_terminalVariables = {
                 mac6:string = "",
                 mac4:string = "",
                 itemLen:number = 0,
-                interfaceItem:(NetworkInterfaceInfoIPv4|NetworkInterfaceInfoIPv6)[];
+                interfaceItem:(node_os_NetworkInterfaceInfoIPv4|node_os_NetworkInterfaceInfoIPv6)[];
             do {
                 interfaceItem = interfaces[keys[a]];
                 itemLen = interfaceItem.length;
@@ -156,7 +156,7 @@ const vars:module_terminalVariables = {
             mac = (mac6 !== "")
                 ? mac6
                 : mac4;
-            nameDevice = `${mac}|${hostname()}|${process.env.os}|${process.hrtime.bigint().toString()}`;
+            nameDevice = `${mac}|${node.os.hostname()}|${process.env.os}|${process.hrtime.bigint().toString()}`;
             if (store.IPv4.length < 1 && store.IPv6.length < 1) {
                 return {
                     IPv4: ["127.0.0.1"],
@@ -200,7 +200,7 @@ const vars:module_terminalVariables = {
         js: "",
         node: "",
         project: "",
-        sep: sep,
+        sep: node.path.sep,
         settings: "",
         testStorage: ""
     },

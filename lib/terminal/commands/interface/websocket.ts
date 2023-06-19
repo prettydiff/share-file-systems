@@ -1,15 +1,13 @@
 
 /* lib/terminal/commands/interface/websocket - Shell interface to start a websocket server from the terminal. */
 
-import { AddressInfo } from "net";
-
 import readCerts from "../../server/readCerts.js";
 import transmit_ws from "../../server/transmission/transmit_ws.js";
 import vars from "../../utilities/vars.js";
 
 const websocket = function terminal_commands_interface_websocket(callback:commandCallback):void {
     const config:config_websocket_server = {
-        callback: function terminal_commands_interface_websocket_callback(addressInfo:AddressInfo):void {
+        callback: function terminal_commands_interface_websocket_callback(addressInfo:node_net_AddressInfo):void {
             const output:string[] = [],
                 ipList = function terminal_commands_interface_websocket_callback_ipList(ipCallback:(ip:string) => void):void {
                     const addresses = function terminal_commands_interface_websocket_callback_ipList_addresses(scheme:"IPv4"|"IPv6"):void {

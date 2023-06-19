@@ -1,8 +1,6 @@
 
 /* lib/terminal/commands/library/perf - Allows for performance testing of the application. */
 
-import { AddressInfo } from "net";
-
 import common from "../../../common/common.js";
 import error from "../../utilities/error.js";
 import humanTime from "../../utilities/humanTime.js";
@@ -140,7 +138,7 @@ const perf:module_perf = {
     preparation: {
         socket: function terminal_commands_library_perf_preparationSocket():void {
             const configServer:config_websocket_server = {
-                callback: function terminal_commands_library_perf_preparationSocket_callbackServer(address:AddressInfo):void {
+                callback: function terminal_commands_library_perf_preparationSocket_callbackServer(address:node_net_AddressInfo):void {
                     const callbackClient = function terminal_commands_library_perf_preparationSocket_callbackServer_callbackClient(socket:websocket_client):void {
                             perf.socket = socket;
                             perf.interval.socket();
