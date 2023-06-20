@@ -149,7 +149,7 @@ const perf:module_perf = {
                             hash: "perf",
                             ip: "localhost",
                             port: address.port,
-                            type: "perf"
+                            socketType: "perf"
                         };
                     transmit_ws.open.service(configClient);
                 },

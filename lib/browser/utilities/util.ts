@@ -376,7 +376,7 @@ const util:module_util = {
             return [null, null, null];
         }
         const box:modal = element.getAncestor("box", "class"),
-            agency:agency = util.getAgent(box),
+            agency:agentId = util.getAgent(box),
             modalAddress:string = (address === null || address === undefined)
                 ? box.getElementsByClassName("fileAddress")[0].getElementsByTagName("input")[0].value
                 : address,
@@ -445,7 +445,7 @@ const util:module_util = {
     },
 
     /* Get the agent of a given modal. */
-    getAgent: function browser_utilities_util_getAgent(element:HTMLElement):agency {
+    getAgent: function browser_utilities_util_getAgent(element:HTMLElement):agentId {
         const box:modal = element.getAncestor("box", "class"),
             id:string = box.getAttribute("id");
         let agent:string = browser.data.modals[id].agent;

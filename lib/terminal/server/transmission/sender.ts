@@ -85,36 +85,38 @@ const sender:module_sender = {
             agent:fileAgent = payload[destination];
         if (agent.user === vars.settings.hashUser) {
             const deviceCallback = function terminal_server_transmission_sender_route_deviceCallback(device:string):void {
-                if (vars.settings.device[device] !== undefined) {
-                    agent.device = device;
-                }
-                if (device === vars.settings.hashDevice) {
-                    // same device
-                    callback(socketData);
-                } else {
-                    sender.send(socketData, {
-                        device: agent.device,
-                        user: agent.user
-                    });
-                }
-            };
-            if (agent.device.length === 141) {
-                deviceMask.unmask(agent.device, deviceCallback);
-            } else {
-                deviceCallback(deviceMask.resolve(agent));
-            }
-        } else {
-            let count:number = 0;
-            const maskCallback = function terminal_server_transmission_sender_route_maskCallback():void {
-                    count = count + 1;
-                    if (count === 2) {
+                    if (vars.settings.device[device] !== undefined) {
+                        agent.device = device;
+                    }
+                    if (device === vars.settings.hashDevice) {
+                        // same device
+                        callback(socketData);
+                    } else {
                         sender.send(socketData, {
                             device: agent.device,
                             user: agent.user
                         });
                     }
                 },
+                agentLength:number = agent.device.length;
+            if (agentLength === 141) {
+                deviceMask.unmask(agent.device, deviceCallback);
+            } else {
+                deviceCallback(deviceMask.resolve(agent));
+            }
+        } else {
+            let count:number = 0;
+            const copyAgents:agentCopy[] = ["agentRequest", "agentSource", "agentWrite"],
                 agentSelf = function terminal_server_transmission_sender_route_agentSelf(type:agentCopy):void {
+                    const maskCallback = function terminal_server_transmission_sender_route_agentSelf_maskCallback():void {
+                        count = count + 1;
+                        if (count === 2) {
+                            sender.send(socketData, {
+                                device: agent.device,
+                                user: agent.user
+                            });
+                        }
+                    };
                     if (payload[type] !== null && payload[type] !== undefined && payload[type].user === vars.settings.hashUser) {
                         if (payload[type].share === "") {
                             deviceMask.mask(payload[type], maskCallback);
@@ -125,8 +127,7 @@ const sender:module_sender = {
                     } else {
                         maskCallback();
                     }
-                },
-                copyAgents:agentCopy[] = ["agentRequest", "agentSource", "agentWrite"];
+                };
             copyAgents.splice(copyAgents.indexOf(destination), 1);
             agentSelf(copyAgents[0]);
             agentSelf(copyAgents[1]);

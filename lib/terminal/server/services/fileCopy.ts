@@ -94,6 +94,7 @@ const fileCopy:module_fileCopy = {
                                                 status:service_fileSystem_status = {
                                                     agentRequest: data.agentRequest,
                                                     agentSource: data.agentWrite,
+                                                    agentWrite: null,
                                                     fileList: null,
                                                     message: `Preparing to transfer ${listData.dirs} director${directoryPlural} and ${listData.files} file${plural} at size ${common.prettyBytes(listData.size)}.`
                                                 };
@@ -167,6 +168,7 @@ const fileCopy:module_fileCopy = {
                             status:service_fileSystem_status = {
                                 agentRequest: data.agentRequest,
                                 agentSource: data.agentWrite,
+                                agentWrite: null,
                                 fileList: null,
                                 message: `Preparing file ${action} to ${messageType} <em>${vars.settings[messageType][agent].name}</em>.`
                             };
@@ -649,6 +651,7 @@ const fileCopy:module_fileCopy = {
         const status:service_fileSystem_status = {
                 agentRequest: config.agentRequest,
                 agentSource: config[config.self],
+                agentWrite: null,
                 fileList: null,
                 message: "Security violation from attempted copy/cut."
             },
@@ -753,6 +756,7 @@ const fileCopy:module_fileCopy = {
                     copyStatus:service_fileSystem_status = {
                         agentRequest: config.agentRequest,
                         agentSource: config.agentWrite,
+                        agentWrite: null,
                         fileList: dirs,
                         message: (config.message === "")
                             ? (function terminal_server_services_fileCopy_copyStatus_callbackDirectory_copyMessage():string {

@@ -142,7 +142,7 @@ const defaultCommand:commands = vars.environment.command,
                                     hash: list[index],
                                     ip: machines[list[index]].ip,
                                     port: machines[list[index]].port.ws,
-                                    type: "testRemote"
+                                    socketType: "testRemote"
                                 });
                             }
                             index = index + 1;

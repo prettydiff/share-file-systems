@@ -143,7 +143,8 @@ const fileSystem:module_fileSystem = {
             fileSystem.route({
                 data: Object.assign({
                     agentRequest: agentRequest,
-                    agentSource: agentSource
+                    agentSource: agentSource,
+                    agentWrite: null
                 }, error),
                 service: "error"
             });
@@ -351,6 +352,7 @@ const fileSystem:module_fileSystem = {
         const status:service_fileSystem_status = {
             agentRequest: data.agentRequest,
             agentSource: data.agentSource,
+            agentWrite: null,
             fileList: null,
             message: `Security violation from file system action <em>${data.action.replace("fs-", "")}</em>.`
         };
@@ -495,6 +497,7 @@ const fileSystem:module_fileSystem = {
                     status:service_fileSystem_status = {
                         agentRequest: data.agentRequest,
                         agentSource: data.agentSource,
+                        agentWrite: null,
                         fileList: list,
                         message: (data.name === "expand")
                             ? `expand-${data.location[0]}`
@@ -534,6 +537,7 @@ const fileSystem:module_fileSystem = {
             const status:service_fileSystem_status = {
                 agentRequest: agentRequest,
                 agentSource: agentSource,
+                agentWrite: null,
                 fileList: null,
                 message: message
             };

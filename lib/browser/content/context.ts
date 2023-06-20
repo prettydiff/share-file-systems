@@ -335,7 +335,7 @@ const context:module_context = {
                         ? "copy"
                         : "cut",
                 selected:[string, fileType, string][] = util.selectedAddresses(element, type),
-                agency:agency = util.getAgent(box),
+                agency:agentId = util.getAgent(box),
                 id:string = box.getAttribute("id"),
                 clipData:context_clipboard = {
                     agent: agency[0],

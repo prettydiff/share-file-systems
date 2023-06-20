@@ -45,17 +45,13 @@ interface service_agentManagement {
 /**
  * A data object to convey the online status of a remote agent.
  * ```typescript
- * interface service_agentResolve {
- *     agent: string;
- *     agentType: agentType;
+ * interface service_agentResolve extends agency {
  *     ipAll: transmit_addresses_ip;
  *     ipSelected: string;
  *     mode: test_listType;
  * }
  * ``` */
-interface service_agentResolve {
-    agent: string;
-    agentType: agentType;
+interface service_agentResolve extends agency {
     ipAll: transmit_addresses_IP;
     ipSelected: string;
     mode: test_listType;
@@ -64,17 +60,13 @@ interface service_agentResolve {
 /**
  * Indicates whether a given agent is online or offline.
  * ```typescript
- * interface service_agentStatus {
- *     agent: string;
- *     agentType: agentType;
+ * interface service_agentStatus extends agency {
  *     broadcast: boolean;
  *     respond: boolean;
  *     status: activityStatus;
  * }
  * ``` */
-interface service_agentStatus {
-    agent: string;
-    agentType: agentType;
+interface service_agentStatus extends agency {
     broadcast: boolean;
     respond: boolean;
     status: activityStatus;
@@ -84,30 +76,19 @@ interface service_agentStatus {
  * A data object that initiates the various services associated with the file copy process.
  * ```typescript
  * interface service_copy {
- *     agentRequest: fileAgent;
- *     agentSource : fileAgent;
- *     agentWrite  : fileAgent;
  *     cut         : boolean;
  *     execute     : boolean;
- *     location    : string[];
  * }
  * ``` */
- interface service_copy {
-    agentRequest: fileAgent;
-    agentSource : fileAgent;
-    agentWrite  : fileAgent;
+ interface service_copy extends fileSystem {
     cut         : boolean;
     execute     : boolean;
-    location    : string[];
 }
 
 /**
  * Sends the contents of a requested file.
  * ```typescript
- * interface service_copy_send_file {
- *     agentRequest: fileAgent;
- *     agentSource : fileAgent;
- *     agentWrite  : fileAgent;
+ * interface service_copy_send_file extends fileSystem_agents {
  *     brotli      : brotli;
  *     file_name   : string;
  *     file_size   : number;
@@ -115,10 +96,7 @@ interface service_agentStatus {
  *     path_write  : string;
  * }
  * ``` */
-interface service_copy_send_file {
-    agentRequest: fileAgent;
-    agentSource : fileAgent;
-    agentWrite  : fileAgent;
+interface service_copy_send_file extends fileSystem_agents {
     brotli      : brotli;
     file_name   : string;
     file_size   : number;
@@ -129,10 +107,7 @@ interface service_copy_send_file {
 /**
  * Sends a file list from the source of a copy transaction so that the write agent can create the necessary directory structure
  * ```typescript
- * interface service_copy_write {
- *     agentRequest: fileAgent;
- *     agentSource : fileAgent;
- *     agentWrite  : fileAgent;
+ * interface service_copy_write extends fileSystem_agents {
  *     cut         : boolean;
  *     execute     : boolean;
  *     hash        : string;
@@ -142,10 +117,7 @@ interface service_copy_send_file {
  *     port        : number;
  * }
  * ``` */
- interface service_copy_write {
-    agentRequest: fileAgent;
-    agentSource : fileAgent;
-    agentWrite  : fileAgent;
+ interface service_copy_write extends fileSystem_agents {
     cut         : boolean;
     execute     : boolean;
     hash        : string;
@@ -159,54 +131,27 @@ interface service_copy_send_file {
  * Sends a list of files to delete on the source agent from the write agent
  * ```typescript
  * interface service_cut {
- *     agentRequest: fileAgent;
- *     agentSource : fileAgent;
- *     agentWrite  : fileAgent;
  *     failList    : string[];
  *     fileList    : fileTypeList;
  * }
  * ``` */
-interface service_cut {
-    agentRequest: fileAgent;
-    agentSource : fileAgent;
-    agentWrite  : fileAgent;
+interface service_cut extends fileSystem_agents {
     failList    : string[];
     fileList    : fileTypeList;
 }
 
 /**
- * Extends error messaging to provide routing data.
- * ```typescript
- * interface service_error extends NodeJS.ErrnoException {
- *     agentRequest: fileAgent;
- *     agentSource: fileAgent;
- * }
- * ``` */
-interface service_error extends NodeJS.ErrnoException {
-    agentRequest: fileAgent;
-    agentSource: fileAgent;
-}
-
-/**
  * A data object that initiates the various file system services except file copy.
  * ```typescript
- * interface service_fileSystem {
+ * interface service_fileSystem extends fileSystem {
  *     action      : actionFile;
- *     agentRequest: fileAgent;
- *     agentSource : fileAgent;
- *     agentWrite  : null;
  *     depth       : number;
- *     location    : string[];
  *     name        : string;
  * }
  * ``` */
-interface service_fileSystem {
+interface service_fileSystem extends fileSystem {
     action      : actionFile;
-    agentRequest: fileAgent;
-    agentSource : fileAgent;
-    agentWrite  : null;
     depth       : number;
-    location    : string[];
     name        : string;
 }
 
@@ -229,15 +174,11 @@ interface service_fileSystem_details {
  * Delivers a file list as well as messaging for a File Navigator's status bar.
  * ```typescript
  * interface service_fileSystem_status {
- *     agentRequest: fileAgent;
- *     agentSource: fileAgent;
  *     fileList: directory_response;
  *     message: string;
  * }
  * ``` */
-interface service_fileSystem_status {
-    agentRequest: fileAgent;
-    agentSource: fileAgent;
+interface service_fileSystem_status extends fileSystem_agents {
     fileList: directory_response;
     message: string;
 }

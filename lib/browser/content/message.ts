@@ -157,7 +157,7 @@ const message:module_message = {
                 message.events.submit(event);
             } else if (key === "arrowup" || key === "arrowdown") {
                 const total:number = browser.message.length,
-                    agency:agency = util.getAgent(input),
+                    agency:agentId = util.getAgent(input),
                     agentFrom:string = (agency[2] === "device")
                         ? browser.data.hashDevice
                         : browser.data.hashUser;
@@ -251,7 +251,7 @@ const message:module_message = {
         /* Submit event handler to take message text into a data object for transmission across a network. */
         submit: function browser_content_message_submit(event:KeyboardEvent|MouseEvent):void {
             const element:HTMLElement = event.target,
-                agency:agency = util.getAgent(element),
+                agency:agentId = util.getAgent(element),
                 box:modal = element.getAncestor("box", "class"),
                 footer:HTMLElement = element.getAncestor("footer", "class"),
                 textArea:HTMLTextAreaElement = footer.getElementsByTagName("textarea")[0],

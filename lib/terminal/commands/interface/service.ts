@@ -15,10 +15,10 @@ const service = function terminal_commands_interface_service(callback:commandCal
             port: -1,
             test: false
         },
-        serverCallback:server_callback = {
+        serverCallback:http_server_callback = {
             agent: "",
             agentType: "device",
-            callback: function terminal_commands_interface_service_callback(output:server_output):void {
+            callback: function terminal_commands_interface_service_callback(output:http_server_output):void {
                 callback("Service", output.log, null);
             }
         };

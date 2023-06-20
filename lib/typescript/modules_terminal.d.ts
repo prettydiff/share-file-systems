@@ -527,7 +527,7 @@ interface module_test_simulationApplication {
  *     request     : (config:config_http_request) => void;                                                 // Send an arbitrary HTTP request.
  *     respond     : (config:config_http_respond, get:boolean, url:string) => void;                        // Formats and sends HTTP response messages.
  *     respondEmpty: (transmit:transmit_type)                                                              // Responds to a request with an empty payload.
- *     server      : (serverOptions:config_http_server, serverCallback:server_callback) => void;           // Creates an HTTP server.
+ *     server      : (serverOptions:config_http_server, serverCallback:http_server_callback) => void;           // Creates an HTTP server.
  * }
  * ``` */
 interface module_transmit_http {
@@ -535,7 +535,7 @@ interface module_transmit_http {
     request: (config:config_http_request) => void;
     respond: (config:config_http_respond, get:boolean, url:string) => void;
     respondEmpty: (transmit:transmit_type) => void;
-    server: (serverOptions:config_http_server, serverCallback:server_callback) => void;
+    server: (serverOptions:config_http_server, serverCallback:http_server_callback) => void;
 }
 
 /**

@@ -39,7 +39,8 @@ const error = function terminal_utilities_error(errText:string[], errObject:node
                 sender.broadcast({
                     data: Object.assign({
                         agentRequest: agent,
-                        agentSource: agent
+                        agentSource: agent,
+                        agentWrite: null
                     }, server),
                     service: "error"
                 }, "browser");

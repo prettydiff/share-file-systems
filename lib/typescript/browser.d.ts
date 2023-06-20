@@ -66,26 +66,20 @@ interface browser_colors {
 /**
  * A configuration object used with configuration.styleText method.
  * ``` typescript
- * interface configuration_styleText {
- *     agent: string;
+ * interface configuration_styleText extends agency {
  *     colors: [string, string];
  *     replace: boolean;
- *     type: agentType;
  * }
  * ``` */
-interface configuration_styleText {
-    agent: string;
+interface configuration_styleText extends agency {
     colors: [string, string];
     replace: boolean;
-    type: agentType;
 }
 
 /**
  * Temporarily stores selected file selection data in response to user interactions, such as a copy event.
  * ```typescript
- * interface context_clipboard {
- *     agent: string;
- *     agentType: agentType;
+ * interface context_clipboard extends agency {
  *     data: string[];
  *     id: string;
  *     share: string;
@@ -93,9 +87,7 @@ interface configuration_styleText {
  * }
  * type copyTypes = "copy-file" | "copy-request-files" | "copy-request";
  * ``` */
-interface context_clipboard {
-    agent: string;
-    agentType: agentType;
+interface context_clipboard extends agency {
     data: string[];
     id: string;
     share: string;

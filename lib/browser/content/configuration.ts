@@ -427,9 +427,9 @@ const configuration:module_configuration = {
                 style:string = browser.style.innerHTML,
                 styleText:configuration_styleText = {
                     agent: agent,
+                    agentType: type,
                     colors: colors,
-                    replace: true,
-                    type: type
+                    replace: true
                 };
             let scheme:string = browser.pageBody.getAttribute("class");
             if (scheme === null) {
@@ -469,14 +469,14 @@ const configuration:module_configuration = {
         styleText: function browser_content_configuration_styleText(input:configuration_styleText):void {
             const template:string[] = [
                 `#spaces .box[data-agent="${input.agent}"] .body,`,
-                `#spaces #${input.type} button[data-agent="${input.agent}"]:hover{background-color:#`,
-                browser.data.colors[input.type][input.agent][0],
+                `#spaces #${input.agentType} button[data-agent="${input.agent}"]:hover{background-color:#`,
+                browser.data.colors[input.agentType][input.agent][0],
                 "}",
-                `#spaces #${input.type} button[data-agent="${input.agent}"],`,
+                `#spaces #${input.agentType} button[data-agent="${input.agent}"],`,
                 `#spaces .box[data-agent="${input.agent}"] .status-bar,`,
                 `#spaces .box[data-agent="${input.agent}"] .footer,`,
                 `#spaces .box[data-agent="${input.agent}"] h2.heading{background-color:#`,
-                browser.data.colors[input.type][input.agent][1],
+                browser.data.colors[input.agentType][input.agent][1],
                 "}"
             ];
             if (input.replace === true) {

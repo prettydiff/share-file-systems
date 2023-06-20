@@ -5,7 +5,7 @@
 type actionFile = "fs-base64" | "fs-destroy" | "fs-details" | "fs-directory" | "fs-execute" | "fs-hash" | "fs-new" | "fs-read" | "fs-rename" | "fs-search" | "fs-write";
 type actionCopy = "copy-request-list" | "copy-send-list";
 type activityStatus = "" | "active" | "deleted" | "idle" | "offline";
-type agency = [string, boolean, agentType];
+type agentId = [string, boolean, agentType];
 type agentCopy = agentTransmit | "agentWrite";
 type agentTextList = [agentType, string][];
 type agentTransmit = "agentRequest" | "agentSource";
@@ -33,6 +33,8 @@ type fileType = "directory" | "error" | "file" | "link";
 type fileTypeList = [string, fileType][];
 type hash = "blake2d512" | "blake2s256" | "sha1" | "sha3-224" | "sha3-256" | "sha3-384" | "sha3-512" | "sha384" | "sha512-224" | "sha512-256" | "sha512" | "shake128" | "shake256";
 type hashTypes = "agent-hash" | "hash-share";
+type httpSocket_request = httpSocket_agent & node_http_ClientRequest;
+type httpSocket_response = httpSocket_agent & node_http_ServerResponse;
 type inviteAction = "invite-complete" | "invite-request" | "invite-response" | "invite-start";
 type inviteStatus = "accepted" | "declined" | "ignored" | "invited";
 type keys_configuration = "audio" | "brotli" | "color" | "colors" | "fileSort" | "hashDevice" | "hashType" | "hashUser" | "minimizeAll" | "modals" | "modalTypes" | "nameDevice" | "nameUser" | "statusTime" | "storage" | "tutorial" | "zIndex";
@@ -51,6 +53,7 @@ type qualifierFile = "file begins" | "file contains" | "file ends" | "file is" |
 type resizeDirection = "b" | "bl" | "br" | "l" | "r" | "t" | "tl" | "tr";
 type searchType = "fragment" | "negation" | "regex";
 type selector = "class" | "id" | "tag";
+type service_error = fileSystem_agents & NodeJS.ErrnoException;
 // eslint-disable-next-line
 type service_log = any[];
 type service_message = message_item[];

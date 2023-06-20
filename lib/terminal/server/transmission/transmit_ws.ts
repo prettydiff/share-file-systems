@@ -115,9 +115,9 @@ const transmit_ws:module_transmit_ws = {
                             host: config.ip,
                             port: config.port
                         }) as websocket_client,
-                    headerHash:string = (config.type === "device")
+                    headerHash:string = (config.socketType === "device")
                         ? vars.settings.hashDevice
-                        : (config.type === "user")
+                        : (config.socketType === "user")
                             ? vars.settings.hashUser
                             : config.hash,
                     header:string[] = [
@@ -128,20 +128,20 @@ const transmit_ws:module_transmit_ws = {
                         "Upgrade: websocket",
                         "Connection: Upgrade",
                         "Sec-WebSocket-Version: 13",
-                        `type: ${config.type}`,
+                        `type: ${config.socketType}`,
                         `hash: ${headerHash}`,
                         `Sec-WebSocket-Key: ${hashOutput.hash}`
                     ],
                     callbackError = function terminal_server_transmission_transmitWs_createSocket_hash_error(errorMessage:NodeJS.ErrnoException):void {
-                        if (config.type === "device" || config.type === "user") {
-                            transmit_ws.ipAttempts[config.type][config.hash].push(config.ip);
+                        if (config.socketType === "device" || config.socketType === "user") {
+                            transmit_ws.ipAttempts[config.socketType][config.hash].push(config.ip);
                             client.hash = config.hash;
-                            client.type = config.type;
+                            client.type = config.socketType;
                             client.destroy();
                             transmit_ws.open.agent({
                                 agent: client.hash,
-                                callback: config.callbackRequest,
-                                type: client.type
+                                agentType: client.type,
+                                callback: config.callback
                             });
                         }
                         if (vars.settings.verbose === true || vars.test.type === "browser_device" || vars.test.type === "browser_user") {
@@ -153,16 +153,16 @@ const transmit_ws:module_transmit_ws = {
                         header.push("");
                         client.write(header.join("\r\n"));
                         client.once("data", function terminal_server_transmission_transmitWs_createSocket_hash_ready_data():void {
-                            if (config.type === "device" || config.type === "user") {
-                                transmit_ws.ipAttempts[config.type][config.hash] = [];
+                            if (config.socketType === "device" || config.socketType === "user") {
+                                transmit_ws.ipAttempts[config.socketType][config.hash] = [];
                             }
                             transmit_ws.socketExtensions({
-                                callback: config.callbackRequest,
+                                callback: config.callback,
                                 handler: config.handler,
                                 identifier: config.hash,
                                 role: "client",
                                 socket: client,
-                                type: config.type
+                                type: config.socketType
                             });
                         });
                     };
@@ -472,23 +472,23 @@ const transmit_ws:module_transmit_ws = {
         // open a long-term websocket tunnel between known agents
         agent: function terminal_server_transmission_transmitWs_openAgent(config:config_websocket_openAgent):void {
             if (vars.settings.secure === true || vars.test.type.indexOf("browser_") === 0) {
-                if (vars.settings[config.type][config.agent] === undefined) {
+                if (vars.settings[config.agentType][config.agent] === undefined) {
                     if (config.callback !== null) {
                         config.callback(null);
                     }
                     return;
                 }
-                if (transmit_ws.clientList[config.type][config.agent] !== undefined && transmit_ws.clientList[config.type][config.agent] !== null) {
+                if (transmit_ws.clientList[config.agentType][config.agent] !== undefined && transmit_ws.clientList[config.agentType][config.agent] !== null) {
                     if (config.callback !== null) {
-                        config.callback(transmit_ws.clientList[config.type][config.agent]);
+                        config.callback(transmit_ws.clientList[config.agentType][config.agent]);
                     }
                     return;
                 }
-                if (transmit_ws.ipAttempts[config.type][config.agent] === undefined) {
-                    transmit_ws.ipAttempts[config.type][config.agent] = [];
+                if (transmit_ws.ipAttempts[config.agentType][config.agent] === undefined) {
+                    transmit_ws.ipAttempts[config.agentType][config.agent] = [];
                 }
-                const agent:agent = vars.settings[config.type][config.agent],
-                    attempts:string[] = transmit_ws.ipAttempts[config.type][config.agent],
+                const agent:agent = vars.settings[config.agentType][config.agent],
+                    attempts:string[] = transmit_ws.ipAttempts[config.agentType][config.agent],
                     selfIP:transmit_addresses_IP = vars.network.addresses,
                     ip:string = (function terminal_server_transmission_transmitWs_openAgent_ip():string {
                         const ipList = function terminal_server_transmission_transmitWs_openAgent_ip_ipList(type:"IPv4"|"IPv6"):string {
@@ -518,26 +518,26 @@ const transmit_ws:module_transmit_ws = {
                 if (ip === null) {
                     const status:service_agentStatus = {
                         agent: config.agent,
-                        agentType: config.type,
+                        agentType: config.agentType,
                         broadcast: false,
                         respond: false,
                         status: "offline"
                     };
                     agent.status = "offline";
-                    transmit_ws.ipAttempts[config.type][config.agent] = [];
+                    transmit_ws.ipAttempts[config.agentType][config.agent] = [];
                     sender.broadcast({
                         data: status,
                         service: "agent-status"
                     }, "browser");
                 } else {
                     transmit_ws.createSocket({
-                        callbackRequest: config.callback,
+                        callback: config.callback,
                         headers: [],
                         hash: config.agent,
                         handler: transmit_ws.clientReceiver,
                         ip: ip,
                         port: agent.ports.ws,
-                        type: config.type
+                        socketType: config.agentType
                     });
                 }
             }
@@ -545,13 +545,13 @@ const transmit_ws:module_transmit_ws = {
         // opens a service specific websocket tunnel between two points that closes when the service ends
         service: function terminal_server_transmission_transmitWs_openService(config:config_websocket_openService):void {
             transmit_ws.createSocket({
-                callbackRequest: config.callback,
+                callback: config.callback,
                 handler: config.handler,
                 headers: [],
                 hash: config.hash,
                 ip: config.ip,
                 port: config.port,
-                type: config.type
+                socketType: config.socketType
             });
         }
     },
@@ -954,8 +954,8 @@ const transmit_ws:module_transmit_ws = {
                     config.socket.on("close", function terminal_server_transmission_transmitWs_socketExtension_close():void {
                         const configData:config_websocket_openAgent = {
                                 agent: config.socket.hash,
-                                callback: null,
-                                type: config.socket.type as agentType
+                                agentType: config.socket.type as agentType,
+                                callback: null
                             },
                             delay = function terminal_server_transmission_transmitWs_socketExtension_close_delay():void {
                                 transmit_ws.open.agent(configData);
