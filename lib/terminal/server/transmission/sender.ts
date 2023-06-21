@@ -8,14 +8,14 @@ import vars from "../../utilities/vars.js";
 /**
  * An abstraction to manage traffic output abstracted away from specific network protocols.
  * ```typescript
- * interface module_sender {
+ * interface module_transmit_sender {
  *     agentQueue: (type:socketType, agent:string, payload:socketData) => void;  // If the agent is offline the message will be queued.
  *     broadcast : (payload:socketData, listType:agentType | "browser") => void; // Send a specified ata package to all agents of a given agent type.
  *     route     : (destination:agentCopy, socketData:socketData, callback:(socketData:socketData) => void) => void; // Automation to redirect data packages to a specific agent examination of a service identifier and agent data.
  *     send      : (data:socketData, agents:transmit_agents) => void;            // Send a specified data package to a specified agent
  * }
  * ``` */
-const sender:module_sender = {
+const sender:module_transmit_sender = {
     agentQueue: function terminal_server_transmission_sender_agentQueue(type:socketType, agent:string, payload:socketData) {
         const socket:websocket_client = transmit_ws.clientList[type as agentType][agent];
         if (socket !== undefined && socket !== null && (socket.status === "open" || socket.status === "pending")) {
@@ -80,9 +80,9 @@ const sender:module_sender = {
     },
 
     // direct a data payload to a specific agent as determined by the service name and the agent details in the data payload
-    route: function terminal_server_transmission_sender_route(destination:agentCopy, socketData:socketData, callback:(socketData:socketData) => void):void {
-        const payload:service_copy = socketData.data as service_copy,
-            agent:fileAgent = payload[destination];
+    route: function terminal_server_transmission_sender_route(config:config_senderRoute):void {
+        const payload:service_copy = config.socketData.data as service_copy,
+            agent:fileAgent = payload[config.destination];
         if (agent.user === vars.settings.hashUser) {
             const deviceCallback = function terminal_server_transmission_sender_route_deviceCallback(device:string):void {
                     if (vars.settings.device[device] !== undefined) {
@@ -90,9 +90,9 @@ const sender:module_sender = {
                     }
                     if (device === vars.settings.hashDevice) {
                         // same device
-                        callback(socketData);
+                        config.callback(config.socketData);
                     } else {
-                        sender.send(socketData, {
+                        sender.send(config.socketData, {
                             device: agent.device,
                             user: agent.user
                         });
@@ -111,7 +111,7 @@ const sender:module_sender = {
                     const maskCallback = function terminal_server_transmission_sender_route_agentSelf_maskCallback():void {
                         count = count + 1;
                         if (count === 2) {
-                            sender.send(socketData, {
+                            sender.send(config.socketData, {
                                 device: agent.device,
                                 user: agent.user
                             });
@@ -128,7 +128,7 @@ const sender:module_sender = {
                         maskCallback();
                     }
                 };
-            copyAgents.splice(copyAgents.indexOf(destination), 1);
+            copyAgents.splice(copyAgents.indexOf(config.destination), 1);
             agentSelf(copyAgents[0]);
             agentSelf(copyAgents[1]);
         }

@@ -477,6 +477,23 @@ interface config_rename {
 }
 
 /**
+ * For sender.route of terminal/server/transmission/sender
+ * ```typescript
+ * interface config_senderRoute {
+ *     callback:(socketData:socketData) => void;
+ *     destination:agentCopy;
+ *     origination:agentCopy;
+ *     socketData:socketData;
+ * }
+ * ``` */
+interface config_senderRoute {
+    callback:(socketData:socketData) => void;
+    destination:agentCopy;
+    origination:agentCopy;
+    socketData:socketData;
+}
+
+/**
  * For browser_content_share_content_toolButton of browser/content/share
  * ```typescript
  * interface config_share_tool {

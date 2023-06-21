@@ -246,23 +246,6 @@ interface module_perf {
 }
 
 /**
- * An abstraction to manage traffic output abstracted away from specific network protocols.
- * ```typescript
- * interface module_sender {
- *     agentQueue: (type:socketType, agent:string, payload:socketData) => void;  // If the agent is offline the message will be queued.
- *     broadcast : (payload:socketData, listType:agentType | "browser") => void; // Send a specified ata package to all agents of a given agent type.
- *     route     : (destination:agentCopy, socketData:socketData, callback:(socketData:socketData) => void) => void; // Automation to redirect data packages to a specific agent examination of a service identifier and agent data.
- *     send      : (data:socketData, agents:transmit_agents) => void;            // Send a specified data package to a specified agent
- * }
- * ``` */
-interface module_sender {
-    agentQueue: (type:socketType, agent:string, payload:socketData) => void;
-    broadcast: (payload:socketData, listType:agentType | "browser") => void;
-    route: (destination:agentCopy, socketData:socketData, callback:(socketData:socketData) => void) => void;
-    send: (data:socketData, agents:transmit_agents) => void;
-}
-
-/**
  * A library to relay terminal logging between devices for presentation to the user in the browser.
  * ```typescript
  * interface module_terminal {
@@ -527,7 +510,7 @@ interface module_test_simulationApplication {
  *     request     : (config:config_http_request) => void;                                                 // Send an arbitrary HTTP request.
  *     respond     : (config:config_http_respond, get:boolean, url:string) => void;                        // Formats and sends HTTP response messages.
  *     respondEmpty: (transmit:transmit_type)                                                              // Responds to a request with an empty payload.
- *     server      : (serverOptions:config_http_server, serverCallback:http_server_callback) => void;           // Creates an HTTP server.
+ *     server      : (serverOptions:config_http_server, serverCallback:http_server_callback) => void;      // Creates an HTTP server.
  * }
  * ``` */
 interface module_transmit_http {
@@ -536,6 +519,23 @@ interface module_transmit_http {
     respond: (config:config_http_respond, get:boolean, url:string) => void;
     respondEmpty: (transmit:transmit_type) => void;
     server: (serverOptions:config_http_server, serverCallback:http_server_callback) => void;
+}
+
+/**
+ * An abstraction to manage traffic output abstracted away from specific network protocols.
+ * ```typescript
+ * interface module_transmit_sender {
+ *     agentQueue: (type:socketType, agent:string, payload:socketData) => void;  // If the agent is offline the message will be queued.
+ *     broadcast : (payload:socketData, listType:agentType | "browser") => void; // Send a specified ata package to all agents of a given agent type.
+ *     route     : (destination:agentCopy, socketData:socketData, callback:(socketData:socketData) => void) => void; // Automation to redirect data packages to a specific agent examination of a service identifier and agent data.
+ *     send      : (data:socketData, agents:transmit_agents) => void;            // Send a specified data package to a specified agent
+ * }
+ * ``` */
+ interface module_transmit_sender {
+    agentQueue: (type:socketType, agent:string, payload:socketData) => void;
+    broadcast: (payload:socketData, listType:agentType | "browser") => void;
+    route: (config:config_senderRoute) => void;
+    send: (data:socketData, agents:transmit_agents) => void;
 }
 
 /**

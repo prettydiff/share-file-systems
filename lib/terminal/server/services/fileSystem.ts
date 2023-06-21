@@ -412,30 +412,47 @@ const fileSystem:module_fileSystem = {
                 }
             }
         }
-        sender.route("agentRequest", {
-            data: status,
-            service: "file-system-status"
-        }, function terminal_server_services_fileSystem_menu_securityStatus(socketData:socketData):void {
-            sender.broadcast(socketData, "browser");
+        sender.route({
+            callback: function terminal_server_services_fileSystem_menu_securityStatus(socketData:socketData):void {
+                sender.broadcast(socketData, "browser");
+            },
+            destination: "agentRequest",
+            origination: "agentRequest",
+            socketData: {
+                data: status,
+                service: "file-system-status"
+            }
         });
     },
     route: function terminal_server_services_fileSystem_route(socketData:socketData):void {
+        const data:service_fileSystem = socketData.data as service_fileSystem;
         if (socketData.service === "file-system") {
             if (vars.test.type === "service") {
-                fileSystem.menu(socketData.data as service_fileSystem);
+                fileSystem.menu(data);
             } else {
-                sender.route("agentSource", socketData, function terminal_server_services_fileSystem_route_fileSystem(socketData:socketData):void {
-                    fileSystem.menu(socketData.data as service_fileSystem);
+                sender.route({
+                    callback: function terminal_server_services_fileSystem_route_fileSystem(routeData:socketData):void {
+                        const fileData:service_fileSystem = routeData.data as service_fileSystem;
+                        fileSystem.menu(fileData);
+                    },
+                    destination: "agentSource",
+                    origination: "agentRequest",
+                    socketData: socketData
                 });
             }
         } else {
-            const broadcast = function terminal_server_services_fileSystem_route_broadcast(socketData:socketData):void {
-                sender.broadcast(socketData, "browser");
+            const broadcast = function terminal_server_services_fileSystem_route_broadcast(routeData:socketData):void {
+                sender.broadcast(routeData, "browser");
             };
             if (vars.test.type === "service") {
                 service.evaluation(socketData);
             } else {
-                sender.route("agentRequest", socketData, broadcast);
+                sender.route({
+                    callback: broadcast,
+                    destination: "agentRequest",
+                    origination: "agentSource",
+                    socketData: socketData
+                });
             }
         }
     },

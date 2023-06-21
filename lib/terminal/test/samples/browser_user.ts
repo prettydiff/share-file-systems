@@ -491,7 +491,7 @@ const docFiles:string = "Writing 100.00% complete. 21 files written at size ",
                     node: [
                         ["getElementById", "contentArea", null]
                     ],
-                    value: "50"
+                    value: "150"
                 }
             ],
             machine: "self",

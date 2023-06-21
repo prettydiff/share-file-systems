@@ -18,7 +18,7 @@ import share from "../content/share.js";
  *     dragList         : (event:MouseEvent, dragBox:HTMLElement) => void;   // Selects list items in response to drawing a drag box.
  *     fileAgent        : (element:HTMLElement, copyElement:HTMLElement, address?:string) => [fileAgent, fileAgent, fileAgent]; // Produces fileAgent objects for service_fileSystem and service_copy.
  *     formKeys         : (event:KeyboardEvent, submit:() => void) => void;  // Provides form execution on key down of 'Enter' key to input fields not in a form.
- *     getAgent         : (element:HTMLElement) => agency;                   // Get the agent of a given modal.
+ *     getAgent         : (element:HTMLElement) => agentId;                  // Get the agent of a given modal.
  *     keys             : (event:KeyboardEvent) => void;                     // Executes shortcut key combinations.
  *     radioListItem    : (config:config_radioListItem) => void) => Element; // Creates a radio button inside a list item element.
  *     sanitizeHTML     : (input:string) => string;                          // Make a string safe to inject via innerHTML.
