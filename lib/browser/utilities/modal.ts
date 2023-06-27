@@ -33,6 +33,7 @@ import webSocket from "./webSocket.js";
  *         zTop          : (event:KeyboardEvent|MouseEvent, elementInput?:HTMLElement) => void; // Processes visual overlapping or depth of modals.
  *     };
  *     tools: {
+ *         dynamicWidth : (box:modal, width:number, buttonCount:number) => [number, number]; // uniformly calculates widths for modal headings and status bars.
  *         forceMinimize: (id:string) => void; // Modals that do not have a minimize button still need to conform to minimize from other interactions.
  *     };
  * }
@@ -41,10 +42,11 @@ const modal:module_modal = {
 
     /* Modal creation factory */
     content: function browser_utilities_modal_content(options:config_modal):HTMLElement {
-        let buttonCount:number = 1,
+        let buttonCount:number = 0,
             section:HTMLElement = document.createElement("h2"),
             input:HTMLInputElement,
-            extra:HTMLElement;
+            extra:HTMLElement,
+            widths:[number, number] = null;
         const id:string = (options.type === "configuration")
                 ? "configuration-modal"
                 : (options.id || `${options.type}-${Math.random().toString() + String(browser.data.zIndex + 1)}`),
@@ -323,7 +325,8 @@ const modal:module_modal = {
         border.appendChild(section);
 
         // Adjust titleButton width to compensate for the presence of universal input controls
-        titleButton.style.width = `${(options.width - (buttonCount * 50)) / 18}em`;
+        widths = modal.tools.dynamicWidth(box, options.width, buttonCount);
+        titleButton.style.width = `${widths[0]}em`;
 
         // Append body content after top areas and before bottom areas
         if (options.content !== null && options.content !== undefined) {
@@ -333,6 +336,7 @@ const modal:module_modal = {
 
         // Status bar
         if (options.footer !== null && options.footer !== undefined) {
+            options.footer.style.width = `${widths[1]}em`;
             border.appendChild(options.footer);
         }
 
@@ -836,17 +840,11 @@ const modal:module_modal = {
                 headingButton:HTMLElement = heading.getElementsByTagName("button")[0],
                 touch:boolean = (event !== null && event.type === "touchstart"),
                 boxStatus:string = browser.data.modals[box.getAttribute("id")].status,
-                buttonPadding:number = (box.getElementsByClassName("buttons")[0] === undefined)
-                    ? 0
-                    : (box.getElementsByClassName("buttons")[0].getElementsByTagName("button").length * 5),
                 header:HTMLElement = box.getElementsByClassName("header")[0] as HTMLElement,
                 headerHeight:number = (header === undefined)
                     ? 0
                     : (header.clientHeight / 10),
                 footer:HTMLElement = box.getElementsByClassName("footer")[0] as HTMLElement,
-                statusMessage:HTMLElement = (footer === undefined)
-                    ? undefined
-                    : footer.getElementsByClassName("status-message")[0] as HTMLElement,
                 footerButtons:HTMLElement = (footer === undefined)
                     ? undefined
                     : footer.getElementsByClassName("footer-buttons")[0] as HTMLElement,
@@ -908,7 +906,8 @@ const modal:module_modal = {
                     let bodyWidth:number,
                         bodyHeight:number,
                         computedWidth:number,
-                        computedHeight:number;
+                        computedHeight:number,
+                        widths:[number, number] = null;
                     if (values[0] > -10) {
                         computedWidth = (leftTest === true)
                             ? left + (values[0] - offX)
@@ -916,33 +915,23 @@ const modal:module_modal = {
                         bodyWidth = (leftTest === true)
                             ? ((clientWidth - offsetWidth) + (left - computedWidth)) / 10
                             : 0;
+                        widths = modal.tools.dynamicWidth(box, null, null);
                         if (leftTest === true && bodyWidth > minWidth) {
                             box.style.left = `${computedWidth / 10}em`;
                             body.style.width = `${bodyWidth}em`;
                             sideBottom.style.width = `${bodyWidth}em`;
                             sideTop.style.width = `${bodyWidth}em`;
                             heading.style.width = `${bodyWidth + 0.2}em`;
-                            headingButton.style.width = `${((bodyWidth - buttonPadding) / 1.8)}em`;
-                            if (statusMessage !== undefined) {
-                                statusMessage.style.width = `${(bodyWidth - footerOffset - 4) / 1.5}em`;
-                            }
-                            if (statusBar !== undefined) {
-                                status.style.width = `${bodyWidth - 2}em`;
-                                statusBar.style.width = `${(bodyWidth - 4) / 1.5}em`;
-                            }
                         } else if (leftTest === false && computedWidth > minWidth) {
                             body.style.width = `${computedWidth}em`;
                             sideBottom.style.width = `${computedWidth}em`;
                             sideTop.style.width = `${computedWidth}em`;
                             heading.style.width = `${computedWidth + 0.2}em`;
-                            headingButton.style.width = `${((computedWidth - buttonPadding) / 1.8)}em`;
-                            if (statusMessage !== undefined) {
-                                statusMessage.style.width = `${(computedWidth - footerOffset - 4) / 1.5}em`;
-                            }
-                            if (statusBar !== undefined) {
-                                status.style.width = `${computedWidth - 2}em`;
-                                statusBar.style.width = `${(computedWidth - 4) / 1.5}em`;
-                            }
+                        }
+                        headingButton.style.width = `${widths[0]}em`;
+                        if (statusBar !== undefined) {
+                            status.style.width = `${widths[1]}em`;
+                            statusBar.style.width = `${widths[1] - 2}em`;
                         }
                     }
                     if (values[1] > -10) {
@@ -1115,6 +1104,21 @@ const modal:module_modal = {
     },
 
     tools: {
+
+        /* A singles source of truth for computing the width of the heading button */
+        dynamicWidth: function browser_utilities_modal_headingButtonWidth(box:modal, width:number, buttonCount:number):[number, number] {
+            const output:[number, number] = [0, 0];
+            if (buttonCount === undefined || buttonCount === null) {
+                buttonCount = box.getElementsByClassName("buttons")[0].getElementsByTagName("button").length;
+            }
+            if (width === undefined || width === null) {
+                const body:HTMLElement = box.getElementsByClassName("body")[0] as HTMLElement;
+                width = Number(body.style.width.replace(/em;?/, "")) * 10;
+            }
+            output[0] = (((width - 20) - (buttonCount * 45)) / 18);
+            output[1] = ((width / 10) - 2);
+            return output;
+        },
 
         /* Modals that do not have a minimize button still need to conform to minimize from other interactions. */
         forceMinimize: function browser_utilities_modal_forceMinimize(id:string):void {

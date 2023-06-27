@@ -325,14 +325,14 @@ const transmit_ws:module_transmit_ws = {
                     }
                     if (len < 127) {
                         return {
-                            lengthExtended: input.slice(2, 4).readUInt16BE(0),
+                            lengthExtended: input.subarray(2, 4).readUInt16BE(0),
                             lengthShort: len,
                             mask: mask,
                             startByte: 4 + keyOffset
                         };
                     }
                     return {
-                        lengthExtended: input.slice(4, 10).readUIntBE(0, 6),
+                        lengthExtended: input.subarray(4, 10).readUIntBE(0, 6),
                         lengthShort: len,
                         mask: mask,
                         startByte: 10 + keyOffset
@@ -343,31 +343,28 @@ const transmit_ws:module_transmit_ws = {
                         return null;
                     }
                     const bits0:string = data[0].toString(2).padStart(8, "0"), // bit string - convert byte number (0 - 255) to 8 bits
-                        meta:websocket_meta = extended(data),
-                        frameItem:websocket_frame = {
-                            fin: (data[0] > 127),
-                            rsv1: (bits0.charAt(1) === "1"),
-                            rsv2: (bits0.charAt(2) === "1"),
-                            rsv3: (bits0.charAt(3) === "1"),
-                            opcode: ((Number(bits0.charAt(4)) * 8) + (Number(bits0.charAt(5)) * 4) + (Number(bits0.charAt(6)) * 2) + Number(bits0.charAt(7))),
-                            mask: meta.mask,
-                            len: meta.lengthShort,
-                            extended: meta.lengthExtended,
-                            maskKey: null,
-                            startByte: meta.startByte
-                        };
-                    if (frameItem.mask === true) {
-                        frameItem.maskKey = data.slice(frameItem.startByte - 4, frameItem.startByte);
-                    }
-
-                    return frameItem;
+                        meta:websocket_meta = extended(data);
+                    return {
+                        fin: (data[0] > 127),
+                        rsv1: (bits0.charAt(1) === "1"),
+                        rsv2: (bits0.charAt(2) === "1"),
+                        rsv3: (bits0.charAt(3) === "1"),
+                        opcode: ((Number(bits0.charAt(4)) * 8) + (Number(bits0.charAt(5)) * 4) + (Number(bits0.charAt(6)) * 2) + Number(bits0.charAt(7))),
+                        mask: meta.mask,
+                        len: meta.lengthShort,
+                        extended: meta.lengthExtended,
+                        maskKey: (meta.mask === true)
+                            ? data.subarray(meta.startByte - 4, meta.startByte)
+                            : null,
+                        startByte: meta.startByte
+                    };
                 }()),
                 unmask = function terminal_server_transmission_transmitWs_listener_processor_unmask(input:Buffer):Buffer {
                     if (frame.mask === true) {
                         // RFC 6455, 5.3.  Client-to-Server Masking
                         // j                   = i MOD 4
                         // transformed-octet-i = original-octet-i XOR masking-key-octet-j
-                        input.forEach(function terminal_server_transmission_transmitWs_listener_processor_unmask(value:number, index:number):void {
+                        input.forEach(function terminal_server_transmission_transmitWs_listener_processor_unmask_each(value:number, index:number):void {
                             input[index] = value ^ frame.maskKey[index % 4];
                         });
                     }
@@ -397,11 +394,11 @@ const transmit_ws:module_transmit_ws = {
                     }
                     bulk = Buffer.concat(socket.frame.slice(0, index));
                     if (bulk.length === frameSize) {
-                        complete = unmask(bulk.slice(frame.startByte));
+                        complete = unmask(bulk.subarray(frame.startByte));
                         socket.frame.splice(0, index);
                     } else {
-                        complete = unmask(bulk.slice(frame.startByte, frameSize));
-                        socket.frame[0] = bulk.slice(frameSize);
+                        complete = unmask(bulk.subarray(frame.startByte, frameSize));
+                        socket.frame[0] = bulk.subarray(frameSize);
                         socket.frame.splice(1, index - 1);
                     }
                     return complete;
@@ -429,18 +426,18 @@ const transmit_ws:module_transmit_ws = {
                 data[1] = (data[1] > 127)
                     ? data[1] - 128
                     : data[1];
-                const payload:Buffer = Buffer.concat([data.slice(0, 2), unmask(data.slice(2))]);
+                const payload:Buffer = Buffer.concat([data.subarray(0, 2), unmask(data.subarray(2))]);
                 socket.write(payload);
                 socket.off("data", processor);
                 if (socket.type === "browser") {
-                    delete transmit_ws.clientList[socket.type][socket.hash];
+                    delete transmit_ws.clientList.browser[socket.hash];
                     socket.destroy();
                 } else if (socket.type === "device" || socket.type === "user") {
                     transmit_ws.agentClose(socket);
                 }
             } else if (frame.opcode === 9) {
                 // respond to "ping" as "pong"
-                transmit_ws.queue(data.slice(frame.startByte), socket, 10);
+                transmit_ws.queue(data.subarray(frame.startByte), socket, 10);
             } else if (frame.opcode === 10) {
                 // pong
                 const payloadString:string = payload.toString(),
@@ -458,7 +455,7 @@ const transmit_ws:module_transmit_ws = {
                 socket.frameExtended = frame.extended;
                 socket.fragment.push(payload);
                 if (frame.fin === true) {
-                    socket.handler(Buffer.concat(socket.fragment).slice(0, socket.frameExtended));
+                    socket.handler(Buffer.concat(socket.fragment).subarray(0, socket.frameExtended));
                     socket.fragment = [];
                 }
             }
@@ -622,8 +619,8 @@ const transmit_ws:module_transmit_ws = {
                                 finish = true;
                                 return dataPackage;
                             }
-                            const fragment:Buffer = dataPackage.slice(0, fragmentSize);
-                            dataPackage = dataPackage.slice(fragmentSize);
+                            const fragment:Buffer = dataPackage.subarray(0, fragmentSize);
+                            dataPackage = dataPackage.subarray(fragmentSize);
                             len = dataPackage.length;
                             if (len < fragmentSize) {
                                 finish = true;
@@ -696,7 +693,7 @@ const transmit_ws:module_transmit_ws = {
         } else if (opcode === 8 || opcode === 9 || opcode === 10 || opcode === 11 || opcode === 12 || opcode === 13 || opcode === 14 || opcode === 15) {
             const frameHeader:Buffer = Buffer.alloc(2),
                 bodyData:Buffer = body as Buffer,
-                frameBody:Buffer = bodyData.slice(0, 125);
+                frameBody:Buffer = bodyData.subarray(0, 125);
             frameHeader[0] = 128 + opcode;
             frameHeader[1] = frameBody.length;
             socketItem.queue.unshift(Buffer.concat([frameHeader, frameBody]));

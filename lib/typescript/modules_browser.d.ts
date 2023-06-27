@@ -305,7 +305,7 @@ interface module_context {
  *         dataString     : (socketData:socketData) => void; // Populate content into modals for string output operations, such as: Base64, Hash, File Read.
  *         detailsContent : (id:string) => void;             // Generates the initial content and network request for file system details.
  *         detailsResponse: (socketData:socketData) => void; // Generates the contents of a details type modal from file system data.
- *         footer         : (width:number) => HTMLElement;   // Generates the status bar content for the file browser modal.
+ *         footer         : () => HTMLElement;               // Generates the status bar content for the file browser modal.
  *         list           : (location:string, dirs:directory_response, message:string) => HTMLElement; // Generates the contents of a file system list for population into a file navigate modal.
  *         status         : (socketData:socketData) => void; // Translates messaging into file system lists for the appropriate modals.
  *     };
@@ -339,7 +339,7 @@ interface module_fileBrowser {
         dataString: (socketData:socketData) => void;
         detailsContent: (id:string) => void;
         detailsResponse: (socketData:socketData) => void;
-        footer: (width:number) => HTMLElement;
+        footer: () => HTMLElement;
         list: (location:string, dirs:directory_response, message:string) => HTMLElement;
         status: (socketData:socketData) => void;
     };
@@ -455,6 +455,7 @@ interface module_message {
  *         zTop          : (event:KeyboardEvent|MouseEvent, elementInput?:HTMLElement) => void; // Processes visual overlapping or depth of modals.
  *     };
  *     tools: {
+ *         dynamicWidth : (box:modal, width:number, buttonCount:number) => [number, number]; // uniformly calculates widths for modal headings and status bars.
  *         forceMinimize: (id:string) => void; // Modals that do not have a minimize button still need to conform to minimize from other interactions.
  *     };
  * }
@@ -477,6 +478,7 @@ interface module_modal {
         zTop: (event:KeyboardEvent|MouseEvent, elementInput?:HTMLElement) => void;
     };
     tools: {
+        dynamicWidth: (box:modal, width:number, buttonCount:number) => [number, number];
         forceMinimize: (id:string) => void;
     };
 }

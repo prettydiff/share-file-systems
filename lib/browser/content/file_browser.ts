@@ -15,7 +15,7 @@ import util from "../utilities/util.js";
  *         dataString     : (socketData:socketData) => void; // Populate content into modals for string output operations, such as: Base64, Hash, File Read.
  *         detailsContent : (id:string) => void;             // Generates the initial content and network request for file system details.
  *         detailsResponse: (socketData:socketData) => void; // Generates the contents of a details type modal from file system data.
- *         footer         : (width:number) => HTMLElement;   // Generates the status bar content for the file browser modal.
+ *         footer         : () => HTMLElement;               // Generates the status bar content for the file browser modal.
  *         list           : (location:string, dirs:directory_response, message:string) => HTMLElement; // Generates the contents of a file system list for population into a file navigate modal.
  *         status         : (socketData:socketData) => void; // Translates messaging into file system lists for the appropriate modals.
  *     };
@@ -331,11 +331,10 @@ const file_browser:module_fileBrowser = {
         },
 
         /* generates the status bar content for the file navigate modal */
-        footer: function browser_content_fileBrowser_footer(width:number):HTMLElement {
+        footer: function browser_content_fileBrowser_footer():HTMLElement {
             const  footer:HTMLElement = document.createElement("div"),
             extra:HTMLElement = document.createElement("p");
             footer.setAttribute("class", "status-bar");
-            footer.style.width = `${(width / 10) - 2}em`;
             extra.setAttribute("aria-live", "polite");
             extra.setAttribute("role", "status");
             footer.appendChild(extra);

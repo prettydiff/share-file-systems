@@ -48,59 +48,59 @@ const methodGET = function terminal_server_transmission_methodGET(request:node_h
                         : null
                 },
                 storageString:string = `<input type="hidden" value='${JSON.stringify(state).replace(/'/g, "&#39;")}'/>`,
-                bodyTag:string = (settingsData.configuration.nameDevice === "")
-                    ? "<body class=\"default login\">"
-                    : "<body class=\"default\">",
+                login:string = (settingsData.configuration.nameDevice === "")
+                    ? " login"
+                    : "",
                 pageApplication:string = `<!DOCTYPE html>
-                    <html lang="en">
-                        <head>
-                            <meta charset="utf-8"/>
-                            <title>${vars.environment.name}</title>
-                            <meta content="text/html;charset=UTF-8" http-equiv="Content-Type"/>
-                            <meta content="width=device-width, initial-scale=1" name="viewport"/>
-                            <meta content="noindex, nofollow" name="robots"/>
-                            <meta content="${vars.environment.name}" name="DC.title"/>
-                            <meta content="#fff" name="theme-color"/>
-                            <meta content="" name="description"/>
-                            <meta content="Global" name="distribution"/>
-                            <meta content="en" http-equiv="Content-Language"/>
-                            <meta content="blendTrans(Duration=0)" http-equiv="Page-Enter"/>
-                            <meta content="blendTrans(Duration=0)" http-equiv="Page-Exit"/>
-                            <meta content="text/css" http-equiv="content-style-type"/>
-                            <meta content="application/javascript" http-equiv="content-script-type"/>
-                            <meta content="#bbbbff" name="msapplication-TileColor"/>
-                            <link href="lib/css/bundle.css" media="all" rel="stylesheet" type="text/css"/>
-                            <link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgo="/>
-                        </head>
-                        ${bodyTag}
-                            ${storageString}
-                            <div id="spaces">
-                                <div id="login">
-                                    <h1>${vars.environment.name} <span class="application-version">version ${vars.environment.version}</span></h1>
-                                    <p><label for="login-user">Provide a Username</label> <input type="text" id="login-user"/></p>
-                                    <p><label for="login-device">Provide a Name for this Computer/Device</label> <input type="text" id="login-device"/></p>
-                                    <p><button type="button">✓ Confirm</button></p>
-                                </div>
-                                <div id="title-bar">
-                                    <button type="button" id="menuToggle" title="Application Menu">&#9776;<span>Application Menu</span></button>
-                                    <button type="button" id="fullscreen" title="Toggle Fullscreen">&#9974;<span>Toggle Fullscreen</span></button>
-                                    <h1>${vars.environment.name} <span class="application-version">version ${vars.environment.version}</span></h1>
-                                    <p>A tool for interactive collaboration.</p>
-                                </div>
-                                <ul id="menu"></ul>
-                                <div id="content-area">
-                                    <div id="agentList">
-                                        <p class="all-shares"><button>⌘ All Shares</button></p>
-                                        <div id="device"><h2>Device List</h2><ul><li><button type="button" class="device-all-shares">🖳 All Device Shares</button></li></ul><span></span></div>
-                                        <div id="user"><h2>User List</h2><ul><li><button type="button" class="user-all-shares">👤 All User Shares</button></li></ul><span></span></div>
-                                    </div>
-                                    <div id="tray"><button type="button" id="minimize-all" title="Minimize all modals">⇊ <span>Minimize all modals</span></button><ul></ul></div>
-                                    <p id="message-update" role="status" aria-live="polite"></p>
-                                </div>
-                            </div>
-                            <script type="module" src="js/lib/browser/bundle.js"></script>
-                        </body>
-                    </html>`;
+<html lang="en">
+    <head>
+        <meta charset="utf-8"/>
+        <title>${vars.environment.name}</title>
+        <meta content="text/html;charset=UTF-8" http-equiv="Content-Type"/>
+        <meta content="width=device-width, initial-scale=1" name="viewport"/>
+        <meta content="noindex, nofollow" name="robots"/>
+        <meta content="${vars.environment.name}" name="DC.title"/>
+        <meta content="#fff" name="theme-color"/>
+        <meta content="" name="description"/>
+        <meta content="Global" name="distribution"/>
+        <meta content="en" http-equiv="Content-Language"/>
+        <meta content="blendTrans(Duration=0)" http-equiv="Page-Enter"/>
+        <meta content="blendTrans(Duration=0)" http-equiv="Page-Exit"/>
+        <meta content="text/css" http-equiv="content-style-type"/>
+        <meta content="application/javascript" http-equiv="content-script-type"/>
+        <meta content="#bbbbff" name="msapplication-TileColor"/>
+        <link href="lib/css/bundle.css" media="all" rel="stylesheet" type="text/css"/>
+        <link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgo="/>
+    </head>
+    <body class="${vars.settings.color + login}">
+        ${storageString}
+        <div id="spaces">
+            <div id="login">
+                <h1>${vars.environment.name} <span class="application-version">version ${vars.environment.version}</span></h1>
+                <p><label for="login-user">Provide a Username</label> <input type="text" id="login-user"/></p>
+                <p><label for="login-device">Provide a Name for this Computer/Device</label> <input type="text" id="login-device"/></p>
+                <p><button type="button">✓ Confirm</button></p>
+            </div>
+            <div id="title-bar">
+                <button type="button" id="menuToggle" title="Application Menu">&#9776;<span>Application Menu</span></button>
+                <button type="button" id="fullscreen" title="Toggle Fullscreen">&#9974;<span>Toggle Fullscreen</span></button>
+                <h1>${vars.environment.name} <span class="application-version">version ${vars.environment.version}</span></h1>
+                <p>A tool for interactive collaboration.</p>
+            </div>
+            <ul id="menu"></ul>
+            <div id="content-area">
+                <div id="agentList">
+                    <p class="all-shares"><button>⌘ All Shares</button></p>
+                    <div id="device"><h2>Device List</h2><ul><li><button type="button" class="device-all-shares">🖳 All Device Shares</button></li></ul><span></span></div>
+                    <div id="user"><h2>User List</h2><ul><li><button type="button" class="user-all-shares">👤 All User Shares</button></li></ul><span></span></div>
+                </div>
+                <div id="tray"><button type="button" id="minimize-all" title="Minimize all modals">⇊ <span>Minimize all modals</span></button><ul></ul></div>
+                <p id="message-update" role="status" aria-live="polite"></p>
+            </div>
+        </div>
+        <script type="module" src="js/lib/browser/bundle.js"></script>
+    </body>
+</html>`;
             if (vars.test.browser !== null) {
                 if (vars.test.browser.index > 0) {
                     vars.test.browser.action = "nothing";

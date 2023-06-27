@@ -400,10 +400,7 @@ const modal_configuration:module_modalConfiguration = {
                         type: "file-navigate",
                         width: 800
                     }
-                    : config,
-                width:number = (config === null || config === undefined)
-                    ? 800
-                    : config.width;
+                    : config;
             if (payloadModal.history === undefined || payloadModal.history === null || payloadModal.history.length < 1) {
                 payloadModal.history = [location];
             }
@@ -415,7 +412,7 @@ const modal_configuration:module_modalConfiguration = {
             }
             payloadModal.inputs = ["close", "maximize", "minimize", "text"];
             payloadModal.content = util.delay();
-            payloadModal.footer = file_browser.content.footer(width);
+            payloadModal.footer = file_browser.content.footer();
             payloadModal.text_event = file_browser.events.text;
             document.getElementById("menu").style.display = "none";
             network.send(payloadNetwork, "file-system");
