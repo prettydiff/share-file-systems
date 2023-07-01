@@ -47,54 +47,58 @@ const agent_management = function terminal_server_services_agentManagement(socke
         addAgents("device");
         addAgents("user");
     } else if (data.action === "delete") {
-        const deleteAgents = function terminal_server_services_agentManagement_deleteAgents(type:agentType):void {
-            const keys:string[] = (data.agents[type] === null)
-                    ? []
-                    : Object.keys(data.agents[type]),
-                lengthKeys:number = keys.length,
-                property:"hashDevice"|"hashUser" = `hash${common.capitalize(type)}` as "hashDevice"|"hashUser";
-            if (lengthKeys > 0) {
-                let a:number = 0,
-                    socket:websocket_client = null;
-                do {
-                    if (keys[a] === vars.settings[property]) {
-                        socket = transmit_ws.clientList[type][data.agentFrom];
-                        if (socket !== null && socket !== undefined) {
-                            socket.destroy();
+        const deleteContainer = function terminal_server_services_agentManagement_deleteContainer():void {
+            const deleteAgents = function terminal_server_services_agentManagement_deleteContainer_deleteAgents(type:agentType):void {
+                const keys:string[] = (data.agents[type] === null)
+                        ? []
+                        : Object.keys(data.agents[type]),
+                    lengthKeys:number = keys.length,
+                    property:"hashDevice"|"hashUser" = `hash${common.capitalize(type)}` as "hashDevice"|"hashUser";
+                if (lengthKeys > 0) {
+                    let a:number = 0,
+                        socket:websocket_client = null;
+                    do {
+                        if (keys[a] === vars.settings[property]) {
+                            socket = transmit_ws.clientList[type][data.agentFrom];
+                            if (socket !== null && socket !== undefined) {
+                                socket.destroy();
+                            }
+                            delete vars.settings[type][data.agentFrom];
+                            delete transmit_ws.clientList[type][data.agentFrom];
+                        } else {
+                            socket = transmit_ws.clientList[type][keys[a]];
+                            if (socket !== null && socket !== undefined) {
+                                socket.destroy();
+                            }
+                            delete vars.settings[type][keys[a]];
+                            delete transmit_ws.clientList[type][keys[a]];
                         }
-                        delete vars.settings[type][data.agentFrom];
-                        delete transmit_ws.clientList[type][data.agentFrom];
-                    } else {
-                        socket = transmit_ws.clientList[type][keys[a]];
-                        if (socket !== null && socket !== undefined) {
-                            socket.destroy();
-                        }
-                        delete vars.settings[type][keys[a]];
-                        delete transmit_ws.clientList[type][keys[a]];
-                    }
-                    a = a + 1;
-                } while (a < lengthKeys);
-                settings({
-                    data: {
-                        settings: vars.settings[type],
-                        type: type
-                    },
-                    service: "settings"
-                });
-            }
+                        a = a + 1;
+                    } while (a < lengthKeys);
+                    settings({
+                        data: {
+                            settings: vars.settings[type],
+                            type: type
+                        },
+                        service: "settings"
+                    });
+                }
+            };
+            deleteAgents("device");
+            deleteAgents("user");
         };
-        deleteAgents("device");
-        deleteAgents("user");
         if (data.agentFrom === vars.settings.hashDevice) {
             sender.broadcast({
                 data: data,
                 service: "agent-management"
             }, "device");
+            setTimeout(deleteContainer, 25);
         } else {
             sender.broadcast({
                 data: data,
                 service: "agent-management"
             }, "browser");
+            deleteContainer();
         }
     } else if (data.action === "modify") {
         const modifyAgents = function terminal_server_services_agentManagement_modifyAgents(type:agentType):void {

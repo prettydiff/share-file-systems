@@ -17,6 +17,7 @@ import vars from "../../utilities/vars.js";
 
 import filePathDecode from "./browserUtilities/file_path_decode.js";
 import machines from "./browserUtilities/machines.js";
+import test_delete from "../samples/browser_delete.js";
 import test_device from "../samples/browser_device.js";
 import test_self from "../samples/browser_self.js";
 import test_user from "../samples/browser_user.js";
@@ -153,6 +154,9 @@ const defaultCommand:commands = vars.environment.command,
                 browser.args = args;
                 if (args.mode === "self") {
                     tests = test_self;
+                } else if (args.mode === "delete") {
+                    vars.settings.secure = true;
+                    tests = test_delete;
                 } else if (args.mode === "device") {
                     vars.settings.secure = true;
                     tests = test_device;
@@ -232,7 +236,7 @@ const defaultCommand:commands = vars.environment.command,
                                 });
                             };
                     summary.push("\u0007");
-                    if (browser.args.mode === "device" || browser.args.mode === "user") {
+                    if (browser.args.mode !== "self") {
                         const agents:string[] = Object.keys(transmit_ws.clientList.testRemote);
                         agents.forEach(function terminal_test_application_browser_exit_agents(name:string):void {
                             const action:"close"|"exit" = (browser.args.noClose === true)
@@ -301,8 +305,8 @@ const defaultCommand:commands = vars.environment.command,
                             eventName = function terminal_test_application_browser_iterate_validate_eventName(property:string):string {
                                 return `   ${vars.text.angry}*${vars.text.none} Interaction ${a + 1} has event ${vars.text.cyan}setValue${vars.text.none} but no ${vars.text.angry + property + vars.text.none} property.`;
                             };
-                        if (tests[index].delay === undefined && tests[index].unit.length < 1) {
-                            logs.push("Test does not contain a delay test or test instances in its test array.");
+                        if (tests[index].delay === undefined || tests[index].unit === null || (tests[index].unit !== null && tests[index].unit.length < 1)) {
+                            logs.push("Test does not contain points of evaluation in either a delay case or the unit array.");
                             return false;
                         }
                         if (length > 0) {
@@ -461,7 +465,8 @@ const defaultCommand:commands = vars.environment.command,
                         falseFlag:boolean = false;
                     const result: [boolean, string, string][] = item.result,
                         length:number = result.length,
-                        delay:boolean = (tests[index].unit.length === 0),
+                        delay:boolean = (tests[index].unit === null || tests[index].unit.length === 0),
+                        quote:string = `${vars.text.angry}"${vars.text.none}`,
                         completion = function terminal_test_application_browser_result_completion(pass:boolean):void {
                             const plural:string = (tests.length === 1)
                                     ? ""
@@ -472,7 +477,9 @@ const defaultCommand:commands = vars.environment.command,
                                         bb:number = 0;
                                     do {
                                         aa = aa - 1;
-                                        bb = bb + tests[aa].unit.length;
+                                        bb = bb + ((tests[aa].unit === null)
+                                            ? 0
+                                            : tests[aa].unit.length);
                                         if (tests[aa].delay !== undefined) {
                                             bb = bb + 1;
                                         }
@@ -584,7 +591,7 @@ const defaultCommand:commands = vars.environment.command,
                                                             : (pass === true)
                                                                 ? "does not contain"
                                                                 : `${vars.text.angry}contains${vars.text.none}`,
-                                nodeString:string = `${vars.text.none} ${buildNode(config, false)} ${qualifier} ${value.replace(/^"/, "").replace(/"$/, "")}`;
+                                nodeString:string = `${vars.text.none} ${buildNode(config, false)} ${qualifier} ${quote + value.replace(/^"/, "").replace(/"$/, "") + quote}`;
                             return star + resultString + nodeString;
                         },
                         failureMessage = function terminal_test_application_browser_result_failureMessage():void {
@@ -626,7 +633,7 @@ const defaultCommand:commands = vars.environment.command,
                                 : "";
                             failure.push(`     DOM node is${qualifier} ${tests[index].delay.value as string}: ${vars.text.cyan + result[1][1] + vars.text.none}`);
                         } else {
-                            failure.push(`     ${vars.text.green}Actual value:${vars.text.none}\n${vars.text.cyan + result[1][1].replace(/^"/, "").replace(/"$/, "").replace(/\\"/g, "\"") + vars.text.none}`);
+                            failure.push(`     ${vars.text.green}Actual value:${vars.text.none}\n${quote + vars.text.cyan + result[1][1].replace(/^"/, "").replace(/"$/, "").replace(/\\"/g, "\"") + vars.text.none + quote}`);
                         }
                         falseFlag = true;
                     } else if (result[0][0] === false && result[0][1].indexOf("event error ") === 0) {

@@ -139,6 +139,7 @@ This is a dynamically compiled list of supporting code files that comprise this 
    - **[../lib/terminal/test/application/browserUtilities/newDirectory.ts](../lib/terminal/test/application/browserUtilities/newDirectory.ts)**         - Generates a browser test to create new directories in the file system.
    - **[../lib/terminal/test/application/browserUtilities/showContextMenu.ts](../lib/terminal/test/application/browserUtilities/showContextMenu.ts)**   - A convenience function that launches the modal context menu in browser tests.
 * Directory *[../lib/terminal/test/samples](../lib/terminal/test/samples)*
+   - **[../lib/terminal/test/samples/browser_delete.ts](../lib/terminal/test/samples/browser_delete.ts)**                                               - A list of tests that execute in the web browser and tests agent deletion.
    - **[../lib/terminal/test/samples/browser_device.ts](../lib/terminal/test/samples/browser_device.ts)**                                               - A list of tests that execute in the web browser and require multiple computers.
    - **[../lib/terminal/test/samples/browser_self.ts](../lib/terminal/test/samples/browser_self.ts)**                                                   - A list of tests that execute in the web browser only on this computer.
    - **[../lib/terminal/test/samples/browser_user.ts](../lib/terminal/test/samples/browser_user.ts)**                                                   - A list of tests that execute in the web browser and require multiple computers.
