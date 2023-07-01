@@ -676,8 +676,8 @@ interface transmit_type {
  * }
  * ``` */
     interface websocket_client extends node_tls_TLSSocket {
-    fragment: Buffer[];
-    frame: Buffer[];
+    fragment: Buffer;
+    frame: Buffer;
     frameExtended: number;
     handler: websocket_messageHandler;
     hash: string;

@@ -43,6 +43,9 @@ const receiver = function terminal_server_transmission_receiver(socketData:socke
             "terminal": terminal.input,
             "test-browser": browser.methods.route
         };
+    if (vars.environment.command === "perf" && services.indexOf("perf-") !== 0) {
+        return;
+    }
     if (vars.test.type === "service") {
         if (services === "invite") {
             vars.test.socket = null;

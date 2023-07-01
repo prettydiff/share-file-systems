@@ -296,16 +296,12 @@ const transmit_ws:module_transmit_ws = {
 
             const data:Buffer = (function terminal_server_transmission_transmitWs_listener_processor_data():Buffer {
                     if (buf !== null && buf !== undefined) {
-                        socket.frame.push(buf);
+                        socket.frame = Buffer.concat([socket.frame, buf]);
                     }
-                    if (socket.frame[0].length === 1) {
-                        if (socket.frame.length < 2) {
-                            return null;
-                        }
-                        socket.frame[1] = Buffer.concat([socket.frame[0], socket.frame[1]]);
-                        socket.frame.splice(0, 1);
+                    if (socket.frame.length < 2) {
+                        return null;
                     }
-                    return socket.frame[0];
+                    return socket.frame;
                 }()),
                 extended = function terminal_server_transmission_transmitWs_listener_processor_extended(input:Buffer):websocket_meta {
                     const mask:boolean = (input[1] > 127),
@@ -379,46 +375,33 @@ const transmit_ws:module_transmit_ws = {
                     if (frame === null) {
                         return null;
                     }
-                    let index:number = 0,
-                        size:number = 0,
-                        complete:Buffer = null,
-                        bulk:Buffer = null;
-                    const frameLength:number = socket.frame.length,
-                        frameSize:number = frame.extended + frame.startByte;
-                    do {
-                        size = size + socket.frame[index].length;
-                        index = index + 1;
-                    } while (index < frameLength && size < frameSize);
-                    if (size < frameSize) {
+                    let complete:Buffer = null;
+                    const size:number = frame.extended + frame.startByte,
+                        len:number = socket.frame.length;
+                    if (len < size) {
                         return null;
                     }
-                    bulk = Buffer.concat(socket.frame.slice(0, index));
-                    if (bulk.length === frameSize) {
-                        complete = unmask(bulk.subarray(frame.startByte));
-                        socket.frame.splice(0, index);
-                    } else {
-                        complete = unmask(bulk.subarray(frame.startByte, frameSize));
-                        socket.frame[0] = bulk.subarray(frameSize);
-                        socket.frame.splice(1, index - 1);
-                    }
+                    complete = unmask(socket.frame.subarray(frame.startByte, size));
+                    socket.frame = socket.frame.subarray(size);
+                    transmitLogger({
+                        direction: "receive",
+                        size: data.length,
+                        socketData: {
+                            data: complete,
+                            service: "response-no-action"
+                        },
+                        transmit: {
+                            socket: socket,
+                            type: "ws"
+                        }
+                    });
+
                     return complete;
                 }());
 
             if (payload === null) {
                 return;
             }
-            transmitLogger({
-                direction: "receive",
-                size: data.length,
-                socketData: {
-                    data: payload,
-                    service: "response-no-action"
-                },
-                transmit: {
-                    socket: socket,
-                    type: "ws"
-                }
-            });
 
             if (frame.opcode === 8) {
                 // socket close
@@ -451,15 +434,17 @@ const transmit_ws:module_transmit_ws = {
                     delete socket.pong[payloadString];
                 }
             } else {
+                const segment:Buffer = Buffer.concat([socket.fragment, payload]);
                 // this block may include frame.opcode === 0 - a continuation frame
                 socket.frameExtended = frame.extended;
-                socket.fragment.push(payload);
                 if (frame.fin === true) {
-                    socket.handler(Buffer.concat(socket.fragment).subarray(0, socket.frameExtended));
-                    socket.fragment = [];
+                    socket.handler(segment.subarray(0, socket.frameExtended));
+                    socket.fragment = segment.subarray(socket.frameExtended);
+                } else {
+                    socket.fragment = segment;
                 }
             }
-            if (socket.frame.length > 0) {
+            if (socket.frame.length > 2) {
                 terminal_server_transmission_transmitWs_listener_processor(null);
             }
         };
@@ -929,8 +914,8 @@ const transmit_ws:module_transmit_ws = {
                     };
                 }
             };
-            config.socket.fragment = [];            // storehouse of complete data frames, which will comprise a frame header and payload body that may be fragmented
-            config.socket.frame = [];               // stores pieces of frames, which can be divided due to TLS decoding or header separation from some browsers
+            config.socket.fragment = Buffer.from([]); // storehouse of complete data frames, which will comprise a frame header and payload body that may be fragmented
+            config.socket.frame = Buffer.from([]);  // stores pieces of frames, which can be divided due to TLS decoding or header separation from some browsers
             config.socket.frameExtended = 0;        // stores the payload size of a given message payload as derived from the extended size bytes of a frame header
             config.socket.hash = config.identifier; // assigns a unique identifier to the socket based upon the socket's credentials
             config.socket.handler = config.handler; // assigns an event handler to process incoming messages
