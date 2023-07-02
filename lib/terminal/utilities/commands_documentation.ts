@@ -410,7 +410,7 @@ const commands_documentation = function terminal_utility_commandsDocumentation(c
             example: [
                 {
                     code: `${command}test_browser`,
-                    defined: "Runs the browser interaction tests."
+                    defined: "Runs the browser interaction tests. If not test suite is specified by name all test lists will be executed. Every test list, aside from 'self' requires 4 other computers executing in mode 'remote'."
                 },
                 {
                     code: `${command}test_browser no_close`,
@@ -423,6 +423,10 @@ const commands_documentation = function terminal_utility_commandsDocumentation(c
                 {
                     code: `${command}test_browser self`,
                     defined: "The argument 'self' executes tests from the ./lib/terminal/test/samples/browser_self.ts test list. These tests only execute on this local device and do not make use of other computers.",
+                },
+                {
+                    code: `${command}test_browser delete`,
+                    defined: "The argument 'delete' executes tests from the ./lib/terminal/test/samples/browser_delete.ts test list. This mode requires 4 other computers executing in mode 'remote'.",
                 },
                 {
                     code: `${command}test_browser device`,

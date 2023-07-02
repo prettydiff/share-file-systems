@@ -33,7 +33,10 @@ const testBrowser = function terminal_commands_interface_testBrowser(callback:co
             if (process.argv.indexOf("user") > -1) {
                 return "user";
             }
-            return "self";
+            if (process.argv.indexOf("self") > -1) {
+                return "self";
+            }
+            return "all";
         },
         args:config_test_browserExecute = {
             callback: function terminal_commands_interface_testBrowser_callback(title:string, text:string[], fail:boolean):void {

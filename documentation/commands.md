@@ -252,13 +252,15 @@ Launches the 'service' command as a child process, launches the default browser 
 
 ### Examples
 1. `share test_browser`
-   - Runs the browser interaction tests.
+   - Runs the browser interaction tests. If not test suite is specified by name all test lists will be executed. Every test list, aside from 'self' requires 4 other computers executing in mode 'remote'.
 1. `share test_browser no_close`
    - Disables the 'window.close()' command at the end of test instructions so that the browser remains open for manual inspection.
 1. `share test_browser demo`
    - Same as the 'no_close' argument but also imposes a half second delay between actions so that a person can watch the interactions.
 1. `share test_browser self`
    - The argument 'self' executes tests from the ./lib/terminal/test/samples/browser_self.ts test list. These tests only execute on this local device and do not make use of other computers.
+1. `share test_browser delete`
+   - The argument 'delete' executes tests from the ./lib/terminal/test/samples/browser_delete.ts test list. This mode requires 4 other computers executing in mode 'remote'.
 1. `share test_browser device`
    - The argument 'device' executes tests from the ./lib/terminal/test/samples/browser_device.ts test list. This mode requires 4 other computers executing in mode 'remote'.
 1. `share test_browser user`
