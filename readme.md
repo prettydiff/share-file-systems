@@ -9,6 +9,8 @@ Imagine your mom copy and paste a file from your computer to hers a hundred mile
 
 This application seeks to be inherently private.  Everything is directly point to point to users and devices you invite and therefore end-to-end encrypted.
 
+*Please note* - Certificate installation is not yet tested on OSX.
+
 ## Media
 ### Videos
  * Product Demo - https://prettydiff.com/share-product-demo.mp4
@@ -18,7 +20,7 @@ This application seeks to be inherently private.  Everything is directly point t
 
 ## Features
 * Point-to-point communications, no servers and no third party.
-* Fully load graphic user interface as fast as 80ms on old hardware in the browser with full state restoration. [See the white paper.](https://github.com/prettydiff/wisdom/blob/master/performance_frontend.md)
+* Fully load graphic user interface as fast as 80ms on old hardware in the browser with full state restoration (65ms without custom fonts). [See the white paper.](https://github.com/prettydiff/wisdom/blob/master/performance_frontend.md)
 * End-to-end encryption.
 * Share anything you want and communicate between your personal devices or allow discretionary sharing with friends and family.
 * Works the same on Windows, Linux, and Mac OSX on modern terminals and modern browsers.
