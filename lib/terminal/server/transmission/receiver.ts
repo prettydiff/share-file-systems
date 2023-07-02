@@ -53,9 +53,7 @@ const receiver = function terminal_server_transmission_receiver(socketData:socke
             vars.test.socket = transmit.socket as httpSocket_response;
         }
     }
-    if (actions[services] === undefined) {
-        transmit.socket.destroy();
-    } else {
+    if (actions[services] !== undefined) {
         actions[services](data, transmit);
     }
 };

@@ -57,7 +57,7 @@ type service_error = fileSystem_agents & NodeJS.ErrnoException;
 // eslint-disable-next-line
 type service_log = any[];
 type service_message = message_item[];
-type service_type = "agent-hash" | "agent-management" | "agent-online" | "agent-status" | "copy-list-request" | "copy-list" | "copy-send-file" | "copy" | "cut" | "error" | "file-system-details" | "file-system-status" | "file-system-string" | "file-system" | "GET" | "hash-share" | "invite" | "log" | "message" | "perf-socket" | "response-no-action" | "settings" | "terminal" | "test-browser";
+type service_type = "agent-hash" | "agent-management" | "agent-online" | "agent-status" | "copy-list-request" | "copy-list" | "copy-send-file" | "copy" | "cut" | "error" | "file-system-details" | "file-system-status" | "file-system-string" | "file-system" | "GET" | "hash-share" | "invite" | "log" | "message" | "perf-socket" | "reload" | "response-no-action" | "settings" | "terminal" | "test-browser";
 type settingsType = agentType | "configuration" | "message" | "queue";
 type socketDataType = Buffer | service_agentHash | service_agentManagement | service_agentResolve | service_agentStatus | service_copy | service_copy_send_file | service_copy_write | service_cut | service_error | service_fileSystem | service_fileSystem_details | service_fileSystem_status | service_fileSystem_string | service_hashShare | service_invite | service_log | service_message | service_settings | service_terminal | service_testBrowser;
 type socketStatus = "closed" | "end" | "open" | "pending";

@@ -368,6 +368,11 @@ const browserDelete:test_browserItem[] = [
                     ["getElementsByClassName", "footer", 0],
                     ["getElementsByClassName", "confirm", 0]
                 ]
+            },
+            {
+                event: "wait",
+                node: null,
+                value: "2000"
             }
         ],
         machine: "self",
@@ -433,6 +438,166 @@ const browserDelete:test_browserItem[] = [
         interaction: null,
         machine: "VM2",
         name: "On VM2 verify that device VM1 is deleted",
+        unit: null
+    },
+
+    // on VM1 verify reset
+    {
+        delay: {
+            node: [
+                ["getElementById", "login", null]
+            ],
+            qualifier: "greater",
+            target: ["clientHeight"],
+            type: "property",
+            value: 10
+        },
+        interaction: null,
+        machine: "VM1",
+        name: "On VM1 verify that device reset",
+        unit: null
+    },
+
+    mainMenu("VM2"),
+    inviteModal("VM2"),
+
+    // access delete menu on VM2
+    {
+        delay: {
+            node: [
+                ["getModalsByModalType", "agent-management", 0],
+                ["getElementsByClassName", "body", 0],
+                ["getElementsByClassName", "agent-management", 0],
+                ["getElementsByClassName", "delete-agents", 0]
+            ],
+            qualifier: "greater",
+            target: ["clientHeight"],
+            type: "property",
+            value: 10
+        },
+        interaction: [
+            {
+                event: "click",
+                node: [
+                    ["getModalsByModalType", "agent-management", 0],
+                    ["getElementsByClassName", "list-radio", 2],
+                    ["getElementsByTagName", "label", 0]
+                ]
+            }
+        ],
+        machine: "VM2",
+        name: "On VM2 access delete menu of the open agent management modal",
+        unit: [
+            {
+                node: [
+                    ["getModalsByModalType", "agent-management", 0],
+                    ["getElementsByClassName", "body", 0],
+                    ["getElementsByClassName", "agent-management", 0],
+                    ["getElementsByClassName", "delete-agents", 0],
+                    ["getElementsByTagName", "h3", 0]
+                ],
+                qualifier: "is",
+                target: ["firstChild", "textContent"],
+                type: "property",
+                value: "Delete Agents"
+            },
+            {
+                node: [
+                    ["getModalsByModalType", "agent-management", 0],
+                    ["getElementsByClassName", "body", 0],
+                    ["getElementsByClassName", "agent-management", 0],
+                    ["getElementsByClassName", "inviteAgent", 0]
+                ],
+                qualifier: "is",
+                target: ["clientHeight"],
+                type: "property",
+                value: 0
+            },
+            {
+                node: [
+                    ["getModalsByModalType", "agent-management", 0],
+                    ["getElementsByClassName", "body", 0],
+                    ["getElementsByClassName", "agent-management", 0],
+                    ["getElementsByClassName", "modify-agents", 0]
+                ],
+                qualifier: "is",
+                target: ["clientHeight"],
+                type: "property",
+                value: 0
+            }
+        ]
+    },
+
+    // on VM2 mark user for deletion
+    {
+        delay: {
+            node: [
+                ["getModalsByModalType", "agent-management", 0],
+                ["getElementsByClassName", "delete-agents", 0],
+                ["getElementsByClassName", "checked", 0]
+            ],
+            qualifier: "is",
+            target: ["nodeName", "toLowerCase()"],
+            type: "property",
+            value: "label"
+        },
+        interaction: [
+            {
+                event: "click",
+                node: [
+                    ["getModalsByModalType", "agent-management", 0],
+                    ["getElementsByClassName", "delete-agents", 0],
+                    ["getElementsByTagName", "label", 1]
+                ]
+            }
+        ],
+        machine: "VM2",
+        name: "On VM2 select user for deletion",
+        unit: []
+    },
+
+    // on VM2 delete user
+    {
+        delay: {
+            node: [
+                ["getElementById", "user", null],
+                ["getElementsByTagName", "button", null]
+            ],
+            qualifier: "is",
+            target: ["length"],
+            type: "property",
+            value: 1
+        },
+        interaction: [
+            {
+                event: "click",
+                node: [
+                    ["getModalsByModalType", "agent-management", 0],
+                    ["getElementsByClassName", "footer", 0],
+                    ["getElementsByClassName", "confirm", 0]
+                ]
+            }
+        ],
+        machine: "VM2",
+        name: "On VM2 delete user",
+        unit: null
+    },
+
+    // on self verify user is deleted
+    {
+        delay: {
+            node: [
+                ["getElementById", "user", null],
+                ["getElementsByTagName", "button", null]
+            ],
+            qualifier: "is",
+            target: ["length"],
+            type: "property",
+            value: 1
+        },
+        interaction: null,
+        machine: "self",
+        name: "On self verify user is deleted",
         unit: null
     }
 ];
