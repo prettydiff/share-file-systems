@@ -13,8 +13,8 @@ This application seeks to be inherently private.  Everything is directly point t
 
 ## Media
 ### Videos
- * Product Demo - https://prettydiff.com/share-product-demo.mp4
- * Test Automation - https://prettydiff.com/share-test-automation.mp4
+ * Product Demo - https://prettydiff.com/share-product-demo.mp4 (22 FEB 2021)
+ * Test Automation - https://prettydiff.com/share-test-automation.mp4 (25 FEB 2021)
 
 [Screenshots](documentation/screenshots.md)
 
