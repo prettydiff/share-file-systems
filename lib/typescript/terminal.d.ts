@@ -404,39 +404,6 @@ interface documentation_file_item {
 }
 
 /**
- * Used for routing agent specific data through file system and copy related services.
- * ```typescript
- * interface fileAgent {
- *     device: string;
- *     modalAddress: string;
- *     share: string;
- *     type: agentType;
- *     user: string;
- * }
- * ``` */
-interface fileAgent {
-    device: string;
-    modalAddress: string;
-    share: string;
-    user: string;
-}
-
-/**
- * Conveys data from reading one or more files.
- * ```typescript
- * interface fileRead {
- *     content: string;
- *     id: string;
- *     path: string;
- * }
- * ``` */
-interface fileRead {
-    content: string;
-    id: string;
-    path: string;
-}
-
-/**
  * The output structure of the *hash* command.
  * ```typescript
  * interface hash_output {
@@ -456,27 +423,40 @@ interface hash_output {
 }
 
 /**
- * Provides identity to an HTTP request socket.
+ * Parameters for an optional callback function to the agent_http.server method in the cases where other utilities are spawning an http server.
  * ```typescript
- * interface httpSocket_request extends node_http_ClientRequest {
- *     hash: string;
- *     type: agentType;
+ * interface http_server_callback extends agency {
+ *     callback: (output:http_server_output) => void;
  * }
  * ``` */
-interface httpSocket_request extends node_http_ClientRequest {
-    hash: string;
-    type: agentType;
+interface http_server_callback extends agency {
+    callback: (output:http_server_output) => void;
 }
 
 /**
- * Provides identity to an HTTP response socket.
+ * The object returned to the optional callback of agent_http.server.
  * ```typescript
- * interface httpSocket_response extends node_http_ServerResponse {
+ * interface http_server_output extends agency {
+ *     log: string[];
+ *     ports: ports;
+ *     server: node_http_Server;
+ * }
+ * ``` */
+interface http_server_output extends agency {
+    log: string[];
+    ports: ports;
+    server: node_http_Server;
+}
+
+/**
+ * Provides identity to an HTTP socket.
+ * ```typescript
+ * interface httpSocket_agent {
  *     hash: string;
  *     type: agentType;
  * }
  * ``` */
-interface httpSocket_response extends node_http_ServerResponse {
+interface httpSocket_agent {
     hash: string;
     type: agentType;
 }
@@ -533,40 +513,6 @@ interface remove_count {
 }
 
 /**
- * Parameters for an optional callback function to the agent_http.server method in the cases where other utilities are spawning an http server.
- * ```typescript
- * interface server_callback {
- *     agent: string;
- *     agentType: agentType;
- *     callback: (output:serverOutput) => void;
- * }
- * ``` */
-interface server_callback {
-    agent: string;
-    agentType: agentType;
-    callback: (output:server_output) => void;
-}
-
-/**
- * The object returned to the optional callback of agent_http.server.
- * ```typescript
- * interface server_output {
- *     agent: string;
- *     agentType: agentType;
- *     log: string[];
- *     ports: ports;
- *     server: node_http_Server;
- * }
- * ``` */
-interface server_output {
-    agent: string;
-    agentType: agentType;
-    log: string[];
-    ports: ports;
-    server: node_http_Server;
-}
-
-/**
  * A means of organizing all stored data types into a single object for portability.
  * ```typescript
  * interface settings_item {
@@ -593,7 +539,7 @@ interface settings_item {
  *    IPv6: string[];
  * }
  * ``` */
-    interface transmit_addresses_IP {
+interface transmit_addresses_IP {
     IPv4: string[];
     IPv6: string[];
 }
@@ -730,8 +676,8 @@ interface transmit_type {
  * }
  * ``` */
     interface websocket_client extends node_tls_TLSSocket {
-    fragment: Buffer[];
-    frame: Buffer[];
+    fragment: Buffer;
+    frame: Buffer;
     frameExtended: number;
     handler: websocket_messageHandler;
     hash: string;

@@ -43,6 +43,9 @@ const receiver = function terminal_server_transmission_receiver(socketData:socke
             "terminal": terminal.input,
             "test-browser": browser.methods.route
         };
+    if (vars.environment.command === "perf" && services.indexOf("perf-") !== 0) {
+        return;
+    }
     if (vars.test.type === "service") {
         if (services === "invite") {
             vars.test.socket = null;
@@ -50,9 +53,7 @@ const receiver = function terminal_server_transmission_receiver(socketData:socke
             vars.test.socket = transmit.socket as httpSocket_response;
         }
     }
-    if (actions[services] === undefined) {
-        transmit.socket.destroy();
-    } else {
+    if (actions[services] !== undefined) {
         actions[services](data, transmit);
     }
 };

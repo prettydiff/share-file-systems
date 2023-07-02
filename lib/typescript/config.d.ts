@@ -206,20 +206,14 @@ interface config_copy_rename {
 /**
  * For serviceCopy.security of terminal/server/services/fileCopy.
  * ```typescript
- * interface config_copy_security {
- *     agentRequest: fileAgent;
- *     agentSource: fileAgent;
- *     agentWrite: fileAgent;
+ * interface config_copy_security extends fileSystem_agents {
  *     callback: () => void;
  *     change: boolean;
  *     location: string;
  *     self: agentCopy;
  * }
  * ``` */
-interface config_copy_security {
-    agentRequest: fileAgent;
-    agentSource: fileAgent;
-    agentWrite: fileAgent;
+interface config_copy_security extends fileSystem_agents {
     callback: () => void;
     change: boolean;
     location: string;
@@ -229,27 +223,19 @@ interface config_copy_security {
 /**
  * For serviceCopy.status.copy of terminal/server/services/fileCopy.
  * ```typescript
- * interface config_copy_status {
- *     agentRequest: fileAgent;
- *     agentSource: fileAgent;
- *     agentWrite: fileAgent;
+ * interface config_copy_status extends fileSystem {
  *     countFile: number;
  *     directory: boolean;
  *     failures: number;
- *     location: string[];
  *     message: string;
  *     totalSize: number;
  *     writtenSize: number;
  * }
  * ``` */
-interface config_copy_status {
-    agentRequest: fileAgent;
-    agentSource: fileAgent;
-    agentWrite: fileAgent;
+interface config_copy_status extends fileSystem {
     countFile: number;
     directory: boolean;
     failures: number;
-    location: string[];
     message: string;
     totalSize: number;
     writtenSize: number;
@@ -258,9 +244,7 @@ interface config_copy_status {
 /**
  * For transmit_http.request of terminal/server/transmission/transmit_http.
  * ```typescript
- * interface config_http_request {
- *     agent:string;
- *     agentType: agentType;
+ * interface config_http_request extends agency {
  *     callback: (message:socketData, response:IncomingMessage) => void;
  *     ip: string;
  *     payload: socketData;
@@ -268,9 +252,7 @@ interface config_copy_status {
  *     stream: boolean;
  * }
  * ``` */
-interface config_http_request {
-    agent:string;
-    agentType: agentType;
+interface config_http_request extends agency {
     callback: (message:socketData, response:node_http_IncomingMessage) => void;
     ip: string;
     payload: socketData;
@@ -334,10 +316,8 @@ interface config_list {
 /**
  * For modal.content of browser/utilities/modal.
  * ```typescript
- * interface config_modal {
- *     agent: string;
+ * interface config_modal extends agency {
  *     agentIdentity: boolean;
- *     agentType: agentType;
  *     callback?: () => void;
  *     closeHandler?: (event:MouseEvent) => void;
  *     content: HTMLElement;
@@ -373,10 +353,8 @@ interface config_list {
  * type modalType = "agent-management" | "configuration" | "details" | "document" | "export" | "file-edit" | "file-navigate" | "invite-accept" | "media" | "message" | "shares" | "terminal" | "text-pad";
  * type ui_input = "cancel" | "close" | "confirm" | "maximize" | "minimize" | "save" | "text";
  * ``` */
-interface config_modal {
-    agent: string;
+interface config_modal extends agency {
     agentIdentity: boolean;
-    agentType: agentType;
     callback?: () => void;
     closeHandler?: (event:MouseEvent) => void;
     content: HTMLElement;
@@ -499,6 +477,23 @@ interface config_rename {
 }
 
 /**
+ * For sender.route of terminal/server/transmission/sender
+ * ```typescript
+ * interface config_senderRoute {
+ *     callback:(socketData:socketData) => void;
+ *     destination:agentCopy;
+ *     origination:agentCopy;
+ *     socketData:socketData;
+ * }
+ * ``` */
+interface config_senderRoute {
+    callback:(socketData:socketData) => void;
+    destination:agentCopy;
+    origination:agentCopy;
+    socketData:socketData;
+}
+
+/**
  * For browser_content_share_content_toolButton of browser/content/share
  * ```typescript
  * interface config_share_tool {
@@ -618,23 +613,11 @@ interface config_transmit_logger {
  * For transmit_ws.createSocket of terminal/server/transmission/transmit_ws.
  * ```typescript
  * interface config_websocket_create {
- *     callbackRequest: (socket:websocket_client) => void;
- *     handler: websocket_messageHandler;
- *     hash: string;
  *     headers: string[];
- *     ip: string;
- *     port: number;
- *     type: socketType;
  * }
  * ``` */
-interface config_websocket_create {
-    callbackRequest: (socket:websocket_client) => void;
-    handler: websocket_messageHandler;
-    hash: string;
+interface config_websocket_create extends config_websocket_openService {
     headers: string[];
-    ip: string;
-    port: number;
-    type: socketType;
 }
 
 /**
@@ -661,16 +644,12 @@ interface config_websocket_extensions {
 /**
  * For transmit_ws.open.agent of terminal/server/transmission/transmit_ws.
  * ```typescript
- * interface config_websocket_openAgent {
- *     agent: string;
+ * interface config_websocket_openAgent extends agency {
  *     callback: (socket:websocket_client) => void;
- *     type: agentType;
  * }
  * ``` */
-interface config_websocket_openAgent {
-    agent: string;
+interface config_websocket_openAgent extends agency {
     callback: (socket:websocket_client) => void;
-    type: agentType;
 }
 
 /**
@@ -691,7 +670,7 @@ interface config_websocket_openService {
     hash: string;
     ip: string;
     port: number;
-    type: socketType;
+    socketType: socketType;
 }
 
 /**

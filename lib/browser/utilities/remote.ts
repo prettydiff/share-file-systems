@@ -41,10 +41,10 @@ const remote:module_remote = {
             delayFunction = function browser_utilities_remote_delay_timeout():void {
                 const testResult:[boolean, string, string] = remote.evaluate(config.delay);
                 if (testResult[0] === true) {
-                    if (config.unit.length > 0) {
-                        remote.report(config.unit, remote.index);
-                    } else {
+                    if (config.unit === null || config.unit.length < 1) {
                         remote.sendTest([testResult], remote.index, remote.action);
+                    } else {
+                        remote.report(config.unit, remote.index);
                     }
                     return;
                 }
@@ -144,11 +144,6 @@ const remote:module_remote = {
 
     /* Process a single event instance */
     event: function browser_utilities_remote_event(item:service_testBrowser, pageLoad:boolean):void {
-        if (item.test.interaction === null) {
-            remote.index = item.index;
-            remote.delay(item.test);
-            return;
-        }
         if (item.index > remote.index || remote.index < 0) {
             remote.index = item.index;
             let a:number = 0,
@@ -286,24 +281,32 @@ const remote:module_remote = {
                     } while (index < eventLength);
                     complete();
                 },
-                eventLength:number = item.test.interaction.length;
+                eventLength:number = (item.test.interaction === null)
+                    ? 0
+                    : item.test.interaction.length;
             if (item.action === "nothing") {
                 return;
             }
             remote.action = item.action;
             browser.testBrowser = item;
-            do {
-                if (item.test.interaction[a].event === "refresh-interaction") {
-                    if (pageLoad === true) {
-                        remote.delay(item.test);
-                        return;
+            if (eventLength > 0) {
+                do {
+                    if (item.test.interaction[a].event === "refresh-interaction") {
+                        if (pageLoad === true) {
+                            remote.delay(item.test);
+                            return;
+                        }
+                        refresh = true;
+                        break;
                     }
-                    refresh = true;
-                    break;
-                }
-                a = a + 1;
-            } while (a < eventLength);
-            action(0);
+                    a = a + 1;
+                } while (a < eventLength);
+            }
+            if (item.test.interaction === null || item.test.interaction.length < 1) {
+                complete();
+            } else {
+                action(0);
+            }
         }
     },
 

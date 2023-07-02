@@ -70,12 +70,14 @@ const filePathDecode = function terminal_test_application_browserUtilities_fileP
             }
             if (testItem.interaction[a].node !== null && testItem.interaction[a].node.length > 0) {
                 b = testItem.interaction[a].node.length;
-                do {
-                    b = b - 1;
-                    if (typeof testItem.interaction[a].node[b][1] === "string") {
-                        testItem.interaction[a].node[b][1] = path(testItem.interaction[a].node[b][1]);
-                    }
-                } while (b > 0);
+                if (b > 0) {
+                    do {
+                        b = b - 1;
+                        if (typeof testItem.interaction[a].node[b][1] === "string") {
+                            testItem.interaction[a].node[b][1] = path(testItem.interaction[a].node[b][1]);
+                        }
+                    } while (b > 0);
+                }
             }
         } while (a > 0);
     }
@@ -89,23 +91,27 @@ const filePathDecode = function terminal_test_application_browserUtilities_fileP
                 testItem.unit[a].value = path(testItem.unit[a].value as string);
             }
             b = testItem.unit[a].node.length;
-            do {
-                b = b - 1;
-                if (typeof testItem.unit[a].node[b][1] === "string") {
-                    testItem.unit[a].node[b][1] = path(testItem.unit[a].node[b][1]);
-                }
-            } while (b > 0);
+            if (b > 0) {
+                do {
+                    b = b - 1;
+                    if (typeof testItem.unit[a].node[b][1] === "string") {
+                        testItem.unit[a].node[b][1] = path(testItem.unit[a].node[b][1]);
+                    }
+                } while (b > 0);
+            }
         } while (a > 0);
     }
     if (testItem.delay !== undefined && testItem.delay !== null && typeof testItem.delay.value === "string") {
         testItem.delay.value = path(testItem.delay.value);
         b = testItem.delay.node.length;
-        do {
-            b = b - 1;
-            if (typeof testItem.delay.node[b][1] === "string") {
-                testItem.delay.node[b][1] = path(testItem.delay.node[b][1]);
-            }
-        } while (b > 0);
+        if (b > 0) {
+            do {
+                b = b - 1;
+                if (typeof testItem.delay.node[b][1] === "string") {
+                    testItem.delay.node[b][1] = path(testItem.delay.node[b][1]);
+                }
+            } while (b > 0);
+        }
     }
     return testItem;
 };

@@ -7,7 +7,6 @@
  *     device: string;
  *     modalAddress: string;
  *     share: string;
- *     type: agentType;
  *     user: string;
  * }
  * ``` */
@@ -16,6 +15,32 @@ interface fileAgent {
     modalAddress: string;
     share: string;
     user: string;
+}
+
+/**
+ * Provides the template on which file system operations execute
+ * ```typescript
+ * interface fileSystem {
+ *     location: string[];
+ * }
+ * ``` */
+interface fileSystem extends fileSystem_agents {
+    location: string[];
+}
+
+/**
+ * Defines the parties to a file system operation
+ * ```typescript
+ * interface fileSystem {
+ *     agentRequest: fileAgent;
+ *     agentSource : fileAgent;
+ *     agentWrite  : fileAgent;
+ * }
+ * ``` */
+interface fileSystem_agents {
+    agentRequest: fileAgent;
+    agentSource : fileAgent;
+    agentWrite  : fileAgent;
 }
 
 /**

@@ -13,6 +13,7 @@ const fileExecution = function terminal_server_services_fileExecute(pathList:fil
         status:service_fileSystem_status = {
             agentRequest: agentRequest,
             agentSource: agentSource,
+            agentWrite: null,
             fileList: null,
             message: "",
         },

@@ -1,6 +1,19 @@
 /* lib/typescript/global.d - TypeScript interfaces used in many unrelated areas of the application. */
 
 /**
+ * Associates and agent hash to an agentType.
+ * ```typescript
+ * interface agency {
+ *     agent: string;
+ *     agentType: agentType;
+ * }
+ * ``` */
+interface agency {
+    agent: string;
+    agentType: agentType;
+}
+
+/**
  * An agent represents a connection point, such as a user or personal device.
  * ```typescript
  * interface agent {

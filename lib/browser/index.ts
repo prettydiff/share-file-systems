@@ -333,7 +333,6 @@ import disallowed from "../common/disallowed.js";
                 browser.data.tutorial = state.settings.configuration.tutorial;
                 browser.device = state.settings.device;
                 browser.user = state.settings.user;
-                browser.pageBody.setAttribute("class", browser.data.color);
                 modalKeys.forEach(function browser_init_restoreState_modalKeys(value:string) {
                     modalItem = state.settings.configuration.modals[value];
                     modalItem.callback = function browser_init_restoreState_modalKeys_callback():void {

@@ -28,7 +28,7 @@ import vars from "../../utilities/vars.js";
  *     request     : (config:config_http_request) => void;                                                 // Send an arbitrary HTTP request.
  *     respond     : (config:config_http_respond, get:boolean, url:string) => void;                        // Formats and sends HTTP response messages.
  *     respondEmpty: (transmit:transmit_type)                                                              // Responds to a request with an empty payload.
- *     server      : (serverOptions:config_http_server, serverCallback:server_callback) => void;           // Creates an HTTP server.
+ *     server      : (serverOptions:config_http_server, serverCallback:http_server_callback) => void;      // Creates an HTTP server.
  * }
  * ``` */
 const transmit_http:module_transmit_http = {
@@ -416,7 +416,7 @@ const transmit_http:module_transmit_http = {
             }, false, "");
         }
     },
-    server: function terminal_server_transmission_transmitHttp_server(serverOptions:config_http_server, serverCallback:server_callback):void {
+    server: function terminal_server_transmission_transmitHttp_server(serverOptions:config_http_server, serverCallback:http_server_callback):void {
         // at this time the serverCallback argument is only used by test automation and so its availability
         // * locks the server to address ::1 (loopback)
         // * bypasses messaging users on server start up
@@ -669,8 +669,8 @@ const transmit_http:module_transmit_http = {
                                                                         vars.settings[type][keys[a]].status = "offline";
                                                                         transmit_ws.open.agent({
                                                                             agent: keys[a],
-                                                                            callback: complete,
-                                                                            type: type
+                                                                            agentType: type,
+                                                                            callback: complete
                                                                         });
                                                                     }
                                                                 } while (a > 0);

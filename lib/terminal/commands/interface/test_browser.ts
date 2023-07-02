@@ -24,13 +24,19 @@ const testBrowser = function terminal_commands_interface_testBrowser(callback:co
             if (process.argv.indexOf("remote") > -1) {
                 return "remote";
             }
+            if (process.argv.indexOf("delete") > -1) {
+                return "delete";
+            }
             if (process.argv.indexOf("device") > -1) {
                 return "device";
             }
             if (process.argv.indexOf("user") > -1) {
                 return "user";
             }
-            return "self";
+            if (process.argv.indexOf("self") > -1) {
+                return "self";
+            }
+            return "all";
         },
         args:config_test_browserExecute = {
             callback: function terminal_commands_interface_testBrowser_callback(title:string, text:string[], fail:boolean):void {

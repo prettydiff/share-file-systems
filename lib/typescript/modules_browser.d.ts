@@ -305,7 +305,7 @@ interface module_context {
  *         dataString     : (socketData:socketData) => void; // Populate content into modals for string output operations, such as: Base64, Hash, File Read.
  *         detailsContent : (id:string) => void;             // Generates the initial content and network request for file system details.
  *         detailsResponse: (socketData:socketData) => void; // Generates the contents of a details type modal from file system data.
- *         footer         : (width:number) => HTMLElement;   // Generates the status bar content for the file browser modal.
+ *         footer         : () => HTMLElement;               // Generates the status bar content for the file browser modal.
  *         list           : (location:string, dirs:directory_response, message:string) => HTMLElement; // Generates the contents of a file system list for population into a file navigate modal.
  *         status         : (socketData:socketData) => void; // Translates messaging into file system lists for the appropriate modals.
  *     };
@@ -339,7 +339,7 @@ interface module_fileBrowser {
         dataString: (socketData:socketData) => void;
         detailsContent: (id:string) => void;
         detailsResponse: (socketData:socketData) => void;
-        footer: (width:number) => HTMLElement;
+        footer: () => HTMLElement;
         list: (location:string, dirs:directory_response, message:string) => HTMLElement;
         status: (socketData:socketData) => void;
     };
@@ -455,6 +455,7 @@ interface module_message {
  *         zTop          : (event:KeyboardEvent|MouseEvent, elementInput?:HTMLElement) => void; // Processes visual overlapping or depth of modals.
  *     };
  *     tools: {
+ *         dynamicWidth : (box:modal, width:number, buttonCount:number) => [number, number]; // uniformly calculates widths for modal headings and status bars.
  *         forceMinimize: (id:string) => void; // Modals that do not have a minimize button still need to conform to minimize from other interactions.
  *     };
  * }
@@ -477,6 +478,7 @@ interface module_modal {
         zTop: (event:KeyboardEvent|MouseEvent, elementInput?:HTMLElement) => void;
     };
     tools: {
+        dynamicWidth: (box:modal, width:number, buttonCount:number) => [number, number];
         forceMinimize: (id:string) => void;
     };
 }
@@ -631,7 +633,7 @@ interface module_share {
  *     dragList         : (event:MouseEvent, dragBox:HTMLElement) => void;   // Selects list items in response to drawing a drag box.
  *     fileAgent        : (element:HTMLElement, copyElement:HTMLElement, address?:string) => [fileAgent, fileAgent, fileAgent]; // Produces fileAgent objects for service_fileSystem and service_copy.
  *     formKeys         : (event:KeyboardEvent, submit:() => void) => void;  // Provides form execution on key down of 'Enter' key to input fields not in a form.
- *     getAgent         : (element:HTMLElement) => agency;                   // Get the agent of a given modal.
+ *     getAgent         : (element:HTMLElement) => agentId;                  // Get the agent of a given modal.
  *     keys             : (event:KeyboardEvent) => void;                     // Executes shortcut key combinations.
  *     radioListItem    : (config:config_radioListItem) => void) => Element; // Creates a radio button inside a list item element.
  *     sanitizeHTML     : (input:string) => string;                          // Make a string safe to inject via innerHTML.
@@ -649,7 +651,7 @@ interface module_util {
     dragList: (event:MouseEvent, dragBox:HTMLElement) => void;
     fileAgent: (element:HTMLElement, copyElement:HTMLElement, address?:string) => [fileAgent, fileAgent, fileAgent];
     formKeys: (event:KeyboardEvent, submit:() => void) => void;
-    getAgent: (element:HTMLElement) => agency;
+    getAgent: (element:HTMLElement) => agentId;
     keys: (event:KeyboardEvent) => void;
     radioListItem: (config:config_radioListItem) => HTMLElement;
     sanitizeHTML: (input:string) => string;

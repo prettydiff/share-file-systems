@@ -18,7 +18,7 @@ import share from "../content/share.js";
  *     dragList         : (event:MouseEvent, dragBox:HTMLElement) => void;   // Selects list items in response to drawing a drag box.
  *     fileAgent        : (element:HTMLElement, copyElement:HTMLElement, address?:string) => [fileAgent, fileAgent, fileAgent]; // Produces fileAgent objects for service_fileSystem and service_copy.
  *     formKeys         : (event:KeyboardEvent, submit:() => void) => void;  // Provides form execution on key down of 'Enter' key to input fields not in a form.
- *     getAgent         : (element:HTMLElement) => agency;                   // Get the agent of a given modal.
+ *     getAgent         : (element:HTMLElement) => agentId;                  // Get the agent of a given modal.
  *     keys             : (event:KeyboardEvent) => void;                     // Executes shortcut key combinations.
  *     radioListItem    : (config:config_radioListItem) => void) => Element; // Creates a radio button inside a list item element.
  *     sanitizeHTML     : (input:string) => string;                          // Make a string safe to inject via innerHTML.
@@ -376,7 +376,7 @@ const util:module_util = {
             return [null, null, null];
         }
         const box:modal = element.getAncestor("box", "class"),
-            agency:agency = util.getAgent(box),
+            agency:agentId = util.getAgent(box),
             modalAddress:string = (address === null || address === undefined)
                 ? box.getElementsByClassName("fileAddress")[0].getElementsByTagName("input")[0].value
                 : address,
@@ -445,7 +445,7 @@ const util:module_util = {
     },
 
     /* Get the agent of a given modal. */
-    getAgent: function browser_utilities_util_getAgent(element:HTMLElement):agency {
+    getAgent: function browser_utilities_util_getAgent(element:HTMLElement):agentId {
         const box:modal = element.getAncestor("box", "class"),
             id:string = box.getAttribute("id");
         let agent:string = browser.data.modals[id].agent;

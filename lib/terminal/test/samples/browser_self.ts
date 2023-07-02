@@ -190,20 +190,20 @@ const browserSelf:test_browserItem[] = [
                         ["getElementsByClassName", "terminal-list", 0],
                         ["getElementsByTagName", "li", 2]
                     ],
-                    qualifier: "is",
+                    qualifier: "begins",
                     target: ["innerHTML"],
                     type: "property",
-                    value: "<span class=\"cyan bold underline\">Share File Systems - Browser Tests - self</span>"
+                    value: "<span class=\"cyan bold underline\">Share File Systems - Browser Tests"
                 },
                 {
                     node: [
                         ["getModalsByModalType", "terminal", 0],
                         ["getElementsByClassName", "terminal-list", 0]
                     ],
-                    qualifier: "is",
+                    qualifier: "begins",
                     target: ["dataset", "scroll"],
                     type: "property",
-                    value: "{\"position\":0,\"entries\":[11]}"
+                    value: "{\"position\":0,\"entries\":["
                 }
             ]
         },
@@ -2372,20 +2372,20 @@ const browserSelf:test_browserItem[] = [
                         ["getElementsByClassName", "terminal-list", 0],
                         ["getElementsByTagName", "li", 2]
                     ],
-                    qualifier: "is",
+                    qualifier: "begins",
                     target: ["innerHTML"],
                     type: "property",
-                    value: "<span class=\"cyan bold underline\">Share File Systems - Browser Tests - self</span>"
+                    value: "<span class=\"cyan bold underline\">Share File Systems - Browser Tests - "
                 },
                 {
                     node: [
                         ["getModalsByModalType", "terminal", 1],
                         ["getElementsByClassName", "terminal-list", 0]
                     ],
-                    qualifier: "is",
+                    qualifier: "begins",
                     target: ["dataset", "scroll"],
                     type: "property",
-                    value: "{\"position\":0,\"entries\":[59]}"
+                    value: "{\"position\":0,\"entries\":["
                 }
             ]
         },

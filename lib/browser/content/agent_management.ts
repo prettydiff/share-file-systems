@@ -791,9 +791,9 @@ const agent_management:module_agentManagement = {
                     if (browser.loading === false) {
                         configuration.tools.styleText({
                             agent: input.hash,
+                            agentType: input.type,
                             colors: [body, heading],
-                            replace: false,
-                            type: input.type
+                            replace: false
                         });
                     }
                 },
@@ -901,9 +901,9 @@ const agent_management:module_agentManagement = {
                         userColors[a].parentNode.removeChild(userColors[a]);
                         configuration.tools.styleText({
                             agent: agent,
+                            agentType: agentType,
                             colors: ["", ""],
-                            replace: true,
-                            type: agentType
+                            replace: true
                         });
                         break;
                     }
@@ -927,7 +927,7 @@ const agent_management:module_agentManagement = {
             }
     
             // remove the named button for the agent
-            if (parent !== null && button.dataset.type === agentType) {
+            if (parent !== null && button.dataset.agenttype === agentType) {
                 parent.parentNode.removeChild(parent);
             }
         },
@@ -1088,7 +1088,6 @@ const agent_management:module_agentManagement = {
                 };
                 deleteAgents("device");
                 deleteAgents("user");
-                network.configuration();
             } else if (data.action === "modify") {
                 const shareContent = function browser_content_agentManagement_receive_shareContent(agentName:string, agentType:agentType|""):void {
                         const shareModals:HTMLElement[] = document.getModalsByModalType("shares");

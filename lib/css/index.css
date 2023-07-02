@@ -221,7 +221,6 @@ body.login #spaces{bottom:0;padding:2.5em 0 0;position:fixed;top:0}
 #spaces .box .footer{border-style:none solid solid;border-width:0 0.1em 0.1em;bottom:0;display:block;margin:0;padding:2em;position:relative;z-index:4}
 #spaces .box .footer .footer-buttons{float:right}
 #spaces .box .footer button{border-width:0.05em;display:inline-block;font-weight:bold;margin:0 0 0 2em}
-#spaces .box .footer .status-message{float:left;font-size:1.5em}
 #spaces .box .footer p{margin:0}
 #spaces .box .status-bar{border-style:none solid solid;border-width:0.1em;padding:1em;position:relative;z-index:4}
 #spaces .box .status-bar p{font-size:1.5em;height:1.5em;margin:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
