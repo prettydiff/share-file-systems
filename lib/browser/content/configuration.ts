@@ -484,6 +484,10 @@ const configuration:module_configuration = {
                     index:number = 0;
                 cell("Type", "th", tr);
                 cell("Status", "th", tr);
+                cell("Local Address", "th", tr);
+                cell("Local Port", "th", tr);
+                cell("Remote Address", "th", tr);
+                cell("Remote Port", "th", tr);
                 cell("Name", "th", tr);
                 section.appendChild(tr);
                 table.appendChild(section);
@@ -492,6 +496,10 @@ const configuration:module_configuration = {
                     tr = document.createElement("tr");
                     cell(list[index].type, "td", tr);
                     cell(list[index].status, "td", tr);
+                    cell(list[index].localAddress, "td", tr);
+                    cell(list[index].localPort.toString(), "td", tr);
+                    cell(list[index].remoteAddress, "td", tr);
+                    cell(list[index].remotePort.toString(), "td", tr);
                     cell(list[index].name, "td", tr);
                     if (list[index].status === "end" || list[index].status === "closed") {
                         tr.setAttribute("class", "closed");

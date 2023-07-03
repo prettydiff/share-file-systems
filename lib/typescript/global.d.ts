@@ -244,13 +244,21 @@ interface socketData {
  * A data package describing lists of sockets.
  * ```typescript
  * interface socketListItem {
+ *     localAddress: string;
+ *     localPort: number;
  *     name: string;
+ *     remoteAddress: string;
+ *     remotePort: number;
  *     status: socketStatus;
  *     type: string;
  * }
  * ``` */
 interface socketListItem {
+    localAddress: string;
+    localPort: number;
     name: string;
+    remoteAddress: string;
+    remotePort: number;
     status: socketStatus;
     type: string;
 }

@@ -190,9 +190,7 @@ const transmit_ws:module_transmit_ws = {
     },
     // generate a summary list of open sockets on this device
     list: function terminal_server_transmission_transmitWs_list():socketListItem[] {
-        const star:string = `${vars.text.angry}*${vars.text.none} `,
-            longest:[number, number] = [0, 0],
-            list:socketListItem[] = [],
+        const list:socketListItem[] = [],
             keysPrimary:string[] = Object.keys(transmit_ws.clientList),
 
             // populate data from sockets that are children of a group
@@ -201,15 +199,21 @@ const transmit_ws:module_transmit_ws = {
                 const socketList:websocket_list = transmit_ws.clientList[keysPrimary[indexPrimary]] as websocket_list,
                     keysChild:string[] = Object.keys(socketList);
                 let indexChild:number = keysChild.length,
-                    socketItem:websocket_client;
+                    socketItem:websocket_client,
+                    address:transmit_addresses_socket = null;
                 if (indexChild < 1) {
                     return;
                 }
                 do {
                     indexChild = indexChild - 1;
                     socketItem = socketList[keysChild[indexChild]];
+                    address = getAddress({socket: socketItem, type: "ws"});
                     list.push({
+                        localAddress: address.local.address,
+                        localPort: address.local.port,
                         name: keysChild[indexChild],
+                        remoteAddress: address.remote.address,
+                        remotePort: address.remote.port,
                         status: socketItem.status,
                         type: keysPrimary[indexPrimary]
                     });
@@ -219,10 +223,15 @@ const transmit_ws:module_transmit_ws = {
             // populate data from sockets that are not children of a group
             direct = function terminal_server_transmission_transmitWs_list_direct():void {
                 // @ts-ignore
-                const client:websocket_client = transmit_ws.clientList[keysPrimary[indexPrimary]] as websocket_client;
+                const client:websocket_client = transmit_ws.clientList[keysPrimary[indexPrimary]] as websocket_client,
+                    address:transmit_addresses_socket = getAddress({socket: client, type: "ws"});
                 if (client !== null) {
                     list.push({
+                        localAddress: address.local.address,
+                        localPort: address.local.port,
                         name: "",
+                        remoteAddress: address.remote.address,
+                        remotePort: address.remote.port,
                         status: client.status,
                         type: keysPrimary[indexPrimary]
                     });
@@ -750,9 +759,6 @@ const transmit_ws:module_transmit_ws = {
                                                 socket.destroy();
                                                 return;
                                             }
-                                            // process offline message queues
-                                            transmit_ws.queueSend(socket);
-
                                             // provide all manners of notification
                                             if (vars.settings.verbose === true) {
                                                 log([`Server-side socket ${vars.text.green + vars.text.bold}established${vars.text.none} for ${vars.text.underline + type + vars.text.none} ${vars.text.cyan + agent.name + vars.text.none}.`]);
@@ -761,6 +767,11 @@ const transmit_ws:module_transmit_ws = {
                                         headers.push("");
                                         headers.push("");
                                         socket.write(headers.join("\r\n"));
+
+                                        if (socket.type === "device" || socket.type === "user") {
+                                            // process offline message queues
+                                            transmit_ws.queueSend(socket);
+                                        }
                                     },
                                     testReset = function terminal_serveR_transmission_transmitWs_server_connection_handshake_headers_testReset():void {
                                         socket.write(hashName);
