@@ -106,10 +106,10 @@ const defaultCommand:commands = vars.environment.command,
                         } while (diff > 0);
                     }
                     return input;
-                };
-            let len:number = socketList.length,
-                index:number = 0,
+                },
+                len:number = socketList.length,
                 longest:[number, number] = [0, 0];
+            let index:number = 0;
             if (len > 0) {
                 do {
                     if (socketList[index].type.length > longest[0]) {
@@ -272,7 +272,7 @@ const defaultCommand:commands = vars.environment.command,
                             };
                     summary.push("\u0007");
                     if (browser.args.mode !== "self") {
-                        const agents:string[] = Object.keys(transmit_ws.clientList.testRemote);
+                        const agents:string[] = Object.keys(transmit_ws.socketList.testRemote);
                         agents.forEach(function terminal_test_application_browser_exit_agents(name:string):void {
                             const action:"close"|"exit" = (browser.args.noClose === true)
                                 ? "exit"
@@ -540,7 +540,7 @@ const defaultCommand:commands = vars.environment.command,
                                     : "s",
                                 exitMessage:string = (pass === true)
                                     ? `${humanTime(false) + vars.text.green + vars.text.bold}Passed${vars.text.none} all ${totalTests[1]} evaluations from ${totalTests[0]} test${passPlural}.`
-                                    : `${humanTime(false) + vars.text.angry}Failed${vars.text.none} on test ${vars.text.angry + String(index + 1) + vars.text.none}: "${vars.text.cyan + tests[index].name + vars.text.none}" out of ${tests.length} total test${plural} and ${totalTests} evaluations.`;
+                                    : `${humanTime(false) + vars.text.angry}Failed${vars.text.none} on test ${vars.text.angry + String(index + 1) + vars.text.none}: "${vars.text.cyan + tests[index].name + vars.text.none}" out of ${tests.length} total test${plural} and ${totalTests[1]} evaluations.`;
                             browser.exitMessage = exitMessage;
                             browser.methods.exit(null);
                             browser.fail = true;
@@ -802,7 +802,7 @@ const defaultCommand:commands = vars.environment.command,
             send: function terminal_test_application_browser_send(testItem:service_testBrowser):void {
                 if (testItem.test.machine === browser.name) {
                     // self
-                    const keys:string[] = Object.keys(transmit_ws.clientList.browser),
+                    const keys:string[] = Object.keys(transmit_ws.socketList.browser),
                         keyLength:number = keys.length;
                     if (keyLength > 0) {
                         testItem.test = filePathDecode(testItem.test, "") as test_browserItem;
@@ -819,7 +819,7 @@ const defaultCommand:commands = vars.environment.command,
                     transmit_ws.queue({
                         data: testItem,
                         service: "test-browser"
-                    }, transmit_ws.clientList.testRemote[testItem.test.machine], 1);
+                    }, transmit_ws.socketList.testRemote[testItem.test.machine], 1);
                 }
 
                 // Once a reset test is sent it is necessary to eliminate the event portion of the test.

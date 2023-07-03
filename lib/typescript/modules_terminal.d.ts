@@ -551,12 +551,6 @@ interface module_transmit_http {
  * ```typescript
  * interface transmit_ws {
  *     agentClose      : (socket:websocket_client) => void;                                    // A uniform way to notify browsers when a remote agent goes offline
- *     clientList: {
- *         browser   : websocket_list;
- *         device    : websocket_list;
- *         testRemote: websocket_list;
- *         user      : websocket_list;
- *     };                                                                                      // A store of open sockets by agent type.
  *     clientReceiver  : websocket_messageHandler;                                             // Processes data from regular agent websocket tunnels into JSON for processing by receiver library.
  *     createSocket    : (config:config_websocket_create) => void;                             // Creates a new socket for use by openAgent and openService methods.
  *     ipAttempts: {
@@ -577,17 +571,17 @@ interface module_transmit_http {
  *     queueSend       : (socket:websocket_client) => void;                                    // Pushes messages stored from the agent's offline queue into the transmission queue.
  *     server          : (config:config_websocket_server) => node_net_Server;                  // Creates a websocket server.
  *     socketExtensions: (config:config_websocket_extensions) => void;                         // applies application specific extensions to sockets
+ *     socketList      : {
+ *         browser   : websocket_list;
+ *         device    : websocket_list;
+ *         testRemote: websocket_list;
+ *         user      : websocket_list;
+ *     };                                                                                      // A store of open sockets by agent type.
  *     status          : () => websocket_status;                                               // Gather the status of agent web sockets.
  * }
  * ``` */
 interface module_transmit_ws {
     agentClose: (socket:websocket_client) => void;
-    clientList: {
-        browser: websocket_list;
-        device: websocket_list;
-        testRemote: websocket_list;
-        user: websocket_list;
-    };
     clientReceiver: websocket_messageHandler;
     createSocket: (config:config_websocket_create) => void;
     ipAttempts: {
@@ -608,5 +602,11 @@ interface module_transmit_ws {
     queueSend: (socket:websocket_client) => void;
     server: (config:config_websocket_server) => node_net_Server;
     socketExtensions: (config:config_websocket_extensions) => void;
+    socketList: {
+        browser: websocket_list;
+        device: websocket_list;
+        testRemote: websocket_list;
+        user: websocket_list;
+    };
     status: () => websocket_status;
 }

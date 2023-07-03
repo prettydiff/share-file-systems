@@ -475,7 +475,7 @@ const configuration:module_configuration = {
             if (len > 0) {
                 const table:HTMLElement = document.createElement("table"),
                     cell = function browser_Content_configuration_socketList_cell(text:string, tagName:"td"|"th", parent:HTMLElement):void {
-                        const tag = document.createElement(tagName);
+                        const tag:HTMLElement = document.createElement(tagName);
                         tag.appendText(text);
                         parent.appendChild(tag);
                     };

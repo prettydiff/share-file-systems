@@ -58,19 +58,19 @@ const agent_management = function terminal_server_services_agentManagement(socke
                         socket:websocket_client = null;
                     do {
                         if (keys[a] === vars.settings.hashUser && type === "user") {
-                            socket = transmit_ws.clientList[type][data.agentFrom];
+                            socket = transmit_ws.socketList[type][data.agentFrom];
                             if (socket !== null && socket !== undefined) {
                                 socket.destroy();
                             }
                             delete vars.settings.user[data.agentFrom];
-                            delete transmit_ws.clientList.user[data.agentFrom];
+                            delete transmit_ws.socketList.user[data.agentFrom];
                         } else {
-                            socket = transmit_ws.clientList[type][keys[a]];
+                            socket = transmit_ws.socketList[type][keys[a]];
                             if (socket !== null && socket !== undefined) {
                                 socket.destroy();
                             }
                             delete vars.settings[type][keys[a]];
-                            delete transmit_ws.clientList[type][keys[a]];
+                            delete transmit_ws.socketList[type][keys[a]];
                         }
                         a = a + 1;
                     } while (a < lengthKeys);
@@ -163,7 +163,7 @@ const agent_management = function terminal_server_services_agentManagement(socke
                 }
             },
             users = function terminal_server_services_agentManagement_users():void {
-                const userLength:number = Object.keys(transmit_ws.clientList.user).length;
+                const userLength:number = Object.keys(transmit_ws.socketList.user).length;
 
                 if (userLength > 0) {
                     const userData:userData = common.userData(vars.settings.device, "user", "");

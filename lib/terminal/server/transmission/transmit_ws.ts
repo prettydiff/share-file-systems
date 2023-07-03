@@ -21,12 +21,6 @@ import vars from "../../utilities/vars.js";
  * ```typescript
  * interface transmit_ws {
  *     agentClose      : (socket:websocket_client) => void;                                    // A uniform way to notify browsers when a remote agent goes offline
- *     clientList: {
- *         browser   : websocket_list;
- *         device    : websocket_list;
- *         testRemote: websocket_list;
- *         user      : websocket_list;
- *     };                                                                                      // A store of open sockets by agent type.
  *     clientReceiver  : websocket_messageHandler;                                             // Processes data from regular agent websocket tunnels into JSON for processing by receiver library.
  *     createSocket    : (config:config_websocket_create) => void;                             // Creates a new socket for use by openAgent and openService methods.
  *     ipAttempts: {
@@ -47,6 +41,12 @@ import vars from "../../utilities/vars.js";
  *     queueSend       : (socket:websocket_client) => void;                                    // Pushes messages stored from the agent's offline queue into the transmission queue.
  *     server          : (config:config_websocket_server) => node_net_Server;                  // Creates a websocket server.
  *     socketExtensions: (config:config_websocket_extensions) => void;                         // applies application specific extensions to sockets
+ *     socketList      : {
+ *         browser   : websocket_list;
+ *         device    : websocket_list;
+ *         testRemote: websocket_list;
+ *         user      : websocket_list;
+ *     };                                                                                      // A store of open sockets by agent type.
  *     status          : () => websocket_status;                                               // Gather the status of agent web sockets.
  * }
  * ``` */
@@ -71,14 +71,7 @@ const transmit_ws:module_transmit_ws = {
         }
         socket.status = "closed";
         socket.destroy();
-        delete transmit_ws.clientList[type][socket.hash];
-    },
-    // a list of connected clients
-    clientList: {
-        browser: {},
-        device: {},
-        testRemote: {},
-        user: {}
+        delete transmit_ws.socketList[type][socket.hash];
     },
     // composes fragments from browsers and agents into JSON for processing by receiver library
     clientReceiver: function terminal_server_transmission_transmitWs_clientReceiver(bufferData:Buffer):void {
@@ -191,12 +184,12 @@ const transmit_ws:module_transmit_ws = {
     // generate a summary list of open sockets on this device
     list: function terminal_server_transmission_transmitWs_list():socketListItem[] {
         const list:socketListItem[] = [],
-            keysPrimary:string[] = Object.keys(transmit_ws.clientList),
+            keysPrimary:string[] = Object.keys(transmit_ws.socketList),
 
             // populate data from sockets that are children of a group
             child = function terminal_server_transmission_transmitWs_list_child():void {
                 // @ts-ignore
-                const socketList:websocket_list = transmit_ws.clientList[keysPrimary[indexPrimary]] as websocket_list,
+                const socketList:websocket_list = transmit_ws.socketList[keysPrimary[indexPrimary]] as websocket_list,
                     keysChild:string[] = Object.keys(socketList);
                 let indexChild:number = keysChild.length,
                     socketItem:websocket_client,
@@ -223,7 +216,7 @@ const transmit_ws:module_transmit_ws = {
             // populate data from sockets that are not children of a group
             direct = function terminal_server_transmission_transmitWs_list_direct():void {
                 // @ts-ignore
-                const client:websocket_client = transmit_ws.clientList[keysPrimary[indexPrimary]] as websocket_client,
+                const client:websocket_client = transmit_ws.socketList[keysPrimary[indexPrimary]] as websocket_client,
                     address:transmit_addresses_socket = getAddress({socket: client, type: "ws"});
                 if (client !== null) {
                     list.push({
@@ -400,7 +393,7 @@ const transmit_ws:module_transmit_ws = {
                 socket.write(payload);
                 socket.off("data", processor);
                 if (socket.type === "browser") {
-                    delete transmit_ws.clientList.browser[socket.hash];
+                    delete transmit_ws.socketList.browser[socket.hash];
                     socket.destroy();
                 } else if (socket.type === "device" || socket.type === "user") {
                     transmit_ws.agentClose(socket);
@@ -447,9 +440,9 @@ const transmit_ws:module_transmit_ws = {
                     }
                     return;
                 }
-                if (transmit_ws.clientList[config.agentType][config.agent] !== undefined && transmit_ws.clientList[config.agentType][config.agent] !== null) {
+                if (transmit_ws.socketList[config.agentType][config.agent] !== undefined && transmit_ws.socketList[config.agentType][config.agent] !== null) {
                     if (config.callback !== null) {
-                        config.callback(transmit_ws.clientList[config.agentType][config.agent]);
+                        config.callback(transmit_ws.socketList[config.agentType][config.agent]);
                     }
                     return;
                 }
@@ -792,8 +785,8 @@ const transmit_ws:module_transmit_ws = {
                                         : (type === "testRemote" && vars.test.type === "browser_remote")
                                             ? "self"
                                             : hashName;
-                                    if ((type === "device" || type === "user") && transmit_ws.clientList[type][identifier] !== undefined) {
-                                        transmit_ws.agentClose(transmit_ws.clientList[type][identifier]);
+                                    if ((type === "device" || type === "user") && transmit_ws.socketList[type][identifier] !== undefined) {
+                                        transmit_ws.agentClose(transmit_ws.socketList[type][identifier]);
                                     }
                                     transmit_ws.socketExtensions({
                                         callback: (type === "testRemote")
@@ -883,7 +876,7 @@ const transmit_ws:module_transmit_ws = {
         if (
             (config.type === "testRemote" && vars.test.type.indexOf("browser_") === 0) ||
             (config.type === "perf" && (config.socket.remoteAddress === "::1" || config.socket.remoteAddress.replace("::ffff:", "") === "127.0.0.1")) ||
-            transmit_ws.clientList[config.type as agentType | "browser"][config.identifier] === undefined
+            transmit_ws.socketList[config.type as agentType | "browser"][config.identifier] === undefined
         ) {
             const ping = function terminal_server_transmission_transmitWs_socketExtension_ping(ttl:number, callback:(err:NodeJS.ErrnoException, roundtrip:bigint) => void):void {
                 const errorObject = function terminal_server_transmission_transmitWs_socketExtension_ping_errorObject(code:string, message:string):NodeJS.ErrnoException {
@@ -931,7 +924,7 @@ const transmit_ws:module_transmit_ws = {
             config.socket.status = "open";          // sets the status flag for the socket
             config.socket.type = config.type;       // assigns the type name on the socket
             if (config.type === "browser" || config.type === "device" || config.type === "testRemote" || config.type === "user") {
-                transmit_ws.clientList[config.type][config.identifier] = config.socket;
+                transmit_ws.socketList[config.type][config.identifier] = config.socket;
                 if (config.type === "device" || config.type === "user") {
                     vars.settings[config.type][config.identifier].ipSelected = getAddress({
                         socket: config.socket,
@@ -1005,6 +998,13 @@ const transmit_ws:module_transmit_ws = {
             }, "browser");
         }
     },
+    // a list of connected clients
+    socketList: {
+        browser: {},
+        device: {},
+        testRemote: {},
+        user: {}
+    },
     // generate the status of agent sockets
     status: function terminal_server_transmission_transmitWs_status():websocket_status {
         const output:websocket_status = {
@@ -1012,13 +1012,13 @@ const transmit_ws:module_transmit_ws = {
                 user: {}
             },
             populate = function terminal_server_transmission_transmitWs_status_populate(agentType:agentType):void {
-                const keys:string[] = Object.keys(transmit_ws.clientList[agentType]),
+                const keys:string[] = Object.keys(transmit_ws.socketList[agentType]),
                     keyLength:number = keys.length;
                 let a:number = 0,
                     socket:websocket_client = null;
                 if (keyLength > 0) {
                     do {
-                        socket = transmit_ws.clientList[agentType][keys[a]];
+                        socket = transmit_ws.socketList[agentType][keys[a]];
                         output[agentType][keys[a]] = {
                             portLocal: socket.localPort,
                             portRemote: socket.remotePort,

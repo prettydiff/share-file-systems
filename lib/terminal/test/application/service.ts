@@ -167,7 +167,7 @@ const loopback:string = "127.0.0.1",
             service.index = config.index;
             service.fail = config.fail;
             receiver(test, {
-                socket: transmit_ws.clientList.device[vars.settings.hashDevice],
+                socket: transmit_ws.socketList.device[vars.settings.hashDevice],
                 type: "ws"
             });
         },
