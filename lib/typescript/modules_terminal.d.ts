@@ -567,7 +567,7 @@ interface module_transmit_http {
  *             [key:string]: string[];
  *         };
  *     };                                                                                      // stores connection attempts as a list of ip addresses by agent hash
- *     list            : () => string;                                                         // generates a human readable list of active sockets
+ *     list            : () => socketListItem[];                                               // generates a human readable list of active sockets
  *     listener        : (socket:websocket_client) => void;                                    // A handler attached to each socket to listen for incoming messages.
  *     open: {
  *         agent:   (config:config_websocket_openAgent) => void;   // Opens a long-term socket tunnel between known agents.
@@ -598,7 +598,7 @@ interface module_transmit_ws {
             [key:string]: string[];
         };
     };
-    list: () => string;
+    list: () => socketListItem[];
     listener: (socket:websocket_client) => void;
     open: {
         agent: (config:config_websocket_openAgent) => void;

@@ -37,7 +37,7 @@ import vars from "../../utilities/vars.js";
  *             [key:string]: string[];
  *         };
  *     };                                                                                      // stores connection attempts as a list of ip addresses by agent hash
- *     list            : () => string;                                                         // generates a human readable list of active sockets
+ *     list            : () => socketListItem[];                                               // generates a human readable list of active sockets
  *     listener        : (socket:websocket_client) => void;                                    // A handler attached to each socket to listen for incoming messages.
  *     open: {
  *         agent:   (config:config_websocket_openAgent) => void;   // Opens a long-term socket tunnel between known agents.
@@ -189,11 +189,10 @@ const transmit_ws:module_transmit_ws = {
         user: {}
     },
     // generate a summary list of open sockets on this device
-    list: function terminal_server_transmission_transmitWs_list():string {
-        const output:[string, string, string][] = [],
-            star:string = `${vars.text.angry}*${vars.text.none} `,
+    list: function terminal_server_transmission_transmitWs_list():socketListItem[] {
+        const star:string = `${vars.text.angry}*${vars.text.none} `,
             longest:[number, number] = [0, 0],
-            list:string[] = [],
+            list:socketListItem[] = [],
             keysPrimary:string[] = Object.keys(transmit_ws.clientList),
 
             // populate data from sockets that are children of a group
@@ -209,13 +208,11 @@ const transmit_ws:module_transmit_ws = {
                 do {
                     indexChild = indexChild - 1;
                     socketItem = socketList[keysChild[indexChild]];
-                    output.push([keysPrimary[indexPrimary], socketItem.status, keysChild[indexChild]]);
-                    if (keysPrimary[indexPrimary].length  > longest[0]) {
-                        longest[0] = keysPrimary[indexPrimary].length;
-                    }
-                    if (socketItem.status.length  > longest[1]) {
-                        longest[1] = socketItem.status.length;
-                    }
+                    list.push({
+                        name: keysChild[indexChild],
+                        status: socketItem.status,
+                        type: keysPrimary[indexPrimary]
+                    });
                 } while (indexChild > 0);
             },
 
@@ -224,24 +221,12 @@ const transmit_ws:module_transmit_ws = {
                 // @ts-ignore
                 const client:websocket_client = transmit_ws.clientList[keysPrimary[indexPrimary]] as websocket_client;
                 if (client !== null) {
-                    output.push([keysPrimary[indexPrimary], client.status, ""]);
-                    if (keysPrimary[indexPrimary].length  > longest[0]) {
-                        longest[0] = keysPrimary[indexPrimary].length;
-                    }
-                    if (client.status.length  > longest[1]) {
-                        longest[1] = client.status.length;
-                    }
+                    list.push({
+                        name: "",
+                        status: client.status,
+                        type: keysPrimary[indexPrimary]
+                    });
                 }
-            },
-
-            // pad strings with spaces so that the output looks like a table
-            padding = function terminal_server_transmission_transmitWs_list_padding(index:number, long:0|1):string {
-                if (output[index][long].length < longest[long]) {
-                    do {
-                        output[index][long] = `${output[index][long]} `;
-                    } while (output[index][long].length < longest[long]);
-                }
-                return output[index][long];
             };
 
         // loop through the socket groups
@@ -256,20 +241,13 @@ const transmit_ws:module_transmit_ws = {
         } while (indexPrimary > 0);
 
         // sort the raw data by group name
-        output.sort(function terminal_server_transmission_transmitWs_list_sort(a:[string, string, string], b:[string, string, string]):-1|1 {
-            if (a[0] < b[0]) {
-                return 1;
+        list.sort(function terminal_server_transmission_transmitWs_list_sort(a:socketListItem, b:socketListItem):-1|1 {
+            if (a.type < b.type) {
+                return -1;
             }
-            return -1;
+            return 1;
         });
-
-        // generate the string output from the collected data matrix
-        indexPrimary = output.length;
-        do {
-            indexPrimary = indexPrimary - 1;
-            list.push(`${star + vars.text.cyan + padding(indexPrimary, 0) + vars.text.none} - ${padding(indexPrimary, 1)} - ${output[indexPrimary][2]}`);
-        } while (indexPrimary > 0);
-        return list.join(node.os.EOL);
+        return list;
     },
     // processes incoming service data for agent sockets
     listener: function terminal_server_transmission_transmitWs_listener(socket:websocket_client):void {
@@ -549,9 +527,24 @@ const transmit_ws:module_transmit_ws = {
                         terminal_server_transmission_transmitWs_queue_writeFrame();
                     } else {
                         socketItem.status = "open";
+                        if (socketItem.type !== "browser") {
+                            sender.broadcast({
+                                data: transmit_ws.list(),
+                                service: "socket-list"
+                            }, "browser");
+                        }
                     }
                 };
-                socketItem.status = "pending";
+                if (socketItem.status === "open") {
+                    socketItem.status = "pending";
+                    // sending "pending" status updates to the browser creates a race condition
+                    if (socketItem.type !== "browser") {
+                        sender.broadcast({
+                            data: transmit_ws.list(),
+                            service: "socket-list"
+                        }, "browser");
+                    }
+                }
                 if (writeSocket === true) {
                     if (socketItem.write(socketItem.queue[0]) === true) {
                         writeCallback();
@@ -967,6 +960,10 @@ const transmit_ws:module_transmit_ws = {
             }
             config.socket.on("end", function terminal_server_transmission_transmitWs_socketExtension_socketEnd():void {
                 config.socket.status = "end";
+                sender.broadcast({
+                    data: transmit_ws.list(),
+                    service: "socket-list"
+                }, "browser");
             });
             config.socket.on("error", function terminal_server_transmission_transmitWs_socketExtension_socketError(errorMessage:NodeJS.ErrnoException):void {
                 if (vars.settings.verbose === true || vars.test.type === "browser_device" || vars.test.type === "browser_user") {
@@ -982,11 +979,19 @@ const transmit_ws:module_transmit_ws = {
                 if (config.socket.type === "device" || config.socket.type === "user") {
                     transmit_ws.agentClose(config.socket);
                 }
+                sender.broadcast({
+                    data: transmit_ws.list(),
+                    service: "socket-list"
+                }, "browser");
             });
             transmit_ws.listener(config.socket);
             if (config.callback !== null && config.callback !== undefined) {
                 config.callback(config.socket);
             }
+            sender.broadcast({
+                data: transmit_ws.list(),
+                service: "socket-list"
+            }, "browser");
         }
     },
     // generate the status of agent sockets

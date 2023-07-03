@@ -7,6 +7,7 @@ import log from "../../utilities/log.js";
 import node from "../../utilities/node.js";
 import readStorage from "../../utilities/readStorage.js";
 import transmit_http from "./transmit_http.js";
+import transmit_ws from "./transmit_ws.js";
 import vars from "../../utilities/vars.js";
 
 
@@ -43,6 +44,7 @@ const methodGET = function terminal_server_transmission_methodGET(request:node_h
                         ports: vars.network.ports
                     },
                     settings: settingsData,
+                    "socket-list": transmit_ws.list(),
                     test: (vars.test.browser !== null && request.url.indexOf("?test_browser") > 0)
                         ? vars.test.browser
                         : null
@@ -90,7 +92,8 @@ const methodGET = function terminal_server_transmission_methodGET(request:node_h
             <ul id="menu"></ul>
             <div id="content-area">
                 <div id="agentList">
-                    <p class="all-shares"><button>⌘ All Shares</button></p>
+                    <p class="sockets"><button type="button">🖧 Open Sockets</button></p>
+                    <p class="all-shares"><button type="button">⌘ All Shares</button></p>
                     <div id="device"><h2>Device List</h2><ul><li><button type="button" class="device-all-shares">🖳 All Device Shares</button></li></ul><span></span></div>
                     <div id="user"><h2>User List</h2><ul><li><button type="button" class="user-all-shares">👤 All User Shares</button></li></ul><span></span></div>
                 </div>

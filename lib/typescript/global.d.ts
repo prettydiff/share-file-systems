@@ -241,6 +241,21 @@ interface socketData {
 }
 
 /**
+ * A data package describing lists of sockets.
+ * ```typescript
+ * interface socketListItem {
+ *     name: string;
+ *     status: socketStatus;
+ *     type: string;
+ * }
+ * ``` */
+interface socketListItem {
+    name: string;
+    status: socketStatus;
+    type: string;
+}
+
+/**
  * A non-specific object limited to mapping a string value to a key name.
  * ```typescript
  * interface stringStore {

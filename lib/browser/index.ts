@@ -5,6 +5,7 @@ import agent_hash from "./utilities/agent_hash.js";
 import agent_management from "./content/agent_management.js";
 import agent_status from "./utilities/agent_status.js";
 import browser from "./utilities/browser.js";
+import configuration from "./content/configuration.js";
 import context from "./content/context.js";
 import dom from "./utilities/dom.js";
 import message from "./content/message.js";
@@ -114,6 +115,8 @@ import disallowed from "../common/disallowed.js";
                 // change status to idle
                 const allDevice:HTMLElement = agentList.getElementsByClassName("device-all-shares")[0] as HTMLElement,
                     allUser:HTMLElement = agentList.getElementsByClassName("user-all-shares")[0] as HTMLElement,
+                    allShares:HTMLElement = agentList.getElementsByClassName("all-shares")[0].getElementsByTagName("button")[0],
+                    socketList:HTMLElement = agentList.getElementsByClassName("sockets")[0].getElementsByTagName("button")[0],
                     fullscreen = function browser_init_complete_fullscreen():void {
                         if (document.fullscreenEnabled === true) {
                             if (document.fullscreenElement === null) {
@@ -224,9 +227,10 @@ import disallowed from "../common/disallowed.js";
                 // assign key default events
                 browser.content.onclick                             = context.events.contextMenuRemove;
                 document.getElementById("menuToggle").onclick       = menu;
-                agentList.getElementsByTagName("button")[0].onclick = modal_configuration.modals.shares;
+                allShares.onclick                                   = modal_configuration.modals.shares;
                 allDevice.onclick                                   = modal_configuration.modals.shares;
                 allUser.onclick                                     = modal_configuration.modals.shares;
+                socketList.onclick                                  = modal_configuration.modals["socket-list"];
                 document.getElementById("minimize-all").onclick     = minimizeAll;
                 document.onvisibilitychange                         = visibility;
                 if (document.fullscreenEnabled === true) {
@@ -237,9 +241,16 @@ import disallowed from "../common/disallowed.js";
                     fullscreen.parentNode.removeChild(fullscreen);
                 }
 
-                // build out the configuration modal, if not already present as a part of state restoration
+                // build out the default modals, if not already present as a part of state restoration
                 if (document.getModalsByModalType("configuration")[0] === undefined) {
                     modal_configuration.modals.configuration(null, null);
+                }
+                if (document.getModalsByModalType("socket-list")[0] === undefined) {
+                    modal_configuration.modals["socket-list"](null, null);
+                    configuration.tools.socketList({
+                        data: state["socket-list"],
+                        service: "socket-list"
+                    });
                 }
 
                 // initiate webSocket and activity status
@@ -266,7 +277,8 @@ import disallowed from "../common/disallowed.js";
                 // state data
                 let modalItem:config_modal = null,
                     count:number = 0,
-                    configKey:boolean = false;
+                    keyConfig:boolean = false,
+                    keySocketList:boolean = false;
                 const modalKeys:string[] = Object.keys(state.settings.configuration.modals),
                     indexes:[number, string][] = [],
                     // applies z-index to the modals in the proper sequence while restarting the value at 0
@@ -312,8 +324,15 @@ import disallowed from "../common/disallowed.js";
                                 }
                                 index = index + 1;
                             } while (index < len);
-                            if (configKey ===  false) {
+                            if (keyConfig ===  false) {
                                 modal_configuration.modals.configuration(null);
+                            }
+                            if (keySocketList ===  false) {
+                                modal_configuration.modals["socket-list"](null);
+                                configuration.tools.socketList({
+                                    data: state["socket-list"],
+                                    service: "socket-list"
+                                });
                             }
                             restoreShares("device");
                             restoreShares("user");
@@ -339,7 +358,10 @@ import disallowed from "../common/disallowed.js";
                         z(value);
                     };
                     if (value === "configuration-modal") {
-                        configKey = true;
+                        keyConfig = true;
+                    }
+                    if (value === "socketList-modal") {
+                        keySocketList = true;
                     }
                     modal_configuration.modals[modalItem.type](null, modalItem);
                 });

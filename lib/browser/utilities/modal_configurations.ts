@@ -33,6 +33,7 @@ import util from "./util.js";
  *         "media": modal_open;
  *         "message": modal_open;
  *         "shares": modal_open;
+ *         "socket-list": modal_open;
  *         "terminal": modal_open;
  *         "text-pad": modal_open;
  *     };
@@ -112,7 +113,6 @@ const modal_configuration:module_modalConfiguration = {
             }
             data.status = "normal";
             document.getElementById("menu").style.display = "none";
-
         },
 
         "details": function browser_utilities_modalConfiguration__details(event:Event, config?:config_modal):modal {
@@ -539,6 +539,48 @@ const modal_configuration:module_modalConfiguration = {
             return modal.content(config);
         },
 
+        "socket-list": function browser_utilities_modalConfiguration_socketList(event:Event, config?:config_modal):modal {
+            // building configuration modal
+            if (document.getElementById("socketList-modal") === null) {
+                const payloadModal:config_modal = {
+                    agent: browser.data.hashDevice,
+                    agentIdentity: false,
+                    agentType: "device",
+                    closeHandler: modal.events.closeEnduring,
+                    content: null,
+                    id: "socketList-modal",
+                    read_only: false,
+                    single: true,
+                    status: "hidden",
+                    type: "socket-list"
+                };
+                if (config !== null && config !== undefined) {
+                    payloadModal.callback = config.callback;
+                    payloadModal.content = config.content;
+                    payloadModal.height = config.height;
+                    payloadModal.left = config.left;
+                    payloadModal.status = config.status;
+                    payloadModal.top = config.top;
+                    payloadModal.width = config.width;
+                    payloadModal.zIndex = config.zIndex;
+                }
+                payloadModal.content = document.createElement("div");
+                payloadModal.inputs = ["close", "maximize", "minimize"];
+                return modal.content(payloadModal);
+            }
+            if (browser.loading === true) {
+                return document.getElementById("socketList-modal");
+            }
+            const conf:HTMLElement = document.getElementById("socketList-modal"),
+                data:config_modal = browser.data.modals["socketList-modal"];
+            modal.events.zTop(event as MouseEvent, conf);
+            if (data.status === "hidden") {
+                conf.style.display = "block";
+            }
+            data.status = "normal";
+            network.configuration();
+        },
+
         "terminal": function browser_utilities_modalConfiguration_terminal(event:Event, config?:config_modal):modal {
             let box:modal = null;
             const content:[HTMLElement, HTMLElement] = terminal.content(),
@@ -701,6 +743,11 @@ const modal_configuration:module_modalConfiguration = {
             icon: "",
             menu: false,
             text: ""
+        },
+        "socket-list": {
+            icon: "🖧",
+            menu: false,
+            text: "Open Sockets"
         },
         "terminal": {
             icon: "›",

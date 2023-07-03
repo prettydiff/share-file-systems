@@ -74,26 +74,60 @@ const defaultCommand:commands = vars.environment.command,
         },
         exitMessage: "",
         exitSummary: function terminal_test_application_browser_exitSummary():string[] {
-            return [
-                browser.exitMessage,
-                "",
-                `${vars.text.underline}Network Transmissions${vars.text.none}`,
-                `${vars.text.angry}*${vars.text.none} ${vars.text.cyan}HTTP Receive${vars.text.none} - ${common.commas(vars.network.count.http.receive)}`,
-                `${vars.text.angry}*${vars.text.none} ${vars.text.cyan}HTTP Send${vars.text.none}    - ${common.commas(vars.network.count.http.send)}`,
-                `${vars.text.angry}*${vars.text.none} ${vars.text.cyan}WS   Receive${vars.text.none} - ${common.commas(vars.network.count.ws.receive)}`,
-                `${vars.text.angry}*${vars.text.none} ${vars.text.cyan}WS   Send${vars.text.none}    - ${common.commas(vars.network.count.ws.send)}`,
-                `${vars.text.angry}*${vars.text.none} ${vars.text.cyan + vars.text.bold + vars.text.underline}Total${vars.text.none}        - ${common.commas(vars.network.count.http.receive + vars.network.count.http.send + vars.network.count.ws.receive + vars.network.count.ws.send)}`,
-                "",
-                `${vars.text.underline}Network Transmission Size (Bytes)${vars.text.none}`,
-                `${vars.text.angry}*${vars.text.none} ${vars.text.cyan}HTTP Receive${vars.text.none} - ${common.commas(vars.network.size.http.receive)}`,
-                `${vars.text.angry}*${vars.text.none} ${vars.text.cyan}HTTP Send${vars.text.none}    - ${common.commas(vars.network.size.http.send)}`,
-                `${vars.text.angry}*${vars.text.none} ${vars.text.cyan}WS   Receive${vars.text.none} - ${common.commas(vars.network.size.ws.receive)}`,
-                `${vars.text.angry}*${vars.text.none} ${vars.text.cyan}WS   Send${vars.text.none}    - ${common.commas(vars.network.size.ws.send)}`,
-                `${vars.text.angry}*${vars.text.none} ${vars.text.cyan + vars.text.bold + vars.text.underline}Total${vars.text.none}        - ${common.commas(vars.network.size.http.receive + vars.network.size.http.send + vars.network.size.ws.receive + vars.network.size.ws.send)}`,
-                "",
-                `${vars.text.underline}Open Sockets${vars.text.none}`,
-                transmit_ws.list()
-            ];
+            const socketList:socketListItem[] = transmit_ws.list(),
+                output:string[] = [
+                    browser.exitMessage,
+                    "",
+                    `${vars.text.underline}Network Transmissions${vars.text.none}`,
+                    `${vars.text.angry}*${vars.text.none} ${vars.text.cyan}HTTP Receive${vars.text.none} - ${common.commas(vars.network.count.http.receive)}`,
+                    `${vars.text.angry}*${vars.text.none} ${vars.text.cyan}HTTP Send${vars.text.none}    - ${common.commas(vars.network.count.http.send)}`,
+                    `${vars.text.angry}*${vars.text.none} ${vars.text.cyan}WS   Receive${vars.text.none} - ${common.commas(vars.network.count.ws.receive)}`,
+                    `${vars.text.angry}*${vars.text.none} ${vars.text.cyan}WS   Send${vars.text.none}    - ${common.commas(vars.network.count.ws.send)}`,
+                    `${vars.text.angry}*${vars.text.none} ${vars.text.cyan + vars.text.bold + vars.text.underline}Total${vars.text.none}        - ${common.commas(vars.network.count.http.receive + vars.network.count.http.send + vars.network.count.ws.receive + vars.network.count.ws.send)}`,
+                    "",
+                    `${vars.text.underline}Network Transmission Size (Bytes)${vars.text.none}`,
+                    `${vars.text.angry}*${vars.text.none} ${vars.text.cyan}HTTP Receive${vars.text.none} - ${common.commas(vars.network.size.http.receive)}`,
+                    `${vars.text.angry}*${vars.text.none} ${vars.text.cyan}HTTP Send${vars.text.none}    - ${common.commas(vars.network.size.http.send)}`,
+                    `${vars.text.angry}*${vars.text.none} ${vars.text.cyan}WS   Receive${vars.text.none} - ${common.commas(vars.network.size.ws.receive)}`,
+                    `${vars.text.angry}*${vars.text.none} ${vars.text.cyan}WS   Send${vars.text.none}    - ${common.commas(vars.network.size.ws.send)}`,
+                    `${vars.text.angry}*${vars.text.none} ${vars.text.cyan + vars.text.bold + vars.text.underline}Total${vars.text.none}        - ${common.commas(vars.network.size.http.receive + vars.network.size.http.send + vars.network.size.ws.receive + vars.network.size.ws.send)}`,
+                    "",
+                    `${vars.text.underline}Open Sockets${vars.text.none}`
+                ],
+                padding = function terminal_test_application_browser_exitSummary_padding(input:string, long:0|1):string {
+                    let diff:number = longest[long] - input.length;
+                    if (long === 0) {
+                        input = vars.text.cyan + input + vars.text.none;
+                    }
+                    if (diff > 0) {
+                        do {
+                            input = `${input} `;
+                            diff = diff - 1;
+                        } while (diff > 0);
+                    }
+                    return input;
+                };
+            let len:number = socketList.length,
+                index:number = 0,
+                longest:[number, number] = [0, 0];
+            if (len > 0) {
+                do {
+                    if (socketList[index].type.length > longest[0]) {
+                        longest[0] = socketList[index].type.length;
+                    }
+                    if (socketList[index].status.length > longest[1]) {
+                        longest[1] = socketList[index].status.length;
+                    }
+                    index = index + 1;
+                } while (index < len);
+
+                index = 0;
+                do {
+                    output.push(`${vars.text.angry}*${vars.text.none} ${padding(socketList[index].type, 0)} - ${padding(socketList[index].status, 1)} - ${socketList[index].name}`);
+                    index = index + 1;
+                } while (index < len);
+            }
+            return output;
         },
         fail: false,
         index: -1,

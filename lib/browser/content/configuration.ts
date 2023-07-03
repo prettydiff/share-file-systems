@@ -24,6 +24,7 @@ import util from "../utilities/util.js";
  *         addUserColor    : (agent:string, type:agentType, configElement?:HTMLElement)) => void; // Add agent color options to the configuration modal content.
  *         applyAgentColors: (agent:string, type:agentType, colors:[string, string]) => void;     // Update the specified color information against the default colors of the current color scheme.
  *         radio           : (element:HTMLElement) => void;                                       // Sets a class on a grandparent element to apply style changes to the corresponding label.
+ *         socketList      : (socketData:socketData) => void;                                     // Receives a service message and produces a content update for the socket list modal.
  *         styleText       : (input:configuration_styleText) => void;                             // Generates the CSS code for an agent specific style change and populates it into an HTML style tag.
  *     };
  * }
@@ -463,6 +464,51 @@ const configuration:module_configuration = {
                 a = a + 1;
             } while (a < length);
             parent.setAttribute("class", "radio-checked");
+        },
+
+        socketList: function browser_content_configuration_socketList(socketData:socketData):void {
+            const list:socketListItem[] = socketData.data as socketListItem[],
+                len:number = list.length,
+                body:HTMLElement = document.getElementById("socketList-modal").getElementsByClassName("body")[0] as HTMLElement,
+                p:HTMLElement = document.createElement("p");
+            body.removeChild(body.firstChild);
+            if (len > 0) {
+                const table:HTMLElement = document.createElement("table"),
+                    cell = function browser_Content_configuration_socketList_cell(text:string, tagName:"td"|"th", parent:HTMLElement):void {
+                        const tag = document.createElement(tagName);
+                        tag.appendText(text);
+                        parent.appendChild(tag);
+                    };
+                let section:HTMLElement = document.createElement("thead"),
+                    tr:HTMLElement = document.createElement("tr"),
+                    index:number = 0;
+                cell("Type", "th", tr);
+                cell("Status", "th", tr);
+                cell("Name", "th", tr);
+                section.appendChild(tr);
+                table.appendChild(section);
+                section = document.createElement("tbody");
+                do {
+                    tr = document.createElement("tr");
+                    cell(list[index].type, "td", tr);
+                    cell(list[index].status, "td", tr);
+                    cell(list[index].name, "td", tr);
+                    if (list[index].status === "end" || list[index].status === "closed") {
+                        tr.setAttribute("class", "closed");
+                    } else if (list[index].status === "pending") {
+                        tr.setAttribute("class", "pending");
+                    }
+                    section.appendChild(tr);
+                    index = index + 1;
+                } while (index < len);
+                table.setAttribute("class", "socket-list");
+                table.appendChild(section);
+                body.appendChild(table);
+                return;
+            }
+            p.setAttribute("class", "socket-list");
+            p.appendText("No open sockets.");
+            body.appendChild(p);
         },
 
         /* Applies agent color definitions */
