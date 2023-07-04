@@ -2069,6 +2069,106 @@ const browserDevice:test_browserItem[] = [
                 value: "Requested file system artifacts removed."
             }
         ]
+    },
+
+    // on self examine the socket list on self
+    {
+        delay: {
+            node: [
+                ["getModalsByModalType", "socket-list", 0],
+                ["getElementsByClassName", "body", 0]
+            ],
+            qualifier: "greater",
+            target: ["clientHeight"],
+            type: "property",
+            value: 10
+        },
+        interaction: [
+            {
+                event: "click",
+                node: [
+                    ["getElementById", "agentList", null],
+                    ["getElementsByClassName", "sockets", 0],
+                    ["getElementsByTagName", "button", 0]
+                ]
+            }
+        ],
+        machine: "self",
+        name: "On self open the socket list",
+        unit: [
+            {
+                node: [
+                    ["getModalsByModalType", "socket-list", 0],
+                    ["getElementsByTagName", "tbody", 0],
+                    ["getElementsByTagName", "th", null]
+                ],
+                qualifier: "is",
+                target: ["length"],
+                type: "property",
+                value: 3
+            },
+            {
+                node: [
+                    ["getModalsByModalType", "socket-list", 0],
+                    ["getElementsByTagName", "tbody", 0],
+                    ["getElementsByTagName", "tr", null]
+                ],
+                qualifier: "is",
+                target: ["length"],
+                type: "property",
+                value: 19
+            }
+        ]
+    },
+
+    // on vm2 examine the socket list on self
+    {
+        delay: {
+            node: [
+                ["getModalsByModalType", "socket-list", 0],
+                ["getElementsByClassName", "body", 0]
+            ],
+            qualifier: "greater",
+            target: ["clientHeight"],
+            type: "property",
+            value: 10
+        },
+        interaction: [
+            {
+                event: "click",
+                node: [
+                    ["getElementById", "agentList", null],
+                    ["getElementsByClassName", "sockets", 0],
+                    ["getElementsByTagName", "button", 0]
+                ]
+            }
+        ],
+        machine: "VM2",
+        name: "On VM2 open the socket list",
+        unit: [
+            {
+                node: [
+                    ["getModalsByModalType", "socket-list", 0],
+                    ["getElementsByTagName", "tbody", 0],
+                    ["getElementsByTagName", "th", null]
+                ],
+                qualifier: "is",
+                target: ["length"],
+                type: "property",
+                value: 3
+            },
+            {
+                node: [
+                    ["getModalsByModalType", "socket-list", 0],
+                    ["getElementsByTagName", "tbody", 0],
+                    ["getElementsByTagName", "tr", null]
+                ],
+                qualifier: "is",
+                target: ["length"],
+                type: "property",
+                value: 19
+            }
+        ]
     }
 ];
 

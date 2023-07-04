@@ -476,7 +476,7 @@ const configuration:module_configuration = {
             body.removeChild(body.firstChild);
             if (len > 0) {
                 const table:HTMLElement = document.createElement("table"),
-                    cell = function browser_Content_configuration_socketList_cell(text:string, tagName:"td"|"th", parent:HTMLElement):void {
+                    cell = function browser_content_configuration_socketList_cell(text:string, tagName:"td"|"th", parent:HTMLElement):void {
                         const tag:HTMLElement = document.createElement(tagName);
                         if (bodySection === true && tagName === "th") {
                             const span:HTMLElement = document.createElement("span");
