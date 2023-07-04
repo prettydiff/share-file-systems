@@ -1,6 +1,7 @@
 
 /* lib/browser/content/configuration - A collection of utilities and event handlers associated with processing the application state and system configuration. */
 
+// cspell: words colspan
 import browser from "../utilities/browser.js";
 import common from "../../common/common.js";
 import network from "../utilities/network.js";
@@ -489,8 +490,7 @@ const configuration:module_configuration = {
                     indexSocket:number = 0,
                     device:socketListItem[] = null,
                     deviceLen:number = 0,
-                    bodySection:boolean = false,
-                    name:string = "";
+                    bodySection:boolean = false;
                 cell("Type", "th", tr);
                 cell("Status", "th", tr);
                 cell("Local Address", "th", tr);
@@ -506,21 +506,25 @@ const configuration:module_configuration = {
                     device = list[keys[indexDevice]];
                     deviceLen = device.length;
                     indexSocket = 0;
-                    name = (browser.device[keys[indexDevice]] === undefined)
-                        ? ""
-                        : browser.device[keys[indexDevice]].name;
                     if (deviceLen > 0) {
                         tr = document.createElement("tr");
-                        cell(`${name} - ${keys[indexDevice]}`, "th", tr);
+                        cell(`${browser.device[keys[indexDevice]].name} - ${keys[indexDevice]}`, "th", tr);
                         section.appendChild(tr);
                         do {
                             tr = document.createElement("tr");
                             cell(device[indexSocket].type, "td", tr);
                             cell(device[indexSocket].status, "td", tr);
-                            cell(device[indexSocket].localAddress, "td", tr);
-                            cell(device[indexSocket].localPort.toString(), "td", tr);
-                            cell(device[indexSocket].remoteAddress, "td", tr);
-                            cell(device[indexSocket].remotePort.toString(), "td", tr);
+                            if (device[indexSocket].status === "open") {
+                                cell(device[indexSocket].localAddress, "td", tr);
+                                cell(device[indexSocket].localPort.toString(), "td", tr);
+                                cell(device[indexSocket].remoteAddress, "td", tr);
+                                cell(device[indexSocket].remotePort.toString(), "td", tr);
+                            } else {
+                                cell("", "td", tr);
+                                cell("", "td", tr);
+                                cell("", "td", tr);
+                                cell("", "td", tr);
+                            }
                             cell(device[indexSocket].name, "td", tr);
                             if (device[indexSocket].status === "end" || device[indexSocket].status === "closed") {
                                 tr.setAttribute("class", "closed");

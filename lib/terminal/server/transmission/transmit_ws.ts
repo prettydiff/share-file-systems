@@ -237,6 +237,9 @@ const transmit_ws:module_transmit_ws = {
 
         // loop through the socket groups
         let indexPrimary:number = keysPrimary.length;
+        if (vars.settings.hashDevice === "") {
+            return;
+        }
         do {
             indexPrimary = indexPrimary - 1;
             if (keysPrimary[indexPrimary] === "browser" || keysPrimary[indexPrimary] === "device" || keysPrimary[indexPrimary] === "testRemote" || keysPrimary[indexPrimary] === "user") {
@@ -964,6 +967,9 @@ const transmit_ws:module_transmit_ws = {
                 }
             }
             config.socket.on("end", function terminal_server_transmission_transmitWs_socketExtension_socketEnd():void {
+                if (config.socket.type === "device" || config.socket.type === "user") {
+                    transmit_ws.agentClose(config.socket);
+                }
                 config.socket.status = "end";
                 transmit_ws.list();
             });
