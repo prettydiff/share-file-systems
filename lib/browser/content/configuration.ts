@@ -489,7 +489,8 @@ const configuration:module_configuration = {
                     indexSocket:number = 0,
                     device:socketListItem[] = null,
                     deviceLen:number = 0,
-                    bodySection:boolean = false;
+                    bodySection:boolean = false,
+                    name:string = "";
                 cell("Type", "th", tr);
                 cell("Status", "th", tr);
                 cell("Local Address", "th", tr);
@@ -505,9 +506,12 @@ const configuration:module_configuration = {
                     device = list[keys[indexDevice]];
                     deviceLen = device.length;
                     indexSocket = 0;
+                    name = (browser.device[keys[indexDevice]] === undefined)
+                        ? ""
+                        : browser.device[keys[indexDevice]].name;
                     if (deviceLen > 0) {
                         tr = document.createElement("tr");
-                        cell(`${browser.device[keys[indexDevice]].name} - ${keys[indexDevice]}`, "th", tr);
+                        cell(`${name} - ${keys[indexDevice]}`, "th", tr);
                         section.appendChild(tr);
                         do {
                             tr = document.createElement("tr");
