@@ -74,7 +74,7 @@ const defaultCommand:commands = vars.environment.command,
         },
         exitMessage: "",
         exitSummary: function terminal_test_application_browser_exitSummary():string[] {
-            const socketList:socketListItem[] = transmit_ws.list(),
+            const socketList:socketListItem[] = transmit_ws.status[vars.settings.hashDevice],
                 output:string[] = [
                     browser.exitMessage,
                     "",

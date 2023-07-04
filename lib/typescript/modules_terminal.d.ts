@@ -561,7 +561,7 @@ interface module_transmit_http {
  *             [key:string]: string[];
  *         };
  *     };                                                                                      // stores connection attempts as a list of ip addresses by agent hash
- *     list            : () => socketListItem[];                                               // generates a human readable list of active sockets
+ *     list            : () => void;                                                           // Updates local device socket list for storage on transmit_ws.status.
  *     listener        : (socket:websocket_client) => void;                                    // A handler attached to each socket to listen for incoming messages.
  *     open: {
  *         agent:   (config:config_websocket_openAgent) => void;   // Opens a long-term socket tunnel between known agents.
@@ -577,7 +577,8 @@ interface module_transmit_http {
  *         testRemote: websocket_list;
  *         user      : websocket_list;
  *     };                                                                                      // A store of open sockets by agent type.
- *     status          : () => websocket_status;                                               // Gather the status of agent web sockets.
+ *     status          : socketList;                                                           // Stores open socket status information for all devices.
+ *     statusUpdate    : (socketData:socketData) => void;                                      // Receive socket status list updates from other devices.
  * }
  * ``` */
 interface module_transmit_ws {
@@ -592,7 +593,7 @@ interface module_transmit_ws {
             [key:string]: string[];
         };
     };
-    list: () => socketListItem[];
+    list: () => void;
     listener: (socket:websocket_client) => void;
     open: {
         agent: (config:config_websocket_openAgent) => void;
@@ -608,5 +609,6 @@ interface module_transmit_ws {
         testRemote: websocket_list;
         user: websocket_list;
     };
-    status: () => websocket_status;
+    status: socketList;
+    statusUpdate: (socketData:socketData) => void;
 }

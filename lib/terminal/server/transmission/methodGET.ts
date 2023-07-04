@@ -44,7 +44,7 @@ const methodGET = function terminal_server_transmission_methodGET(request:node_h
                         ports: vars.network.ports
                     },
                     settings: settingsData,
-                    "socket-list": transmit_ws.list(),
+                    "socket-list": transmit_ws.status,
                     test: (vars.test.browser !== null && request.url.indexOf("?test_browser") > 0)
                         ? vars.test.browser
                         : null

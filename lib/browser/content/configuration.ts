@@ -467,8 +467,9 @@ const configuration:module_configuration = {
         },
 
         socketList: function browser_content_configuration_socketList(socketData:socketData):void {
-            const list:socketListItem[] = socketData.data as socketListItem[],
-                len:number = list.length,
+            const list:socketList = socketData.data as socketList,
+                keys:string[] = Object.keys(list),
+                len:number = keys.length,
                 body:HTMLElement = document.getElementById("socketList-modal").getElementsByClassName("body")[0] as HTMLElement,
                 p:HTMLElement = document.createElement("p");
             body.removeChild(body.firstChild);
@@ -477,11 +478,18 @@ const configuration:module_configuration = {
                     cell = function browser_Content_configuration_socketList_cell(text:string, tagName:"td"|"th", parent:HTMLElement):void {
                         const tag:HTMLElement = document.createElement(tagName);
                         tag.appendText(text);
+                        if (bodySection === true && tagName === "th") {
+                            tag.setAttribute("colspan", "7");
+                        }
                         parent.appendChild(tag);
                     };
                 let section:HTMLElement = document.createElement("thead"),
                     tr:HTMLElement = document.createElement("tr"),
-                    index:number = 0;
+                    indexDevice:number = 0,
+                    indexSocket:number = 0,
+                    device:socketListItem[] = null,
+                    deviceLen:number = 0,
+                    bodySection:boolean = false;
                 cell("Type", "th", tr);
                 cell("Status", "th", tr);
                 cell("Local Address", "th", tr);
@@ -492,23 +500,34 @@ const configuration:module_configuration = {
                 section.appendChild(tr);
                 table.appendChild(section);
                 section = document.createElement("tbody");
+                bodySection = true;
                 do {
-                    tr = document.createElement("tr");
-                    cell(list[index].type, "td", tr);
-                    cell(list[index].status, "td", tr);
-                    cell(list[index].localAddress, "td", tr);
-                    cell(list[index].localPort.toString(), "td", tr);
-                    cell(list[index].remoteAddress, "td", tr);
-                    cell(list[index].remotePort.toString(), "td", tr);
-                    cell(list[index].name, "td", tr);
-                    if (list[index].status === "end" || list[index].status === "closed") {
-                        tr.setAttribute("class", "closed");
-                    } else if (list[index].status === "pending") {
-                        tr.setAttribute("class", "pending");
+                    device = list[keys[indexDevice]];
+                    deviceLen = device.length;
+                    indexSocket = 0;
+                    if (deviceLen > 0) {
+                        tr = document.createElement("tr");
+                        cell(keys[indexDevice], "th", tr);
+                        do {
+                            tr = document.createElement("tr");
+                            cell(device[indexSocket].type, "td", tr);
+                            cell(device[indexSocket].status, "td", tr);
+                            cell(device[indexSocket].localAddress, "td", tr);
+                            cell(device[indexSocket].localPort.toString(), "td", tr);
+                            cell(device[indexSocket].remoteAddress, "td", tr);
+                            cell(device[indexSocket].remotePort.toString(), "td", tr);
+                            cell(device[indexSocket].name, "td", tr);
+                            if (device[indexSocket].status === "end" || device[indexSocket].status === "closed") {
+                                tr.setAttribute("class", "closed");
+                            } else if (device[indexSocket].status === "pending") {
+                                tr.setAttribute("class", "pending");
+                            }
+                            section.appendChild(tr);
+                            indexSocket = indexSocket + 1;
+                        } while (indexSocket < deviceLen);
                     }
-                    section.appendChild(tr);
-                    index = index + 1;
-                } while (index < len);
+                    indexDevice = indexDevice + 1;
+                } while (indexDevice < len);
                 table.setAttribute("class", "socket-list");
                 table.appendChild(section);
                 body.appendChild(table);

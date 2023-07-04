@@ -241,6 +241,17 @@ interface socketData {
 }
 
 /**
+ * Stores a collection of socket data respective of all devices.
+ * ```typescript
+ * interface socketList {
+ *     [key:string]: socketListItem[];
+ * }
+ * ``` */
+interface socketList {
+    [key:string]: socketListItem[];
+}
+
+/**
  * A data package describing lists of sockets.
  * ```typescript
  * interface socketListItem {
