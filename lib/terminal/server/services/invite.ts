@@ -211,7 +211,7 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                                 inviteHttp();
                             },
                             (vars.test.type.indexOf("browser_") === 0)
-                                ? 500
+                                ? 1000
                                 : vars.settings.statusTime
                         );
                     } else {

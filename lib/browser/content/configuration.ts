@@ -478,9 +478,14 @@ const configuration:module_configuration = {
                 const table:HTMLElement = document.createElement("table"),
                     cell = function browser_Content_configuration_socketList_cell(text:string, tagName:"td"|"th", parent:HTMLElement):void {
                         const tag:HTMLElement = document.createElement(tagName);
-                        tag.appendText(text);
                         if (bodySection === true && tagName === "th") {
+                            const span:HTMLElement = document.createElement("span");
+                            span.appendText(browser.device[text].name);
+                            tag.appendChild(span);
+                            tag.appendText(` - ${text}`);
                             tag.setAttribute("colspan", "7");
+                        } else {
+                            tag.appendText(text);
                         }
                         parent.appendChild(tag);
                     };
@@ -490,7 +495,8 @@ const configuration:module_configuration = {
                     indexSocket:number = 0,
                     device:socketListItem[] = null,
                     deviceLen:number = 0,
-                    bodySection:boolean = false;
+                    bodySection:boolean = false,
+                    type:agentType = null;
                 cell("Type", "th", tr);
                 cell("Status", "th", tr);
                 cell("Local Address", "th", tr);
@@ -508,7 +514,7 @@ const configuration:module_configuration = {
                     indexSocket = 0;
                     if (deviceLen > 0) {
                         tr = document.createElement("tr");
-                        cell(`${browser.device[keys[indexDevice]].name} - ${keys[indexDevice]}`, "th", tr);
+                        cell(keys[indexDevice], "th", tr);
                         section.appendChild(tr);
                         do {
                             tr = document.createElement("tr");
@@ -525,7 +531,12 @@ const configuration:module_configuration = {
                                 cell("", "td", tr);
                                 cell("", "td", tr);
                             }
-                            cell(device[indexSocket].name, "td", tr);
+                            if (device[indexSocket].type === "device" || device[indexSocket].type === "user") {
+                                type = device[indexSocket].type as agentType;
+                                cell(`${browser[type][device[indexSocket].name].name} - ${device[indexSocket].name}`, "td", tr);
+                            } else {
+                                cell(device[indexSocket].name, "td", tr);
+                            }
                             if (device[indexSocket].status === "end" || device[indexSocket].status === "closed") {
                                 tr.setAttribute("class", "closed");
                             } else if (device[indexSocket].status === "pending") {

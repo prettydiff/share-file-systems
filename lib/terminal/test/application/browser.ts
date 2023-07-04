@@ -432,6 +432,7 @@ const defaultCommand:commands = vars.environment.command,
                     log(["", "", timeStore[0]]);
                     vars.settings.device = {};
                     vars.settings.user = {};
+                    transmit_ws.status = {};
                     if (browser.args.mode === "remote" || browser.args.mode === "all") {
                         resetState(function terminal_test_application_browser_reset_readdir_browserLaunch_resetState():void {
                             browser.methods.sendAction("close", browser.name);
