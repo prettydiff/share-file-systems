@@ -5,6 +5,7 @@ import agent_hash from "./agent_hash.js";
 import agent_management from "../content/agent_management.js";
 import agent_status from "./agent_status.js";
 import browser from "./browser.js";
+import configuration from "../content/configuration.js";
 import file_browser from "../content/file_browser.js";
 import message from "../content/message.js";
 import remote from "./remote.js";
@@ -102,6 +103,7 @@ const network:module_network = {
                 "invite": agent_management.tools.inviteTransmissionReceipt,
                 "message": message.tools.receive,
                 "reload": reload,
+                "socket-list": configuration.tools.socketList,
                 "terminal": terminal.events.receive,
                 "test-browser": remote.receive
             },

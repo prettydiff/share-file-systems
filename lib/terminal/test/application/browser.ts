@@ -74,26 +74,60 @@ const defaultCommand:commands = vars.environment.command,
         },
         exitMessage: "",
         exitSummary: function terminal_test_application_browser_exitSummary():string[] {
-            return [
-                browser.exitMessage,
-                "",
-                `${vars.text.underline}Network Transmissions${vars.text.none}`,
-                `${vars.text.angry}*${vars.text.none} ${vars.text.cyan}HTTP Receive${vars.text.none} - ${common.commas(vars.network.count.http.receive)}`,
-                `${vars.text.angry}*${vars.text.none} ${vars.text.cyan}HTTP Send${vars.text.none}    - ${common.commas(vars.network.count.http.send)}`,
-                `${vars.text.angry}*${vars.text.none} ${vars.text.cyan}WS   Receive${vars.text.none} - ${common.commas(vars.network.count.ws.receive)}`,
-                `${vars.text.angry}*${vars.text.none} ${vars.text.cyan}WS   Send${vars.text.none}    - ${common.commas(vars.network.count.ws.send)}`,
-                `${vars.text.angry}*${vars.text.none} ${vars.text.cyan + vars.text.bold + vars.text.underline}Total${vars.text.none}        - ${common.commas(vars.network.count.http.receive + vars.network.count.http.send + vars.network.count.ws.receive + vars.network.count.ws.send)}`,
-                "",
-                `${vars.text.underline}Network Transmission Size (Bytes)${vars.text.none}`,
-                `${vars.text.angry}*${vars.text.none} ${vars.text.cyan}HTTP Receive${vars.text.none} - ${common.commas(vars.network.size.http.receive)}`,
-                `${vars.text.angry}*${vars.text.none} ${vars.text.cyan}HTTP Send${vars.text.none}    - ${common.commas(vars.network.size.http.send)}`,
-                `${vars.text.angry}*${vars.text.none} ${vars.text.cyan}WS   Receive${vars.text.none} - ${common.commas(vars.network.size.ws.receive)}`,
-                `${vars.text.angry}*${vars.text.none} ${vars.text.cyan}WS   Send${vars.text.none}    - ${common.commas(vars.network.size.ws.send)}`,
-                `${vars.text.angry}*${vars.text.none} ${vars.text.cyan + vars.text.bold + vars.text.underline}Total${vars.text.none}        - ${common.commas(vars.network.size.http.receive + vars.network.size.http.send + vars.network.size.ws.receive + vars.network.size.ws.send)}`,
-                "",
-                `${vars.text.underline}Open Sockets${vars.text.none}`,
-                transmit_ws.list()
-            ];
+            const socketList:socketListItem[] = transmit_ws.status[vars.settings.hashDevice],
+                output:string[] = [
+                    browser.exitMessage,
+                    "",
+                    `${vars.text.underline}Network Transmissions${vars.text.none}`,
+                    `${vars.text.angry}*${vars.text.none} ${vars.text.cyan}HTTP Receive${vars.text.none} - ${common.commas(vars.network.count.http.receive)}`,
+                    `${vars.text.angry}*${vars.text.none} ${vars.text.cyan}HTTP Send${vars.text.none}    - ${common.commas(vars.network.count.http.send)}`,
+                    `${vars.text.angry}*${vars.text.none} ${vars.text.cyan}WS   Receive${vars.text.none} - ${common.commas(vars.network.count.ws.receive)}`,
+                    `${vars.text.angry}*${vars.text.none} ${vars.text.cyan}WS   Send${vars.text.none}    - ${common.commas(vars.network.count.ws.send)}`,
+                    `${vars.text.angry}*${vars.text.none} ${vars.text.cyan + vars.text.bold + vars.text.underline}Total${vars.text.none}        - ${common.commas(vars.network.count.http.receive + vars.network.count.http.send + vars.network.count.ws.receive + vars.network.count.ws.send)}`,
+                    "",
+                    `${vars.text.underline}Network Transmission Size (Bytes)${vars.text.none}`,
+                    `${vars.text.angry}*${vars.text.none} ${vars.text.cyan}HTTP Receive${vars.text.none} - ${common.commas(vars.network.size.http.receive)}`,
+                    `${vars.text.angry}*${vars.text.none} ${vars.text.cyan}HTTP Send${vars.text.none}    - ${common.commas(vars.network.size.http.send)}`,
+                    `${vars.text.angry}*${vars.text.none} ${vars.text.cyan}WS   Receive${vars.text.none} - ${common.commas(vars.network.size.ws.receive)}`,
+                    `${vars.text.angry}*${vars.text.none} ${vars.text.cyan}WS   Send${vars.text.none}    - ${common.commas(vars.network.size.ws.send)}`,
+                    `${vars.text.angry}*${vars.text.none} ${vars.text.cyan + vars.text.bold + vars.text.underline}Total${vars.text.none}        - ${common.commas(vars.network.size.http.receive + vars.network.size.http.send + vars.network.size.ws.receive + vars.network.size.ws.send)}`,
+                    "",
+                    `${vars.text.underline}Open Sockets${vars.text.none}`
+                ],
+                padding = function terminal_test_application_browser_exitSummary_padding(input:string, long:0|1):string {
+                    let diff:number = longest[long] - input.length;
+                    if (long === 0) {
+                        input = vars.text.cyan + input + vars.text.none;
+                    }
+                    if (diff > 0) {
+                        do {
+                            input = `${input} `;
+                            diff = diff - 1;
+                        } while (diff > 0);
+                    }
+                    return input;
+                },
+                len:number = socketList.length,
+                longest:[number, number] = [0, 0];
+            let index:number = 0;
+            if (len > 0) {
+                do {
+                    if (socketList[index].type.length > longest[0]) {
+                        longest[0] = socketList[index].type.length;
+                    }
+                    if (socketList[index].status.length > longest[1]) {
+                        longest[1] = socketList[index].status.length;
+                    }
+                    index = index + 1;
+                } while (index < len);
+
+                index = 0;
+                do {
+                    output.push(`${vars.text.angry}*${vars.text.none} ${padding(socketList[index].type, 0)} - ${padding(socketList[index].status, 1)} - ${socketList[index].name}`);
+                    index = index + 1;
+                } while (index < len);
+            }
+            return output;
         },
         fail: false,
         index: -1,
@@ -238,7 +272,7 @@ const defaultCommand:commands = vars.environment.command,
                             };
                     summary.push("\u0007");
                     if (browser.args.mode !== "self") {
-                        const agents:string[] = Object.keys(transmit_ws.clientList.testRemote);
+                        const agents:string[] = Object.keys(transmit_ws.socketList.testRemote);
                         agents.forEach(function terminal_test_application_browser_exit_agents(name:string):void {
                             const action:"close"|"exit" = (browser.args.noClose === true)
                                 ? "exit"
@@ -398,6 +432,7 @@ const defaultCommand:commands = vars.environment.command,
                     log(["", "", timeStore[0]]);
                     vars.settings.device = {};
                     vars.settings.user = {};
+                    transmit_ws.status = {};
                     if (browser.args.mode === "remote" || browser.args.mode === "all") {
                         resetState(function terminal_test_application_browser_reset_readdir_browserLaunch_resetState():void {
                             browser.methods.sendAction("close", browser.name);
@@ -506,7 +541,7 @@ const defaultCommand:commands = vars.environment.command,
                                     : "s",
                                 exitMessage:string = (pass === true)
                                     ? `${humanTime(false) + vars.text.green + vars.text.bold}Passed${vars.text.none} all ${totalTests[1]} evaluations from ${totalTests[0]} test${passPlural}.`
-                                    : `${humanTime(false) + vars.text.angry}Failed${vars.text.none} on test ${vars.text.angry + String(index + 1) + vars.text.none}: "${vars.text.cyan + tests[index].name + vars.text.none}" out of ${tests.length} total test${plural} and ${totalTests} evaluations.`;
+                                    : `${humanTime(false) + vars.text.angry}Failed${vars.text.none} on test ${vars.text.angry + String(index + 1) + vars.text.none}: "${vars.text.cyan + tests[index].name + vars.text.none}" out of ${tests.length} total test${plural} and ${totalTests[1]} evaluations.`;
                             browser.exitMessage = exitMessage;
                             browser.methods.exit(null);
                             browser.fail = true;
@@ -768,7 +803,7 @@ const defaultCommand:commands = vars.environment.command,
             send: function terminal_test_application_browser_send(testItem:service_testBrowser):void {
                 if (testItem.test.machine === browser.name) {
                     // self
-                    const keys:string[] = Object.keys(transmit_ws.clientList.browser),
+                    const keys:string[] = Object.keys(transmit_ws.socketList.browser),
                         keyLength:number = keys.length;
                     if (keyLength > 0) {
                         testItem.test = filePathDecode(testItem.test, "") as test_browserItem;
@@ -785,7 +820,7 @@ const defaultCommand:commands = vars.environment.command,
                     transmit_ws.queue({
                         data: testItem,
                         service: "test-browser"
-                    }, transmit_ws.clientList.testRemote[testItem.test.machine], 1);
+                    }, transmit_ws.socketList.testRemote[testItem.test.machine], 1);
                 }
 
                 // Once a reset test is sent it is necessary to eliminate the event portion of the test.

@@ -13,6 +13,7 @@ body.default {
     --green-bright:#0f0;
     --green-button-text:#060;
     --green-terminal:#0a0;
+    --green-text-dark:#440;
     --grey-dark:#222;
     --grey-medium:#666;
     --orange-background:#fdb;
@@ -141,12 +142,16 @@ body.default {
 .default #spaces #agentList .status-idle{color:var(--yellow-primary);text-shadow:0 0 0.5em var(--yellow-text)}
 .default #spaces #agentList .status-offline{color:var(--offline);text-shadow:0 0 0.5em var(--red-text)}
 .default #spaces #agentList span{background:var(--black)}
+.default #spaces #agentList .sockets button{background:var(--green-button-background);border-color:var(--green-text-dark);color:var(--green-text-dark)}
 .default #spaces #agentList .all-shares button,
 .default #spaces #agentList .device-all-shares,
 .default #spaces #agentList .user-all-shares{background:var(--blue-button-background);color:var(--blue-button-text)}
 .default #spaces #agentList .all-shares button:hover,
 .default #spaces #agentList .device-all-shares:hover,
 .default #spaces #agentList .user-all-shares:hover{background:var(--white)}
+.default #spaces .box .socket-list th{background:var(--background)}
+.default #spaces .box .socket-list .closed{background:var(--pink);border-color:var(--red-text);color:var(--red-text)}
+.default #spaces .box .socket-list .pending{background:var(--blue-button-background);border-color:var(--blue-button-text);color:var(--blue-button-text)}
 
 /* minimize tray at bottom */
 .default #spaces #tray{background:var(--background-dark);border-color:var(--grey-medium)}

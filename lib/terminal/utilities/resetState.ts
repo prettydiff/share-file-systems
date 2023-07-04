@@ -5,10 +5,10 @@ import vars from "./vars.js";
 
 const resetState = function terminal_utilities_resetState(callback:() => void):void {
     let agentType:agentType = "device";
-    const deviceKeys:string[] = Object.keys(transmit_ws.clientList.device),
-        userKeys:string[] = Object.keys(transmit_ws.clientList.user),
+    const deviceKeys:string[] = Object.keys(transmit_ws.socketList.device),
+        userKeys:string[] = Object.keys(transmit_ws.socketList.user),
         agentKill = function terminal_utilities_resetState_agentKill(agent:string):void {
-            transmit_ws.agentClose(transmit_ws.clientList[agentType][agent]);
+            transmit_ws.agentClose(transmit_ws.socketList[agentType][agent]);
         },
         mapValues = function terminal_utilities_resetState_mapValues(source:settings_item|ui_data, configuration:boolean):void {
             const keys:string[] = Object.keys(source);

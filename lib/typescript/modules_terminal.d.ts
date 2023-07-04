@@ -551,12 +551,6 @@ interface module_transmit_http {
  * ```typescript
  * interface transmit_ws {
  *     agentClose      : (socket:websocket_client) => void;                                    // A uniform way to notify browsers when a remote agent goes offline
- *     clientList: {
- *         browser   : websocket_list;
- *         device    : websocket_list;
- *         testRemote: websocket_list;
- *         user      : websocket_list;
- *     };                                                                                      // A store of open sockets by agent type.
  *     clientReceiver  : websocket_messageHandler;                                             // Processes data from regular agent websocket tunnels into JSON for processing by receiver library.
  *     createSocket    : (config:config_websocket_create) => void;                             // Creates a new socket for use by openAgent and openService methods.
  *     ipAttempts: {
@@ -567,7 +561,7 @@ interface module_transmit_http {
  *             [key:string]: string[];
  *         };
  *     };                                                                                      // stores connection attempts as a list of ip addresses by agent hash
- *     list            : () => string;                                                         // generates a human readable list of active sockets
+ *     list            : () => void;                                                           // Updates local device socket list for storage on transmit_ws.status.
  *     listener        : (socket:websocket_client) => void;                                    // A handler attached to each socket to listen for incoming messages.
  *     open: {
  *         agent:   (config:config_websocket_openAgent) => void;   // Opens a long-term socket tunnel between known agents.
@@ -577,17 +571,18 @@ interface module_transmit_http {
  *     queueSend       : (socket:websocket_client) => void;                                    // Pushes messages stored from the agent's offline queue into the transmission queue.
  *     server          : (config:config_websocket_server) => node_net_Server;                  // Creates a websocket server.
  *     socketExtensions: (config:config_websocket_extensions) => void;                         // applies application specific extensions to sockets
- *     status          : () => websocket_status;                                               // Gather the status of agent web sockets.
+ *     socketList      : {
+ *         browser   : websocket_list;
+ *         device    : websocket_list;
+ *         testRemote: websocket_list;
+ *         user      : websocket_list;
+ *     };                                                                                      // A store of open sockets by agent type.
+ *     status          : socketList;                                                           // Stores open socket status information for all devices.
+ *     statusUpdate    : (socketData:socketData) => void;                                      // Receive socket status list updates from other devices.
  * }
  * ``` */
 interface module_transmit_ws {
     agentClose: (socket:websocket_client) => void;
-    clientList: {
-        browser: websocket_list;
-        device: websocket_list;
-        testRemote: websocket_list;
-        user: websocket_list;
-    };
     clientReceiver: websocket_messageHandler;
     createSocket: (config:config_websocket_create) => void;
     ipAttempts: {
@@ -598,7 +593,7 @@ interface module_transmit_ws {
             [key:string]: string[];
         };
     };
-    list: () => string;
+    list: () => void;
     listener: (socket:websocket_client) => void;
     open: {
         agent: (config:config_websocket_openAgent) => void;
@@ -608,5 +603,12 @@ interface module_transmit_ws {
     queueSend: (socket:websocket_client) => void;
     server: (config:config_websocket_server) => node_net_Server;
     socketExtensions: (config:config_websocket_extensions) => void;
-    status: () => websocket_status;
+    socketList: {
+        browser: websocket_list;
+        device: websocket_list;
+        testRemote: websocket_list;
+        user: websocket_list;
+    };
+    status: socketList;
+    statusUpdate: (socketData:socketData) => void;
 }

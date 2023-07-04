@@ -145,11 +145,20 @@ body.login #spaces{bottom:0;padding:2.5em 0 0;position:fixed;top:0}
 #spaces #agentList .offline .status-active,
 #spaces #agentList .offline .status-idle{display:none}
 #spaces #agentList span{display:block;height:100%;left:0;opacity:0.1;position:absolute;top:0;width:100%;z-index:1}
+#spaces #agentList .sockets::before,
 #spaces #agentList .all-shares::before,
 #spaces #device .device-all-shares::before,
 #spaces #user .user-all-shares::before{content:""}
+#spaces #agentList .sockets{margin:0;position:relative;z-index:2}
 #spaces #agentList .all-shares{margin:0 0 3em;position:relative;z-index:2}
 #spaces #device{margin:0 0 3em}
+#spaces .box .socket-list{font-size:var(--textSize);margin:0.5em}
+#spaces .box table.socket-list{border-collapse:collapse;border-style:solid;border-width:0.1em}
+#spaces .box .socket-list td,
+#spaces .box .socket-list th{border-style:solid;border-width:0.05em;padding:0.2em 0.5em;text-align:left}
+#spaces .box .socket-list thead th,
+#spaces .box .socket-list tbody th span{font-weight:bold}
+#spaces .box .socket-list tbody th{font-weight:normal}
 
 /* minimize tray at bottom */
 #spaces #tray{border-style:solid;border-width:0.1em 0.1em 0.1em 0;bottom:0;display:block;min-height:6em;margin:0 0 1.6em 0;padding:0;position:fixed;z-index:1}

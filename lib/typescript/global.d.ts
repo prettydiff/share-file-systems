@@ -241,6 +241,40 @@ interface socketData {
 }
 
 /**
+ * Stores a collection of socket data respective of all devices.
+ * ```typescript
+ * interface socketList {
+ *     [key:string]: socketListItem[];
+ * }
+ * ``` */
+interface socketList {
+    [key:string]: socketListItem[];
+}
+
+/**
+ * A data package describing lists of sockets.
+ * ```typescript
+ * interface socketListItem {
+ *     localAddress: string;
+ *     localPort: number;
+ *     name: string;
+ *     remoteAddress: string;
+ *     remotePort: number;
+ *     status: socketStatus;
+ *     type: string;
+ * }
+ * ``` */
+interface socketListItem {
+    localAddress: string;
+    localPort: number;
+    name: string;
+    remoteAddress: string;
+    remotePort: number;
+    status: socketStatus;
+    type: string;
+}
+
+/**
  * A non-specific object limited to mapping a string value to a key name.
  * ```typescript
  * interface stringStore {

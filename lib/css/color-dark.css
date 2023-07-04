@@ -9,6 +9,8 @@ body.dark{
     --green-primary:#090;
     --green-shadow:#060;
     --green-text:#393;
+    --purple-background:#202;
+    --purple-text:#c9c;
     --red-bright:#f33;
     --red-primary:#c33;
     --yellow-background:#330;
@@ -21,6 +23,7 @@ body.dark{
     --background:#333;
     --background-dark:#111;
     --background-red:#300;
+    --background-red-dark:#200;
     --border:#666;
     --button:#222;
     --button-hover:#444;
@@ -116,12 +119,16 @@ body.dark{
 .dark #spaces #agentList .status-idle{color:var(--yellow-primary);text-shadow:0 0 0.5em var(--yellow-shadow)}
 .dark #spaces #agentList .status-offline{color:var(--red-bright);text-shadow:0 0 0.5em var(--red-primary)}
 .dark #spaces #agentList span{background:black;opacity:0.4}
+.dark #spaces #agentList .sockets button{background:var(--purple-background);border-color:var(--purple-text);color:var(--purple-text)}
 .dark #spaces #agentList .all-shares button,
 .dark #spaces #agentList .device-all-shares,
 .dark #spaces #agentList .user-all-shares{background:var(--blue-background);color:var(--blue-primary)}
 .dark #spaces #agentList .all-shares button:hover,
 .dark #spaces #agentList .device-all-shares:hover,
 .dark #spaces #agentList .user-all-shares:hover{background:var(--shares-background)}
+.dark #spaces .box .socket-list th{background:var(--background)}
+.dark #spaces .box .socket-list .closed{background:var(--background-red-dark);border-color:var(--red-primary);color:var(--red-primary)}
+.dark #spaces .box .socket-list .pending{background:var(--maximize-background);border-color:var(--blue-primary);color:var(--blue-primary)}
 
 /* minimize tray at bottom */
 .dark #spaces #tray{background:var(--background);border-color:var(--button-hover)}

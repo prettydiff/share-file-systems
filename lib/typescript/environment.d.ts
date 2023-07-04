@@ -58,6 +58,7 @@ interface localNetwork {
  *     name: string;
  *     network: localNetwork;
  *     settings: settings_item;
+ *     "socket-list": socketList;
  *     test: service_testBrowser;
  * }
  * ``` */
@@ -65,6 +66,7 @@ interface stateData {
     name: string;
     network: localNetwork;
     settings: settings_item;
+    "socket-list": socketList;
     test: service_testBrowser;
 }
 

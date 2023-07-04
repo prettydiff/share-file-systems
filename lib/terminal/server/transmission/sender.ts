@@ -17,7 +17,7 @@ import vars from "../../utilities/vars.js";
  * ``` */
 const sender:module_transmit_sender = {
     agentQueue: function terminal_server_transmission_sender_agentQueue(type:socketType, agent:string, payload:socketData) {
-        const socket:websocket_client = transmit_ws.clientList[type as agentType][agent];
+        const socket:websocket_client = transmit_ws.socketList[type as agentType][agent];
         if (socket !== undefined && socket !== null && (socket.status === "open" || socket.status === "pending")) {
             transmit_ws.queue(payload, socket, 1);
         } else if (vars.test.type === "" && (type === "device" || type === "user") && vars.settings[type][agent] !== undefined) {
@@ -61,9 +61,9 @@ const sender:module_transmit_sender = {
     // send to all agents of a given type
     broadcast: function terminal_server_transmission_sender_broadcast(payload:socketData, listType:agentType | "browser"):void {
         if (listType === "browser") {
-            const list:string[] = Object.keys(transmit_ws.clientList.browser);
+            const list:string[] = Object.keys(transmit_ws.socketList.browser);
             list.forEach(function terminal_server_transmission_transmitWs_broadcast_each(agent:string):void {
-                transmit_ws.queue(payload, transmit_ws.clientList.browser[agent], 1);
+                transmit_ws.queue(payload, transmit_ws.socketList.browser[agent], 1);
             });
         } else {
             const list:string[] = Object.keys(vars.settings[listType]);

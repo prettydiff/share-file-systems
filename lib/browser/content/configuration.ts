@@ -1,6 +1,7 @@
 
 /* lib/browser/content/configuration - A collection of utilities and event handlers associated with processing the application state and system configuration. */
 
+// cspell: words colspan
 import browser from "../utilities/browser.js";
 import common from "../../common/common.js";
 import network from "../utilities/network.js";
@@ -24,6 +25,7 @@ import util from "../utilities/util.js";
  *         addUserColor    : (agent:string, type:agentType, configElement?:HTMLElement)) => void; // Add agent color options to the configuration modal content.
  *         applyAgentColors: (agent:string, type:agentType, colors:[string, string]) => void;     // Update the specified color information against the default colors of the current color scheme.
  *         radio           : (element:HTMLElement) => void;                                       // Sets a class on a grandparent element to apply style changes to the corresponding label.
+ *         socketList      : (socketData:socketData) => void;                                     // Receives a service message and produces a content update for the socket list modal.
  *         styleText       : (input:configuration_styleText) => void;                             // Generates the CSS code for an agent specific style change and populates it into an HTML style tag.
  *     };
  * }
@@ -463,6 +465,97 @@ const configuration:module_configuration = {
                 a = a + 1;
             } while (a < length);
             parent.setAttribute("class", "radio-checked");
+        },
+
+        socketList: function browser_content_configuration_socketList(socketData:socketData):void {
+            const list:socketList = socketData.data as socketList,
+                keys:string[] = Object.keys(list),
+                len:number = keys.length,
+                body:HTMLElement = document.getElementById("socketList-modal").getElementsByClassName("body")[0] as HTMLElement,
+                p:HTMLElement = document.createElement("p");
+            body.removeChild(body.firstChild);
+            if (len > 0) {
+                const table:HTMLElement = document.createElement("table"),
+                    cell = function browser_Content_configuration_socketList_cell(text:string, tagName:"td"|"th", parent:HTMLElement):void {
+                        const tag:HTMLElement = document.createElement(tagName);
+                        if (bodySection === true && tagName === "th") {
+                            const span:HTMLElement = document.createElement("span");
+                            span.appendText(browser.device[text].name);
+                            tag.appendChild(span);
+                            tag.appendText(` - ${text}`);
+                            tag.setAttribute("colspan", "7");
+                        } else {
+                            tag.appendText(text);
+                        }
+                        parent.appendChild(tag);
+                    };
+                let section:HTMLElement = document.createElement("thead"),
+                    tr:HTMLElement = document.createElement("tr"),
+                    indexDevice:number = 0,
+                    indexSocket:number = 0,
+                    device:socketListItem[] = null,
+                    deviceLen:number = 0,
+                    bodySection:boolean = false,
+                    type:agentType = null;
+                cell("Type", "th", tr);
+                cell("Status", "th", tr);
+                cell("Local Address", "th", tr);
+                cell("Local Port", "th", tr);
+                cell("Remote Address", "th", tr);
+                cell("Remote Port", "th", tr);
+                cell("Name", "th", tr);
+                section.appendChild(tr);
+                table.appendChild(section);
+                section = document.createElement("tbody");
+                bodySection = true;
+                do {
+                    device = list[keys[indexDevice]];
+                    deviceLen = device.length;
+                    indexSocket = 0;
+                    if (deviceLen > 0) {
+                        tr = document.createElement("tr");
+                        cell(keys[indexDevice], "th", tr);
+                        section.appendChild(tr);
+                        do {
+                            tr = document.createElement("tr");
+                            cell(device[indexSocket].type, "td", tr);
+                            cell(device[indexSocket].status, "td", tr);
+                            if (device[indexSocket].status === "open") {
+                                cell(device[indexSocket].localAddress, "td", tr);
+                                cell(device[indexSocket].localPort.toString(), "td", tr);
+                                cell(device[indexSocket].remoteAddress, "td", tr);
+                                cell(device[indexSocket].remotePort.toString(), "td", tr);
+                            } else {
+                                cell("", "td", tr);
+                                cell("", "td", tr);
+                                cell("", "td", tr);
+                                cell("", "td", tr);
+                            }
+                            if (device[indexSocket].type === "device" || device[indexSocket].type === "user") {
+                                type = device[indexSocket].type as agentType;
+                                cell(`${browser[type][device[indexSocket].name].name} - ${device[indexSocket].name}`, "td", tr);
+                            } else {
+                                cell(device[indexSocket].name, "td", tr);
+                            }
+                            if (device[indexSocket].status === "end" || device[indexSocket].status === "closed") {
+                                tr.setAttribute("class", "closed");
+                            } else if (device[indexSocket].status === "pending") {
+                                tr.setAttribute("class", "pending");
+                            }
+                            section.appendChild(tr);
+                            indexSocket = indexSocket + 1;
+                        } while (indexSocket < deviceLen);
+                    }
+                    indexDevice = indexDevice + 1;
+                } while (indexDevice < len);
+                table.setAttribute("class", "socket-list");
+                table.appendChild(section);
+                body.appendChild(table);
+                return;
+            }
+            p.setAttribute("class", "socket-list");
+            p.appendText("No open sockets.");
+            body.appendChild(p);
         },
 
         /* Applies agent color definitions */
