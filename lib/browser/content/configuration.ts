@@ -507,7 +507,8 @@ const configuration:module_configuration = {
                     indexSocket = 0;
                     if (deviceLen > 0) {
                         tr = document.createElement("tr");
-                        cell(keys[indexDevice], "th", tr);
+                        cell(`${browser.device[keys[indexDevice]].name} - ${keys[indexDevice]}`, "th", tr);
+                        section.appendChild(tr);
                         do {
                             tr = document.createElement("tr");
                             cell(device[indexSocket].type, "td", tr);

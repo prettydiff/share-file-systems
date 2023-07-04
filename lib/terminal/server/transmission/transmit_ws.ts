@@ -259,7 +259,9 @@ const transmit_ws:module_transmit_ws = {
             service: "socket-list"
         }, "browser");
         sender.broadcast({
-            data: transmit_ws.status,
+            data: {
+                [vars.settings.hashDevice]: transmit_ws.status[vars.settings.hashDevice]
+            },
             service: "socket-list"
         }, "device");
     },
@@ -999,19 +1001,11 @@ const transmit_ws:module_transmit_ws = {
     statusUpdate: function terminal_server_transmission_transmitWs_statusUpdate(socketData:socketData):void {
         const data:socketList = socketData.data as socketList,
             keys:string[] = Object.keys(data);
-        let len:number = keys.length;
-        if (len > 0) {
-            do {
-                len = len - 1;
-                if (keys[len] !== vars.settings.hashDevice) {
-                    transmit_ws.status[keys[len]] = data[keys[len]];
-                }
-            } while (len > 0);
-            sender.broadcast({
-                data: transmit_ws.status,
-                service: "socket-list"
-            }, "browser");
-        }
+        transmit_ws.status[keys[0]] = data[keys[0]];
+        sender.broadcast({
+            data: transmit_ws.status,
+            service: "socket-list"
+        }, "browser");
     }
 };
 
