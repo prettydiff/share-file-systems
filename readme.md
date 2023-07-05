@@ -7,7 +7,7 @@
 
 Imagine your mom copy and paste a file from your computer to hers a hundred miles away using her web browser.  Openly share your hard drives with yourself and people you trust in as little or as much as you wish.  The application uses a familiar Windows/OSX like GUI experience in your web browser.  No cloud, no servers, no third party, or intermediary of any kind.
 
-This application seeks to be inherently private.  Everything is directly point to point to users and devices you invite and therefore end-to-end encrypted.
+This application seeks to be inherently private.  Everything is directly point to point to users and devices you invite and therefore end-to-end encrypted and always private.
 
 *Please note* - Certificate installation is not yet tested on OSX.
 
@@ -32,14 +32,13 @@ This application seeks to be inherently private.  Everything is directly point t
 * A robust security model.
 * File integrity checks via SHA3-512 hash.
 * A variety of tools optionally available via terminal commands.
-* For use with [Electron](https://www.electronjs.org/) or [Tauri](https://tauri.app/) see the [documentation](./documentation/electron_tauri.md). 
-* Seeks to solve the same problem as [Upspin](https://upspin.googlesource.com/upspin/) but with privacy first, performance, and a GUI
+* For use with [Electron](https://www.electronjs.org/) or [Tauri](https://tauri.app/) see the [documentation](./documentation/electron_tauri.md).
 
 ## License
 [AGPLv3](https://www.gnu.org/licenses/agpl-3.0.en.html)
 
 ## Version
-0.2.22
+0.2.27
 
 ## Build and execute on desktop
 ### First build
