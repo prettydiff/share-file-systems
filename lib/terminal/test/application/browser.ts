@@ -107,7 +107,9 @@ const defaultCommand:commands = vars.environment.command,
                     }
                     return input;
                 },
-                len:number = socketList.length,
+                len:number = (socketList === undefined)
+                    ? 0
+                    : socketList.length,
                 longest:[number, number] = [0, 0];
             let index:number = 0;
             if (len > 0) {

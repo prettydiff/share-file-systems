@@ -844,7 +844,7 @@ const browserSelf:test_browserItem[] = [
                 qualifier: "is",
                 target: ["style", "top"],
                 type: "property",
-                value: "21.8em"
+                value: "22.7em"
             },
             interaction: [
                 {
@@ -867,7 +867,7 @@ const browserSelf:test_browserItem[] = [
                     qualifier: "is",
                     target: ["style", "left"],
                     type: "property",
-                    value: "21.8em"
+                    value: "22.7em"
                 },
                 {
                     // the file navigator modal is a different size
@@ -2655,7 +2655,7 @@ const browserSelf:test_browserItem[] = [
                     qualifier: "ends",
                     target: ["value"],
                     type: "property",
-                    value: `,"left":254,"top":254,"height":400,"status":"normal","text_value":"God bless kittens"}},"modalTypes":["configuration","terminal","file-navigate","shares","text-pad"],"nameDevice":"Primary Device","nameUser":"Primary User","statusTime":15000,"storage":"${filePathEncode("absolute", "lib/storage/", true)}","tutorial":true,"zIndex":7}`
+                    value: `,"left":263,"top":263,"height":400,"status":"normal","text_value":"God bless kittens"}},"modalTypes":["configuration","socket-list","terminal","file-navigate","shares","text-pad"],"nameDevice":"Primary Device","nameUser":"Primary User","statusTime":15000,"storage":"${filePathEncode("absolute", "lib/storage/", true)}","tutorial":true,"zIndex":8}`
                 }
             ]
         },
