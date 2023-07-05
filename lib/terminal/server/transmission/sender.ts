@@ -170,58 +170,6 @@ const sender:module_transmit_sender = {
                 sendUser(userDevice);
             }
         }
-
-        /*const payload:service_copy = config.socketData.data as service_copy,
-            agent:fileAgent = payload[config.destination];
-        if (agent.user === vars.settings.hashUser) {
-            const deviceCallback = function terminal_server_transmission_sender_route_deviceCallback(device:string):void {
-                    if (vars.settings.device[device] !== undefined) {
-                        agent.device = device;
-                    }
-                    if (device === vars.settings.hashDevice) {
-                        // same device
-                        config.callback(config.socketData);
-                    } else {
-                        sender.send(config.socketData, {
-                            device: agent.device,
-                            user: agent.user
-                        });
-                    }
-                },
-                agentLength:number = agent.device.length;
-            if (agentLength === 141) {
-                deviceMask.unmask(agent.device, deviceCallback);
-            } else {
-                deviceCallback(deviceMask.resolve(agent));
-            }
-        } else {
-            let count:number = 0;
-            const copyAgents:agentCopy[] = ["agentRequest", "agentSource", "agentWrite"],
-                agentSelf = function terminal_server_transmission_sender_route_agentSelf(type:agentCopy):void {
-                    const maskCallback = function terminal_server_transmission_sender_route_agentSelf_maskCallback():void {
-                        count = count + 1;
-                        if (count === 2) {
-                            sender.send(config.socketData, {
-                                device: agent.device,
-                                user: agent.user
-                            });
-                        }
-                    };
-                    if (payload[type] !== null && payload[type] !== undefined && payload[type].user === vars.settings.hashUser) {
-                        if (payload[type].share === "") {
-                            deviceMask.mask(payload[type], maskCallback);
-                        } else {
-                            payload[type].device = "";
-                            maskCallback();
-                        }
-                    } else {
-                        maskCallback();
-                    }
-                };
-            copyAgents.splice(copyAgents.indexOf(config.destination), 1);
-            agentSelf(copyAgents[0]);
-            agentSelf(copyAgents[1]);
-        }*/
     },
 
     // send a specified data package to a specified agent
