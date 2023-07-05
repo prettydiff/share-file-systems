@@ -64,6 +64,7 @@ const agent_management = function terminal_server_services_agentManagement(socke
                             }
                             delete vars.settings.user[data.agentFrom];
                             delete transmit_ws.socketList.user[data.agentFrom];
+                            delete transmit_ws.status[data.agentFrom];
                         } else {
                             socket = transmit_ws.socketList[type][keys[a]];
                             if (socket !== null && socket !== undefined) {
@@ -71,6 +72,7 @@ const agent_management = function terminal_server_services_agentManagement(socke
                             }
                             delete vars.settings[type][keys[a]];
                             delete transmit_ws.socketList[type][keys[a]];
+                            delete transmit_ws.status[keys[a]];
                         }
                         a = a + 1;
                     } while (a < lengthKeys);
@@ -101,6 +103,7 @@ const agent_management = function terminal_server_services_agentManagement(socke
             vars.settings.nameUser = "";
             vars.settings.device = {};
             vars.settings.user = {};
+            transmit_ws.status = {};
             settings({
                 data: {
                     settings: {},
