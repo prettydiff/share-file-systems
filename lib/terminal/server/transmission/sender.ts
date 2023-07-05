@@ -81,56 +81,94 @@ const sender:module_transmit_sender = {
 
     // direct a data payload to a specific agent as determined by the service name and the agent details in the data payload
     route: function terminal_server_transmission_sender_route(config:config_senderRoute):void {
-        const payload:service_copy = config.socketData.data as service_copy,
-            agent:fileAgent = payload[config.destination];
-        if (agent.user === vars.settings.hashUser) {
-            const deviceCallback = function terminal_server_transmission_sender_route_deviceCallback(device:string):void {
-                    if (vars.settings.device[device] !== undefined) {
-                        agent.device = device;
+        const data:service_copy = config.socketData.data as service_copy,
+            sendSelf = function terminal_server_transmission_sender_route_sendSelf(device:string):void {
+                if (device === vars.settings.hashDevice) {
+                    config.callback(config.socketData);
+                } else {
+                    sender.send(config.socketData, {
+                        device: device,
+                        user: vars.settings.hashUser
+                    });
+                }
+            },
+            unmask = function terminal_server_transmission_sender_route_unmask(device:string, callback:(device:string) => void):void {
+                // same user
+                if (device.length === 141) {
+                    // masked device
+                    deviceMask.unmask(device, callback);
+                } else if (device.length === 128) {
+                    // normal device
+                    callback(device);
+                } else if (destination.share.length === 128) {
+                    // resolve from share
+                    callback(deviceMask.resolve(destination));
+                }
+            };
+        let destination:fileAgent = data[config.destination];
+        if (destination.user === vars.settings.hashUser) {
+            // same user, send to device
+            unmask(destination.device, sendSelf);
+        } else {
+            const resolveUser = function terminal_server_transmission_sender_route_resolveUser(user:string):string {
+                    const socketKeys:string[] = Object.keys(transmit_ws.status);
+                    let indexKeys:number = socketKeys.length,
+                        indexList:number = 0;
+                    if (indexKeys > 0) {
+                        do {
+                            indexKeys = indexKeys - 1;
+                            indexList = transmit_ws.status[socketKeys[indexKeys]].length;
+                            if (indexList > 0) {
+                                do {
+                                    indexList = indexList - 1;
+                                    if (transmit_ws.status[socketKeys[indexKeys]][indexList].type === "user" && transmit_ws.status[socketKeys[indexKeys]][indexList].name === user) {
+                                        return socketKeys[indexKeys];
+                                    }
+                                } while (indexList > 0);
+                            }
+                        } while (indexKeys > 0);
                     }
+                    return "";
+                },
+                sendUser = function terminal_server_transmission_sender_route_sendUser(device:string):void {
                     if (device === vars.settings.hashDevice) {
-                        // same device
-                        config.callback(config.socketData);
-                    } else {
+                        // if current device holds socket to destination user, send to user
                         sender.send(config.socketData, {
-                            device: agent.device,
-                            user: agent.user
+                            device: "",
+                            user: destination.user
+                        });
+                    } else {
+                        // send to device containing socket to destination user
+                        unmask(device, function terminal_server_transmission_sender_route_sendUser_callback(unmasked:string):void {
+                            sender.send(config.socketData, {
+                                device: unmasked,
+                                user: vars.settings.hashUser
+                            });
                         });
                     }
                 },
-                agentLength:number = agent.device.length;
-            if (agentLength === 141) {
-                deviceMask.unmask(agent.device, deviceCallback);
-            } else {
-                deviceCallback(deviceMask.resolve(agent));
-            }
-        } else {
-            let count:number = 0;
-            const copyAgents:agentCopy[] = ["agentRequest", "agentSource", "agentWrite"],
-                agentSelf = function terminal_server_transmission_sender_route_agentSelf(type:agentCopy):void {
-                    const maskCallback = function terminal_server_transmission_sender_route_agentSelf_maskCallback():void {
-                        count = count + 1;
-                        if (count === 2) {
-                            sender.send(config.socketData, {
-                                device: agent.device,
-                                user: agent.user
-                            });
-                        }
-                    };
-                    if (payload[type] !== null && payload[type] !== undefined && payload[type].user === vars.settings.hashUser) {
-                        if (payload[type].share === "") {
-                            deviceMask.mask(payload[type], maskCallback);
-                        } else {
-                            payload[type].device = "";
-                            maskCallback();
-                        }
+                userDevice:string = resolveUser(destination.user);
+
+            if (userDevice === "") {
+                // if no device contains a socket to the user send to agentRequest only if
+                // * destination is not agent request
+                // * operation requires more than two agents
+                if (config.destination !== "agentRequest" && data.agentWrite !== null && data.agentWrite !== undefined) {
+                    destination = data.agentRequest;
+                    if (destination.user === vars.settings.hashUser) {
+                        // if agentRequest is the same user, send to device
+                        unmask(destination.device, sendSelf);
                     } else {
-                        maskCallback();
+                        // resolve device containing socket to agentRequest
+                        const requestor:string = resolveUser(data.agentRequest.user);
+                        if (requestor !== "") {
+                            sendUser(requestor);
+                        }
                     }
-                };
-            copyAgents.splice(copyAgents.indexOf(config.destination), 1);
-            agentSelf(copyAgents[0]);
-            agentSelf(copyAgents[1]);
+                }
+            } else {
+                sendUser(userDevice);
+            }
         }
     },
 
