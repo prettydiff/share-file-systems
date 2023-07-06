@@ -273,10 +273,10 @@ const docFiles:string = "Writing 100.00% complete. 21 files written at size ",
                     ["getElementsByTagName", "li", 0],
                     ["getElementsByTagName", "label", 0]
                 ],
-                qualifier: "ends",
+                qualifier: "contains",
                 target: ["innerHTML"],
                 type: "property",
-                value: "configuration.json"
+                value: "temp/configuration"
             },
             interaction: [
                 {
@@ -561,10 +561,10 @@ const docFiles:string = "Writing 100.00% complete. 21 files written at size ",
                     ["getElementsByTagName", "li", 0],
                     ["getElementsByTagName", "label", 0]
                 ],
-                qualifier: "ends",
+                qualifier: "contains",
                 target: ["innerHTML"],
                 type: "property",
-                value: "configuration.json"
+                value: "temp/configuration"
             },
             interaction: [
                 {
