@@ -132,10 +132,13 @@ const sender:module_transmit_sender = {
                 },
                 sendUser = function terminal_server_transmission_sender_route_sendUser(device:string):void {
                     if (device === vars.settings.hashDevice) {
-                        // if current device holds socket to destination user, send to user
-                        sender.send(config.socketData, {
-                            device: "",
-                            user: destination.user
+                        // if current device holds socket to destination user, send data to user with masked device identity
+                        deviceMask.mask(data[config.origination], function terminal_server_transmission_sender_route_sendUser_mask(device:string):void {
+                            data[config.origination].device = device;
+                            sender.send(config.socketData, {
+                                device: "",
+                                user: destination.user
+                            });
                         });
                     } else {
                         // send to device containing socket to destination user
