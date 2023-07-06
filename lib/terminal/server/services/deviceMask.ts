@@ -31,7 +31,7 @@ const deviceMask:module_deviceMask = {
                 source: deviceMask.token(date, deviceMask.resolve(agent)),
                 stat: null
             };
-        if (agent.device.length === 141 || agent.user !== vars.settings.hashUser) {
+        if (agent.device.length === 141 || agent.device === "" || agent.user !== vars.settings.hashUser) {
             callback(agent.device);
         } else {
             hash(hashInput);

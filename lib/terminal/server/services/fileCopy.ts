@@ -661,7 +661,7 @@ const fileCopy:module_fileCopy = {
         const status:service_fileSystem_status = {
                 agentRequest: config.agentRequest,
                 agentSource: config[config.self],
-                agentWrite: null,
+                agentWrite: config.agentWrite,
                 fileList: null,
                 message: "Security violation from attempted copy/cut."
             },
@@ -771,7 +771,7 @@ const fileCopy:module_fileCopy = {
                     copyStatus:service_fileSystem_status = {
                         agentRequest: config.agentRequest,
                         agentSource: config.agentWrite,
-                        agentWrite: null,
+                        agentWrite: config.agentSource,
                         fileList: dirs,
                         message: (config.message === "")
                             ? (function terminal_server_services_fileCopy_copyStatus_callbackDirectory_copyMessage():string {
