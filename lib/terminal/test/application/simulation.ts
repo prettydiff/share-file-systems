@@ -26,7 +26,7 @@ const simulation:module_test_simulationApplication = {
         if (typeof simulation.tests[config.index].file === "string") {
             simulation.tests[config.index].file = filePathDecode(null, simulation.tests[config.index].file) as string;
         }
-        node.child_process.exec(vars.terminal.command_instruction + command, {cwd: vars.terminal.cwd, maxBuffer: 2048 * 500}, function terminal_test_application_simulations_execution_child(errs:Error, stdout:string, stdError:Buffer | string) {
+        node.child_process.exec(`${vars.terminal.command_instruction + command} test_simulation`, {cwd: vars.terminal.cwd, maxBuffer: 2048 * 500}, function terminal_test_application_simulations_execution_child(errs:Error, stdout:string, stdError:Buffer | string) {
             const test:string = (typeof simulation.tests[config.index].test === "string")
                     ? simulation.tests[config.index].test
                     : JSON.stringify(simulation.tests[config.index].test),

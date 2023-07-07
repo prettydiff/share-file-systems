@@ -118,7 +118,9 @@ const copy = function terminal_commands_library_copy(params:config_command_copy)
                                                     mkdir(list[a][6], mkdirCallback);
                                                 } else if (list[a][1] === "file") {
                                                     numb.files = numb.files + 1;
-                                                    numb.size = numb.size + list[a][5].size;
+                                                    if (list[a][5] !== null) {
+                                                        numb.size = numb.size + list[a][5].size;
+                                                    }
                                                     writeStream({
                                                         callback: terminal_commands_library_copy_dirCallback_renameCallback_types,
                                                         destination: list[a][6],

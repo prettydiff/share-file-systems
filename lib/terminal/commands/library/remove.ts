@@ -121,7 +121,9 @@ const remove = function terminal_commands_library_remove(filePath:string, exclus
                 do {
                     if (fileList[a][1] === "file") {
                         numb.file = numb.file + 1;
-                        numb.size = numb.size + fileList[a][5].size;
+                        if (fileList[a][5] !== null) {
+                            numb.size = numb.size + fileList[a][5].size;
+                        }
                     } else if (fileList[a][1] === "directory") {
                         numb.dirs = numb.dirs + 1;
                     } else if (fileList[a][1] === "link") {

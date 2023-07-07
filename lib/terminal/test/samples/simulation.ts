@@ -149,7 +149,7 @@ const // the tsconfig.json file hash used in multiple tests
         {
             command: `directory ${filePathEncode("absolute", "js")} 2`,
             qualifier: "contains",
-            test: ",\"ctimeMs\":"
+            test: "lib\",\"directory\",\"\",0,6,"
         },
         {
             command: `directory ${filePathEncode("absolute", "js")} ignore ["test", "src-tauri"]`,
@@ -159,7 +159,7 @@ const // the tsconfig.json file hash used in multiple tests
         {
             command: `directory ${filePathEncode("absolute", "js")} array`,
             qualifier: "not contains",
-            test: ",\"ctime\":"
+            test: "lib\",\"directory\",\"\",0,6,"
         },
         {
             command: `directory ${filePathEncode("absolute", "")} array depth:1`,
@@ -184,7 +184,7 @@ const // the tsconfig.json file hash used in multiple tests
         {
             command: `directory ${filePathEncode("absolute", "tsconfig.json")} hash`,
             qualifier: "contains",
-            test: hash
+            test: `[["${filePathEncode("absolute", "tsconfig.json")}","file","${hash}",0,0,null,""]]`
         },
         {
             command: `directory typeof ${filePathEncode("absolute", "js")}`,

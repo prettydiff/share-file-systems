@@ -1185,7 +1185,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
             data: {
                 agentRequest: self(null),
                 agentSource: self(testLocation),
-                agentWrite: null,
+                agentWrite: self(""),
                 fileList: [
                     [testLocation,"directory","",0,2,null,""],
                     [filePathEncode("absolute", `${storagePath}temp.txt`),"file","",0,0,null,""],
@@ -1225,7 +1225,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     share:"",
                     user: vars.settings.hashUser
                 },
-                agentWrite: null,
+                agentWrite: self(""),
                 fileList: [
                     [testLocation,"directory","",0,3,null,""],
                     [filePathEncode("absolute", `${storagePath}temp.txt`),"file","",0,0,null,""],
@@ -1261,7 +1261,12 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
             data: {
                 agentRequest: self(null),
                 agentSource: self(testLocation),
-                agentWrite: null,
+                agentWrite: {
+                    device: remoteDevice1,
+                    modalAddress: filePathEncode("absolute", ""),
+                    share: "",
+                    user: vars.settings.hashUser
+                },
                 fileList: [
                     [testLocation,"directory","",0,4,null,""],
                     [filePathEncode("absolute", `${storagePath}temp.txt`),"file","",0,0,null,""],
@@ -1307,7 +1312,12 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     share: "",
                     user: vars.settings.hashUser
                 },
-                agentWrite: null,
+                agentWrite: {
+                    device: remoteDevice1,
+                    modalAddress: filePathEncode("absolute", ""),
+                    share: "",
+                    user: vars.settings.hashUser
+                },
                 fileList: [
                     [testLocation,"directory","",0,5,null,""],
                     [filePathEncode("absolute", `${storagePath}temp.txt`),"file","",0,0,null,""],
@@ -1355,7 +1365,12 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     share: "",
                     user: vars.settings.hashUser
                 },
-                agentWrite: null,
+                agentWrite: {
+                    device: remoteDevice1,
+                    modalAddress: filePathEncode("absolute", ""),
+                    share: "",
+                    user: vars.settings.hashUser
+                },
                 fileList: [
                     [testLocation,"directory","",0,6,null,""],
                     [filePathEncode("absolute", `${storagePath}temp.txt`),"file","",0,0,null,""],

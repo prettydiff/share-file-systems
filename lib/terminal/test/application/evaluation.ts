@@ -178,7 +178,7 @@ const testEvaluation = function terminal_test_application_testEvaluation(output:
         // replace numbers following a parenthesis
         output.values[0] = output.values[0].replace(/\(\d+ /g, "(XXXX ");
         // replace numbers separated by commas
-        output.values[0] = output.values[0].replace(/(\d+,)+\d+/, "XXXX");
+        // output.values[0] = output.values[0].replace(/(\d+,)+\d+/, "XXXX");
         if (output.testType === "service") {
             // replace port numbers in the stored test
             output.values[0] = output.values[0].replace(/"port":\d+,/g, "\"port\":0,");

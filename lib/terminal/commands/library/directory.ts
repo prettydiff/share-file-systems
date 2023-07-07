@@ -126,7 +126,14 @@ const directory = function terminal_commands_library_directory(args:config_comma
                             source: null,
                             stat: null
                         };
-                    loop();
+                    if (list[0][1] === "file") {
+                        hashInput.parent = list[0][3];
+                        hashInput.source = list[0][0];
+                        hashInput.stat = list[0][5];
+                        hash(hashInput);
+                    } else {
+                        loop();
+                    }
                 } else if (args.mode === "search") {
                     args.callback(title, [summary, longest], list);
                 } else {
@@ -171,7 +178,7 @@ const directory = function terminal_commands_library_directory(args:config_comma
             },
             statWrapper = function terminal_commands_library_directory_statWrapper(filePath:string, parent:number):void {
                 method(filePath, function terminal_commands_library_directory_statWrapper_stat(er:Error, stats:node_fs_Stats):void {
-                    const statData:directory_data = (stats === undefined)
+                    const statData:directory_data = (((vars.test.type === "service" || vars.test.type === "simulation") && vars.environment.command === "directory") || stats === undefined)
                         ? null
                         : {
                             atimeMs: stats.atimeMs,
