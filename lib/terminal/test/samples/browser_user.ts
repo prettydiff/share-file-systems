@@ -1438,7 +1438,7 @@ const docFiles:string = "Writing 100.00% complete. 21 files written at size ",
                 qualifier: "is",
                 target: ["innerHTML"],
                 type: "property",
-                value: "1 directory, 4 files, 0 symbolic links, 0 errors"
+                value: "1 directory, 5 files, 0 symbolic links, 0 errors"
             },
             interaction: [
                 {
@@ -2159,7 +2159,7 @@ const docFiles:string = "Writing 100.00% complete. 21 files written at size ",
                 qualifier: "is",
                 target: ["innerHTML"],
                 type: "property",
-                value: "1 directory, 4 files, 0 symbolic links, 0 errors"
+                value: "1 directory, 5 files, 0 symbolic links, 0 errors"
             },
             interaction: [
                 {

@@ -373,41 +373,43 @@ const fileSystem:module_fileSystem = {
             methodName = "write";
         }
 
-        // security, same user
-        if (data.agentRequest.user === vars.identity.hashUser) {
-            if (vars.agents.device[data.agentRequest.device] !== undefined && methodName !== null) {
-                fileSystem.actions[methodName](data);
-                return;
-            }
-        // security, external user
-        } else if (vars.agents.user[data.agentRequest.user] !== undefined && methodName !== null) {
-            const self:agent = vars.agents.device[vars.identity.hashDevice],
-                shares:string[] = Object.keys(self.shares),
-                item:string = data.location[0];
-            let index:number = shares.length,
-                shareIndex:number = null,
-                share:agentShare = null;
+        if (methodName !== null) {
+            // security, same user
+            if (data.agentRequest.user === vars.identity.hashUser) {
+                if (vars.agents.device[data.agentRequest.device] !== undefined) {
+                    fileSystem.actions[methodName](data);
+                    return;
+                }
+            // security, external user
+            } else if (vars.agents.user[data.agentRequest.user] !== undefined) {
+                const self:agent = vars.agents.device[vars.identity.hashDevice],
+                    shares:string[] = Object.keys(self.shares),
+                    item:string = data.location[0];
+                let index:number = shares.length,
+                    shareIndex:number = null,
+                    share:agentShare = null;
 
-            // local device must have shares for the external user to access
-            if (index > 0) {
-                do {
-                    index = index - 1;
-                    share = self.shares[shares[index]];
-                    // item is in most precise share if item begins with share of longest matching share name
-                    if (item.indexOf(share.name) === 0 && (shareIndex === null || share.name.length > self.shares[shares[shareIndex]].name.length)) {
-                        shareIndex = index;
-                    }
-                } while (index > 0);
-                if (shareIndex !== null) {
-                    // share allowing modifications
-                    if (self.shares[shares[shareIndex]].readOnly === false) {
-                        fileSystem.actions[methodName](data);
-                        return;
-                    }
-                    // share restricted to read only operations
-                    if (self.shares[shares[shareIndex]].readOnly === true && (methodName === "read" || methodName === "directory" || methodName === "execute")) {
-                        fileSystem.actions[methodName](data);
-                        return;
+                // local device must have shares for the external user to access
+                if (index > 0) {
+                    do {
+                        index = index - 1;
+                        share = self.shares[shares[index]];
+                        // item is in most precise share if item begins with share of longest matching share name
+                        if (item.indexOf(share.name) === 0 && (shareIndex === null || share.name.length > self.shares[shares[shareIndex]].name.length)) {
+                            shareIndex = index;
+                        }
+                    } while (index > 0);
+                    if (shareIndex !== null) {
+                        // share allowing modifications
+                        if (self.shares[shares[shareIndex]].readOnly === false) {
+                            fileSystem.actions[methodName](data);
+                            return;
+                        }
+                        // share restricted to read only operations
+                        if (self.shares[shares[shareIndex]].readOnly === true && (methodName === "read" || methodName === "directory" || methodName === "execute")) {
+                            fileSystem.actions[methodName](data);
+                            return;
+                        }
                     }
                 }
             }
