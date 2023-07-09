@@ -302,8 +302,8 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                             });
                                             return output.join(node.os.EOL).replace(/,$/, "");
                                         }());
-                                    if (settingsData !== null && settingsData.configuration !== null && settingsData.configuration.hashDevice === "") {
-                                        settingsData.configuration.hashDevice = vars.settings.hashDevice;
+                                    if (settingsData !== null && settingsData.identity !== null && settingsData.identity.hashDevice === "") {
+                                        settingsData.identity.hashDevice = vars.identity.hashDevice;
                                     }
                                     // remove import/require statements from top of file
                                     file = file.slice(file.indexOf("(function"));
@@ -1360,7 +1360,7 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                                         `${varsName}.terminal.command_instruction="${commandName} ";`,
                                                         `${varsName}.path.project="${vars.path.project.replace(/\\/g, "\\\\")}";`,
                                                         `${varsName}.path.js="${vars.path.js.replace(/\\/g, "\\\\")}";`,
-                                                        `${varsName}.settings.storage="${vars.settings.storage.replace(/\\/g, "\\\\")}"`
+                                                        `${varsName}.settings.storage="${vars.settings.ui.storage.replace(/\\/g, "\\\\")}"`
                                                     ],
                                                     globalStart:number = fileData.indexOf("// global"),
                                                     globalEnd:number = fileData.indexOf("// end global"),
@@ -1470,11 +1470,11 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                     removeCallback = function terminal_commands_library_build_shellGlobal_npm_files_removeCallback():void {
                                         removeCount = removeCount + 1;
                                         if (removeCount === 2) {
-                                            node.fs.stat(vars.settings.storage, function terminal_commands_library_build_shellGlobal_npm_files_removeCallback_storageStat(storageError:NodeJS.ErrnoException):void {
+                                            node.fs.stat(vars.settings.ui.storage, function terminal_commands_library_build_shellGlobal_npm_files_removeCallback_storageStat(storageError:NodeJS.ErrnoException):void {
                                                 if (storageError === null) {
                                                     readEntry();
                                                 } else {
-                                                    vars.settings.storage = `${vars.path.project}lib${vars.path.sep}storage${vars.path.sep}`;
+                                                    vars.settings.ui.storage = `${vars.path.project}lib${vars.path.sep}storage${vars.path.sep}`;
                                                     readEntry();
                                                 }
                                             });

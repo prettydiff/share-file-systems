@@ -10,16 +10,16 @@ const resetState = function terminal_utilities_resetState(callback:() => void):v
         agentKill = function terminal_utilities_resetState_agentKill(agent:string):void {
             transmit_ws.agentClose(transmit_ws.socketList[agentType][agent]);
         },
-        mapValues = function terminal_utilities_resetState_mapValues(source:settings_item|ui_data, configuration:boolean):void {
+        mapValues = function terminal_utilities_resetState_mapValues(source:settings_item|ui_data, ui:boolean):void {
             const keys:string[] = Object.keys(source);
             let index:number = keys.length,
-                keyIndex:keys_configuration|keys_stateDefault = null;
+                keyIndex:keys_stateDefault|keys_ui = null;
             do {
                 index = index - 1;
-                keyIndex = (configuration === true)
-                    ? keys[index] as keys_configuration
-                    : keys[index] as keys_stateDefault;
-                if (keyIndex !== "configuration") {
+                keyIndex = (ui === true)
+                    ? keys[index] as keys_stateDefault
+                    : keys[index] as keys_ui;
+                if (keyIndex !== "ui") {
                     // @ts-ignore - ignoring warnings about type ambiguity because types are mapped against values of typed objects
                     if (typeof source[keyIndex] === "object") {
                         // @ts-ignore - ignoring warnings about type ambiguity because types are mapped against values of typed objects
@@ -51,7 +51,7 @@ const resetState = function terminal_utilities_resetState(callback:() => void):v
                     }
                 }
             } while (index > 0);
-            if (configuration === true) {
+            if (ui === true) {
                 callback();
             }
         };
@@ -59,7 +59,7 @@ const resetState = function terminal_utilities_resetState(callback:() => void):v
     agentType = "user";
     userKeys.forEach(agentKill);
     mapValues(vars.environment.stateDefault, false);
-    mapValues(vars.environment.stateDefault.configuration, true);
+    mapValues(vars.environment.stateDefault.ui, true);
 };
 
 export default resetState;

@@ -74,7 +74,7 @@ const defaultCommand:commands = vars.environment.command,
         },
         exitMessage: "",
         exitSummary: function terminal_test_application_browser_exitSummary():string[] {
-            const socketList:socketListItem[] = transmit_ws.status[vars.settings.hashDevice],
+            const socketList:socketListItem[] = transmit_ws.status[vars.identity.hashDevice],
                 output:string[] = [
                     browser.exitMessage,
                     "",
@@ -432,8 +432,8 @@ const defaultCommand:commands = vars.environment.command,
                             }, child);
                         };
                     log(["", "", timeStore[0]]);
-                    vars.settings.device = {};
-                    vars.settings.user = {};
+                    vars.agents.device = {};
+                    vars.agents.user = {};
                     transmit_ws.status = {};
                     if (browser.args.mode === "remote" || browser.args.mode === "all") {
                         resetState(function terminal_test_application_browser_reset_readdir_browserLaunch_resetState():void {

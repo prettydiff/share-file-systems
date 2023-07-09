@@ -18,24 +18,31 @@ const agent_management = function terminal_server_services_agentManagement(socke
                 let a:number = 0,
                     count:number = 0;
                 do {
-                    if (vars.settings[type][keys[a]] === undefined) {
-                        vars.settings[type][keys[a]] = data.agents[type][keys[a]];
+                    if (vars.agents[type][keys[a]] === undefined) {
+                        vars.agents[type][keys[a]] = data.agents[type][keys[a]];
                         count = count + 1;
                     }
                     a = a + 1;
                 } while (a < lengthKeys);
                 if (count > 0) {
+                    if (vars.agents.device[data.agentFrom] !== undefined && data.userHash !== null && data.userName !== null && data.userHash.length === 128) {
+                        vars.identity.nameUser = data.userName;
+                        vars.identity.hashUser = data.userHash;
+                    }
                     settings({
                         data: {
-                            settings: vars.settings[type],
+                            settings: vars.agents[type],
                             type: type
                         },
                         service: "settings"
                     });
-                    if (vars.settings.device[data.agentFrom] !== undefined && data.userHash !== null && data.userName !== null && data.userHash.length === 128) {
-                        vars.settings.nameUser = data.userName;
-                        vars.settings.hashUser = data.userHash;
-                    }
+                    settings({
+                        data: {
+                            settings: vars.identity,
+                            type: "identity"
+                        },
+                        service: "settings"
+                    });
                     sender.broadcast({
                         data: data,
                         service: "agent-management"
@@ -57,12 +64,12 @@ const agent_management = function terminal_server_services_agentManagement(socke
                     let a:number = 0,
                         socket:websocket_client = null;
                     do {
-                        if (keys[a] === vars.settings.hashUser && type === "user") {
+                        if (keys[a] === vars.identity.hashUser && type === "user") {
                             socket = transmit_ws.socketList[type][data.agentFrom];
                             if (socket !== null && socket !== undefined) {
                                 socket.destroy();
                             }
-                            delete vars.settings.user[data.agentFrom];
+                            delete vars.agents.user[data.agentFrom];
                             delete transmit_ws.socketList.user[data.agentFrom];
                             delete transmit_ws.status[data.agentFrom];
                         } else {
@@ -70,7 +77,7 @@ const agent_management = function terminal_server_services_agentManagement(socke
                             if (socket !== null && socket !== undefined) {
                                 socket.destroy();
                             }
-                            delete vars.settings[type][keys[a]];
+                            delete vars.agents[type][keys[a]];
                             delete transmit_ws.socketList[type][keys[a]];
                             delete transmit_ws.status[keys[a]];
                         }
@@ -78,7 +85,7 @@ const agent_management = function terminal_server_services_agentManagement(socke
                     } while (a < lengthKeys);
                     settings({
                         data: {
-                            settings: vars.settings[type],
+                            settings: vars.agents[type],
                             type: type
                         },
                         service: "settings"
@@ -88,21 +95,29 @@ const agent_management = function terminal_server_services_agentManagement(socke
             deleteAgents("device");
             deleteAgents("user");
         };
-        if (data.agentFrom === vars.settings.hashDevice) {
+        if (data.agentFrom === vars.identity.hashDevice) {
             // device issuing the deletion
             sender.broadcast({
                 data: data,
                 service: "agent-management"
             }, "device");
             setTimeout(deleteContainer, 25);
-        } else if (data.agents.device[vars.settings.hashDevice] !== undefined) {
+        } else if (data.agents.device[vars.identity.hashDevice] !== undefined) {
             // a deleted device
-            vars.settings.hashDevice = "";
-            vars.settings.hashUser = "";
-            vars.settings.nameDevice = "";
-            vars.settings.nameUser = "";
-            vars.settings.device = {};
-            vars.settings.user = {};
+            vars.identity = {
+                hashDevice: "",
+                hashUser: "",
+                keyDevicePrivate: "",
+                keyDevicePublic: "",
+                keyUserPrivate: "",
+                keyUserPublic: "",
+                nameDevice: "",
+                nameUser: ""
+            };
+            vars.agents = {
+                device: {},
+                user: {}
+            };
             transmit_ws.status = {};
             settings({
                 data: {
@@ -120,8 +135,8 @@ const agent_management = function terminal_server_services_agentManagement(socke
             });
             settings({
                 data: {
-                    settings: vars.settings,
-                    type: "configuration"
+                    settings: vars.identity,
+                    type: "identity"
                 },
                 service: "settings"
             });
@@ -148,17 +163,17 @@ const agent_management = function terminal_server_services_agentManagement(socke
                 if (lengthKeys > 0) {
                     let a:number = 0;
                     do {
-                        if (vars.settings[type][keys[a]] !== undefined) {
+                        if (vars.agents[type][keys[a]] !== undefined) {
                             if (data.agents[type][keys[a]].ipSelected === "" || data.agents[type][keys[a]].ipSelected === "127.0.0.1") {
-                                data.agents[type][keys[a]].ipSelected = vars.settings[type][keys[a]].ipSelected;
+                                data.agents[type][keys[a]].ipSelected = vars.agents[type][keys[a]].ipSelected;
                             }
-                            vars.settings[type][keys[a]] = data.agents[type][keys[a]];
+                            vars.agents[type][keys[a]] = data.agents[type][keys[a]];
                         }
                         a = a + 1;
                     } while (a < lengthKeys);
                     settings({
                         data: {
-                            settings: vars.settings[type],
+                            settings: vars.agents[type],
                             type: type
                         },
                         service: "settings"
@@ -169,14 +184,14 @@ const agent_management = function terminal_server_services_agentManagement(socke
                 const userLength:number = Object.keys(transmit_ws.socketList.user).length;
 
                 if (userLength > 0) {
-                    const userData:userData = common.userData(vars.settings.device, "user", "");
-                    data.agentFrom = vars.settings.hashUser;
+                    const userData:userData = common.userData(vars.agents.device, "user", "");
+                    data.agentFrom = vars.identity.hashUser;
                     data.agents.device = {};
-                    data.agents.user[vars.settings.hashUser] = {
+                    data.agents.user[vars.identity.hashUser] = {
                         deviceData: null,
                         ipAll: userData[1],
                         ipSelected: "",
-                        name: vars.settings.nameUser,
+                        name: vars.identity.nameUser,
                         ports: vars.network.ports,
                         shares: userData[0],
                         status: "active"
@@ -190,14 +205,14 @@ const agent_management = function terminal_server_services_agentManagement(socke
             };
         modifyAgents("device");
         modifyAgents("user");
-        if (data.agentFrom === vars.settings.hashDevice) {
+        if (data.agentFrom === vars.identity.hashDevice) {
             // same device
             sender.broadcast({
                 data: data,
                 service: "agent-management"
             }, "device");
             users();
-        } else if (vars.settings.user[data.agentFrom] === undefined) {
+        } else if (vars.agents.user[data.agentFrom] === undefined) {
             // same user, from a device
             sender.broadcast({
                 data: data,
@@ -206,8 +221,8 @@ const agent_management = function terminal_server_services_agentManagement(socke
             users();
         } else {
             // different user
-            data.agents.user[data.agentFrom].ipSelected = vars.settings.user[data.agentFrom].ipSelected;
-            data.agentFrom = vars.settings.hashDevice;
+            data.agents.user[data.agentFrom].ipSelected = vars.agents.user[data.agentFrom].ipSelected;
+            data.agentFrom = vars.identity.hashDevice;
             sender.broadcast({
                 data: data,
                 service: "agent-management"
@@ -218,7 +233,7 @@ const agent_management = function terminal_server_services_agentManagement(socke
             }, "browser");
         }
     } else if (data.action === "rename") {
-        if (data.agentFrom === vars.settings.hashDevice) {
+        if (data.agentFrom === vars.identity.hashDevice) {
             sender.broadcast(socketData, "device");
         }
         const renameType = function terminal_server_services_agentManagement_renameType(type:agentType):void {
@@ -227,11 +242,11 @@ const agent_management = function terminal_server_services_agentManagement(socke
             if (len > 0) {
                 do {
                     len = len - 1;
-                    vars.settings[type][keys[len]].name = data.agents[type][keys[len]].name;
+                    vars.agents[type][keys[len]].name = data.agents[type][keys[len]].name;
                 } while (len > 0);
                 settings({
                     data: {
-                        settings: vars.settings[type],
+                        settings: vars.agents[type],
                         type: type
                     },
                     service: "settings"

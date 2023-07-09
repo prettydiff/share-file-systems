@@ -31,10 +31,10 @@ const error = function terminal_utilities_error(errText:string[], errObject:node
                         stack: stackTrace.join("")
                     },
                     agent:fileAgent = {
-                        device: vars.settings.hashDevice,
+                        device: vars.identity.hashDevice,
                         modalAddress: "",
                         share: "",
-                        user: vars.settings.hashUser
+                        user: vars.identity.hashUser
                     };
                 sender.broadcast({
                     data: Object.assign({

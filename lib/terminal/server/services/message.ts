@@ -14,11 +14,11 @@ const message = function terminal_server_services_message(socketData:socketData)
     const data:service_message = socketData.data as service_message,
         count:number = 500,
         broadcast = function terminal_server_services_message_broadcast(agentType:agentType):void {
-            const list:string[] = Object.keys(vars.settings[agentType]);
+            const list:string[] = Object.keys(vars.agents[agentType]);
             let agentLength:number = list.length;
             do {
                 agentLength = agentLength - 1;
-                if (agentType === "user" || (agentType === "device" && list[agentLength] !== vars.settings.hashDevice)) {
+                if (agentType === "user" || (agentType === "device" && list[agentLength] !== vars.identity.hashDevice)) {
                     data[0].message = `(broadcast) ${data[0].message}`;
                     sender.send({
                         data: data,
@@ -28,7 +28,7 @@ const message = function terminal_server_services_message(socketData:socketData)
                             ? data[0].agentTo
                             : "",
                         user: (data[0].agentType === "device")
-                            ? vars.settings.hashUser
+                            ? vars.identity.hashUser
                             : data[0].agentTo
                     });
                 }
@@ -99,20 +99,20 @@ const message = function terminal_server_services_message(socketData:socketData)
     } else if (data[0].agentTo === "all") {
         broadcast("device");
         broadcast("user");
-    } else if (data[0].agentType === "device" && data[0].agentTo === vars.settings.hashDevice) {
+    } else if (data[0].agentType === "device" && data[0].agentTo === vars.identity.hashDevice) {
         sender.broadcast({
             data: data,
             service: "message"
         }, "browser");
         osNotification();
-    } else if (data[0].agentType === "user" && data[0].agentTo === vars.settings.hashUser) {
+    } else if (data[0].agentType === "user" && data[0].agentTo === vars.identity.hashUser) {
         sender.broadcast({
             data: data,
             service: "message"
         }, "browser");
         broadcast("device");
     } else {
-        if (vars.settings[data[0].agentType][data[0].agentTo].status === "offline") {
+        if (vars.agents[data[0].agentType][data[0].agentTo].status === "offline") {
             data.forEach(function terminal_server_services_message_offline(item:message_item):void {
                 item.offline = true;
             });
@@ -125,7 +125,7 @@ const message = function terminal_server_services_message(socketData:socketData)
                     ? data[0].agentTo
                     : "",
                 user: (data[0].agentType === "device")
-                    ? vars.settings.hashUser
+                    ? vars.identity.hashUser
                     : data[0].agentTo
             });
         }

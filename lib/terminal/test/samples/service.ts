@@ -140,8 +140,8 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                                 status: "active"
                             }
                         },
-                        hashDevice: vars.settings.hashDevice,
-                        hashUser: vars.settings.hashUser,
+                        hashDevice: vars.identity.hashDevice,
+                        hashUser: vars.identity.hashUser,
                         ipAll: null,
                         ipSelected: "",
                         modal: "test-modal-requestor",
@@ -178,10 +178,10 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
         testLocation:string = filePathEncode("absolute", storagePath.slice(0, storagePath.length - 1)),
         self = function terminal_test_samples_self(address:string):fileAgent {
             return {
-                device: vars.settings.hashDevice,
+                device: vars.identity.hashDevice,
                 modalAddress: address,
                 share: "",
-                user: vars.settings.hashUser
+                user: vars.identity.hashUser
             };
         };
 
@@ -223,7 +223,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     device: remoteDevice1,
                     modalAddress: filePathEncode("absolute", ""),
                     share: "",
-                    user: vars.settings.hashUser
+                    user: vars.identity.hashUser
                 },
                 agentWrite: null,
                 depth: 1,
@@ -282,7 +282,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     device: remoteDevice1,
                     modalAddress: filePathEncode("absolute", ""),
                     share: "",
-                    user: vars.settings.hashUser
+                    user: vars.identity.hashUser
                 },
                 agentWrite: null,
                 depth: 1,
@@ -343,7 +343,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     device: remoteDevice1,
                     modalAddress: testLocation,
                     share: "",
-                    user: vars.settings.hashUser
+                    user: vars.identity.hashUser
                 },
                 agentWrite: null,
                 depth: 1,
@@ -361,7 +361,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     device: remoteDevice1,
                     modalAddress: testLocation,
                     share: "",
-                    user: vars.settings.hashUser
+                    user: vars.identity.hashUser
                 },
                 agentWrite: null,
                 fileList: [
@@ -384,7 +384,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     device: remoteDevice1,
                     modalAddress: testLocation,
                     share: "",
-                    user: vars.settings.hashUser
+                    user: vars.identity.hashUser
                 },
                 agentWrite: null,
                 depth: 1,
@@ -402,7 +402,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     device: remoteDevice1,
                     modalAddress: testLocation,
                     share: "",
-                    user: vars.settings.hashUser
+                    user: vars.identity.hashUser
                 },
                 agentWrite: null,
                 fileList: [
@@ -426,7 +426,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     device: remoteDevice1,
                     modalAddress: testLocation,
                     share: "",
-                    user: vars.settings.hashUser
+                    user: vars.identity.hashUser
                 },
                 agentWrite: null,
                 depth: 1,
@@ -444,7 +444,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     device: remoteDevice1,
                     modalAddress: testLocation,
                     share: "",
-                    user: vars.settings.hashUser
+                    user: vars.identity.hashUser
                 },
                 agentWrite: null,
                 fileList: [
@@ -499,7 +499,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     device: remoteDevice1,
                     modalAddress: testLocation,
                     share: "",
-                    user: vars.settings.hashUser
+                    user: vars.identity.hashUser
                 },
                 agentWrite: null,
                 depth: 1,
@@ -564,7 +564,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     device: remoteDevice1,
                     modalAddress: testLocation,
                     share: "",
-                    user: vars.settings.hashUser
+                    user: vars.identity.hashUser
                 },
                 agentWrite: null,
                 depth: 1,
@@ -665,7 +665,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     device: remoteDevice1,
                     modalAddress: testLocation,
                     share: "",
-                    user: vars.settings.hashUser
+                    user: vars.identity.hashUser
                 },
                 agentWrite: null,
                 depth: 1,
@@ -683,7 +683,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     device: remoteDevice1,
                     modalAddress: testLocation,
                     share: "",
-                    user: vars.settings.hashUser
+                    user: vars.identity.hashUser
                 },
                 agentWrite: null,
                 fileList: [
@@ -708,7 +708,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     device: remoteDevice1,
                     modalAddress: testLocation,
                     share: "",
-                    user: vars.settings.hashUser
+                    user: vars.identity.hashUser
                 },
                 agentWrite: null,
                 depth: 1,
@@ -726,7 +726,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     device: remoteDevice1,
                     modalAddress: testLocation,
                     share: "",
-                    user: vars.settings.hashUser
+                    user: vars.identity.hashUser
                 },
                 agentWrite: null,
                 fileList: [
@@ -812,7 +812,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     device: remoteDevice1,
                     modalAddress: testLocation,
                     share: "",
-                    user: vars.settings.hashUser
+                    user: vars.identity.hashUser
                 },
                 agentWrite: null,
                 depth: 2,
@@ -830,7 +830,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     device: remoteDevice1,
                     modalAddress: testLocation,
                     share: "",
-                    user: vars.settings.hashUser
+                    user: vars.identity.hashUser
                 },
                 agentWrite: null,
                 fileList: [
@@ -855,7 +855,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     device: remoteDevice1,
                     modalAddress: testLocation,
                     share: "",
-                    user: vars.settings.hashUser
+                    user: vars.identity.hashUser
                 },
                 agentWrite: null,
                 depth: 2,
@@ -873,7 +873,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     device: remoteDevice1,
                     modalAddress: testLocation,
                     share: "",
-                    user: vars.settings.hashUser
+                    user: vars.identity.hashUser
                 },
                 agentWrite: null,
                 fileList: [
@@ -927,7 +927,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     device: remoteDevice1,
                     modalAddress: testLocation,
                     share: "",
-                    user: vars.settings.hashUser
+                    user: vars.identity.hashUser
                 },
                 agentWrite: null,
                 depth: 0,
@@ -945,7 +945,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     device: remoteDevice1,
                     modalAddress: testLocation,
                     share: "",
-                    user: vars.settings.hashUser
+                    user: vars.identity.hashUser
                 },
                 agentWrite: null,
                 fileList: [
@@ -1029,7 +1029,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     device: remoteDevice1,
                     modalAddress: testLocation,
                     share: "",
-                    user: vars.settings.hashUser
+                    user: vars.identity.hashUser
                 },
                 agentWrite: null,
                 depth: 1,
@@ -1047,7 +1047,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     device: remoteDevice1,
                     modalAddress: testLocation,
                     share: "",
-                    user: vars.settings.hashUser
+                    user: vars.identity.hashUser
                 },
                 agentWrite: null,
                 fileList: [
@@ -1069,7 +1069,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     device: remoteDevice1,
                     modalAddress: testLocation,
                     share: "",
-                    user: vars.settings.hashUser
+                    user: vars.identity.hashUser
                 },
                 agentWrite: null,
                 depth: 1,
@@ -1087,7 +1087,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     device: remoteDevice1,
                     modalAddress: testLocation,
                     share: "",
-                    user: vars.settings.hashUser
+                    user: vars.identity.hashUser
                 },
                 agentWrite: null,
                 fileList: [
@@ -1138,7 +1138,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     device: remoteDevice1,
                     modalAddress: testLocation,
                     share: "",
-                    user: vars.settings.hashUser
+                    user: vars.identity.hashUser
                 },
                 agentWrite: null,
                 depth: 1,
@@ -1206,7 +1206,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     device: remoteDevice1,
                     modalAddress: testLocation,
                     share: "",
-                    user: vars.settings.hashUser
+                    user: vars.identity.hashUser
                 },
                 cut: false,
                 execute: false,
@@ -1223,7 +1223,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     device: remoteDevice1,
                     modalAddress: testLocation,
                     share:"",
-                    user: vars.settings.hashUser
+                    user: vars.identity.hashUser
                 },
                 agentWrite: self(""),
                 fileList: [
@@ -1246,7 +1246,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     device: remoteDevice1,
                     modalAddress: filePathEncode("absolute", ""),
                     share: "",
-                    user: vars.settings.hashUser
+                    user: vars.identity.hashUser
                 },
                 agentWrite: self(testLocation),
                 cut: false,
@@ -1265,7 +1265,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     device: remoteDevice1,
                     modalAddress: filePathEncode("absolute", ""),
                     share: "",
-                    user: vars.settings.hashUser
+                    user: vars.identity.hashUser
                 },
                 fileList: [
                     [testLocation,"directory","",0,4,null,""],
@@ -1287,13 +1287,13 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     device: remoteDevice1,
                     modalAddress: filePathEncode("absolute", ""),
                     share: "",
-                    user: vars.settings.hashUser
+                    user: vars.identity.hashUser
                 },
                 agentWrite: {
                     device: remoteDevice2,
                     modalAddress: testLocation,
                     share: "",
-                    user: vars.settings.hashUser
+                    user: vars.identity.hashUser
                 },
                 cut: false,
                 execute: false,
@@ -1310,13 +1310,13 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     device: remoteDevice2,
                     modalAddress: testLocation,
                     share: "",
-                    user: vars.settings.hashUser
+                    user: vars.identity.hashUser
                 },
                 agentWrite: {
                     device: remoteDevice1,
                     modalAddress: filePathEncode("absolute", ""),
                     share: "",
-                    user: vars.settings.hashUser
+                    user: vars.identity.hashUser
                 },
                 fileList: [
                     [testLocation,"directory","",0,5,null,""],
@@ -1340,13 +1340,13 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     device: remoteDevice1,
                     modalAddress: filePathEncode("absolute", ""),
                     share: "",
-                    user: vars.settings.hashUser
+                    user: vars.identity.hashUser
                 },
                 agentWrite: {
                     device: remoteDevice1,
                     modalAddress: testLocation,
                     share: "",
-                    user: vars.settings.hashUser
+                    user: vars.identity.hashUser
                 },
                 cut: false,
                 execute: false,
@@ -1363,13 +1363,13 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     device: remoteDevice1,
                     modalAddress: testLocation,
                     share: "",
-                    user: vars.settings.hashUser
+                    user: vars.identity.hashUser
                 },
                 agentWrite: {
                     device: remoteDevice1,
                     modalAddress: filePathEncode("absolute", ""),
                     share: "",
-                    user: vars.settings.hashUser
+                    user: vars.identity.hashUser
                 },
                 fileList: [
                     [testLocation,"directory","",0,6,null,""],
@@ -1392,7 +1392,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
         command: {
             data: {
                 settings: {
-                    [vars.settings.hashDevice]: {
+                    [vars.identity.hashDevice]: {
                         ipAll: null,
                         ipSelected: "",
                         name: "local device name",
@@ -1401,7 +1401,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                             ws: 0
                         },
                         shares: {
-                            [vars.settings.hashDevice]: {
+                            [vars.identity.hashDevice]: {
                                 execute: false,
                                 name: "C:\\mp3",
                                 readOnly: false,
@@ -1419,7 +1419,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
         test: {
             data: {
                 settings: {
-                    [vars.settings.hashDevice]: {
+                    [vars.identity.hashDevice]: {
                         ipAll: null,
                         ipSelected: "",
                         name: "local device name",
@@ -1428,7 +1428,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                             ws: 9999
                         },
                         shares: {
-                            [vars.settings.hashDevice]: {
+                            [vars.identity.hashDevice]: {
                                 execute: false,
                                 name: "C:\\mp3",
                                 readOnly: false,
@@ -1446,7 +1446,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
         command: {
             data: {
                 settings: [{
-                    agentFrom: vars.settings.hashDevice,
+                    agentFrom: vars.identity.hashDevice,
                     agentTo: remoteDevice1,
                     agentType: "device",
                     date: 1616070795053,
@@ -1461,7 +1461,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
         test: {
             data: {
                 settings: [{
-                    agentFrom: vars.settings.hashDevice,
+                    agentFrom: vars.identity.hashDevice,
                     agentTo: remoteDevice1,
                     agentType: "device",
                     date: 1616070795053,
@@ -1481,18 +1481,18 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     color: "default",
                     colors: {
                         device: {
-                            [vars.settings.hashDevice]: ["fff", "eee"]
+                            [vars.identity.hashDevice]: ["fff", "eee"]
                         },
                         user: {}
                     },
                     fileSort: "file-system-type",
-                    hashDevice: vars.settings.hashDevice,
+                    hashDevice: vars.identity.hashDevice,
                     hashType: "sha3-512",
-                    hashUser: vars.settings.hashUser,
+                    hashUser: vars.identity.hashUser,
                     minimizeAll: false,
                     modals: {
                         "configuration-modal": {
-                            agent: vars.settings.hashDevice,
+                            agent: vars.identity.hashDevice,
                             agentIdentity: false,
                             agentType: "device",
                             content: null,
@@ -1521,7 +1521,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     tutorial: false,
                     zIndex: 6
                 },
-                type: "configuration"
+                type: "ui"
             } as service_settings,
             service: "settings"
         },
@@ -1535,18 +1535,18 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     color: "default",
                     colors: {
                         device: {
-                            [vars.settings.hashDevice]: ["fff", "eee"]
+                            [vars.identity.hashDevice]: ["fff", "eee"]
                         },
                         user: {}
                     },
                     fileSort: "file-system-type",
-                    hashDevice: vars.settings.hashDevice,
+                    hashDevice: vars.identity.hashDevice,
                     hashType: "sha3-512",
-                    hashUser: vars.settings.hashUser,
+                    hashUser: vars.identity.hashUser,
                     minimizeAll: false,
                     modals: {
                         "configuration-modal": {
-                            agent: vars.settings.hashDevice,
+                            agent: vars.identity.hashDevice,
                             agentIdentity: false,
                             agentType: "device",
                             content: null,
@@ -1575,7 +1575,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     tutorial: false,
                     zIndex: 6
                 },
-                type: "configuration"
+                type: "ui"
             } as service_settings,
             service: "settings"
         }
@@ -1584,7 +1584,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
         command: {
             data: {
                 settings: {
-                    [vars.settings.hashDevice]: {
+                    [vars.identity.hashDevice]: {
                         ipAll: null,
                         ipSelected: "",
                         name: "remote user name",
@@ -1593,7 +1593,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                             ws: 0
                         },
                         shares: {
-                            [vars.settings.hashDevice]: {
+                            [vars.identity.hashDevice]: {
                                 execute: false,
                                 name: "C:\\movies",
                                 readOnly: false,
@@ -1611,7 +1611,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
         test: {
             data: {
                 settings: {
-                    [vars.settings.hashDevice]: {
+                    [vars.identity.hashDevice]: {
                         ipAll: null,
                         ipSelected: "",
                         name: "remote user name",
@@ -1620,7 +1620,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                             ws: 9999
                         },
                         shares: {
-                            [vars.settings.hashDevice]: {
+                            [vars.identity.hashDevice]: {
                                 execute: false,
                                 name: "C:\\movies",
                                 readOnly: false,
@@ -1642,9 +1642,9 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
             data: {
                 action: "invite-request",
                 agentRequest: {
-                    devices: vars.settings.device,
-                    hashDevice: vars.settings.hashDevice,
-                    hashUser: vars.settings.hashUser,
+                    devices: vars.agents.device,
+                    hashDevice: vars.identity.hashDevice,
+                    hashUser: vars.identity.hashUser,
                     ipAll: null,
                     ipSelected: "",
                     modal: "test-modal-requestor",
@@ -1804,8 +1804,8 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                             status: "active"
                         }
                     },
-                    hashDevice: vars.settings.hashDevice,
-                    hashUser: vars.settings.hashUser,
+                    hashDevice: vars.identity.hashDevice,
+                    hashUser: vars.identity.hashUser,
                     ipAll: null,
                     ipSelected: "",
                     modal: "test-modal-requestor",
@@ -1941,7 +1941,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                         }
                     },
                     hashDevice: "7f22346707be198af81ac14d5f718875ba67f67fb94bd2256c226fb8c676301f153bdd972818bc5b00aab7ee38190e9374d8e75e600ed5bbbddf4dbc5d5ca594",
-                    hashUser: vars.settings.hashUser,
+                    hashUser: vars.identity.hashUser,
                     ipAll: null,
                     ipSelected: "",
                     modal: "",
@@ -1984,9 +1984,9 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
             data: {
                 action: "invite-response",
                 agentRequest: {
-                    devices: vars.settings.device,
-                    hashDevice: vars.settings.hashDevice,
-                    hashUser: vars.settings.hashUser,
+                    devices: vars.agents.device,
+                    hashDevice: vars.identity.hashDevice,
+                    hashUser: vars.identity.hashUser,
                     ipAll: null,
                     ipSelected: "",
                     modal: "test-modal-requestor",
@@ -2147,8 +2147,8 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                             status: "active"
                         }
                     },
-                    hashDevice: vars.settings.hashDevice,
-                    hashUser: vars.settings.hashUser,
+                    hashDevice: vars.identity.hashDevice,
+                    hashUser: vars.identity.hashUser,
                     ipAll: null,
                     ipSelected: "",
                     modal: "test-modal-requestor",
@@ -2187,9 +2187,9 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
             data: {
                 action: "invite-response",
                 agentRequest: {
-                    devices: vars.settings.device,
-                    hashDevice: vars.settings.hashDevice,
-                    hashUser: vars.settings.hashUser,
+                    devices: vars.agents.device,
+                    hashDevice: vars.identity.hashDevice,
+                    hashUser: vars.identity.hashUser,
                     ipAll: null,
                     ipSelected: "",
                     modal: "test-modal-requestor",
@@ -2231,9 +2231,9 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
             data: {
                 action: "invite-response",
                 agentRequest: {
-                    devices: vars.settings.device,
-                    hashDevice: vars.settings.hashDevice,
-                    hashUser: vars.settings.hashUser,
+                    devices: vars.agents.device,
+                    hashDevice: vars.identity.hashDevice,
+                    hashUser: vars.identity.hashUser,
                     ipAll: null,
                     ipSelected: "",
                     modal: "test-modal-requestor",
@@ -2275,9 +2275,9 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
             data: {
                 action: "invite-response",
                 agentRequest: {
-                    devices: vars.settings.device,
-                    hashDevice: vars.settings.hashDevice,
-                    hashUser: vars.settings.hashUser,
+                    devices: vars.agents.device,
+                    hashDevice: vars.identity.hashDevice,
+                    hashUser: vars.identity.hashUser,
                     ipAll: null,
                     ipSelected: "",
                     modal: "test-modal-requestor",
@@ -2319,9 +2319,9 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
             data: {
                 action: "invite-complete",
                 agentRequest: {
-                    devices: vars.settings.device,
-                    hashDevice: vars.settings.hashDevice,
-                    hashUser: vars.settings.hashUser,
+                    devices: vars.agents.device,
+                    hashDevice: vars.identity.hashDevice,
+                    hashUser: vars.identity.hashUser,
                     ipAll: null,
                     ipSelected: "",
                     modal: "test-modal-requestor",
@@ -2363,9 +2363,9 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
             data: {
                 action: "invite-complete",
                 agentRequest: {
-                    devices: vars.settings.device,
-                    hashDevice: vars.settings.hashDevice,
-                    hashUser: vars.settings.hashUser,
+                    devices: vars.agents.device,
+                    hashDevice: vars.identity.hashDevice,
+                    hashUser: vars.identity.hashUser,
                     ipAll: null,
                     ipSelected: "",
                     modal: "test-modal-requestor",

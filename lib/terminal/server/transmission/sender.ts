@@ -20,7 +20,7 @@ const sender:module_transmit_sender = {
         const socket:websocket_client = transmit_ws.socketList[type as agentType][agent];
         if (socket !== undefined && socket !== null && (socket.status === "open" || socket.status === "pending")) {
             transmit_ws.queue(payload, socket, 1);
-        } else if (vars.test.type === "" && (type === "device" || type === "user") && vars.settings[type][agent] !== undefined) {
+        } else if (vars.test.type === "" && (type === "device" || type === "user") && vars.agents[type][agent] !== undefined) {
             const service_exclusions: service_type[] = [
                 "agent-hash",
                 "agent-management",
@@ -66,12 +66,12 @@ const sender:module_transmit_sender = {
                 transmit_ws.queue(payload, transmit_ws.socketList.browser[agent], 1);
             });
         } else {
-            const list:string[] = Object.keys(vars.settings[listType]);
+            const list:string[] = Object.keys(vars.agents[listType]);
             let index:number = list.length;
             if (index > 0) {
                 do {
                     index = index - 1;
-                    if (listType !== "device" || (listType === "device" && list[index] !== vars.settings.hashDevice)) {
+                    if (listType !== "device" || (listType === "device" && list[index] !== vars.identity.hashDevice)) {
                         sender.agentQueue(listType, list[index], payload);
                     }
                 } while (index > 0);
@@ -83,12 +83,12 @@ const sender:module_transmit_sender = {
     route: function terminal_server_transmission_sender_route(config:config_senderRoute):void {
         const data:service_copy = config.socketData.data as service_copy,
             sendSelf = function terminal_server_transmission_sender_route_sendSelf(device:string):void {
-                if (device === vars.settings.hashDevice) {
+                if (device === vars.identity.hashDevice) {
                     config.callback(config.socketData);
                 } else {
                     sender.send(config.socketData, {
                         device: device,
-                        user: vars.settings.hashUser
+                        user: vars.identity.hashUser
                     });
                 }
             },
@@ -106,7 +106,7 @@ const sender:module_transmit_sender = {
                 }
             };
         let destination:fileAgent = data[config.destination];
-        if (destination.user === vars.settings.hashUser) {
+        if (destination.user === vars.identity.hashUser) {
             // same user, send to device
             unmask(destination.device, sendSelf);
         } else {
@@ -131,7 +131,7 @@ const sender:module_transmit_sender = {
                     return "";
                 },
                 sendUser = function terminal_server_transmission_sender_route_sendUser(device:string):void {
-                    if (device === vars.settings.hashDevice) {
+                    if (device === vars.identity.hashDevice) {
                         // if current device holds socket to destination user, send data to user with masked device identity
                         deviceMask.mask(data[config.origination], function terminal_server_transmission_sender_route_sendUser_mask(device:string):void {
                             data[config.origination].device = device;
@@ -145,7 +145,7 @@ const sender:module_transmit_sender = {
                         unmask(device, function terminal_server_transmission_sender_route_sendUser_callback(unmasked:string):void {
                             sender.send(config.socketData, {
                                 device: unmasked,
-                                user: vars.settings.hashUser
+                                user: vars.identity.hashUser
                             });
                         });
                     }
@@ -158,7 +158,7 @@ const sender:module_transmit_sender = {
                 // * operation requires more than two agents
                 if (config.destination !== "agentRequest" && data.agentWrite !== null && data.agentWrite !== undefined) {
                     destination = data.agentRequest;
-                    if (destination.user === vars.settings.hashUser) {
+                    if (destination.user === vars.identity.hashUser) {
                         // if agentRequest is the same user, send to device
                         unmask(destination.device, sendSelf);
                     } else {
@@ -181,7 +181,7 @@ const sender:module_transmit_sender = {
             if (agents.user === "browser") {
                 sender.broadcast(data, "browser");
             } else {
-                if (agents.user === vars.settings.hashUser) {
+                if (agents.user === vars.identity.hashUser) {
                     if (agents.device.length === 141) {
                         deviceMask.unmask(agents.device, function terminal_server_transmission_sender_send_unmask(actualDevice:string):void {
                             sender.agentQueue("device", actualDevice, data);

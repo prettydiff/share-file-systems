@@ -70,16 +70,16 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                             }
                         }
                     },
-                agentFrom: vars.settings.hashDevice,
+                agentFrom: vars.identity.hashDevice,
                 userHash: (data.type === "device")
                     ? (type === "agentRequest")
                         ? data.agentRequest.hashUser
-                        : vars.settings.hashUser
+                        : vars.identity.hashUser
                     : null,
                 userName: (data.type === "device")
                     ? (type === "agentRequest")
                         ? data.agentRequest.nameUser
-                        : vars.settings.nameUser
+                        : vars.identity.nameUser
                     : null
             };
             if (vars.test.type !== "service") {
@@ -129,7 +129,7 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                         service: "invite"
                     });
                 } else {
-                    if (data.status === "accepted" && (data.agentRequest.hashDevice === vars.settings.hashDevice || data.agentRequest.hashUser === vars.settings.hashUser)) {
+                    if (data.status === "accepted" && (data.agentRequest.hashDevice === vars.identity.hashDevice || data.agentRequest.hashUser === vars.identity.hashUser)) {
                         deviceIPSelected("agentSource");
                         addAgent("agentSource", function terminal_server_services_invite_inviteComplete_addAgent(agents:agents):void {
                             const keys:string[] = Object.keys(agents);
@@ -159,24 +159,24 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
             "invite-request": function terminal_server_services_invite_inviteRequest():void {
                 // stage 2 - on remote terminal to remote browser
                 const agent:agent = (data.type === "user")
-                        ? vars.settings.user[data.agentRequest.hashUser]
-                        : vars.settings.device[data.agentRequest.hashDevice],
-                    userData:userData = common.userData(vars.settings.device, data.type, vars.settings.hashDevice);
+                        ? vars.agents.user[data.agentRequest.hashUser]
+                        : vars.agents.device[data.agentRequest.hashDevice],
+                    userData:userData = common.userData(vars.agents.device, data.type, vars.identity.hashDevice);
                 data.agentSource = {
                     devices: (data.type === "device")
-                        ? vars.settings.device
+                        ? vars.agents.device
                         : {},
                     hashDevice: (data.type === "device")
-                        ? vars.settings.hashDevice
+                        ? vars.identity.hashDevice
                         : "",
-                    hashUser: vars.settings.hashUser,
+                    hashUser: vars.identity.hashUser,
                     ipAll: userData[1],
                     ipSelected: addresses.local.address,
                     modal: "",
                     nameDevice: (data.type === "device")
-                        ? vars.settings.nameDevice
+                        ? vars.identity.nameDevice
                         : "",
-                    nameUser: vars.settings.nameUser,
+                    nameUser: vars.identity.nameUser,
                     ports: vars.network.ports,
                     shares: userData[0]
                 };
@@ -203,7 +203,7 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
 
                 // a delay is required for accepted invitation of device type
                 // this delay allows peer devices to recognize the requesting device as a peer before that requesting device attempts to open sockets
-                if (data.status === "accepted" && (data.agentSource.hashDevice === vars.settings.hashDevice || data.agentSource.hashUser === vars.settings.hashUser)) {
+                if (data.status === "accepted" && (data.agentSource.hashDevice === vars.identity.hashDevice || data.agentSource.hashUser === vars.identity.hashUser)) {
                     addAgent("agentRequest", null);
                     if (data.type === "device") {
                         setTimeout(
@@ -212,7 +212,7 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                             },
                             (vars.test.type.indexOf("browser_") === 0)
                                 ? 1000
-                                : vars.settings.statusTime
+                                : vars.settings.ui.statusTime
                         );
                     } else {
                         inviteHttp();

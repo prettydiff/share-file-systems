@@ -1527,7 +1527,7 @@ const browserSelf:test_browserItem[] = [
         modalAddress({
             address: "lib/terminal/test/storageTest/temp",
             index: 1,
-            lastItem: "temp.txt",
+            lastItem: "ui.json",
             machine: "self"
         }),
 
@@ -2655,7 +2655,7 @@ const browserSelf:test_browserItem[] = [
                     qualifier: "ends",
                     target: ["value"],
                     type: "property",
-                    value: `,"left":263,"top":263,"height":400,"status":"normal","text_value":"God bless kittens"}},"modalTypes":["configuration","socket-list","terminal","file-navigate","shares","text-pad"],"nameDevice":"Primary Device","nameUser":"Primary User","statusTime":15000,"storage":"${filePathEncode("absolute", "lib/storage/", true)}","tutorial":true,"zIndex":8}`
+                    value: `,"left":263,"top":263,"height":400,"status":"normal","text_value":"God bless kittens"}},"modalTypes":["configuration","socket-list","terminal","file-navigate","shares","text-pad"],"statusTime":15000,"storage":"${filePathEncode("absolute", "lib/storage/", true)}","tutorial":true,"zIndex":8}`
                 }
             ]
         },

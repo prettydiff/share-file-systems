@@ -139,7 +139,7 @@ const configuration:module_configuration = {
             textPara: null,
             title: "🔊 Allow Audio",
             type: "radio",
-            value: (browser.data.audio === true)
+            value: (browser.ui.audio === true)
                 ? "On"
                 : "Off"
         });
@@ -159,9 +159,9 @@ const configuration:module_configuration = {
             textPara: null,
             title: "▣ Color Theme",
             type: "radio",
-            value: (configuration.colorDefaults[browser.data.color] === undefined)
+            value: (configuration.colorDefaults[browser.ui.color] === undefined)
                 ? "default"
-                : browser.data.color
+                : browser.ui.color
         });
 
         // file sort
@@ -173,7 +173,7 @@ const configuration:module_configuration = {
             textPara: null,
             title: "ᐳ File Sort",
             type: "select",
-            value: browser.data.fileSort
+            value: browser.ui.fileSort
         });
 
         // brotli compression
@@ -185,7 +185,7 @@ const configuration:module_configuration = {
             textPara: "In this application compression is applied to file system artifacts traveling from one device to another across a network. There is substantial CPU overhead in decompressing files. The ideal case for applying compression is extremely large files that take longer to transfer than the decompress. It is advised to disable compression if on a very fast local network or transferring many small files. Compression can be disabled by setting the value to 0.",
             title: "🗜 Brotli Compression Level",
             type: "text",
-            value: browser.data.brotli.toString()
+            value: browser.ui.brotli.toString()
         });
 
         // storage location
@@ -197,7 +197,7 @@ const configuration:module_configuration = {
             textPara: "When attempting to execute a file stored on a remote device/user that file must first be copied to the local device.  This setting determines the location where such filed will be written.",
             title: "⍒ Remote Execution Storage Location",
             type: "text",
-            value: browser.data.storage
+            value: browser.ui.storage
         });
 
         // hash algorithm
@@ -209,7 +209,7 @@ const configuration:module_configuration = {
             textPara: null,
             title: "⌗ Hash Algorithm",
             type: "select",
-            value: browser.data.hashType
+            value: browser.ui.hashType
         });
 
         perAgentType("device");
@@ -235,9 +235,9 @@ const configuration:module_configuration = {
                         swatch:HTMLElement = parent.getElementsByClassName("swatch")[0] as HTMLElement;
                     element.value = color;
                     if (parent.innerHTML.indexOf("Body") > 0) {
-                        configuration.tools.applyAgentColors(agent, type, [color, browser.data.colors[type][agent][1]]);
+                        configuration.tools.applyAgentColors(agent, type, [color, browser.ui.colors[type][agent][1]]);
                     } else {
-                        configuration.tools.applyAgentColors(agent, type, [browser.data.colors[type][agent][0], color]);
+                        configuration.tools.applyAgentColors(agent, type, [browser.ui.colors[type][agent][0], color]);
                     }
                     swatch.style.background = `#${color}`;
                     network.configuration();
@@ -252,9 +252,9 @@ const configuration:module_configuration = {
         audio: function browser_content_configuration_audio(event:MouseEvent):void {
             const element:HTMLInputElement = event.target as HTMLInputElement;
             if (element.value === "on") {
-                browser.data.audio = true;
+                browser.ui.audio = true;
             } else {
-                browser.data.audio = false;
+                browser.ui.audio = false;
             }
             configuration.tools.radio(element);
             if (browser.loading === false) {
@@ -265,13 +265,13 @@ const configuration:module_configuration = {
         /* Change the color scheme */
         colorScheme: function browser_content_configuration_colorScheme(event:MouseEvent):void {
             const element:HTMLInputElement = event.target as HTMLInputElement,
-                oldScheme:string = (configuration.colorDefaults[browser.data.color] === undefined)
+                oldScheme:string = (configuration.colorDefaults[browser.ui.color] === undefined)
                     ? "default"
-                    : browser.data.color,
+                    : browser.ui.color,
                 complete = function browser_content_configuration_colorScheme_complete(counts:agentCounts):void {
                     counts.count = counts.count + 1;
                     if (counts.count === agentsTotal) {
-                        browser.data.color = element.value;
+                        browser.ui.color = element.value;
                         if (browser.loading === false) {
                             network.configuration();
                         }
@@ -285,13 +285,13 @@ const configuration:module_configuration = {
                 complete: complete,
                 countBy: "agent",
                 perAgent: function browser_content_configuration_colorScheme_perAgent(agentNames:agentNames, counts:agentCounts):void {
-                    if (agentColors === null || (agentNames.agentType === "user" && agentNames.agent === browser.data.hashUser)) {
+                    if (agentColors === null || (agentNames.agentType === "user" && agentNames.agent === browser.identity.hashUser)) {
                         complete(counts);
                         return;
                     }
                     const agent:string = agentNames.agent,
                         agentType:agentType = agentNames.agentType,
-                        color:color = browser.data.colors[agentType][agent],
+                        color:color = browser.ui.colors[agentType][agent],
                         agentLength:number = agentColors.length;
                     let c:number = 0,
                         swatches:HTMLCollectionOf<Element>,
@@ -345,16 +345,16 @@ const configuration:module_configuration = {
                     parentText:string = parent.innerHTML.toLowerCase();
                 if (parentText.indexOf("brotli") > 0) {
                     if (isNaN(numb) === true || numb < 0 || numb > 11) {
-                        element.value = browser.data.brotli.toString();
+                        element.value = browser.ui.brotli.toString();
                     }
                     element.value = Math.floor(numb).toString();
-                    browser.data.brotli = Math.floor(numb) as brotli;
+                    browser.ui.brotli = Math.floor(numb) as brotli;
                 } else if (parentText.indexOf("hash") > -1) {
-                    browser.data.hashType = element.value as hash;
+                    browser.ui.hashType = element.value as hash;
                 } else if (parentText.indexOf("storage") > -1) {
-                    browser.data.storage = element.value;
+                    browser.ui.storage = element.value;
                 } else if (parentText.indexOf("file sort") > -1) {
-                    browser.data.fileSort = element.value as fileSort;
+                    browser.ui.fileSort = element.value as fileSort;
                 }
                 network.configuration();
             }
@@ -384,11 +384,11 @@ const configuration:module_configuration = {
                 ul:HTMLElement = config.getElementsByClassName(`${type}-color-list`)[0] as HTMLElement,
                 li:HTMLElement = document.createElement("li"),
                 p:HTMLElement = document.createElement("p"),
-                agentColor:[string, string] = browser.data.colors[type][agent];
+                agentColor:[string, string] = browser.ui.colors[type][agent];
             let span:HTMLElement,
                 label:HTMLElement,
                 input:HTMLInputElement;
-            p.appendText(browser[type][agent].name);
+            p.appendText(browser.agents[type][agent].name);
             li.setAttribute("data-agent", agent);
             li.appendChild(p);
 
@@ -449,8 +449,8 @@ const configuration:module_configuration = {
                 styleText.replace = false;
                 configuration.tools.styleText(styleText);
             }
-            browser.data.colors[type][agent][0] = colors[0];
-            browser.data.colors[type][agent][1] = colors[1];
+            browser.ui.colors[type][agent][0] = colors[0];
+            browser.ui.colors[type][agent][1] = colors[1];
         },
 
         /* Sets a class on a grandparent element to apply style changes to the corresponding label */
@@ -479,8 +479,11 @@ const configuration:module_configuration = {
                     cell = function browser_content_configuration_socketList_cell(text:string, tagName:"td"|"th", parent:HTMLElement):void {
                         const tag:HTMLElement = document.createElement(tagName);
                         if (bodySection === true && tagName === "th") {
-                            const span:HTMLElement = document.createElement("span");
-                            span.appendText(browser.device[text].name);
+                            const span:HTMLElement = document.createElement("span"),
+                                name:string = (browser.agents.device[text] === undefined)
+                                    ? ""
+                                    : browser.agents.device[text].name;
+                            span.appendText(name);
                             tag.appendChild(span);
                             tag.appendText(` - ${text}`);
                             tag.setAttribute("colspan", "7");
@@ -533,7 +536,7 @@ const configuration:module_configuration = {
                             }
                             if (device[indexSocket].type === "device" || device[indexSocket].type === "user") {
                                 type = device[indexSocket].type as agentType;
-                                cell(`${browser[type][device[indexSocket].name].name} - ${device[indexSocket].name}`, "td", tr);
+                                cell(`${browser.agents[type][device[indexSocket].name].name} - ${device[indexSocket].name}`, "td", tr);
                             } else {
                                 cell(device[indexSocket].name, "td", tr);
                             }
@@ -563,13 +566,13 @@ const configuration:module_configuration = {
             const template:string[] = [
                 `#spaces .box[data-agent="${input.agent}"] .body,`,
                 `#spaces #${input.agentType} button[data-agent="${input.agent}"]:hover{background-color:#`,
-                browser.data.colors[input.agentType][input.agent][0],
+                browser.ui.colors[input.agentType][input.agent][0],
                 "}",
                 `#spaces #${input.agentType} button[data-agent="${input.agent}"],`,
                 `#spaces .box[data-agent="${input.agent}"] .status-bar,`,
                 `#spaces .box[data-agent="${input.agent}"] .footer,`,
                 `#spaces .box[data-agent="${input.agent}"] h2.heading{background-color:#`,
-                browser.data.colors[input.agentType][input.agent][1],
+                browser.ui.colors[input.agentType][input.agent][1],
                 "}"
             ];
             if (input.replace === true) {

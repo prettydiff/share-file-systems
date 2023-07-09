@@ -53,7 +53,7 @@ const modal_configuration:module_modalConfiguration = {
             document.getElementById("menu").style.display = "none";
             if (config === null || config === undefined) {
                 config = {
-                    agent: browser.data.hashDevice,
+                    agent: browser.identity.hashDevice,
                     agentIdentity: false,
                     agentType: "device",
                     content: content,
@@ -65,7 +65,7 @@ const modal_configuration:module_modalConfiguration = {
                 };
                 network.configuration();
             } else {
-                config.agent = browser.data.hashDevice;
+                config.agent = browser.identity.hashDevice;
                 config.agentIdentity = false;
                 config.content = content;
                 config.single = true;
@@ -78,7 +78,7 @@ const modal_configuration:module_modalConfiguration = {
             // building configuration modal
             if (document.getElementById("configuration-modal") === null) {
                 const payloadModal:config_modal = {
-                    agent: browser.data.hashDevice,
+                    agent: browser.identity.hashDevice,
                     agentIdentity: false,
                     agentType: "device",
                     closeHandler: modal.events.closeEnduring,
@@ -106,7 +106,7 @@ const modal_configuration:module_modalConfiguration = {
                 return document.getElementById("configuration-modal");
             }
             const conf:HTMLElement = document.getElementById("configuration-modal"),
-                data:config_modal = browser.data.modals["configuration-modal"];
+                data:config_modal = browser.ui.modals["configuration-modal"];
             modal.events.zTop(event as MouseEvent, conf);
             if (data.status === "hidden") {
                 conf.style.display = "block";
@@ -173,7 +173,7 @@ const modal_configuration:module_modalConfiguration = {
         "document": function browser_utilities_modalConfiguration_document(event:Event, config?:config_modal):modal {
             const payload:config_modal = (config === null || config === undefined)
                 ? {
-                    agent: browser.data.hashDevice,
+                    agent: browser.identity.hashDevice,
                     agentIdentity: false,
                     agentType: "device",
                     content: null,
@@ -194,7 +194,7 @@ const modal_configuration:module_modalConfiguration = {
                 span:HTMLElement = document.createElement("span"),
                 payload:config_modal = (config === null || config === undefined)
                     ? {
-                        agent: browser.data.hashDevice,
+                        agent: browser.identity.hashDevice,
                         agentIdentity: false,
                         agentType: "device",
                         content: null,
@@ -210,7 +210,7 @@ const modal_configuration:module_modalConfiguration = {
             payload.content = label;
             document.getElementById("menu").style.display = "none";
             textArea.onblur = modal.events.textSave;
-            textArea.value = JSON.stringify(browser.data);
+            textArea.value = JSON.stringify(browser.ui);
             span.appendText("Import/Export Settings");
             label.appendChild(span);
             label.appendChild(textArea);
@@ -300,10 +300,10 @@ const modal_configuration:module_modalConfiguration = {
                 ? "fs-read"
                 : `fs-${config.title_supplement.toLowerCase()}` as actionFile;
             payloadNetwork.agentRequest = {
-                device: browser.data.hashDevice,
+                device: browser.identity.hashDevice,
                 modalAddress: "",
                 share: "",
-                user: browser.data.hashUser
+                user: browser.identity.hashUser
             };
             payloadNetwork.agentSource = {
                 device: (config.agentType === "device")
@@ -312,7 +312,7 @@ const modal_configuration:module_modalConfiguration = {
                 modalAddress: config.text_value,
                 share: "",
                 user: (config.agentType === "device")
-                    ? browser.data.hashUser
+                    ? browser.identity.hashUser
                     : config.agent
             };
             payloadNetwork.location = [`${modalInstance.getAttribute("id")}:${config.text_value}`];
@@ -340,7 +340,7 @@ const modal_configuration:module_modalConfiguration = {
                         ? (box.dataset.agent === undefined || box.dataset.agent === "")
                             ? div.dataset.hash                       // multi-agent share modals not bound to one agent
                             : box.dataset.agent                      // modals bound to an agent
-                        : browser.data.hashDevice                    // when not coming from a modal (assume local device)
+                        : browser.identity.hashDevice                // when not coming from a modal (assume local device)
                     : config.agent,                                  // state restoration
                 agentType:agentType = (config === null || config === undefined || config.agentType === undefined)
                     ? (box !== document.documentElement)
@@ -355,7 +355,7 @@ const modal_configuration:module_modalConfiguration = {
                 share:string = (config === null || config === undefined || config.share === undefined)
                     ? ""
                     : config.share,
-                readOnly:boolean = (agentName !== browser.data.hashDevice && config !== undefined && config.read_only === true),
+                readOnly:boolean = (agentName !== browser.identity.hashDevice && config !== undefined && config.read_only === true),
                 readOnlyString:string = (readOnly === true && agentType === "user")
                     ? "(Read Only)"
                     : "",
@@ -363,10 +363,10 @@ const modal_configuration:module_modalConfiguration = {
                 payloadNetwork:service_fileSystem = {
                     action: "fs-directory",
                     agentRequest: {
-                        device: browser.data.hashDevice,
+                        device: browser.identity.hashDevice,
                         modalAddress: "",
                         share: "",
-                        user: browser.data.hashUser
+                        user: browser.identity.hashUser
                     },
                     agentSource: {
                         device: (agentType === "device")
@@ -375,7 +375,7 @@ const modal_configuration:module_modalConfiguration = {
                         modalAddress: location,
                         share: share,
                         user: (agentType === "device")
-                            ? browser.data.hashUser
+                            ? browser.identity.hashUser
                             : agentName
                     },
                     agentWrite: null,
@@ -427,7 +427,7 @@ const modal_configuration:module_modalConfiguration = {
                     : invitation.agentRequest.nameUser;
             if (config === null || config === undefined) {
                 config = {
-                    agent: browser.data.hashDevice,
+                    agent: browser.identity.hashDevice,
                     agentIdentity: false,
                     agentType: "device",
                     closeHandler: agent_management.events.inviteDecline,
@@ -435,7 +435,7 @@ const modal_configuration:module_modalConfiguration = {
                     height: 300,
                     inputs: ["cancel", "confirm", "close"],
                     read_only: false,
-                    share: browser.data.hashDevice,
+                    share: browser.identity.hashDevice,
                     title_supplement: (invitation.type === "device")
                         ? `Device ${agentInvite.nameDevice}`
                         : `User ${agentInvite.nameUser}`,
@@ -479,8 +479,8 @@ const modal_configuration:module_modalConfiguration = {
                     div:HTMLElement = element.getAncestor("div", "tag"),
                     agent:string = div.dataset.hash,
                     agentType:agentType = div.getAttribute("class") as agentType,
-                    identity:boolean = (agent !== browser.data.hashDevice && agent !== "");
-                if (identity === true && browser[agentType][agent] === undefined) {
+                    identity:boolean = (agent !== browser.identity.hashDevice && agent !== "");
+                if (identity === true && browser.agents[agentType][agent] === undefined) {
                     return null;
                 }
                 config = {
@@ -494,7 +494,7 @@ const modal_configuration:module_modalConfiguration = {
                     text_placeholder: "text",
                     text_value: "",
                     title_supplement: (identity === true)
-                        ? `${common.capitalize(agentType)} ${browser[agentType][agent].name}`
+                        ? `${common.capitalize(agentType)} ${browser.agents[agentType][agent].name}`
                         : `all ${agentType}s`,
                     type: "message",
                     width: 800
@@ -543,7 +543,7 @@ const modal_configuration:module_modalConfiguration = {
             // building configuration modal
             if (document.getElementById("socketList-modal") === null) {
                 const payloadModal:config_modal = {
-                    agent: browser.data.hashDevice,
+                    agent: browser.identity.hashDevice,
                     agentIdentity: false,
                     agentType: "device",
                     closeHandler: modal.events.closeEnduring,
@@ -572,7 +572,7 @@ const modal_configuration:module_modalConfiguration = {
                 return document.getElementById("socketList-modal");
             }
             const conf:HTMLElement = document.getElementById("socketList-modal"),
-                data:config_modal = browser.data.modals["socketList-modal"];
+                data:config_modal = browser.ui.modals["socketList-modal"];
             modal.events.zTop(event as MouseEvent, conf);
             if (data.status === "hidden") {
                 conf.style.display = "block";
@@ -595,7 +595,7 @@ const modal_configuration:module_modalConfiguration = {
                     : ancestor.dataset.hash,
                 agentName:string = (config === undefined)
                     ? (shareAgent === undefined || shareAgent === null)
-                        ? browser.data.hashDevice
+                        ? browser.identity.hashDevice
                         : shareAgent
                     : config.agent,
                 agentType:agentType = (config === undefined)
@@ -654,7 +654,7 @@ const modal_configuration:module_modalConfiguration = {
                 span:HTMLElement = document.createElement("span"),
                 payload:config_modal = (config === undefined)
                     ? {
-                        agent: browser.data.hashDevice,
+                        agent: browser.identity.hashDevice,
                         agentIdentity: false,
                         agentType: "device",
                         content: label,

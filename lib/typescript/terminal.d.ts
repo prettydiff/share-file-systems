@@ -516,19 +516,19 @@ interface remove_count {
  * A means of organizing all stored data types into a single object for portability.
  * ```typescript
  * interface settings_item {
- *     configuration: ui_data;
- *     device: agents;
+ *     agents: agentData;
+ *     identity: identity;
  *     message: service_message;
  *     queue: transmit_queue;
- *     user: agents;
+ *     ui: ui_data;
  * }
  * ``` */
 interface settings_item {
-    configuration: ui_data;
-    device: agents;
+    agents: agentData;
+    identity: identity;
     message: service_message;
     queue: transmit_queue;
-    user: agents;
+    ui: ui_data;
 }
 
 /**

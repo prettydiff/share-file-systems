@@ -23,10 +23,7 @@
  * interface service_agentManagement {
  *     action: "add" | "delete" | "modify" | "rename";
  *     agentFrom: string;
- *     agents: {
- *         device: agents;
- *         user: agents;
- *     };
+ *     agents: agentData;
  *     userHash: string;
  *     userName: string;
  * }
@@ -34,10 +31,7 @@
 interface service_agentManagement {
     action: "add" | "delete" | "modify" | "rename";
     agentFrom: string;
-    agents: {
-        device: agents;
-        user: agents;
-    };
+    agents: agentData;
     userHash: string;
     userName: string;
 }
@@ -243,12 +237,12 @@ interface service_invite {
  * Saves user generated data and configurations to a file.
  * ```typescript
  * interface service_settings {
- *     settings: agents | service_message | transmit_queue | ui_data;
+ *     settings: agents | identity | service_message | transmit_queue | ui_data;
  *     type: settingsType;
  * }
  * ``` */
 interface service_settings {
-    settings: agents | service_message | transmit_queue | ui_data;
+    settings: agents | identity | service_message | transmit_queue | ui_data;
     type: settingsType;
 }
 

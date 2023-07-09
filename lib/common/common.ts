@@ -25,8 +25,8 @@ const common:module_common = {
     /* loops through agent types, agents, and shares and allows a callback at each level */
     agents: function common_agents(config:config_agentIdentity):void {
         const agentTypes:agentList = {
-                device: Object.keys(config.source.device),
-                user: Object.keys(config.source.user)
+                device: Object.keys(config.source.agents.device),
+                user: Object.keys(config.source.agents.user)
             },
             agentsKeys:string[] = ["device", "user"],
             agentsKeysLength:number = agentsKeys.length,
@@ -77,7 +77,7 @@ const common:module_common = {
                             }, counts);
                         }
     
-                        shares = Object.keys(config.source[agentTypeKey][agent].shares);
+                        shares = Object.keys(config.source.agents[agentTypeKey][agent].shares);
                         shareLength = shares.length;
     
                         // loop through each share of each agent for each agent type

@@ -215,6 +215,31 @@ interface flagList {
 }
 
 /**
+ * Stores artifacts associated with local device and user identification.
+ * ```typescript
+ * {
+ *      hashDevice      : string;
+ *      hashUser        : string;
+ *      keyDevicePrivate: string;
+ *      keyDevicePublic : string;
+ *      keyUserPrivate  : string;
+ *      keyUserPublic   : string;
+ *      nameDevice      : string;
+ *      nameUser        : string;
+ * };
+ * ``` */
+interface identity {
+    hashDevice      : string;
+    hashUser        : string;
+    keyDevicePrivate: string;
+    keyDevicePublic : string;
+    keyUserPrivate  : string;
+    keyUserPublic   : string;
+    nameDevice      : string;
+    nameUser        : string;
+}
+
+/**
  * A means of packaging port data into a single object.
  * ```typescript
  * interface ports {

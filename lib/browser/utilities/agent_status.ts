@@ -20,7 +20,7 @@ import webSocket from "./webSocket.js";
 const agent_status:module_agentStatus = {
         active: function browser_utilities_agentStatus_active(event:KeyboardEvent|MouseEvent|TouchEvent):void {
             const socket = function browser_utilities_agentStatus_active_socket():void {
-                    agent_status.idleDelay = setTimeout(agent_status.idle, browser.data.statusTime);
+                    agent_status.idleDelay = setTimeout(agent_status.idle, browser.ui.statusTime);
                     if (active === false) {
                         // this delay prevents write collisions on interactions that result in network activity
                         setTimeout(function browser_utilities_agentStatus_active_socket_setTimeout():void {
@@ -29,7 +29,7 @@ const agent_status:module_agentStatus = {
                     }
                 },
                 active:boolean = (agent_status.selfStatus.status === "active"),
-                localDevice:HTMLElement = document.getElementById(browser.data.hashDevice);
+                localDevice:HTMLElement = document.getElementById(browser.identity.hashDevice);
             if (active === false && localDevice !== null) {
                 localDevice.setAttribute("class", "active");
                 agent_status.selfStatus.status = "active";
@@ -41,14 +41,14 @@ const agent_status:module_agentStatus = {
             if (browser.socket !== null) {
                 socket();
             } else if (browser.loading === false) {
-                webSocket.start(socket, browser.data.hashDevice);
+                webSocket.start(socket, browser.identity.hashDevice);
             }
             if (Notification.permission === "default") {
                 void Notification.requestPermission();
             }
         },
         idle: function browser_utilities_agentStatus_idle():void {
-            const localDevice:HTMLElement = document.getElementById(browser.data.hashDevice),
+            const localDevice:HTMLElement = document.getElementById(browser.identity.hashDevice),
                 currentStatus:activityStatus = localDevice.getAttribute("class") as activityStatus;
             if (currentStatus === "active") {
                 localDevice.setAttribute("class", "idle");
@@ -61,7 +61,7 @@ const agent_status:module_agentStatus = {
             const data:service_agentStatus = socketData.data as service_agentStatus;
 
             // do not receive local agent status from a remote agent
-            if (browser[data.agentType][data.agent] !== undefined && (data.agentType !== "device" || (data.agentType === "device" && data.agent !== browser.data.hashDevice))) {
+            if (browser.agents[data.agentType][data.agent] !== undefined && (data.agentType !== "device" || (data.agentType === "device" && data.agent !== browser.identity.hashDevice))) {
                 const agent:HTMLElement = document.getElementById(data.agent);
                 agent.setAttribute("class", data.status);
             }
@@ -80,7 +80,7 @@ const agent_status:module_agentStatus = {
             document.documentElement.onkeydown = agent_status.active;
             document.documentElement.ontouchstart = agent_status.active;
 
-            agent_status.selfStatus.agent = browser.data.hashDevice;
+            agent_status.selfStatus.agent = browser.identity.hashDevice;
 
             agent_status.active(null);
             agent_status.selfStatus.respond = false;

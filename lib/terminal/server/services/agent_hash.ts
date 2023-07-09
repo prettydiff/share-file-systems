@@ -24,10 +24,22 @@ const hashAgent = function terminal_server_services_hashAgent(socketData:socketD
                         device: hashAgent.hash,
                         deviceData: deviceData,
                         user: hashUser.hash
-                    };
-                vars.settings.hashDevice = hashAgent.hash;
-                vars.settings.nameDevice = hashData.device;
-                vars.settings.device[vars.settings.hashDevice] = {
+                    },
+                    ecdhUser:node_crypto_ECDH = node.crypto.createECDH("sect571k1"),
+                    ecdhDevice:node_crypto_ECDH = node.crypto.createECDH("sect571k1");
+                ecdhUser.generateKeys();
+                ecdhDevice.generateKeys();
+                vars.identity = {
+                    hashDevice: hashAgent.hash,
+                    hashUser: hashUser.hash,
+                    keyDevicePrivate: ecdhDevice.getPrivateKey("hex"),
+                    keyDevicePublic: ecdhDevice.getPublicKey("hex"),
+                    keyUserPrivate: ecdhUser.getPrivateKey("hex"),
+                    keyUserPublic: ecdhUser.getPublicKey("hex"),
+                    nameDevice: hashData.device,
+                    nameUser: hashData.user
+                };
+                vars.agents.device[hashAgent.hash] = {
                     deviceData: deviceData,
                     ipAll: vars.network.addresses,
                     ipSelected: "",
@@ -38,8 +50,15 @@ const hashAgent = function terminal_server_services_hashAgent(socketData:socketD
                 };
                 settings({
                     data: {
-                        settings: vars.settings.device,
+                        settings: vars.agents.device,
                         type: "device"
+                    },
+                    service: "settings"
+                });
+                settings({
+                    data: {
+                        settings: vars.identity,
+                        type: "identity"
                     },
                     service: "settings"
                 });
@@ -48,8 +67,6 @@ const hashAgent = function terminal_server_services_hashAgent(socketData:socketD
                     service: "agent-hash"
                 }, "browser");
             };
-            vars.settings.hashUser = hashUser.hash;
-            vars.settings.nameUser = hashData.user;
             input.callback = callbackDevice;
             input.source = hashUser.hash + hashData.device;
             hash(input);

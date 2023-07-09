@@ -24,17 +24,17 @@ const methodGET = function terminal_server_transmission_methodGET(request:node_h
     if (localPath === "/") {
         const appliedData = function terminal_server_transmission_methodGET_readCallback_pageState_appliedData(settingsData:settings_item):void {
             settingsData.queue = null;
-            if (settingsData.configuration.hashDevice === "") {
-                settingsData.configuration.hashDevice = vars.settings.hashDevice;
+            if (settingsData.identity.hashDevice === "") {
+                settingsData.identity.hashDevice = vars.identity.hashDevice;
             } else {
                 common.agents({
                     countBy: "agent",
                     perAgent: function terminal_server_transmission_methodGET_readCallback_pageState_appliedData_perAgent(agentNames:agentNames):void {
-                        if (agentNames.agentType === "user" || (agentNames.agentType === "device" && agentNames.agent !== vars.settings.hashDevice)) {
-                            settingsData[agentNames.agentType][agentNames.agent].status = vars.settings[agentNames.agentType][agentNames.agent].status;
+                        if (agentNames.agentType === "user" || (agentNames.agentType === "device" && agentNames.agent !== vars.identity.hashDevice)) {
+                            settingsData.agents[agentNames.agentType][agentNames.agent].status = vars.agents[agentNames.agentType][agentNames.agent].status;
                         }
                     },
-                    source: vars.settings
+                    source: vars
                 });
             }
             const state:stateData = {
@@ -50,7 +50,7 @@ const methodGET = function terminal_server_transmission_methodGET(request:node_h
                         : null
                 },
                 storageString:string = `<input type="hidden" value='${JSON.stringify(state).replace(/'/g, "&#39;")}'/>`,
-                login:string = (settingsData.configuration.nameDevice === "")
+                login:string = (settingsData.identity.nameDevice === "")
                     ? " login"
                     : "",
                 pageApplication:string = `<!DOCTYPE html>
@@ -74,7 +74,7 @@ const methodGET = function terminal_server_transmission_methodGET(request:node_h
         <link href="lib/css/bundle.css" media="all" rel="stylesheet" type="text/css"/>
         <link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgo="/>
     </head>
-    <body class="${vars.settings.color + login}">
+    <body class="${vars.settings.ui.color + login}">
         ${storageString}
         <div id="spaces">
             <div id="login">

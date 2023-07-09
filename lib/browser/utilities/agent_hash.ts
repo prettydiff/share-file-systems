@@ -14,15 +14,15 @@ import network from "./network.js";
  * ``` */
 const agent_hash:module_agentHash = {
     receive: function browser_utilities_agentHash_receive(socketData:socketData):void {
-        if (browser.data.hashDevice === "") {
+        if (browser.identity.hashDevice === "") {
             const hashes:service_agentHash = socketData.data as service_agentHash;
-            browser.data.hashDevice = hashes.device;
-            browser.data.hashUser = hashes.user;
-            browser.device[hashes.device] = {
+            browser.identity.hashDevice = hashes.device;
+            browser.identity.hashUser = hashes.user;
+            browser.agents.device[hashes.device] = {
                 deviceData: hashes.deviceData,
                 ipAll: browser.network.addresses,
                 ipSelected: "",
-                name: browser.data.nameDevice,
+                name: browser.identity.nameDevice,
                 ports: browser.network.ports,
                 shares: {},
                 status: "idle"
@@ -32,7 +32,7 @@ const agent_hash:module_agentHash = {
                     browser.pageBody.setAttribute("class", "default");
                 },
                 hash: hashes.device,
-                name: browser.data.nameDevice,
+                name: browser.identity.nameDevice,
                 type: "device"
             });
         }
@@ -43,12 +43,12 @@ const agent_hash:module_agentHash = {
         } else if (nameDevice.value.replace(/\s+/, "") === "") {
             nameDevice.focus();
         } else {
-            browser.data.nameUser = nameUser.value;
-            browser.data.nameDevice = nameDevice.value;
+            browser.identity.nameUser = nameUser.value;
+            browser.identity.nameDevice = nameDevice.value;
             network.send({
-                device: browser.data.nameDevice,
+                device: browser.identity.nameDevice,
                 deviceData: null,
-                user: browser.data.nameUser
+                user: browser.identity.nameUser
             }, "agent-hash");
         }
     }

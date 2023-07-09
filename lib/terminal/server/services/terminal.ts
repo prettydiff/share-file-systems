@@ -168,7 +168,7 @@ const terminal:module_terminal = {
                 }
                 terminal.output(data);
             };
-        if (data.target === "agentSource" && data.agentSource.agent === vars.settings.hashDevice && data.agentSource.agentType === "device") {
+        if (data.target === "agentSource" && data.agentSource.agent === vars.identity.hashDevice && data.agentSource.agentType === "device") {
             data.target = "agentRequest";
             // source - local device
             if (data.instruction === "close-modal") {
@@ -208,7 +208,7 @@ const terminal:module_terminal = {
         }
     },
     output: function terminal_server_services_terminalOutput(data:service_terminal):void {
-        if (data[data.target].agent === vars.settings.hashDevice && data[data.target].agentType === "device") {
+        if (data[data.target].agent === vars.identity.hashDevice && data[data.target].agentType === "device") {
             sender.broadcast({
                 data: data,
                 service: "terminal"
@@ -217,7 +217,7 @@ const terminal:module_terminal = {
             const agents:transmit_agents = (data[data.target].agentType === "device")
                 ? {
                     device: data[data.target].agent,
-                    user: vars.settings.hashUser
+                    user: vars.identity.hashUser
                 }
                 : {
                     device: null,

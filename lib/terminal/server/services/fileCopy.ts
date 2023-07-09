@@ -170,7 +170,7 @@ const fileCopy:module_fileCopy = {
                                 agentSource: data.agentWrite,
                                 agentWrite: null,
                                 fileList: null,
-                                message: `Preparing file ${action} to ${messageType} <em>${vars.settings[messageType][agent].name}</em>.`
+                                message: `Preparing file ${action} to ${messageType} <em>${vars.agents[messageType][agent].name}</em>.`
                             };
                         if (vars.test.type !== "service") {
                             fileSystem.route({
@@ -505,7 +505,7 @@ const fileCopy:module_fileCopy = {
                                     agentRequest: data.agentRequest,
                                     agentSource: data.agentSource,
                                     agentWrite: data.agentWrite,
-                                    brotli: vars.settings.brotli,
+                                    brotli: vars.settings.ui.brotli,
                                     file_name: data.list[nextFileName[0]][nextFileName[1]][0].replace(data.agentSource.modalAddress, "").replace(/^(\/|\\)/, ""),
                                     file_size: data.list[nextFileName[0]][nextFileName[1]][5].size,
                                     path_source: data.list[nextFileName[0]][nextFileName[1]][0],
@@ -606,7 +606,7 @@ const fileCopy:module_fileCopy = {
                     renameConfig:config_rename = {
                         callback: renameCallback,
                         destination: (data.execute === true)
-                            ? vars.settings.storage
+                            ? vars.settings.ui.storage
                             : data.agentWrite.modalAddress,
                         list: data.list,
                         replace: false
@@ -675,15 +675,15 @@ const fileCopy:module_fileCopy = {
             other1:fileAgent = config[others[1]],
             allResolved = function terminal_server_services_fileCopy_security_allResolved():void {
                 // same user, copy between devices
-                if (self.user === vars.settings.hashUser && self.user === other0.user && self.user === other1.user) {
+                if (self.user === vars.identity.hashUser && self.user === other0.user && self.user === other1.user) {
                     // must be distributed and known devices to satisfy security
-                    if (vars.settings.device[self.device] !== undefined && vars.settings.device[other0.device] !== undefined && vars.settings.device[other1.device] !== undefined && (self.device !== other0.device || self.device !== other1.device || other0.device !== other1.device)) {
+                    if (vars.agents.device[self.device] !== undefined && vars.agents.device[other0.device] !== undefined && vars.agents.device[other1.device] !== undefined && (self.device !== other0.device || self.device !== other1.device || other0.device !== other1.device)) {
                         config.callback();
                         return;
                     }
                 // different users - the agentRequest user must be known user, but agentSource and agentWrite do not need to know each other
-                } else if (vars.settings.user[config.agentRequest.user] !== undefined || vars.settings.hashUser === config.agentRequest.user) {
-                    const selfAgent:agent = vars.settings.device[vars.settings.hashDevice],
+                } else if (vars.agents.user[config.agentRequest.user] !== undefined || vars.identity.hashUser === config.agentRequest.user) {
+                    const selfAgent:agent = vars.agents.device[vars.identity.hashDevice],
                         shares:string[] = Object.keys(selfAgent.shares),
                         item:string = config.location;
                     let index:number = shares.length,
@@ -691,13 +691,13 @@ const fileCopy:module_fileCopy = {
                         share:agentShare = null;
 
                     // if the requesting user is the same as the writing user then security is satisfied
-                    if ((config.self === "agentRequest" || config.self === "agentWrite") && config.agentRequest.user === config.agentWrite.user && vars.settings.hashUser === config.agentRequest.user && vars.settings.device[config.agentRequest.device] !== undefined && vars.settings.device[config.agentWrite.device] !== undefined) {
+                    if ((config.self === "agentRequest" || config.self === "agentWrite") && config.agentRequest.user === config.agentWrite.user && vars.identity.hashUser === config.agentRequest.user && vars.agents.device[config.agentRequest.device] !== undefined && vars.agents.device[config.agentWrite.device] !== undefined) {
                         config.callback();
                         return;
                     }
 
                     // if the requesting user is trying to copy from itself to another user
-                    if (config.self === "agentSource" && config.agentSource.user === config.agentRequest.user && vars.settings.device[config.agentRequest.device] !== undefined) {
+                    if (config.self === "agentSource" && config.agentSource.user === config.agentRequest.user && vars.agents.device[config.agentRequest.device] !== undefined) {
                         config.callback();
                         return;
                     }
@@ -744,7 +744,7 @@ const fileCopy:module_fileCopy = {
                 }
             },
             resolve = function terminal_server_services_fileCopy_security_resolve(type:agentCopy):void {
-                if (config[type].user === vars.settings.hashUser) {
+                if (config[type].user === vars.identity.hashUser) {
                     if (config[type].share !== "" && config[type].device === "") {
                         config[type].device = deviceMask.resolve(config[type]);
                         complete();

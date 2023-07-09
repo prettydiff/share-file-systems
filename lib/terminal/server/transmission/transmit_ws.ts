@@ -55,7 +55,7 @@ const transmit_ws:module_transmit_ws = {
     // handling an agent socket collapse
     agentClose: function terminal_server_transmission_transmitWs_agentClose(socket:websocket_client):void {
         const type:"device"|"user" = socket.type as "device"|"user",
-            agent:agent = vars.settings[type][socket.hash];
+            agent:agent = vars.agents[type][socket.hash];
         // ensures restarting the application does not process close signals from a prior execution instance
         agent_status({
             data: {
@@ -113,9 +113,9 @@ const transmit_ws:module_transmit_ws = {
                             port: config.port
                         }) as websocket_client,
                     headerHash:string = (config.socketType === "device")
-                        ? vars.settings.hashDevice
+                        ? vars.identity.hashDevice
                         : (config.socketType === "user")
-                            ? vars.settings.hashUser
+                            ? vars.identity.hashUser
                             : config.hash,
                     header:string[] = [
                         "GET / HTTP/1.1",
@@ -237,7 +237,7 @@ const transmit_ws:module_transmit_ws = {
 
         // loop through the socket groups
         let indexPrimary:number = keysPrimary.length;
-        if (vars.settings.hashDevice === "") {
+        if (vars.identity.hashDevice === "") {
             return;
         }
         do {
@@ -256,14 +256,14 @@ const transmit_ws:module_transmit_ws = {
             }
             return 1;
         });
-        transmit_ws.status[vars.settings.hashDevice] = list;
+        transmit_ws.status[vars.identity.hashDevice] = list;
         sender.broadcast({
             data: transmit_ws.status,
             service: "socket-list"
         }, "browser");
         sender.broadcast({
             data: {
-                [vars.settings.hashDevice]: transmit_ws.status[vars.settings.hashDevice]
+                [vars.identity.hashDevice]: transmit_ws.status[vars.identity.hashDevice]
             },
             service: "socket-list"
         }, "device");
@@ -451,7 +451,7 @@ const transmit_ws:module_transmit_ws = {
         // open a long-term websocket tunnel between known agents
         agent: function terminal_server_transmission_transmitWs_openAgent(config:config_websocket_openAgent):void {
             if (vars.settings.secure === true || vars.test.type.indexOf("browser_") === 0) {
-                if (vars.settings[config.agentType][config.agent] === undefined) {
+                if (vars.agents[config.agentType][config.agent] === undefined) {
                     if (config.callback !== null) {
                         config.callback(null);
                     }
@@ -466,7 +466,7 @@ const transmit_ws:module_transmit_ws = {
                 if (transmit_ws.ipAttempts[config.agentType][config.agent] === undefined) {
                     transmit_ws.ipAttempts[config.agentType][config.agent] = [];
                 }
-                const agent:agent = vars.settings[config.agentType][config.agent],
+                const agent:agent = vars.agents[config.agentType][config.agent],
                     attempts:string[] = transmit_ws.ipAttempts[config.agentType][config.agent],
                     selfIP:transmit_addresses_IP = vars.network.addresses,
                     ip:string = (function terminal_server_transmission_transmitWs_openAgent_ip():string {
@@ -729,9 +729,9 @@ const transmit_ws:module_transmit_ws = {
                         let hashName:string = null,
                             type:socketType = null,
                             hashKey:string = null,
-                            nonceHeader:string = null,
-                            dataString:string = data.toString();
-                        const testNonce:RegExp = (/^Sec-WebSocket-Protocol:\s*((browser)|(media)|(terminal))-/),
+                            nonceHeader:string = null;
+                        const dataString:string = data.toString(),
+                            testNonce:RegExp = (/^Sec-WebSocket-Protocol:\s*((browser)|(media)|(terminal))-/),
                             headerList:string[] = dataString.split("\r\n"),
                             flags:flagList = {
                                 hash: false,
@@ -751,7 +751,7 @@ const transmit_ws:module_transmit_ws = {
                                         } else if (type === "testRemote") {
                                             headers.push(`hash: ${hashName}`);
                                         } else if (socket.type === "device" || socket.type === "user") {
-                                            const agent:agent = vars.settings[socket.type][hashName];
+                                            const agent:agent = vars.agents[socket.type][hashName];
                                             if (agent === undefined || agent === null) {
                                                 socket.destroy();
                                                 return;
@@ -776,7 +776,7 @@ const transmit_ws:module_transmit_ws = {
                                     };
                                 // some complexity is present because browsers will not have a "hash" heading
                                 if (flags.type === true && flags.key === true && (type === "browser" || flags.hash === true)) {
-                                    if ((type === "device" || type === "user") && vars.settings[type][hashName] === undefined) {
+                                    if ((type === "device" || type === "user") && vars.agents[type][hashName] === undefined) {
                                         socket.destroy();
                                         return;
                                     }
@@ -835,7 +835,7 @@ const transmit_ws:module_transmit_ws = {
                                     headers();
                                 } else if (testNonce.test(header) === true) {
                                     const noSpace:string = header.replace(/\s+/g, "").replace(testNonce, "");
-                                    if (noSpace === vars.settings.hashDevice || (noSpace === "test-browser" && vars.test.type.indexOf("browser_") === 0)) {
+                                    if (noSpace === vars.identity.hashDevice || (noSpace === "test-browser" && vars.test.type.indexOf("browser_") === 0)) {
                                         type = "browser";
                                         flags.type = true;
                                         nonceHeader = header;
@@ -887,7 +887,7 @@ const transmit_ws:module_transmit_ws = {
                         const err:NodeJS.ErrnoException = new Error(),
                             agent:agent = (config.socket.type === "browser")
                                 ? null
-                                : vars.settings[config.socket.type as agentType][config.socket.hash],
+                                : vars.agents[config.socket.type as agentType][config.socket.hash],
                             name:string = (config.socket.type === "browser")
                                 ? config.socket.hash
                                 : (agent === null || agent === undefined)
@@ -930,7 +930,7 @@ const transmit_ws:module_transmit_ws = {
             if (config.type === "browser" || config.type === "device" || config.type === "testRemote" || config.type === "user") {
                 transmit_ws.socketList[config.type][config.identifier] = config.socket;
                 if (config.type === "device" || config.type === "user") {
-                    vars.settings[config.type][config.identifier].ipSelected = getAddress({
+                    vars.agents[config.type][config.identifier].ipSelected = getAddress({
                         socket: config.socket,
                         type: "ws"
                     }).remote.address;
@@ -943,14 +943,14 @@ const transmit_ws:module_transmit_ws = {
                             delay = function terminal_server_transmission_transmitWs_socketExtension_close_delay():void {
                                 transmit_ws.open.agent(configData);
                             };
-                        setTimeout(delay, vars.settings.statusTime);
+                        setTimeout(delay, vars.settings.ui.statusTime);
                     });
                     if (config.type === "user") {
                         const management:service_agentManagement = {
                             action: "modify",
                             agents: {
                                 device: {},
-                                user: {[config.identifier]: vars.settings.user[config.identifier]}
+                                user: {[config.identifier]: vars.agents.user[config.identifier]}
                             },
                             agentFrom: config.identifier,
                             userName: null,

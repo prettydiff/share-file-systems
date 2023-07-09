@@ -7,7 +7,7 @@ const webSocket:module_browserSocket = {
     error: function browser_utilities_socketError():void {
         setTimeout(function browser_utilities_socketError_delay():void {
             webSocket.start(null, webSocket.hash);
-        }, browser.data.statusTime);
+        }, browser.ui.statusTime);
     },
     hash: "",
     send: null,
@@ -36,8 +36,8 @@ const webSocket:module_browserSocket = {
                 }
             },
             close = function browser_utilities_webSocket_socketClose():void {
-                if (browser.data.hashDevice !== "") {
-                    const device:HTMLElement = document.getElementById(browser.data.hashDevice),
+                if (browser.identity.hashDevice !== "") {
+                    const device:HTMLElement = document.getElementById(browser.identity.hashDevice),
                         agentList:HTMLElement = document.getElementById("agentList"),
                         active:HTMLCollectionOf<Element> = agentList.getElementsByClassName("status-active");
                     let a:number = active.length;

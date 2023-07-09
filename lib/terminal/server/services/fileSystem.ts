@@ -150,7 +150,7 @@ const fileSystem:module_fileSystem = {
             });
         },
         execute: function terminal_server_services_fileSystem_execute(data:service_fileSystem):void {
-            if (data.agentRequest.user === vars.settings.hashUser && data.agentRequest.device === vars.settings.hashDevice) {
+            if (data.agentRequest.user === vars.identity.hashUser && data.agentRequest.device === vars.identity.hashDevice) {
                 // file on local device - execute without a file copy request
                 let counter:number = 0,
                     index:number = 0;
@@ -263,7 +263,7 @@ const fileSystem:module_fileSystem = {
                     source: ""
                 },
                 hashInput:config_command_hash = {
-                    algorithm: vars.settings.hashType,
+                    algorithm: vars.settings.ui.hashType,
                     callback: callback,
                     digest: "hex",
                     directInput: false,
@@ -374,14 +374,14 @@ const fileSystem:module_fileSystem = {
         }
 
         // security, same user
-        if (data.agentRequest.user === vars.settings.hashUser) {
-            if (vars.settings.device[data.agentRequest.device] !== undefined && methodName !== null) {
+        if (data.agentRequest.user === vars.identity.hashUser) {
+            if (vars.agents.device[data.agentRequest.device] !== undefined && methodName !== null) {
                 fileSystem.actions[methodName](data);
                 return;
             }
         // security, external user
-        } else if (vars.settings.user[data.agentRequest.user] !== undefined && methodName !== null) {
-            const self:agent = vars.settings.device[vars.settings.hashDevice],
+        } else if (vars.agents.user[data.agentRequest.user] !== undefined && methodName !== null) {
+            const self:agent = vars.agents.device[vars.identity.hashDevice],
                 shares:string[] = Object.keys(self.shares),
                 item:string = data.location[0];
             let index:number = shares.length,
@@ -526,7 +526,7 @@ const fileSystem:module_fileSystem = {
                     };
                 if (vars.test.type === "service") {
                     service.evaluation(socketData);
-                } else if (data.agentRequest.device === vars.settings.hashDevice && data.agentRequest.user === vars.settings.hashUser) {
+                } else if (data.agentRequest.device === vars.identity.hashDevice && data.agentRequest.user === vars.identity.hashUser) {
                     sender.broadcast(socketData, "browser");
                 } else {
                     fileSystem.route(socketData);

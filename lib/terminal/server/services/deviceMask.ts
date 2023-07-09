@@ -31,22 +31,22 @@ const deviceMask:module_deviceMask = {
                 source: deviceMask.token(date, deviceMask.resolve(agent)),
                 stat: null
             };
-        if (agent.device.length === 141 || agent.device === "" || agent.user !== vars.settings.hashUser) {
+        if (agent.device.length === 141 || agent.device === "" || agent.user !== vars.identity.hashUser) {
             callback(agent.device);
         } else {
             hash(hashInput);
         }
     },
     resolve: function terminal_server_services_deviceMask_resolve(agent:fileAgent):string {
-        if (agent === null || agent.user !== vars.settings.hashUser) {
+        if (agent === null || agent.user !== vars.identity.hashUser) {
             return null;
         }
         if (agent.device === "") {
-            const devices:string[] = Object.keys(vars.settings.device);
+            const devices:string[] = Object.keys(vars.agents.device);
             let index:number = devices.length;
             do {
                 index = index - 1;
-                if (vars.settings.device[devices[index]].shares[agent.share] !== undefined) {
+                if (vars.agents.device[devices[index]].shares[agent.share] !== undefined) {
                     return devices[index];
                 }
             } while (index > 0);
@@ -55,12 +55,12 @@ const deviceMask:module_deviceMask = {
         return agent.device;
     },
     token: function terminal_server_services_deviceMask_token(date:string, device:string):string {
-        return date + vars.settings.hashUser + device;
+        return date + vars.identity.hashUser + device;
     },
     unmask: function terminal_server_services_deviceMask_unmask(mask:string, callback:(device:string) => void):void {
         if (mask.length === 141) {
             const date:string = mask.slice(0, 13),
-                devices:string[] = Object.keys(vars.settings.device),
+                devices:string[] = Object.keys(vars.agents.device),
                 hashInput:config_command_hash = {
                     algorithm: "sha3-512",
                     callback: function terminal_server_services_deviceMask_unmask_hashCallback(title:string, hashOutput:hash_output):void {

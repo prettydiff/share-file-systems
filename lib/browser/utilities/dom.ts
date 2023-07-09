@@ -133,7 +133,7 @@ const dom = function browser_utilities_dom():void {
         // * The optional type argument indicates what type of modals to return
         // * The default type value is "all" or undefined which returns all modals
         getModalsByModalType = function browser_utilities_dom_getModalsByModalType(type:modalType|"all"):HTMLElement[] {
-            const keys:string[] = Object.keys(browser.data.modals),
+            const keys:string[] = Object.keys(browser.ui.modals),
                 keyLength:number = keys.length,
                 output:HTMLElement[] = [];
             let a:number = 0;
@@ -142,7 +142,7 @@ const dom = function browser_utilities_dom():void {
             }
             if (keyLength > 0) {
                 do {
-                    if (type === "all" || browser.data.modals[keys[a]].type === type) {
+                    if (type === "all" || browser.ui.modals[keys[a]].type === type) {
                         output.push(document.getElementById(keys[a]));
                     }
                     a = a + 1;
