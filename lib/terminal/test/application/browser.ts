@@ -473,6 +473,7 @@ const defaultCommand:commands = vars.environment.command,
                             user: {}
                         };
                         vars.settings.ui = ui;
+                        transmit_ws.status = {};
                         browser.methods.sendAction("close", browser.name);
                         browser.methods.delay({
                             action: start,

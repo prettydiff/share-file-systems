@@ -276,7 +276,7 @@ const docFiles:string = "Writing 100.00% complete. 21 files written at size ",
                 qualifier: "contains",
                 target: ["innerHTML"],
                 type: "property",
-                value: "temp/configuration"
+                value: "temp/device"
             },
             interaction: [
                 {
@@ -564,7 +564,7 @@ const docFiles:string = "Writing 100.00% complete. 21 files written at size ",
                 qualifier: "contains",
                 target: ["innerHTML"],
                 type: "property",
-                value: "temp/configuration"
+                value: "temp/device"
             },
             interaction: [
                 {
@@ -620,7 +620,7 @@ const docFiles:string = "Writing 100.00% complete. 21 files written at size ",
                 qualifier: "ends",
                 target: ["firstChild", "textContent"],
                 type: "property",
-                value: "configuration.json"
+                value: "device.json"
             },
             interaction: [
                 {

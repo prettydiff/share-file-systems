@@ -1213,7 +1213,7 @@ const browserDevice:test_browserItem[] = [
                 qualifier: "ends",
                 target: ["innerHTML"],
                 type: "property",
-                value: "configuration.json"
+                value: "device.json"
             }
         ]
     },
