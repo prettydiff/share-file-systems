@@ -480,6 +480,7 @@ const agent_management:module_agentManagement = {
                         hashUser: browser.identity.hashUser,
                         ipAll: userData[1],
                         ipSelected: ipSelected,
+                        keyPublicUser: browser.identity.keyUserPublic,
                         modal: options.id,
                         nameDevice: (type === "device")
                             ? browser.identity.nameDevice
@@ -494,6 +495,7 @@ const agent_management:module_agentManagement = {
                         hashUser: "",
                         ipAll: null,
                         ipSelected: ip,
+                        keyPublicUser: "",
                         modal: "",
                         nameDevice: "",
                         nameUser: "",

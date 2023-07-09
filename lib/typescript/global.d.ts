@@ -22,6 +22,7 @@ interface agency {
  *     ipSelected: string;
  *     name: string;
  *     ports: ports;
+ *     publicKey: string;
  *     shares: agentShares;
  *     status: activityStatus;
  * }
@@ -33,6 +34,7 @@ interface agent {
     ipSelected: string;
     name: string;
     ports: ports;
+    publicKey: string;
     shares: agentShares;
     status: activityStatus;
 }
@@ -59,6 +61,8 @@ interface agentCounts {
  *     hashUser: string;
  *     ipAll: transmit_addresses_IP;
  *     ipSelected: string;
+ *     keyPublicUser: string;
+ *     modal: string;
  *     nameDevice: string;
  *     nameUser: string;
  *     ports: ports;
@@ -71,6 +75,7 @@ interface agentInvite {
     hashUser: string;
     ipAll: transmit_addresses_IP;
     ipSelected: string;
+    keyPublicUser: string;
     modal: string;
     nameDevice: string;
     nameUser: string;

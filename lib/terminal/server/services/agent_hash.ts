@@ -45,6 +45,7 @@ const hashAgent = function terminal_server_services_hashAgent(socketData:socketD
                     ipSelected: "",
                     name: hashData.device,
                     ports: vars.network.ports,
+                    publicKey: vars.identity.keyDevicePublic,
                     shares: {},
                     status: "idle"
                 };

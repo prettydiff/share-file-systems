@@ -65,6 +65,7 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                                 ipSelected: data[type].ipSelected,
                                 name: data[type].nameUser,
                                 ports: data[type].ports,
+                                publicKey: data[type].keyPublicUser,
                                 shares: data[type].shares,
                                 status: "active"
                             }
@@ -172,6 +173,7 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                     hashUser: vars.identity.hashUser,
                     ipAll: userData[1],
                     ipSelected: addresses.local.address,
+                    keyPublicUser: vars.identity.keyUserPublic,
                     modal: "",
                     nameDevice: (data.type === "device")
                         ? vars.identity.nameDevice
