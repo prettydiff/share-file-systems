@@ -281,7 +281,6 @@ interface module_terminal {
  *         module_type : "commonjs" | "module"  // the type of module system the application is currently using
  *         name        : string;                // a static name of the application
  *         startTime   : bigint;                // nanosecond precision time the application starts for measuring execution performance
- *         stateDefault: settings_item          // stores default keys/values for passing and resetting state
  *         version     : string;                // dynamically populated static value of application version number string
  *     };
  *     identity: identity;
@@ -337,7 +336,6 @@ interface module_terminalVariables {
         module_type : "commonjs" | "module";
         name        : string;
         startTime   : bigint;
-        stateDefault: settings_item;
         version     : string;
     };
     identity: identity;

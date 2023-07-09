@@ -8,7 +8,6 @@ import ipList from "../../utilities/ipList.js";
 import log from "../../utilities/log.js";
 import node from "../../utilities/node.js";
 import remove from "../../commands/library/remove.js";
-import resetState from "../../utilities/resetState.js";
 import sender from "../../server/transmission/sender.js";
 import time from "../../utilities/time.js";
 import transmit_http from "../../server/transmission/transmit_http.js";
@@ -436,14 +435,50 @@ const defaultCommand:commands = vars.environment.command,
                     vars.agents.user = {};
                     transmit_ws.status = {};
                     if (browser.args.mode === "remote" || browser.args.mode === "all") {
-                        resetState(function terminal_test_application_browser_reset_readdir_browserLaunch_resetState():void {
-                            browser.methods.sendAction("close", browser.name);
-                            browser.methods.delay({
-                                action: start,
-                                browser: false,
-                                delay: 2000,
-                                message: "Delaying to close any open browsers."
-                            });
+                        const ui:ui_data = {
+                            audio: false,
+                            brotli: 0,
+                            color: "default",
+                            colors: {
+                                device: {},
+                                user: {}
+                            },
+                            fileSort: "file-system-type",
+                            hashType: "sha3-512",
+                            minimizeAll: false,
+                            modals: {},
+                            modalTypes: [],
+                            statusTime: 15000,
+                            storage: vars.settings.ui.storage,
+                            tutorial: false,
+                            zIndex: 0
+                        };
+                        vars.agents = {
+                            device: {},
+                            user: {}
+                        };
+                        vars.identity = {
+                            hashDevice: "",
+                            hashUser: "",
+                            keyDevicePrivate: "",
+                            keyDevicePublic: "",
+                            keyUserPrivate: "",
+                            keyUserPublic: "",
+                            nameDevice: "",
+                            nameUser: ""
+                        };
+                        vars.settings.message = [];
+                        vars.settings.queue = {
+                            device: {},
+                            user: {}
+                        };
+                        vars.settings.ui = ui;
+                        browser.methods.sendAction("close", browser.name);
+                        browser.methods.delay({
+                            action: start,
+                            browser: false,
+                            delay: 2000,
+                            message: "Delaying to close any open browsers."
                         });
                     } else {
                         start();

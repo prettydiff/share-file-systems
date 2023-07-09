@@ -515,7 +515,7 @@ interface remove_count {
 /**
  * A means of organizing all stored data types into a single object for portability.
  * ```typescript
- * interface settings_item {
+ * interface state_storage {
  *     agents: agentData;
  *     identity: identity;
  *     message: service_message;
@@ -523,7 +523,7 @@ interface remove_count {
  *     ui: ui_data;
  * }
  * ``` */
-interface settings_item {
+interface state_storage {
     agents: agentData;
     identity: identity;
     message: service_message;

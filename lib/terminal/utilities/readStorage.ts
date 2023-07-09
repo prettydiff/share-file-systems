@@ -6,12 +6,12 @@ import vars from "./vars.js";
 
 // cspell: words brotli
 
-const readStorage = function terminal_utilities_readStorage(fromFile:boolean, callback:(settings:settings_item) => void):void {
+const readStorage = function terminal_utilities_readStorage(fromFile:boolean, callback:(settings:state_storage) => void):void {
     node.fs.readdir(vars.path.settings, function terminal_utilities_readStorage_readdir(erd:Error, fileList:string[]):void {
         if (erd === null) {
             let length:number = fileList.length;
             const flag:flagList = {},
-                settings:settings_item = {
+                settings:state_storage = {
                     agents: {
                         device: {},
                         user: {}

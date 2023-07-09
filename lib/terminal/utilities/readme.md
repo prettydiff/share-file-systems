@@ -17,7 +17,6 @@ The various utility libraries for the terminal instance of the application.
 * **[node.ts](node.ts)**                                     - All the Node APIs used in the project stored in a single location.
 * **[readStorage.ts](readStorage.ts)**                       - Reads all the settings files and returns a data structure to a callback
 * **[rename.ts](rename.ts)**                                 - Before creating new file system artifacts this library determines if the artifact is already present and if so changes the name of the new artifacts to prevent overwrite.
-* **[resetState.ts](resetState.ts)**                         - A convenience tool to baseline environmental settings
 * **[terminal.ts](terminal.ts)**                             - Execute the application entry point from the terminal.
 * **[time.ts](time.ts)**                                     - Generates a timestamp in format: "[HH:mm:ss:mil] message".
 * **[vars.ts](vars.ts)**                                     - Globally available variables for the terminal utility.

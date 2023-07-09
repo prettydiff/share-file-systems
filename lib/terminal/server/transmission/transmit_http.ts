@@ -593,7 +593,7 @@ const transmit_http:module_transmit_http = {
                                 if (vars.test.type === "service" || vars.test.type.indexOf("browser_") === 0) {
                                     logOutput();
                                 } else {
-                                    readStorage(true, function terminal_server_transmission_transmitHttp_server_start_listen_websocketCallback_readComplete(storage:settings_item):void {
+                                    readStorage(true, function terminal_server_transmission_transmitHttp_server_start_listen_websocketCallback_readComplete(storage:state_storage):void {
                                         node.fs.stat(storage.ui.storage, function terminal_server_transmission_transmitHttp_server_start_listen_websocketCallback_readComplete_storageStat(storageError:NodeJS.ErrnoException):void {
                                             if (storageError === null) {
                                                 vars.settings.ui.storage = storage.ui.storage;

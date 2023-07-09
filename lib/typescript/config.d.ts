@@ -9,7 +9,7 @@
  *     perAgent?: (agentNames:agentNames, counts:agentCounts) => void;
  *     perAgentType?: (agentNames:agentNames, counts:agentCounts) => void;
  *     perShare?: (agentNames:agentNames, counts:agentCounts) => void;
- *     source: browser | module_terminalVariables | settings_item;
+ *     source: browser | module_terminalVariables | state_storage;
  * }
  * ``` */
 interface config_agentIdentity{
@@ -18,7 +18,7 @@ interface config_agentIdentity{
     perAgent?: (agentNames:agentNames, counts:agentCounts) => void;
     perAgentType?: (agentNames:agentNames, counts:agentCounts) => void;
     perShare?: (agentNames:agentNames, counts:agentCounts) => void;
-    source: browser | module_terminalVariables | settings_item;
+    source: browser | module_terminalVariables | state_storage;
 }
 
 /**

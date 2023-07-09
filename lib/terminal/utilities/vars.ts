@@ -22,7 +22,6 @@ let nameDevice:string;
  *         module_type : "commonjs" | "module"  // the type of module system the application is currently using
  *         name        : string;                // a static name of the application
  *         startTime   : bigint;                // nanosecond precision time the application starts for measuring execution performance
- *         stateDefault: settings_item          // stores default keys/values for passing and resetting state
  *         version     : string;                // dynamically populated static value of application version number string
  *     };
  *     identity: identity;
@@ -81,45 +80,6 @@ const vars:module_terminalVariables = {
         log: [],
         name: "Share File Systems",
         startTime: process.hrtime.bigint(),
-        stateDefault: {
-            agents: {
-                device: {},
-                user: {}
-            },
-            identity: {
-                hashDevice: "",
-                hashUser: "",
-                keyDevicePrivate: "",
-                keyDevicePublic: "",
-                keyUserPrivate: "",
-                keyUserPublic: "",
-                nameDevice: "",
-                nameUser: ""
-            },
-            message: [],
-            queue: {
-                device: {},
-                user: {}
-            },
-            ui: {
-                audio: false,
-                brotli: 0,
-                color: "default",
-                colors: {
-                    device: {},
-                    user: {}
-                },
-                fileSort: "file-system-type",
-                hashType: "sha3-512",
-                minimizeAll: false,
-                modals: {},
-                modalTypes: [],
-                statusTime: 15000,
-                storage: "",
-                tutorial: false,
-                zIndex: 0
-            }
-        },
         version: ""
     },
     identity: {
@@ -349,6 +309,5 @@ vars.identity.nameDevice = nameDevice;
 vars.path.settings = `${vars.path.project}lib${vars.path.sep}settings${vars.path.sep}`;
 vars.path.testStorage = `${vars.path.project}lib${vars.path.sep}terminal${vars.path.sep}test${vars.path.sep}storageBrowser${vars.path.sep}`;
 vars.settings.ui.storage = `${vars.path.project}lib${vars.path.sep}storage${vars.path.sep}`;
-vars.environment.stateDefault.ui.storage = `${vars.path.project}lib${vars.path.sep}storage${vars.path.sep}`;
 
 export default vars;

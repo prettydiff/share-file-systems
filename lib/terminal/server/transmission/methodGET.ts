@@ -22,7 +22,7 @@ const methodGET = function terminal_server_transmission_methodGET(request:node_h
             ? "/"
             : vars.path.project + uri.slice(1).replace(/\/$/, "").replace(/\//g, vars.path.sep);
     if (localPath === "/") {
-        const appliedData = function terminal_server_transmission_methodGET_readCallback_pageState_appliedData(settingsData:settings_item):void {
+        const appliedData = function terminal_server_transmission_methodGET_readCallback_pageState_appliedData(settingsData:state_storage):void {
             settingsData.queue = null;
             if (settingsData.identity.hashDevice === "") {
                 settingsData.identity.hashDevice = vars.identity.hashDevice;

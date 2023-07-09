@@ -10,7 +10,7 @@ import vars from "../../utilities/vars.js";
 const agentOnline = function terminal_commands_library_agentOnline(callback:commandCallback):void {
     vars.settings.verbose = true;
 
-    readStorage(true, function terminal_commands_library_agentOnline_readStorage(settings:settings_item):void {
+    readStorage(true, function terminal_commands_library_agentOnline_readStorage(settings:state_storage):void {
         const arg:string = process.argv[0],
             type:agentType = (settings.agents.device[arg] === undefined)
                 ? "user"

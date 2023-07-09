@@ -288,7 +288,7 @@ const build = function terminal_commands_library_build(config:config_command_bui
                     index = function terminal_commands_library_build_bundleJS_index():void {
                         node.fs.readFile(`${filePath}index.js`, function terminal_commands_library_build_bundleJS_index_read(readError:NodeJS.ErrnoException, fileData:Buffer):void {
                             if (readError === null) {
-                                const storageCallback = function terminal_commands_library_build_bundleJS_index_read_storageCallback(settingsData:settings_item):void {
+                                const storageCallback = function terminal_commands_library_build_bundleJS_index_read_storageCallback(settingsData:state_storage):void {
                                     let file:string = fileData.toString(),
                                         index:number = 0;
                                     const testBrowser:string = (vars.test.browser !== null)
