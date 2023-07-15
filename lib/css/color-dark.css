@@ -95,7 +95,7 @@ body.dark{
 .dark #spaces .export span{color:var(--green-primary)}
 .dark #spaces .file-edit span{color:var(--minimize-text)}
 .dark #spaces .file-navigate span{color:var(--backDirectory-text)}
-.dark #spaces .invite-accept span{color:var(--parent-text)}
+.dark #spaces .invite-ask span{color:var(--parent-text)}
 .dark #spaces .media span{color:var(--white)}
 .dark #spaces .message span{color:var(--dragBox-border)}
 .dark #spaces .shares span{color:var(--text)}

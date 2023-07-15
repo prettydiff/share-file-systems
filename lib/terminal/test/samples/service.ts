@@ -147,7 +147,8 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                         hashUser: vars.identity.hashUser,
                         ipAll: null,
                         ipSelected: "",
-                        keyPublicUser: "04004a0be5adb842b4bea1ef97753c53cce5f11ce09a6489461f85285b1b57cfd3ace7fc3914e9371111495c8b2f1a79837d4ac6be3ddd763b76e1974c030b838522be1e1fd312311b009fd3a0fa109ac5a400998f969146cd60e6baf99698164f2e9db0f7daf0b72fdcf2b1b561d6a3c64fa6bb24f902e36d8f0836c1fefc7ff16fb89ea7bbf27894429d26995e80ba4a",
+                        keyUserPrivate: "",
+                        keyUserPublic: "",
                         modal: "test-modal-requestor",
                         nameDevice: "old desktop computer",
                         nameUser: "local user name",
@@ -163,7 +164,8 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                         hashUser: "",
                         ipAll: null,
                         ipSelected: "",
-                        keyPublicUser: "",
+                        keyUserPrivate: "",
+                        keyUserPublic: "",
                         modal: "test-modal-responder",
                         nameDevice: "responding device",
                         nameUser: "responding user",
@@ -171,9 +173,9 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                             http: 9999,
                             ws: 9999
                         },
-                        publicKey: "",
                         shares: {}
                     },
+                    id: "168929692941403998dfb06d6558dca2b0a0d979d427d9628e7263c69016a2a366044bc60d6c1f28c72b7756a70b3bb1109d38a653f7c387188ca55664bf29fdba424692fb0f2",
                     message: message,
                     status: status,
                     type: "device"
@@ -1648,13 +1650,11 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
             data: {
                 action: "invite-request",
                 agentRequest: {
-                    devices: vars.agents.device,
-                    hashDevice: vars.identity.hashDevice,
-                    hashUser: vars.identity.hashUser,
+                    devices: null,
+                    hashUser: "",
                     ipAll: null,
                     ipSelected: "",
                     modal: "test-modal-requestor",
-                    nameDevice: "old desktop",
                     nameUser: "local user name",
                     ports: {
                         http: 443,
@@ -1663,12 +1663,10 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     shares: {}
                 },
                 agentSource: {
-                    hashDevice: "",
                     hashUser: "",
                     ipAll: null,
                     ipSelected: "",
                     modal: "",
-                    nameDevice: "",
                     nameUser: "",
                     ports: {
                         http: 443,
@@ -1676,6 +1674,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     },
                     shares: null
                 },
+                id: "168929692941403998dfb06d6558dca2b0a0d979d427d9628e7263c69016a2a366044bc60d6c1f28c72b7756a70b3bb1109d38a653f7c387188ca55664bf29fdba424692fb0f2",
                 message: "Hello",
                 status: "invited",
                 type: "device"
@@ -1813,13 +1812,12 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                             status: "active"
                         }
                     },
-                    hashDevice: vars.identity.hashDevice,
                     hashUser: vars.identity.hashUser,
                     ipAll: null,
                     ipSelected: "",
-                    keyPublicUser: "04004a0be5adb842b4bea1ef97753c53cce5f11ce09a6489461f85285b1b57cfd3ace7fc3914e9371111495c8b2f1a79837d4ac6be3ddd763b76e1974c030b838522be1e1fd312311b009fd3a0fa109ac5a400998f969146cd60e6baf99698164f2e9db0f7daf0b72fdcf2b1b561d6a3c64fa6bb24f902e36d8f0836c1fefc7ff16fb89ea7bbf27894429d26995e80ba4a",
+                    keyUserPrivate: "01fb3b0287fd99245147930c202b125bf7ae308b2b3d85e7a8348bba40b11f6b1861760a1656a3ea735d816b59a993951c8cc32396ffca6a53d02c8832016fa16234ba906db0b0ba",
+                    keyUserPublic: "04004a0be5adb842b4bea1ef97753c53cce5f11ce09a6489461f85285b1b57cfd3ace7fc3914e9371111495c8b2f1a79837d4ac6be3ddd763b76e1974c030b838522be1e1fd312311b009fd3a0fa109ac5a400998f969146cd60e6baf99698164f2e9db0f7daf0b72fdcf2b1b561d6a3c64fa6bb24f902e36d8f0836c1fefc7ff16fb89ea7bbf27894429d26995e80ba4a",
                     modal: "test-modal-requestor",
-                    nameDevice: "old desktop",
                     nameUser: "local user name",
                     ports: {
                         http: 9999,
@@ -1953,13 +1951,12 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                             status: "active"
                         }
                     },
-                    hashDevice: "7f22346707be198af81ac14d5f718875ba67f67fb94bd2256c226fb8c676301f153bdd972818bc5b00aab7ee38190e9374d8e75e600ed5bbbddf4dbc5d5ca594",
                     hashUser: vars.identity.hashUser,
                     ipAll: null,
                     ipSelected: "",
                     modal: "",
-                    keyPublicUser: "04004a0be5adb842b4bea1ef97753c53cce5f11ce09a6489461f85285b1b57cfd3ace7fc3914e9371111495c8b2f1a79837d4ac6be3ddd763b76e1974c030b838522be1e1fd312311b009fd3a0fa109ac5a400998f969146cd60e6baf99698164f2e9db0f7daf0b72fdcf2b1b561d6a3c64fa6bb24f902e36d8f0836c1fefc7ff16fb89ea7bbf27894429d26995e80ba4a",
-                    nameDevice: "test local device",
+                    keyUserPrivate: "",
+                    keyUserPublic: "",
                     nameUser: "test local user",
                     ports: {
                         http: 9999,
@@ -1986,6 +1983,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                         }
                     }
                 },
+                id: "168929692941403998dfb06d6558dca2b0a0d979d427d9628e7263c69016a2a366044bc60d6c1f28c72b7756a70b3bb1109d38a653f7c387188ca55664bf29fdba424692fb0f2",
                 message: "Accepted invitation. Request processed at responding terminal XXXX for type device.  Agent already present, so auto accepted and returned to requesting terminal.",
                 status: "accepted",
                 type: "device"
@@ -1999,12 +1997,10 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                 action: "invite-response",
                 agentRequest: {
                     devices: vars.agents.device,
-                    hashDevice: vars.identity.hashDevice,
                     hashUser: vars.identity.hashUser,
                     ipAll: null,
                     ipSelected: "",
                     modal: "test-modal-requestor",
-                    nameDevice: "old desktop computer",
                     nameUser: "local user name",
                     ports: {
                         http: 443,
@@ -2014,12 +2010,10 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                 },
                 agentSource: {
                     devices: {},
-                    hashDevice: "",
                     hashUser: "",
                     ipAll: null,
                     ipSelected: "",
                     modal: "test-modal-responder",
-                    nameDevice: "responding device",
                     nameUser: "responding user",
                     ports: {
                         http: 443,
@@ -2027,6 +2021,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     },
                     shares: null
                 },
+                id: "168929692941403998dfb06d6558dca2b0a0d979d427d9628e7263c69016a2a366044bc60d6c1f28c72b7756a70b3bb1109d38a653f7c387188ca55664bf29fdba424692fb0f2",
                 message: "Hello",
                 status: "ignored",
                 type: "device"
@@ -2168,7 +2163,8 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     hashUser: vars.identity.hashUser,
                     ipAll: null,
                     ipSelected: "",
-                    keyPublicUser: "04004a0be5adb842b4bea1ef97753c53cce5f11ce09a6489461f85285b1b57cfd3ace7fc3914e9371111495c8b2f1a79837d4ac6be3ddd763b76e1974c030b838522be1e1fd312311b009fd3a0fa109ac5a400998f969146cd60e6baf99698164f2e9db0f7daf0b72fdcf2b1b561d6a3c64fa6bb24f902e36d8f0836c1fefc7ff16fb89ea7bbf27894429d26995e80ba4a",
+                    keyUserPrivate: "01fb3b0287fd99245147930c202b125bf7ae308b2b3d85e7a8348bba40b11f6b1861760a1656a3ea735d816b59a993951c8cc32396ffca6a53d02c8832016fa16234ba906db0b0ba",
+                    keyUserPublic: "04004a0be5adb842b4bea1ef97753c53cce5f11ce09a6489461f85285b1b57cfd3ace7fc3914e9371111495c8b2f1a79837d4ac6be3ddd763b76e1974c030b838522be1e1fd312311b009fd3a0fa109ac5a400998f969146cd60e6baf99698164f2e9db0f7daf0b72fdcf2b1b561d6a3c64fa6bb24f902e36d8f0836c1fefc7ff16fb89ea7bbf27894429d26995e80ba4a",
                     modal: "test-modal-requestor",
                     nameDevice: "old desktop computer",
                     nameUser: "local user name",
@@ -2184,7 +2180,8 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     hashUser: "",
                     ipAll: null,
                     ipSelected: "",
-                    keyPublicUser: "04004a0be5adb842b4bea1ef97753c53cce5f11ce09a6489461f85285b1b57cfd3ace7fc3914e9371111495c8b2f1a79837d4ac6be3ddd763b76e1974c030b838522be1e1fd312311b009fd3a0fa109ac5a400998f969146cd60e6baf99698164f2e9db0f7daf0b72fdcf2b1b561d6a3c64fa6bb24f902e36d8f0836c1fefc7ff16fb89ea7bbf27894429d26995e80ba4a",
+                    keyUserPrivate: "",
+                    keyUserPublic: "",
                     modal: "test-modal-responder",
                     nameDevice: "responding device",
                     nameUser: "responding user",
@@ -2194,6 +2191,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     },
                     shares: null
                 },
+                id: "168929692941403998dfb06d6558dca2b0a0d979d427d9628e7263c69016a2a366044bc60d6c1f28c72b7756a70b3bb1109d38a653f7c387188ca55664bf29fdba424692fb0f2",
                 message: "Ignored invitation response processed at responding terminal XXXX and sent to requesting terminal XXXX ",
                 status: "ignored",
                 type: "device"
@@ -2207,12 +2205,10 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                 action: "invite-response",
                 agentRequest: {
                     devices: vars.agents.device,
-                    hashDevice: vars.identity.hashDevice,
                     hashUser: vars.identity.hashUser,
                     ipAll: null,
                     ipSelected: "",
                     modal: "test-modal-requestor",
-                    nameDevice: "old desktop computer",
                     nameUser: "local user name",
                     ports: {
                         http: 443,
@@ -2222,12 +2218,10 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                 },
                 agentSource: {
                     devices: {},
-                    hashDevice: "",
                     hashUser: "",
                     ipAll: null,
                     ipSelected: "",
                     modal: "test-modal-responder",
-                    nameDevice: "responding device",
                     nameUser: "responding user",
                     ports: {
                         http: 443,
@@ -2235,6 +2229,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     },
                     shares: {}
                 },
+                id: "168929692941403998dfb06d6558dca2b0a0d979d427d9628e7263c69016a2a366044bc60d6c1f28c72b7756a70b3bb1109d38a653f7c387188ca55664bf29fdba424692fb0f2",
                 message: "Hello",
                 status: "accepted",
                 type: "device"
@@ -2251,12 +2246,10 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                 action: "invite-response",
                 agentRequest: {
                     devices: vars.agents.device,
-                    hashDevice: vars.identity.hashDevice,
                     hashUser: vars.identity.hashUser,
                     ipAll: null,
                     ipSelected: "",
                     modal: "test-modal-requestor",
-                    nameDevice: "old desktop computer",
                     nameUser: "local user name",
                     ports: {
                         http: 443,
@@ -2266,12 +2259,10 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                 },
                 agentSource: {
                     devices: {},
-                    hashDevice: "",
                     hashUser: "",
                     ipAll: null,
                     ipSelected: "",
                     modal: "test-modal-responder",
-                    nameDevice: "responding device",
                     nameUser: "responding user",
                     ports: {
                         http: 443,
@@ -2279,6 +2270,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     },
                     shares: {}
                 },
+                id: "168929692941403998dfb06d6558dca2b0a0d979d427d9628e7263c69016a2a366044bc60d6c1f28c72b7756a70b3bb1109d38a653f7c387188ca55664bf29fdba424692fb0f2",
                 message: "Ignored invitation",
                 status: "ignored",
                 type: "device"
@@ -2295,12 +2287,10 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                 action: "invite-response",
                 agentRequest: {
                     devices: vars.agents.device,
-                    hashDevice: vars.identity.hashDevice,
                     hashUser: vars.identity.hashUser,
                     ipAll: null,
                     ipSelected: "",
                     modal: "test-modal-requestor",
-                    nameDevice: "old desktop computer",
                     nameUser: "local user name",
                     ports: {
                         http: 443,
@@ -2310,12 +2300,10 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                 },
                 agentSource: {
                     devices: {},
-                    hashDevice: "",
                     hashUser: "",
                     ipAll: null,
                     ipSelected: "",
                     modal: "test-modal-responder",
-                    nameDevice: "responding device",
                     nameUser: "responding user",
                     ports: {
                         http: 443,
@@ -2323,6 +2311,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     },
                     shares: {}
                 },
+                id: "168929692941403998dfb06d6558dca2b0a0d979d427d9628e7263c69016a2a366044bc60d6c1f28c72b7756a70b3bb1109d38a653f7c387188ca55664bf29fdba424692fb0f2",
                 message: "Hello",
                 status: "declined",
                 type: "device"
@@ -2339,12 +2328,10 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                 action: "invite-complete",
                 agentRequest: {
                     devices: vars.agents.device,
-                    hashDevice: vars.identity.hashDevice,
                     hashUser: vars.identity.hashUser,
                     ipAll: null,
                     ipSelected: "",
                     modal: "test-modal-requestor",
-                    nameDevice: "old desktop computer",
                     nameUser: "local user name",
                     ports: {
                         http: 443,
@@ -2354,12 +2341,10 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                 },
                 agentSource: {
                     devices: {},
-                    hashDevice: "",
                     hashUser: "",
                     ipAll: null,
                     ipSelected: "",
                     modal: "test-modal-responder",
-                    nameDevice: "responding device",
                     nameUser: "responding user",
                     ports: {
                         http: 443,
@@ -2367,6 +2352,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     },
                     shares: {}
                 },
+                id: "168929692941403998dfb06d6558dca2b0a0d979d427d9628e7263c69016a2a366044bc60d6c1f28c72b7756a70b3bb1109d38a653f7c387188ca55664bf29fdba424692fb0f2",
                 message: "Hello",
                 status: "accepted",
                 type: "device"
@@ -2383,12 +2369,10 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                 action: "invite-complete",
                 agentRequest: {
                     devices: vars.agents.device,
-                    hashDevice: vars.identity.hashDevice,
                     hashUser: vars.identity.hashUser,
                     ipAll: null,
                     ipSelected: "",
                     modal: "test-modal-requestor",
-                    nameDevice: "old desktop computer",
                     nameUser: "local user name",
                     ports: {
                         http: 443,
@@ -2398,12 +2382,10 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                 },
                 agentSource: {
                     devices: {},
-                    hashDevice: "",
                     hashUser: "",
                     ipAll: null,
                     ipSelected: "",
                     modal: "test-modal-responder",
-                    nameDevice: "responding device",
                     nameUser: "responding user",
                     ports: {
                         http: 443,
@@ -2411,6 +2393,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     },
                     shares: {}
                 },
+                id: "168929692941403998dfb06d6558dca2b0a0d979d427d9628e7263c69016a2a366044bc60d6c1f28c72b7756a70b3bb1109d38a653f7c387188ca55664bf29fdba424692fb0f2",
                 message: "Ignored invitation",
                 status: "ignored",
                 type: "device"

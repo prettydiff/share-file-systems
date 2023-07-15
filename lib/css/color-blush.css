@@ -120,7 +120,7 @@ body.blush {
 .blush #spaces .export span{color:var(--parent-text)}
 .blush #spaces .file-edit span{color:var(--yellow-icon)}
 .blush #spaces .file-navigate span{color:var(--blue-hover)}
-.blush #spaces .invite-accept span{color:var(--parent-text)}
+.blush #spaces .invite-ask span{color:var(--parent-text)}
 .blush #spaces .media span{color:var(--white)}
 .blush #spaces .message span{color:var(--green-button-text)}
 .blush #spaces .shares span{color:var(--black)}

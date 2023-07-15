@@ -189,16 +189,30 @@ interface module_fileSystem {
 
 /**
  * Methods for processing the various stages of the invitation process.
+ * The "invite-complete" step executes as the final step in the terminal at both ends of the transaction.
  * ```typescript
  * interface module_inviteActions {
- *     "invite-complete": () => void; // Step 4: Receipt of the response at the originating device terminal for transmission to the browser.
- *     "invite-request" : () => void; // Step 2: Receipt of the invitation request at the remote machine's terminal for processing to its browser.
- *     "invite-response": () => void; // Step 3: Receipt of the remote user's response at the remote machine's terminal for transmission to the originating machine.
- *     "invite-start"   : () => void; // Step 1: Receipt of an invite request from the local browser.
+ *     "invite-start"   : () => void; // Step 1: At local browser send invitation message to local terminal.
+ *     "invite-request" : () => void; // Step 2: At local terminal forward invitation message to remote terminal.
+ *     "invite-ask"     : () => void; // Step 3: At remote terminal send invitation message to remote browser.
+ *     "invite-answer"  : () => void; // Step 4: At remote browser send invitation answer to remote terminal.
+ *     "invite-response": () => void; // Step 5: At remote terminal send invitation answer to local terminal.
+ *     "invite-complete": () => void; // Step 6: At local terminal send new agent data to local browser.
+ *                                    // Step 8: At remote terminal apply new identifiers, send new agent data to remote browser, open necessary sockets.
+ *     "invite-identity": () => void; // Step 7: At local terminal send device and identity data by agent type to remote terminal.
  * }
+ *   1 start              2 request            3 ask
+ * x >---------------> xx >---------------> xx >---------------> x
+ *          complete 6           Response 5             answer 4
+ * x <---------------< xx <---------------< xx <---------------< x
+ *                        7 identity           8 complete
+ *                     xx >---------------> xx >---------------> x
  * ``` */
 interface module_inviteActions {
+    "invite-answer": () => void;
+    "invite-ask": () => void;
     "invite-complete": () => void;
+    "invite-identity": () => void;
     "invite-request": () => void;
     "invite-response": () => void;
     "invite-start": () => void;

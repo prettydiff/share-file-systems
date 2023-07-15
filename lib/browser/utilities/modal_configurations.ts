@@ -29,7 +29,7 @@ import util from "./util.js";
  *         "export": modal_open;
  *         "file-edit": modal_open;
  *         "file-navigate": modal_open;
- *         "invite-accept": modal_open;
+ *         "invite-ask": modal_open;
  *         "media": modal_open;
  *         "message": modal_open;
  *         "shares": modal_open;
@@ -419,12 +419,10 @@ const modal_configuration:module_modalConfiguration = {
             return modal.content(payloadModal);
         },
 
-        "invite-accept": function browser_utilities_modalConfiguration_inviteAccept(event:Event, config?:config_modal):modal {
+        "invite-ask": function browser_utilities_modalConfiguration_inviteAsk(event:Event, config?:config_modal):modal {
             const invitation:service_invite = JSON.parse(config.text_value) as service_invite,
                 agentInvite:agentInvite = invitation.agentRequest,
-                inviteName:string = (invitation.type === "device")
-                    ? invitation.agentRequest.nameDevice
-                    : invitation.agentRequest.nameUser;
+                inviteName:string = invitation.agentRequest.nameUser;
             if (config === null || config === undefined) {
                 config = {
                     agent: browser.identity.hashDevice,
@@ -436,10 +434,8 @@ const modal_configuration:module_modalConfiguration = {
                     inputs: ["cancel", "confirm", "close"],
                     read_only: false,
                     share: browser.identity.hashDevice,
-                    title_supplement: (invitation.type === "device")
-                        ? `Device ${agentInvite.nameDevice}`
-                        : `User ${agentInvite.nameUser}`,
-                    type: "invite-accept",
+                    title_supplement: `User ${agentInvite.nameUser}`,
+                    type: "invite-ask",
                     width: 500
                 };
             }
@@ -724,7 +720,7 @@ const modal_configuration:module_modalConfiguration = {
             menu: true,
             text: "File Navigate"
         },
-        "invite-accept": {
+        "invite-ask": {
             icon: "❧",
             menu: false,
             text: "Invitation from"

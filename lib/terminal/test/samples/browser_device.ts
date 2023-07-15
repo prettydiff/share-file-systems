@@ -87,7 +87,7 @@ const browserDevice:test_browserItem[] = [
             {
                 event: "click",
                 node: [
-                    ["getModalsByModalType", "invite-accept", 0],
+                    ["getModalsByModalType", "invite-ask", 0],
                     ["getElementsByClassName", "confirm", 0]
                 ]
             }
@@ -97,7 +97,7 @@ const browserDevice:test_browserItem[] = [
         unit: [
             {
                 node: [
-                    ["getModalsByModalType", "invite-accept", 0]
+                    ["getModalsByModalType", "invite-ask", 0]
                 ],
                 qualifier: "is",
                 target: [],

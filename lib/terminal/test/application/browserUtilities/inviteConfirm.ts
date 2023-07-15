@@ -19,7 +19,7 @@ const inviteConfirm = function terminal_test_application_browserUtilities_invite
             {
                 event: "click",
                 node: [
-                    ["getModalsByModalType", "invite-accept", 0],
+                    ["getModalsByModalType", "invite-ask", 0],
                     ["getElementsByClassName", "confirm", 0]
                 ]
             }
@@ -29,7 +29,7 @@ const inviteConfirm = function terminal_test_application_browserUtilities_invite
         unit: [
             {
                 node: [
-                    ["getModalsByModalType", "invite-accept", 0]
+                    ["getModalsByModalType", "invite-ask", 0]
                 ],
                 qualifier: "is",
                 target: [],

@@ -2,29 +2,15 @@
 /* lib/terminal/server/services/invite - Manages the order of invitation related processes for traffic across the internet. */
 
 import agent_management from "./agent_management.js";
-import common from "../../../common/common.js";
-import getAddress from "../../utilities/getAddress.js";
+import hash from "../../commands/library/hash.js";
 import sender from "../transmission/sender.js";
 import service from "../../test/application/service.js";
 import transmit_http from "../transmission/transmit_http.js";
-import transmit_ws from "../transmission/transmit_ws.js";
 import vars from "../../utilities/vars.js";
 
-const invite = function terminal_server_services_invite(socketData:socketData, transmit:transmit_type):void {
+const invite = function terminal_server_services_invite(socketData:socketData):void {
     const data:service_invite = socketData.data as service_invite,
-        addresses:transmit_addresses_socket = (vars.test.type === "service")
-            ? {
-                local: {
-                    address: "127.0.0.1",
-                    port: 443
-                },
-                remote: {
-                    address: "127.0.0.1",
-                    port: 443
-                }
-            }
-            : getAddress(transmit),
-        inviteHttp = function terminal_server_services_invite_inviteHttp():void {
+        inviteHttp = function terminal_server_services_invite_inviteHttp(agent:"agentRequest"|"agentSource"):void {
             const payload:socketData = {
                     data: data,
                     service: "invite"
@@ -33,13 +19,9 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                     agent: "",
                     agentType: data.type,
                     callback: null,
-                    ip: (data.action === "invite-request")
-                        ? data.agentSource.ipSelected
-                        : data.agentRequest.ipSelected,
+                    ip: data[agent].ipSelected,
                     payload: payload,
-                    port: (data.action === "invite-request")
-                        ? data.agentSource.ports.http
-                        : data.agentRequest.ports.http,
+                    port: data[agent].ports.http,
                     stream: false
                 };
             if (vars.test.type === "service") {
@@ -48,7 +30,7 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                 transmit_http.request(httpConfig);
             }
         },
-        addAgent = function terminal_server_services_invite_addAgent(type:agentTransmit, callback:(agents:agents) => void):void {
+        addAgent = function terminal_server_services_invite_addAgent(type:agentTransmit):void {
             const addAgentData:service_agentManagement = {
                 action: "add",
                 agents: (data.type === "device")
@@ -65,7 +47,7 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                                 ipSelected: data[type].ipSelected,
                                 name: data[type].nameUser,
                                 ports: data[type].ports,
-                                publicKey: data[type].keyPublicUser,
+                                publicKey: data[type].keyUserPublic,
                                 shares: data[type].shares,
                                 status: "active"
                             }
@@ -89,144 +71,202 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                     service: "agent-management"
                 });
             }
-            if (callback !== null) {
-                callback(addAgentData.agents[data.type]);
-            }
         },
-        deviceIPSelected = function terminal_server_services_invite_deviceIPSelected(type:agentTransmit):void {
-            if (data.type === "device") {
-                const keys:string[] = Object.keys(data[type].devices);
-                keys.forEach(function terminal_server_services_invite_addAgent_deviceIP(hash:string):void {
-                    const device:agent = data[type].devices[hash];
-                    device.ipSelected = (device.ipAll.IPv4.indexOf(addresses.remote.address) > -1 || device.ipAll.IPv6.indexOf(addresses.remote.address) > -1)
-                        ? addresses.remote.address
-                        : (device.ipAll.IPv6.length > 0)
-                            ? device.ipAll.IPv6[0]
-                            : device.ipAll.IPv4[0];
-                });
-            }
+        unmask = function terminal_server_services_invite_unmask(mask:string, callback:(test:boolean) => void):void {
+            const date:string = mask.slice(0, 13);
+            hash({
+                algorithm: "sha3-512",
+                callback: function terminal_server_services_invite_unmask_hash(key:string):void {
+                    if (date + key === mask) {
+                        callback(true);
+                    } else {
+                        callback(false);
+                    }
+                },
+                digest: "hex",
+                directInput: true,
+                id: "",
+                list: false,
+                parent: 0,
+                source: date + vars.identity.hashUser,
+                stat: null
+            });
+
         },
         /**
+        * Methods for processing the various stages of the invitation process.
+        * The "invite-complete" step executes as the final step in the terminal at both ends of the transaction.
+        * ```typescript
+        * interface module_inviteActions {
+        *     "invite-start"   : () => void; // Step 1: At local browser send invitation message to local terminal.
+        *     "invite-request" : () => void; // Step 2: At local terminal forward invitation message to remote terminal.
+        *     "invite-ask"     : () => void; // Step 3: At remote terminal send invitation message to remote browser.
+        *     "invite-answer"  : () => void; // Step 4: At remote browser send invitation answer to remote terminal.
+        *     "invite-response": () => void; // Step 5: At remote terminal send invitation answer to local terminal.
+        *     "invite-complete": () => void; // Step 6: At local terminal send new agent data to local browser.
+        *                                    // Step 8: At remote terminal apply new identifiers, send new agent data to remote browser, open necessary sockets.
+        *     "invite-identity": () => void; // Step 7: At local terminal send device and identity data by agent type to remote terminal.
+        * }
+        *   1 start                  2 request                     3 ask
+        * x --------------------> xx -------------------------> xx --------------------> x
+        *   <--------------------    <-------------------------    <-------------------- x
+        *              complete 6                    Response 5                 answer 4
+        *                            ------------------------->    -------------------->
+        *                            7 identity                    8 complete
+        * ``` */
+       /**
          * Methods for processing the various stages of the invitation process.
+         * The "invite-complete" step executes as the final step in the terminal at both ends of the transaction.
          * ```typescript
          * interface module_inviteActions {
-         *     "invite-complete": () => void; // Step 4: Receipt of the response at the originating device terminal for transmission to the browser.
-         *     "invite-request" : () => void; // Step 2: Receipt of the invitation request at the remote machine's terminal for processing to its browser.
-         *     "invite-response": () => void; // Step 3: Receipt of the remote user's response at the remote machine's terminal for transmission to the originating machine.
-         *     "invite-start"   : () => void; // Step 1: Receipt of an invite request from the local browser.
+         *     "invite-start"   : () => void; // Step 1: At local browser send invitation message to local terminal.
+         *     "invite-request" : () => void; // Step 2: At local terminal forward invitation message to remote terminal.
+         *     "invite-ask"     : () => void; // Step 3: At remote terminal send invitation message to remote browser.
+         *     "invite-answer"  : () => void; // Step 4: At remote browser send invitation answer to remote terminal.
+         *     "invite-response": () => void; // Step 5: At remote terminal send invitation answer to local terminal.
+         *     "invite-complete": () => void; // Step 6: At local terminal send new agent data to local browser.
+         *                                    // Step 8: At remote terminal apply new identifiers, send new agent data to remote browser, open necessary sockets.
+         *     "invite-identity": () => void; // Step 7: At local terminal send device and identity data by agent type to remote terminal.
          * }
+         *   1 start              2 request            3 ask
+         * x >---------------> xx >---------------> xx >---------------> x
+         *          complete 6           Response 5             answer 4
+         * x <---------------< xx <---------------< xx <---------------< x
+         *                        7 identity           8 complete
+         *                     xx >---------------> xx >---------------> x
          * ``` */
         actions:module_inviteActions = {
-            "invite-complete": function terminal_server_services_invite_inviteComplete():void {
-                // stage 4 - on start terminal to start browser
-                const name:string = (data.type === "device")
-                        ? data.agentSource.nameDevice
-                        : data.agentSource.nameUser,
-                    respond:string = ` invitation returned from ${data.type} '${name}'.`;
-                data.message = common.capitalize(data.status) + respond;
-                if (vars.test.type === "service") {
-                    service.evaluation({
-                        data: data,
-                        service: "invite"
-                    });
-                } else {
-                    if (data.status === "accepted" && (data.agentRequest.hashDevice === vars.identity.hashDevice || data.agentRequest.hashUser === vars.identity.hashUser)) {
-                        deviceIPSelected("agentSource");
-                        addAgent("agentSource", function terminal_server_services_invite_inviteComplete_addAgent(agents:agents):void {
-                            const keys:string[] = Object.keys(agents);
-                            if (data.type === "device") {
-                                keys.forEach(function terminal_server_services_invite_inviteComplete_addAgent_each(device:string):void {
-                                    transmit_ws.open.agent({
-                                        agent: device,
-                                        agentType: "device",
-                                        callback: null
-                                    });
-                                });
-                            } else {
-                                transmit_ws.open.agent({
-                                    agent: keys[0],
-                                    agentType: "user",
-                                    callback: null
-                                });
-                            }
-                        });
-                    }
-                    sender.broadcast({
-                        data: data,
-                        service: "invite"
-                    }, "browser");
-                }
-            },
-            "invite-request": function terminal_server_services_invite_inviteRequest():void {
-                // stage 2 - on remote terminal to remote browser
-                const agent:agent = (data.type === "user")
-                        ? vars.agents.user[data.agentRequest.hashUser]
-                        : vars.agents.device[data.agentRequest.hashDevice],
-                    userData:userData = common.userData(vars.agents.device, data.type, vars.identity.hashDevice);
-                data.agentSource = {
-                    devices: (data.type === "device")
-                        ? vars.agents.device
-                        : {},
-                    hashDevice: (data.type === "device")
-                        ? vars.identity.hashDevice
-                        : "",
-                    hashUser: vars.identity.hashUser,
-                    ipAll: userData[1],
-                    ipSelected: addresses.local.address,
-                    keyPublicUser: vars.identity.keyUserPublic,
-                    modal: "",
-                    nameDevice: (data.type === "device")
-                        ? vars.identity.nameDevice
-                        : "",
-                    nameUser: vars.identity.nameUser,
-                    ports: vars.network.ports,
-                    shares: userData[0]
-                };
-                data.agentRequest.ipSelected = addresses.remote.address;
-                deviceIPSelected("agentRequest");
-                if (agent === undefined) {
-                    sender.broadcast({
-                        data: data,
-                        service: "invite"
-                    }, "browser");
-                } else {
-                    // if the agent is already registered with the remote then bypass the user by auto-approving the request
-                    data.message = `Accepted invitation. Request processed at responding terminal ${addresses.local.address} for type ${data.type}.  Agent already present, so auto accepted and returned to requesting terminal.`;
-                    data.action = "invite-complete";
-                    data.status = "accepted";
-                    inviteHttp();
-                }
-            },
-            "invite-response": function terminal_server_services_invite_inviteResponse():void {
-                const respond:string = ` invitation response processed at responding terminal ${addresses.local.address} and sent to requesting terminal ${addresses.remote.address}.`;
-                // stage 3 - on remote terminal to start terminal, from remote browser
-                data.message = common.capitalize(data.status) + respond;
-                data.action = "invite-complete";
-
-                // a delay is required for accepted invitation of device type
-                // this delay allows peer devices to recognize the requesting device as a peer before that requesting device attempts to open sockets
-                if (data.status === "accepted" && (data.agentSource.hashDevice === vars.identity.hashDevice || data.agentSource.hashUser === vars.identity.hashUser)) {
-                    addAgent("agentRequest", null);
-                    if (data.type === "device") {
-                        setTimeout(
-                            function terminal_server_services_invite_inviteResponse_delay():void {
-                                inviteHttp();
-                            },
-                            (vars.test.type.indexOf("browser_") === 0)
-                                ? 1000
-                                : vars.settings.ui.statusTime
-                        );
-                    } else {
-                        inviteHttp();
-                    }
-                } else {
-                    inviteHttp();
-                }
-            },
-            "invite-start": function terminal_server_services_invite_invite():void {
-                // stage 1 - on start terminal to remote terminal, from start browser
+            "invite-start": function terminal_server_services_invite_start():void {
+                // Step 1
+                // formulation - local browser
+                // execution   - local terminal
+                // purpose     - Start the invitation process
                 data.action = "invite-request";
-                inviteHttp();
+                inviteHttp("agentSource");
+            },
+            "invite-request": function terminal_server_services_invite_request():void {
+                // Step 2
+                // formulation - local terminal
+                // execution   - remote terminal
+                // purpose     - Push the invitation to remote user UI
+                const date:number = Date.now();
+                hash({
+                    algorithm: "sha3-512",
+                    callback: function terminal_server_services_invite_request_hash(key:string):void {
+                        data.action = "invite-ask";
+                        data.id = date.toString() + key;
+                        sender.broadcast({
+                            data: data,
+                            service: "invite"
+                        }, "browser");
+                    },
+                    digest: "hex",
+                    directInput: true,
+                    id: "",
+                    list: false,
+                    parent: 0,
+                    source: date.toString() + vars.identity.hashUser,
+                    stat: null
+                });
+            },
+            "invite-ask": function terminal_server_services_invite_ask():void {
+                // Step 3
+                // formulation - remote terminal
+                // execution   - remote browser
+                // purpose     - Display the invitation in the browser
+                return null;
+            },
+            "invite-answer": function terminal_server_services_invite_answer():void {
+                // Step 4
+                // formulation - remote browser
+                // execution   - remote terminal
+                // purpose     - Inform the terminal of the answer to the invitation
+                const date:number = Date.now();
+                hash({
+                    algorithm: "sha3-512",
+                    callback: function terminal_server_services_invite_answer_hash(key:string):void {
+                        data.action = "invite-response";
+                        data.message = date.toString() + key;
+                        if (data.status === "accepted") {
+                            if (data.type === "device") {
+                                data.agentSource.devices = vars.agents.device;
+                            } else {
+                                data.agentSource.devices = null;
+                                data.agentSource.keyUserPublic = vars.identity.keyUserPublic;
+                            }
+                            data.agentSource.ipAll = vars.network.addresses;
+                            data.agentSource.ports = vars.network.ports;
+                        }
+                        inviteHttp("agentRequest");
+                    },
+                    digest: "hex",
+                    directInput: true,
+                    id: "",
+                    list: false,
+                    parent: 0,
+                    source: date.toString() + vars.identity.hashUser,
+                    stat: null
+                });
+            },
+            "invite-response": function terminal_server_services_invite_response():void {
+                // Step 5
+                // formulation - remote terminal
+                // execution   - local terminal
+                // purpose     - Respond with the invitation answer
+                unmask(data.id, function terminal_server_services_invite_response_unmask(test:boolean):void {
+                    if (test === true) {
+                        if (data.status === "accepted") {
+                            addAgent("agentSource");
+                            data.action = "invite-identity";
+                            data.agentRequest.devices = vars.agents.device;
+                            data.agentRequest.keyUserPublic = vars.identity.keyUserPublic;
+                            if (data.type === "device") {
+                                // add their devices
+                                data.agentRequest.devices = vars.agents.device;
+                                data.agentRequest.keyUserPrivate = vars.identity.keyUserPrivate;
+                            } else {
+                                data.agentRequest.devices = null;
+                                data.agentRequest.keyUserPrivate = null;
+                            }
+                            inviteHttp("agentSource");
+                            data.action = "invite-complete";
+                            sender.broadcast({
+                                data: data,
+                                service: "invite"
+                            }, "device");
+                        }
+                        data.action = "invite-complete";
+                        sender.broadcast({
+                            data: data,
+                            service: "invite"
+                        }, "browser");
+                    }
+                });
+            },
+            "invite-complete": function terminal_server_services_invite_complete():void {
+                // Step 6/8
+                // formulation - local/remote terminal
+                // execution   - local/remote browser, local devices
+                // purpose     - Update the UI with the invitation changes
+                addAgent("agentRequest");
+            },
+            "invite-identity": function terminal_server_services_invite_identity():void {
+                // Step 7
+                // formulation - local terminal
+                // execution   - remote terminal
+                // purpose     - Receive identifying data at the remote, remote opens sockets
+                unmask(data.message, function terminal_server_services_invite_identity_unmask(test:boolean):void {
+                    if (test === true) {
+                        data.action = "invite-complete";
+                        if (data.type === "device") {
+                            vars.identity.hashUser = data.agentRequest.hashUser;
+                            vars.identity.keyUserPrivate = data.agentRequest.keyUserPrivate;
+                            vars.identity.keyDevicePublic = data.agentRequest.keyUserPublic;
+                            vars.identity.nameUser = data.agentRequest.nameUser;
+                        }
+                        addAgent("agentRequest");
+                    }
+                });
             }
         };
     if (vars.test.type === "service" && data.message.indexOf("Ignored") === 0) {

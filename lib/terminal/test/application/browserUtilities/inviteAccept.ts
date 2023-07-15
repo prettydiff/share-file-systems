@@ -16,7 +16,7 @@ const inviteAccept = function terminal_test_application_browserUtilities_inviteA
     return {
         delay: {
             node: [
-                ["getModalsByModalType", "invite-accept", 0],
+                ["getModalsByModalType", "invite-ask", 0],
                 ["getElementsByTagName", "h3", 0]
             ],
             qualifier: "begins",
@@ -37,7 +37,7 @@ const inviteAccept = function terminal_test_application_browserUtilities_inviteA
         unit: [
             {
                 node: [
-                    ["getModalsByModalType", "invite-accept", 0],
+                    ["getModalsByModalType", "invite-ask", 0],
                     ["getElementsByTagName", "label", 0]
                 ],
                 qualifier: "begins",
@@ -47,7 +47,7 @@ const inviteAccept = function terminal_test_application_browserUtilities_inviteA
             },
             {
                 node: [
-                    ["getModalsByModalType", "invite-accept", 0],
+                    ["getModalsByModalType", "invite-ask", 0],
                     ["getElementsByTagName", "textarea", 0]
                 ],
                 qualifier: "is",

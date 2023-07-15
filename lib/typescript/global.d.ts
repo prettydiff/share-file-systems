@@ -57,13 +57,12 @@ interface agentCounts {
  * ```typescript
  * interface agentInvite {
  *     devices: agents;
- *     hashDevice: string;
  *     hashUser: string;
  *     ipAll: transmit_addresses_IP;
  *     ipSelected: string;
- *     keyPublicUser: string;
+ *     keyUserPrivate: string;
+ *     keyUserPublic: string;
  *     modal: string;
- *     nameDevice: string;
  *     nameUser: string;
  *     ports: ports;
  *     shares: agentShares;
@@ -71,13 +70,12 @@ interface agentCounts {
  * ``` */
 interface agentInvite {
     devices: agents;
-    hashDevice: string;
     hashUser: string;
     ipAll: transmit_addresses_IP;
     ipSelected: string;
-    keyPublicUser: string;
+    keyUserPrivate: string;
+    keyUserPublic: string;
     modal: string;
-    nameDevice: string;
     nameUser: string;
     ports: ports;
     shares: agentShares;

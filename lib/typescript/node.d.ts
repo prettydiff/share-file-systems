@@ -1,7 +1,7 @@
 /* lib/typescript/node.d - TypeScript types specific to Node items used in the project. */
 
 import { ChildProcess, ExecException, ExecOptions } from "child_process";
-import { ECDH, Hash } from "crypto";
+import { ECDH, Hash, KeyObject } from "crypto";
 import { ReadStream, Stats, WriteStream } from "fs";
 import { ClientRequest, IncomingMessage, OutgoingHttpHeaders, Server as httpServer, ServerResponse } from "http";
 import { RequestOptions } from "https";
@@ -18,6 +18,7 @@ declare global {
     type node_childProcess_ExecOptions = ExecOptions;
     type node_crypto_ECDH = ECDH;
     type node_crypto_Hash = Hash;
+    type node_crypto_KeyObject = KeyObject;
     type node_fs_ReadStream = ReadStream;
     type node_fs_Stats = Stats;
     type node_fs_WriteStream = WriteStream;

@@ -93,7 +93,7 @@ const docFiles:string = "Writing 100.00% complete. 21 files written at size ",
                 {
                     event: "click",
                     node: [
-                        ["getModalsByModalType", "invite-accept", 0],
+                        ["getModalsByModalType", "invite-ask", 0],
                         ["getElementsByClassName", "confirm", 0]
                     ]
                 }
@@ -103,7 +103,7 @@ const docFiles:string = "Writing 100.00% complete. 21 files written at size ",
             unit: [
                 {
                     node: [
-                        ["getModalsByModalType", "invite-accept", 0]
+                        ["getModalsByModalType", "invite-ask", 0]
                     ],
                     qualifier: "is",
                     target: [],
@@ -144,7 +144,7 @@ const docFiles:string = "Writing 100.00% complete. 21 files written at size ",
         {
             delay: {
                 node: [
-                    ["getModalsByModalType", "invite-accept", 0],
+                    ["getModalsByModalType", "invite-ask", 0],
                     ["getElementsByTagName", "h3", 0]
                 ],
                 qualifier: "begins",
@@ -156,7 +156,7 @@ const docFiles:string = "Writing 100.00% complete. 21 files written at size ",
                 {
                     event: "click",
                     node: [
-                        ["getModalsByModalType", "invite-accept", 0]
+                        ["getModalsByModalType", "invite-ask", 0]
                     ]
                 },
                 {
@@ -170,7 +170,7 @@ const docFiles:string = "Writing 100.00% complete. 21 files written at size ",
             unit: [
                 {
                     node: [
-                        ["getModalsByModalType", "invite-accept", 0],
+                        ["getModalsByModalType", "invite-ask", 0],
                         ["getElementsByTagName", "label", 0]
                     ],
                     qualifier: "begins",
@@ -180,7 +180,7 @@ const docFiles:string = "Writing 100.00% complete. 21 files written at size ",
                 },
                 {
                     node: [
-                        ["getModalsByModalType", "invite-accept", 0],
+                        ["getModalsByModalType", "invite-ask", 0],
                         ["getElementsByTagName", "textarea", 0]
                     ],
                     qualifier: "is",

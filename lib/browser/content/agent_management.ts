@@ -128,10 +128,7 @@ const agent_management:module_agentManagement = {
             let text:HTMLElement = document.createElement("h3");
 
             div.setAttribute("class", "agentInvitation");
-            div.setAttribute("data-agent", invitation.type);
-            div.setAttribute("data-agenttype", (invitation.type === "device")
-                ? agentInvite.hashDevice
-                : agentInvite.hashUser);
+            div.setAttribute("data-agenttype", invitation.type);
             strong.appendText(name);
             text.appendText(`${common.capitalize(invitation.type)} `);
             text.appendChild(strong);
@@ -471,33 +468,25 @@ const agent_management:module_agentManagement = {
                 invitation:service_invite = {
                     action: "invite-start",
                     agentRequest: {
-                        devices: (type === "device")
-                            ? browser.agents.device
-                            : {},
-                        hashDevice: (type === "device")
-                            ? browser.identity.hashDevice
-                            : "",
-                        hashUser: browser.identity.hashUser,
+                        devices: null,
+                        hashUser: "",
                         ipAll: userData[1],
                         ipSelected: ipSelected,
-                        keyPublicUser: browser.identity.keyUserPublic,
+                        keyUserPrivate: "",
+                        keyUserPublic: "",
                         modal: options.id,
-                        nameDevice: (type === "device")
-                            ? browser.identity.nameDevice
-                            : "",
                         nameUser: browser.identity.nameUser,
                         ports: browser.network.ports,
                         shares: userData[0]
                     },
                     agentSource: {
                         devices: null,
-                        hashDevice: "",
                         hashUser: "",
                         ipAll: null,
                         ipSelected: ip,
-                        keyPublicUser: "",
+                        keyUserPrivate: "",
+                        keyUserPublic: "",
                         modal: "",
-                        nameDevice: "",
                         nameUser: "",
                         ports: {
                             http: portNumber,
@@ -505,6 +494,7 @@ const agent_management:module_agentManagement = {
                         },
                         shares: null
                     },
+                    id: "",
                     message: saved.message,
                     status: "invited",
                     type: type
@@ -938,7 +928,7 @@ const agent_management:module_agentManagement = {
         inviteAccept: function browser_content_agentManagement_inviteAccept(box:modal):void {
             const div:HTMLElement = box.getElementsByClassName("agentInvitation")[0] as HTMLElement,
                 invitation:service_invite = JSON.parse(div.dataset.invitation) as service_invite;
-            invitation.action = "invite-response";
+            invitation.action = "invite-answer";
             invitation.message = `Invite accepted: ${common.dateFormat(new Date())}`;
             invitation.status = "accepted";
             if (invitation.type === "device") {
@@ -949,7 +939,7 @@ const agent_management:module_agentManagement = {
             network.send(invitation, "invite");
         },
 
-        /* Handles final status of an invitation response */
+        /* Handles final status of an invitation completion */
         inviteComplete: function browser_content_agentManagement_inviteComplete(invitation:service_invite):void {
             const modal:HTMLElement = document.getElementById(invitation.agentRequest.modal);
             if (modal !== null) {
@@ -989,7 +979,7 @@ const agent_management:module_agentManagement = {
             }
         },
 
-        /* Receive an invitation from another user */
+        /* Receive an invitation from another agent */
         inviteReceive: function browser_content_agentManagement_inviteReceive(invitation:service_invite):void {
             const agentInvite:agentInvite = invitation.agentRequest,
                 config:config_modal = {
@@ -999,42 +989,25 @@ const agent_management:module_agentManagement = {
                     closeHandler: agent_management.events.inviteDecline,
                     content: null,
                     height: 300,
+                    id: invitation.agentRequest.modal,
                     inputs: ["cancel", "confirm", "close"],
                     read_only: false,
                     share: browser.identity.hashDevice,
                     text_value: JSON.stringify(invitation),
-                    title_supplement: (invitation.type === "device")
-                        ? `Device ${agentInvite.nameDevice}`
-                        : `User ${agentInvite.nameUser}`,
-                    type: "invite-accept",
+                    title_supplement: `User ${agentInvite.nameUser}`,
+                    type: "invite-ask",
                     width: 500
                 };
-            invitation.agentSource.modal = modal_configuration.modals["invite-accept"](null, config).getAttribute("id");
+            modal_configuration.modals["invite-ask"](null, config);
             util.audio("invite");
         },
 
         /* Routes invitation messaging from the network to the appropriate method. */
         inviteTransmissionReceipt: function browser_content_agentManagement_inviteTransmissionReceipt(socketData:socketData):void {
-            const invitation:service_invite = socketData.data as service_invite,
-                modalType:modalType = (invitation.action === "invite-complete")
-                    ? "agent-management"
-                    : "invite-accept",
-                modals:HTMLElement[] = document.getModalsByModalType(modalType),
-                agentInvite:agentInvite = (modalType === "agent-management")
-                    ? invitation.agentSource
-                    : invitation.agentRequest,
-                hashType:"hashDevice"|"hashUser" = (invitation.type === "device")
-                    ? "hashDevice"
-                    : "hashUser";
-            let index:number = modals.length;
-            if (index > 0) {
-                do {
-                    index = index - 1;
-                    if (modals[index].dataset.agent === agentInvite[hashType]) {
-                        // there should only be one invitation at a time from a given agent otherwise there is spam
-                        return;
-                    }
-                } while (index > 0);
+            const invitation:service_invite = socketData.data as service_invite;
+            if (document.getElementById(invitation.agentRequest.modal) !== null) {
+                // there should only be one invitation at a time from a given agent otherwise there is spam
+                return;
             }
             if (invitation.action === "invite-complete") {
                 agent_management.tools.inviteComplete(invitation);

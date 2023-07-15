@@ -365,7 +365,7 @@ const modal:module_modal = {
             if (options.inputs.indexOf("cancel") > -1) {
                 button({
                     class: "cancel",
-                    event: (options.type === "invite-accept")
+                    event: (options.type === "invite-ask")
                         ? agent_management.events.inviteDecline
                         : modal.events.close,
                     parent: extra,
@@ -457,7 +457,7 @@ const modal:module_modal = {
             }
     
             // modal type specific instructions
-            if (type === "invite-accept") {
+            if (type === "invite-ask") {
                 const inviteBody:HTMLElement = box.getElementsByClassName("agentInvitation")[0] as HTMLElement,
                     invitation:service_invite = JSON.parse(inviteBody.dataset.invitation) as service_invite;
                 invitation.status = "ignored";
@@ -509,7 +509,7 @@ const modal:module_modal = {
                 options:config_modal = browser.ui.modals[id];
             if (options.type === "export") {
                 modal.events.importSettings(event);
-            } else if (options.type === "invite-accept") {
+            } else if (options.type === "invite-ask") {
                 agent_management.tools.inviteAccept(box);
             } else if (options.type === "agent-management") {
                 const section:HTMLElement = box.getElementsByClassName("section")[0] as HTMLElement,

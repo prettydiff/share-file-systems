@@ -117,6 +117,9 @@ const transmit_ws:module_transmit_ws = {
                         : (config.socketType === "user")
                             ? vars.identity.hashUser
                             : config.hash,
+                    key:node_crypto_KeyObject = (config.socketType === "device")
+                        ? node.crypto.createPrivateKey(vars.identity.keyDevicePrivate)
+                        : node.crypto.createPrivateKey(vars.identity.keyUserPrivate),
                     header:string[] = [
                         "GET / HTTP/1.1",
                         (config.ip.indexOf(":") > -1)
@@ -127,6 +130,7 @@ const transmit_ws:module_transmit_ws = {
                         "Sec-WebSocket-Version: 13",
                         `type: ${config.socketType}`,
                         `hash: ${headerHash}`,
+                        `challenge: ${node.crypto.privateEncrypt(key, Buffer.from(headerHash)).toString()}`,
                         `Sec-WebSocket-Key: ${hashOutput.hash}`
                     ],
                     callbackError = function terminal_server_transmission_transmitWs_createSocket_hash_error(errorMessage:NodeJS.ErrnoException):void {
@@ -776,9 +780,18 @@ const transmit_ws:module_transmit_ws = {
                                     };
                                 // some complexity is present because browsers will not have a "hash" heading
                                 if (flags.type === true && flags.key === true && (type === "browser" || flags.hash === true)) {
-                                    if ((type === "device" || type === "user") && vars.agents[type][hashName] === undefined) {
-                                        socket.destroy();
-                                        return;
+                                    if (type === "device" || type === "user") {
+                                        if (vars.agents[type][hashName] === undefined) {
+                                            socket.destroy();
+                                            return;
+                                        }
+                                        const key:node_crypto_KeyObject = node.crypto.createPublicKey(vars.agents[type][hashName].publicKey);
+                                        let challenge:string = dataString.slice(dataString.indexOf("\r\nchallenge:")).replace(/\s+challenge:\s*/, "");
+                                        challenge = challenge.slice(0, challenge.indexOf("\r")).replace(/\s+/g, "");
+                                        if (node.crypto.publicDecrypt(key, Buffer.from(challenge)).toString() !== hashName) {
+                                            socket.destroy();
+                                            return;
+                                        }
                                     }
                                     if (type === "testRemote" && vars.test.type !== "browser_remote") {
                                         socket.destroy();

@@ -497,7 +497,7 @@ interface module_modal {
  *         "export": modal_open;
  *         "file-edit": modal_open;
  *         "file-navigate": modal_open;
- *         "invite-accept": modal_open;
+ *         "invite-ask": modal_open;
  *         "media": modal_open;
  *         "message": modal_open;
  *         "shares": modal_open;
@@ -523,7 +523,7 @@ interface module_modalConfiguration {
         "export": modal_open;
         "file-edit": modal_open;
         "file-navigate": modal_open;
-        "invite-accept": modal_open;
+        "invite-ask": modal_open;
         "media": modal_open;
         "message": modal_open;
         "shares": modal_open;

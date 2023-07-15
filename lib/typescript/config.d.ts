@@ -350,7 +350,7 @@ interface config_list {
  *     zIndex?: number;
  * }
  * type modalStatus = "hidden" | "maximized" | "minimized" | "normal";
- * type modalType = "agent-management" | "configuration" | "details" | "document" | "export" | "file-edit" | "file-navigate" | "invite-accept" | "media" | "message" | "shares" | "terminal" | "text-pad";
+ * type modalType = "agent-management" | "configuration" | "details" | "document" | "export" | "file-edit" | "file-navigate" | "invite-ask" | "media" | "message" | "shares" | "terminal" | "text-pad";
  * type ui_input = "cancel" | "close" | "confirm" | "maximize" | "minimize" | "save" | "text";
  * ``` */
 interface config_modal extends agency {

@@ -217,17 +217,19 @@ interface service_hashShare {
  *     action: inviteAction;
  *     agentRequest: agentInvite;
  *     agentSource: agentInvite;
+ *     id: string;
  *     message: string;
  *     status: inviteStatus;
  *     type: agentType;
  * }
- * type inviteAction = "invite-complete" | "invite-request" | "invite-response" | "invite-start";
+ * type inviteAction = "invite-answer" | "invite-ask" | "invite-complete" | "invite-identity" | "invite-request" | "invite-response" | "invite-start";
  * type inviteStatus = "accepted" | "declined" | "ignored" | "invited";
  * ``` */
 interface service_invite {
     action: inviteAction;
     agentRequest: agentInvite;
     agentSource: agentInvite;
+    id: string;
     message: string;
     status: inviteStatus;
     type: agentType;
