@@ -119,6 +119,7 @@ const agent_management:module_agentManagement = {
             const div:HTMLElement = document.createElement("div"),
                 agentInvite:agentInvite = invitation.agentRequest,
                 strong:HTMLElement = document.createElement("strong"),
+                angryStrong:HTMLElement = document.createElement("strong"),
                 em:HTMLElement = document.createElement("em"),
                 ip:string = (agentInvite.ipSelected.indexOf(":") < 0)
                     ? `${agentInvite.ipSelected}:${agentInvite.ports.http}`
@@ -130,9 +131,13 @@ const agent_management:module_agentManagement = {
             div.setAttribute("class", "agentInvitation");
             div.setAttribute("data-agenttype", invitation.type);
             strong.appendText(name);
-            text.appendText(`${common.capitalize(invitation.type)} `);
+            text.appendText(`User `);
             text.appendChild(strong);
-            text.appendText(` from ${ip} is inviting you to share.`);
+            text.appendText(` from ${ip} is inviting you share type `);
+            angryStrong.appendText(common.capitalize(invitation.type));
+            angryStrong.setAttribute("class", "warning");
+            text.appendChild(angryStrong);
+            text.appendText(".");
             div.appendChild(text);
             text = document.createElement("p");
             label.appendText(`${name} said:`);
