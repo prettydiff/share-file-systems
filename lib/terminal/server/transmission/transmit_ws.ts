@@ -117,9 +117,14 @@ const transmit_ws:module_transmit_ws = {
                         : (config.socketType === "user")
                             ? vars.identity.hashUser
                             : config.hash,
-                    key:node_crypto_KeyObject = (config.socketType === "device")
-                        ? node.crypto.createPrivateKey(vars.identity.keyDevicePrivate)
-                        : node.crypto.createPrivateKey(vars.identity.keyUserPrivate),
+                    key:node_crypto_KeyObject = (vars.identity.hashDevice === "")
+                        ? null
+                        : (config.socketType === "device")
+                            ? node.crypto.createPrivateKey(vars.identity.keyDevicePrivate)
+                            : node.crypto.createPrivateKey(vars.identity.keyUserPrivate),
+                    privateKey:string = (key === null)
+                        ? ""
+                        : `challenge: ${node.crypto.privateEncrypt(key, Buffer.from(headerHash)).toString()}`,
                     header:string[] = [
                         "GET / HTTP/1.1",
                         (config.ip.indexOf(":") > -1)
@@ -130,7 +135,6 @@ const transmit_ws:module_transmit_ws = {
                         "Sec-WebSocket-Version: 13",
                         `type: ${config.socketType}`,
                         `hash: ${headerHash}`,
-                        `challenge: ${node.crypto.privateEncrypt(key, Buffer.from(headerHash)).toString()}`,
                         `Sec-WebSocket-Key: ${hashOutput.hash}`
                     ],
                     callbackError = function terminal_server_transmission_transmitWs_createSocket_hash_error(errorMessage:NodeJS.ErrnoException):void {
@@ -172,6 +176,9 @@ const transmit_ws:module_transmit_ws = {
                         header.push(config.headers[a]);
                         a = a + 1;
                     } while (a < len);
+                }
+                if (privateKey !== null) {
+                    header.push(privateKey);
                 }
                 client.once("error", callbackError);
                 client.once("ready", callbackReady);
@@ -785,12 +792,14 @@ const transmit_ws:module_transmit_ws = {
                                             socket.destroy();
                                             return;
                                         }
-                                        const key:node_crypto_KeyObject = node.crypto.createPublicKey(vars.agents[type][hashName].publicKey);
-                                        let challenge:string = dataString.slice(dataString.indexOf("\r\nchallenge:")).replace(/\s+challenge:\s*/, "");
-                                        challenge = challenge.slice(0, challenge.indexOf("\r")).replace(/\s+/g, "");
-                                        if (node.crypto.publicDecrypt(key, Buffer.from(challenge)).toString() !== hashName) {
-                                            socket.destroy();
-                                            return;
+                                        if (vars.identity.hashDevice !== "") {
+                                            const key:node_crypto_KeyObject = node.crypto.createPublicKey(vars.agents[type][hashName].publicKey);
+                                            let challenge:string = dataString.slice(dataString.indexOf("\r\nchallenge:")).replace(/\s+challenge:\s*/, "");
+                                            challenge = challenge.slice(0, challenge.indexOf("\r")).replace(/\s+/g, "");
+                                            if (node.crypto.publicDecrypt(key, Buffer.from(challenge)).toString() !== hashName) {
+                                                socket.destroy();
+                                                return;
+                                            }
                                         }
                                     }
                                     if (type === "testRemote" && vars.test.type !== "browser_remote") {
