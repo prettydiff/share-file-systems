@@ -397,41 +397,34 @@ const build = function terminal_commands_library_build(config:config_command_bui
                         }
                         if (statCount === selfSignCount) {
                             const makeCerts = function terminal_commands_library_build_certificate_statCallback_makeCerts():void {
-                                const cnfFlags:flagList = {
-                                        ca: false,
-                                        selfSign: false
-                                    },
-                                    configComplete = function terminal_commands_library_build_certificate_statCallback_makeCerts_configComplete(name:"ca"|"selfSign"):void {
-                                        cnfFlags[name] = true;
-                                        if (cnfFlags.ca === true && cnfFlags.selfSign === true) {
-                                            const certCallback = function terminal_commands_library_build_certificate_statCallback_certCallback():void {
-                                                next("Certificates created.");
-                                            };
-                                            certificate({
-                                                callback: certCallback,
-                                                days: 16384,
-                                                location: certFlags.path,
-                                                names: {
-                                                    intermediate: {
-                                                        domain: "share-file-ca",
-                                                        fileName: "share-file-ca"
-                                                    },
-                                                    organization: "share-file",
-                                                    root: {
-                                                        domain: "share-file-root",
-                                                        fileName: "share-file-root"
-                                                    },
-                                                    server: {
-                                                        domain: "share-file",
-                                                        fileName: "share-file"
-                                                    }
+                                const configComplete = function terminal_commands_library_build_certificate_statCallback_makeCerts_configComplete():void {
+                                        const certCallback = function terminal_commands_library_build_certificate_statCallback_certCallback():void {
+                                            next("Certificates created.");
+                                        };
+                                        certificate({
+                                            callback: certCallback,
+                                            days: 16384,
+                                            location: certFlags.path,
+                                            names: {
+                                                intermediate: {
+                                                    domain: "share-file-ca",
+                                                    fileName: "share-file-ca"
                                                 },
-                                                selfSign: certFlags.selfSign
-                                            });
-                                        }
+                                                organization: "share-file",
+                                                root: {
+                                                    domain: "share-file-root",
+                                                    fileName: "share-file-root"
+                                                },
+                                                server: {
+                                                    domain: "share-file",
+                                                    fileName: "share-file"
+                                                }
+                                            },
+                                            selfSign: certFlags.selfSign
+                                        });
                                     },
-                                    cnfRead = function terminal_commands_library_build_certificate_statCallback_makeCerts_cnfRead(name:"ca"|"selfSign"):void {
-                                        const cnfPath:string = `${certFlags.path + name}.cnf`;
+                                    cnfRead = function terminal_commands_library_build_certificate_statCallback_makeCerts_cnfRead():void {
+                                        const cnfPath:string = `${certFlags.path}extensions.cnf`;
                                         node.fs.readFile(cnfPath, function terminal_commands_library_build_certificate_statCallback_makeCerts_cnfRead_readCallback(readError:NodeJS.ErrnoException, fileData:Buffer):void {
                                             if (readError === null) {
                                                 let index:number = 0,
@@ -447,7 +440,7 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                                 fileStr = fileStr + input.join("\n");
                                                 node.fs.writeFile(cnfPath, fileStr, function terminal_commands_library_build_certificate_statCallback_makeCerts_cnfRead_readCallback_writeFile(writeError:NodeJS.ErrnoException):void {
                                                     if (writeError === null) {
-                                                        configComplete(name);
+                                                        configComplete();
                                                     } else {
                                                         error([`Error writing file ${cnfPath}`], writeError);
                                                     }
@@ -458,8 +451,7 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                         });
                                     };
                                 // write supported domains to config files
-                                cnfRead("ca");
-                                cnfRead("selfSign");
+                                cnfRead();
                             };
                             if (certFlags.forced === true || certStatError === true) {
                                 if (certFlags.forced === true) {
