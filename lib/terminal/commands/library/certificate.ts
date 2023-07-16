@@ -68,17 +68,17 @@ const certificate = function terminal_commands_library_certificate(config:config
                 },
                 // create a certificate signed by another certificate
                 actionCert = function terminal_commands_library_certificate_createStat_create_cert(type:"intermediate"|"server"):string {
-                    return `openssl req -new -key ${config.names[type].fileName}.key -out ${config.names[type].fileName}.csr -subj "/CN=${config.names[type].domain + org}"`;
+                    return `openssl req -new -sha512 -key ${config.names[type].fileName}.key -out ${config.names[type].fileName}.csr -subj "/CN=${config.names[type].domain + org}"`;
                 },
                 // generates the key file associated with a given certificate
                 actionKey = function terminal_commands_library_certificate_createState_create_key(type:"intermediate"|"root"|"server"):string {
-                    return `openssl genpkey -algorithm RSA -out ${config.names[type].fileName}.key`;
+                    return `openssl genrsa -out ${config.names[type].fileName}.key 4096`;
                 },
                 // signs the certificate
                 actionSign = function terminal_commands_library_certificate_createState_create_sign(cert:string, parent:string, path:"ca"|"selfSign"):string {
-                    return `openssl x509 -req -in ${cert}.csr -days ${config.days} -out ${cert}.crt -CA ${parent}.crt -CAkey ${parent}.key -CAcreateserial -extfile ${pathConfig("cert")}`;
+                    return `openssl x509 -req -sha512 -in ${cert}.csr -days ${config.days} -out ${cert}.crt -CA ${parent}.crt -CAkey ${parent}.key -CAcreateserial -extfile ${pathConfig("cert")}`;
                 },
-                root:string = `openssl req -new -x509 -key ${mode[0]}.key -days ${config.days} -out ${mode[0]}.crt -subj "/CN=${mode[1] + org}"`;
+                root:string = `openssl req -x509 -new -newkey rsa:4096 -nodes -key ${mode[0]}.key -days ${config.days} -out ${mode[0]}.crt -subj "/CN=${mode[1] + org}"`;
             if (config.selfSign === true) {
                 commands.push(actionKey("root"));
                 commands.push(`${root} -config ${pathConfig("ca")}`);
