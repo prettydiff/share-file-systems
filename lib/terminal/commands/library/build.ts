@@ -1255,6 +1255,8 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                                 }
                                                 if (dist === "darwin") {
                                                     tasks.push(tools.trust[dist]);
+                                                    tasks.push(tools.trust[dist].replace("-root", "-ca"));
+                                                    tasks.push(tools.trust[dist].replace("-root", ""));
                                                 } else {
                                                     // copy certificates to cert store
                                                     tasks.push(`cp ${cert} ${storeList[dist]}`);
@@ -1278,6 +1280,15 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                             if (taskLength > 0) {
                                                 sudo();
                                             } else {
+                                                if (dist === "darwin") {
+                                                    log([
+                                                        `${vars.text.angry}Certificates must be manually trusted in the Keychain!${vars.text.none}`,
+                                                        "Keychains: System, Category: Certificates",
+                                                        "Double click certificates share-file-ca and share-file then under category 'Trust' set value 'Always Trust'.",
+                                                        "Apple requires all trusted certificates to include a receipt from organization Certificate Transparency, which can only happen if a certificate is published to the public.",
+                                                        "Private certificates, like those created here, thus require manual trust."
+                                                    ]);
+                                                }
                                                 next("No operating system specific tasks to perform.");
                                             }
                                         }
@@ -1292,7 +1303,11 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                 },
                                 darwin: function terminal_commands_library_build_osSpecific_callbackDarwin(statErr:NodeJS.ErrnoException):void {
                                     if (statErr === null) {
-                                        distributions("darwin");
+                                        if (certFlags.forced === true || certStatError === true) {
+                                            distributions("darwin");
+                                        } else {
+                                            next("No operating system specific tasks to perform.");
+                                        }
                                     }
                                 },
                                 fedora: function terminal_commands_library_build_osSpecific_callbackFedora(statErr:NodeJS.ErrnoException):void {

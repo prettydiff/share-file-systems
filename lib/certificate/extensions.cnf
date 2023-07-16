@@ -7,7 +7,6 @@ subjectAltName         = @alt_names
 [ selfSign ]
 basicConstraints       = critical,CA:true,pathlen:1
 subjectKeyIdentifier   = hash
-authorityKeyIdentifier = keyid:always,issuer:always
 subjectAltName         = @alt_names
 
 [ alt_names ]
