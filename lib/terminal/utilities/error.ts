@@ -52,9 +52,11 @@ const error = function terminal_utilities_error(errText:string[], errObject:node
                 logger(stackTrace);
             }
             logger("");
-            logger(`Code: ${errObject.code.toString()}`);
-            logger(errObject.message);
-            logger("");
+            if (errObject !== null) {
+                logger(`Code: ${errObject.code.toString()}`);
+                logger(errObject.message);
+                logger("");
+            }
             logger(`${vars.text.angry}Error Message${vars.text.none}`);
             logger("-------------");
             if (errText[0] === "" && errText.length < 2) {

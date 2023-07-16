@@ -876,7 +876,7 @@ const transmit_ws:module_transmit_ws = {
                 ? node.tls.createServer({
                     ca: config.options.options.ca,
                     cert: config.options.options.cert,
-                    key: config.options.options.key,
+                    key: config.options.options.key
                 }, connection)
                 : node.net.createServer(),
             listenerCallback = function terminal_server_transmission_transmitWs_server_listenerCallback():void {

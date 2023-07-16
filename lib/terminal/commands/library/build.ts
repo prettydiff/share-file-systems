@@ -387,9 +387,9 @@ const build = function terminal_commands_library_build(config:config_command_bui
             // tests for certificates and if not present generates them
             certificate: function terminal_commands_library_build_certificate():void {
                 let statCount:number = 0;
-                const selfSignCount:2|6 = (certFlags.selfSign === true)
-                        ? 2
-                        : 6,
+                const selfSignCount:1|3 = (certFlags.selfSign === true)
+                        ? 1
+                        : 3,
                     statCallback = function terminal_commands_library_build_certificate_statCallback(statError:NodeJS.ErrnoException):void {
                         statCount = statCount + 1;
                         if (statError !== null) {
@@ -427,24 +427,29 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                         const cnfPath:string = `${certFlags.path}extensions.cnf`;
                                         node.fs.readFile(cnfPath, function terminal_commands_library_build_certificate_statCallback_makeCerts_cnfRead_readCallback(readError:NodeJS.ErrnoException, fileData:Buffer):void {
                                             if (readError === null) {
-                                                let index:number = 0,
-                                                    fileStr:string = fileData.toString();
-                                                const fragment:string = "[alt_names]",
-                                                    input:string[] = [""],
-                                                    len:number = vars.network.domain.length;
-                                                do {
-                                                    input.push(`DNS.${index + 1} = ${vars.network.domain[index]}`);
-                                                    index = index + 1;
-                                                } while (index < len);
-                                                fileStr = fileStr.slice(0, fileStr.indexOf(fragment) + fragment.length).replace(/\s+$/, "");
-                                                fileStr = fileStr + input.join("\n");
-                                                node.fs.writeFile(cnfPath, fileStr, function terminal_commands_library_build_certificate_statCallback_makeCerts_cnfRead_readCallback_writeFile(writeError:NodeJS.ErrnoException):void {
-                                                    if (writeError === null) {
-                                                        configComplete();
-                                                    } else {
-                                                        error([`Error writing file ${cnfPath}`], writeError);
-                                                    }
-                                                });
+                                                let fileStr:string = fileData.toString();
+                                                const field:string = "[ alt_names ]",
+                                                    indexFragment:number = fileStr.indexOf(field);
+                                                if (indexFragment > -1) {
+                                                    let index:number = 0;
+                                                    const subjectAltNames:string[] = [""],
+                                                        len:number = vars.network.domain.length;
+                                                    do {
+                                                        subjectAltNames.push(`DNS.${index + 1} = ${vars.network.domain[index]}`);
+                                                        index = index + 1;
+                                                    } while (index < len);
+                                                    fileStr = fileStr.slice(0, fileStr.indexOf(field) + field.length).replace(/\s+$/, "");
+                                                    fileStr = fileStr + subjectAltNames.join("\n");
+                                                    node.fs.writeFile(cnfPath, fileStr, function terminal_commands_library_build_certificate_statCallback_makeCerts_cnfRead_readCallback_writeFile(writeError:NodeJS.ErrnoException):void {
+                                                        if (writeError === null) {
+                                                            configComplete();
+                                                        } else {
+                                                            error([`Error writing file ${cnfPath}`], writeError);
+                                                        }
+                                                    });
+                                                } else {
+                                                    configComplete();
+                                                }
                                             } else {
                                                 error([`Error reading file ${cnfPath}`], readError);
                                             }
@@ -467,12 +472,9 @@ const build = function terminal_commands_library_build(config:config_command_bui
                     };
                 log([`${humanTime(false)}Checking that certificate files are created for the project.`]);
                 node.fs.stat(`${certFlags.path}share-file.crt`, statCallback);
-                node.fs.stat(`${certFlags.path}share-file.key`, statCallback);
                 if (certFlags.selfSign === false) {
                     node.fs.stat(`${certFlags.path}share-file-ca.crt`, statCallback);
-                    node.fs.stat(`${certFlags.path}share-file-ca.key`, statCallback);
                     node.fs.stat(`${certFlags.path}share-file-root.crt`, statCallback);
-                    node.fs.stat(`${certFlags.path}share-file-root.key`, statCallback);
                 }
             },
             // clearStorage removes temporary settings files that should have been removed, but weren't
@@ -1005,8 +1007,20 @@ const build = function terminal_commands_library_build(config:config_command_bui
                             },
                             outputLog:string[] = [],
                             complete = function terminal_commands_library_build_osSpecific_windows_complete():void {
+                                let files:number = 0;
+                                const certDir:string = `${vars.path.project}lib${vars.path.sep}certificate${vars.path.sep}`,
+                                    delComplete = function terminal_commands_library_build_certificate_statCallback_certCallback_delComplete():void {
+                                        files = files + 1;
+                                        if (files === 5) {
+                                            next(completeMessage);
+                                        }
+                                    };
                                 log(outputLog);
-                                next(completeMessage);
+                                remove(`${certDir}share-file-ca.csr`, [], delComplete);
+                                remove(`${certDir}share-file-root.csr`, [], delComplete);
+                                remove(`${certDir}share-file.csr`, [], delComplete);
+                                remove(`${certDir}share-file-ca.srl`, [], delComplete);
+                                remove(`${certDir}share-file-root.srl`, [], delComplete);
                             },
                             certs = function terminal_commands_library_build_osSpecific_windows_certs():void {
                                 const windowsStoreName:"CurrentUser"|"LocalMachine" = "CurrentUser",

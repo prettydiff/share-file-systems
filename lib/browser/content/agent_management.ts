@@ -131,7 +131,7 @@ const agent_management:module_agentManagement = {
             div.setAttribute("class", "agentInvitation");
             div.setAttribute("data-agenttype", invitation.type);
             strong.appendText(name);
-            text.appendText(`User `);
+            text.appendText("User ");
             text.appendChild(strong);
             text.appendText(` from ${ip} is inviting you share type `);
             angryStrong.appendText(common.capitalize(invitation.type));
