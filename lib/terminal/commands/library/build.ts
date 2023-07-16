@@ -428,18 +428,35 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                         node.fs.readFile(cnfPath, function terminal_commands_library_build_certificate_statCallback_makeCerts_cnfRead_readCallback(readError:NodeJS.ErrnoException, fileData:Buffer):void {
                                             if (readError === null) {
                                                 let fileStr:string = fileData.toString();
-                                                const field:string = "[ alt_names ]",
-                                                    indexFragment:number = fileStr.indexOf(field);
+                                                const fields:string[] = [
+                                                        "# Name constraints list is dynamically populated from vars.network.domain",
+                                                        "# End Constraints",
+                                                        "# Alt names list is dynamically populated from vars.network.domain",
+                                                        "# End Alt Names"
+                                                    ],
+                                                    indexFragment:number = fileStr.indexOf(fields[0]);
                                                 if (indexFragment > -1) {
                                                     let index:number = 0;
-                                                    const subjectAltNames:string[] = [""],
+                                                    const subjectAltNames:string[] = [],
+                                                        nameConstraints:string[] = [],
                                                         len:number = vars.network.domain.length;
                                                     do {
-                                                        subjectAltNames.push(`DNS.${index + 1} = ${vars.network.domain[index]}`);
+                                                        if (vars.network.domain.indexOf("127.0.0.1") < 0) {
+                                                            subjectAltNames.push(`DNS.${index + 1} = ${vars.network.domain[index]}`);
+                                                            nameConstraints.push(`permitted;${subjectAltNames[index]}`);
+                                                        }
                                                         index = index + 1;
                                                     } while (index < len);
-                                                    fileStr = fileStr.slice(0, fileStr.indexOf(field) + field.length).replace(/\s+$/, "");
-                                                    fileStr = fileStr + subjectAltNames.join("\n");
+                                                    subjectAltNames.push("IP.1  = 127.0.0.1/255.0.0.0");
+                                                    nameConstraints.push(`permitted;${subjectAltNames[index]}`);
+                                                    fileStr = [
+                                                        fileStr.slice(0, fileStr.indexOf(fields[0]) + fields[0].length),
+                                                        nameConstraints.join("\n"),
+                                                        fileStr.slice(fileStr.indexOf(fields[1]), fileStr.indexOf(fields[2]) + fields[2].length),
+                                                        subjectAltNames.join("\n"),
+                                                        fileStr.slice(fileStr.indexOf(fields[3])).replace(/\s+$/, ""),
+                                                        ""
+                                                    ].join("\n");
                                                     node.fs.writeFile(cnfPath, fileStr, function terminal_commands_library_build_certificate_statCallback_makeCerts_cnfRead_readCallback_writeFile(writeError:NodeJS.ErrnoException):void {
                                                         if (writeError === null) {
                                                             configComplete();

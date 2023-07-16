@@ -133,7 +133,7 @@ const agent_management:module_agentManagement = {
             strong.appendText(name);
             text.appendText("User ");
             text.appendChild(strong);
-            text.appendText(` from ${ip} is inviting you share type `);
+            text.appendText(` from ${ip} is inviting you to share of type `);
             angryStrong.appendText(common.capitalize(invitation.type));
             angryStrong.setAttribute("class", "warning");
             text.appendChild(angryStrong);
