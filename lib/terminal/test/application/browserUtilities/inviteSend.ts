@@ -75,7 +75,7 @@ const inviteSend = function terminal_test_application_browserUtilities_inviteSen
                     ["getElementsByClassName", "inviteAgent", 0],
                     ["getElementsByTagName", "textarea", 0]
                 ],
-                value: `Hello to ${to} from ${(from === "self") ? "Primary Device" : from}.`
+                value: `Hello to ${to} from ${from}.`
             },
             {
                 event: "click",

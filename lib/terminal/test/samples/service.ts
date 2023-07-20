@@ -156,6 +156,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                             http: 9999,
                             ws: 9999
                         },
+                        session: "",
                         shares: {}
                     },
                     agentSource: {
@@ -173,9 +174,9 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                             http: 9999,
                             ws: 9999
                         },
+                        session: "",
                         shares: {}
                     },
-                    id: "168929692941403998dfb06d6558dca2b0a0d979d427d9628e7263c69016a2a366044bc60d6c1f28c72b7756a70b3bb1109d38a653f7c387188ca55664bf29fdba424692fb0f2",
                     message: message,
                     status: status,
                     type: "device"
@@ -1660,6 +1661,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                         http: 443,
                         ws: 0
                     },
+                    session: "",
                     shares: {}
                 },
                 agentSource: {
@@ -1672,9 +1674,9 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                         http: 443,
                         ws: 0
                     },
+                    session: "",
                     shares: null
                 },
-                id: "168929692941403998dfb06d6558dca2b0a0d979d427d9628e7263c69016a2a366044bc60d6c1f28c72b7756a70b3bb1109d38a653f7c387188ca55664bf29fdba424692fb0f2",
                 message: "Hello",
                 status: "invited",
                 type: "device"
@@ -1823,6 +1825,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                         http: 9999,
                         ws: 9999
                     },
+                    session: "",
                     shares: {}
                 },
                 agentSource: {
@@ -1962,6 +1965,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                         http: 9999,
                         ws: 9999
                     },
+                    session: "",
                     shares: {
                         "a89e4ac7eec0c4b557aab68ad7499dd136d21d8eb2e5f51a6973dcf5f854b9a1895bec63f3a9d1b5e6243524e6bb8bc29d34c9741c1fc7fc77a7f0e8a934d153": {
                             "execute": false,
@@ -1983,7 +1987,6 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                         }
                     }
                 },
-                id: "168929692941403998dfb06d6558dca2b0a0d979d427d9628e7263c69016a2a366044bc60d6c1f28c72b7756a70b3bb1109d38a653f7c387188ca55664bf29fdba424692fb0f2",
                 message: "Accepted invitation. Request processed at responding terminal XXXX for type device.  Agent already present, so auto accepted and returned to requesting terminal.",
                 status: "accepted",
                 type: "device"
@@ -2006,6 +2009,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                         http: 443,
                         ws: 0
                     },
+                    session: "",
                     shares: {}
                 },
                 agentSource: {
@@ -2019,9 +2023,9 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                         http: 443,
                         ws: 0
                     },
+                    session: "",
                     shares: null
                 },
-                id: "168929692941403998dfb06d6558dca2b0a0d979d427d9628e7263c69016a2a366044bc60d6c1f28c72b7756a70b3bb1109d38a653f7c387188ca55664bf29fdba424692fb0f2",
                 message: "Hello",
                 status: "ignored",
                 type: "device"
@@ -2172,6 +2176,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                         http: 9999,
                         ws: 9999
                     },
+                    session: "",
                     shares: {}
                 },
                 agentSource: {
@@ -2189,9 +2194,9 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                         http: 9999,
                         ws: 9999
                     },
+                    session: "",
                     shares: null
                 },
-                id: "168929692941403998dfb06d6558dca2b0a0d979d427d9628e7263c69016a2a366044bc60d6c1f28c72b7756a70b3bb1109d38a653f7c387188ca55664bf29fdba424692fb0f2",
                 message: "Ignored invitation response processed at responding terminal XXXX and sent to requesting terminal XXXX ",
                 status: "ignored",
                 type: "device"
@@ -2214,6 +2219,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                         http: 443,
                         ws: 0
                     },
+                    session: "",
                     shares: {}
                 },
                 agentSource: {
@@ -2227,9 +2233,9 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                         http: 443,
                         ws: 0
                     },
+                    session: "",
                     shares: {}
                 },
-                id: "168929692941403998dfb06d6558dca2b0a0d979d427d9628e7263c69016a2a366044bc60d6c1f28c72b7756a70b3bb1109d38a653f7c387188ca55664bf29fdba424692fb0f2",
                 message: "Hello",
                 status: "accepted",
                 type: "device"
@@ -2255,6 +2261,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                         http: 443,
                         ws: 0
                     },
+                    session: "",
                     shares: {}
                 },
                 agentSource: {
@@ -2268,9 +2275,9 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                         http: 443,
                         ws: 0
                     },
+                    session: "",
                     shares: {}
                 },
-                id: "168929692941403998dfb06d6558dca2b0a0d979d427d9628e7263c69016a2a366044bc60d6c1f28c72b7756a70b3bb1109d38a653f7c387188ca55664bf29fdba424692fb0f2",
                 message: "Ignored invitation",
                 status: "ignored",
                 type: "device"
@@ -2296,6 +2303,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                         http: 443,
                         ws: 0
                     },
+                    session: "",
                     shares: {}
                 },
                 agentSource: {
@@ -2309,9 +2317,9 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                         http: 443,
                         ws: 0
                     },
+                    session: "",
                     shares: {}
                 },
-                id: "168929692941403998dfb06d6558dca2b0a0d979d427d9628e7263c69016a2a366044bc60d6c1f28c72b7756a70b3bb1109d38a653f7c387188ca55664bf29fdba424692fb0f2",
                 message: "Hello",
                 status: "declined",
                 type: "device"
@@ -2337,6 +2345,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                         http: 443,
                         ws: 0
                     },
+                    session: "",
                     shares: {}
                 },
                 agentSource: {
@@ -2350,9 +2359,9 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                         http: 443,
                         ws: 0
                     },
+                    session: "",
                     shares: {}
                 },
-                id: "168929692941403998dfb06d6558dca2b0a0d979d427d9628e7263c69016a2a366044bc60d6c1f28c72b7756a70b3bb1109d38a653f7c387188ca55664bf29fdba424692fb0f2",
                 message: "Hello",
                 status: "accepted",
                 type: "device"
@@ -2378,6 +2387,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                         http: 443,
                         ws: 0
                     },
+                    session: "",
                     shares: {}
                 },
                 agentSource: {
@@ -2391,9 +2401,9 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                         http: 443,
                         ws: 0
                     },
+                    session: "",
                     shares: {}
                 },
-                id: "168929692941403998dfb06d6558dca2b0a0d979d427d9628e7263c69016a2a366044bc60d6c1f28c72b7756a70b3bb1109d38a653f7c387188ca55664bf29fdba424692fb0f2",
                 message: "Ignored invitation",
                 status: "ignored",
                 type: "device"

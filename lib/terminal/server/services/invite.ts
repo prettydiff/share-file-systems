@@ -2,14 +2,17 @@
 /* lib/terminal/server/services/invite - Manages the order of invitation related processes for traffic across the internet. */
 
 import agent_management from "./agent_management.js";
+import common from "../../../common/common.js";
+import getAddress from "../../utilities/getAddress.js";
 import hash from "../../commands/library/hash.js";
 import sender from "../transmission/sender.js";
 import service from "../../test/application/service.js";
 import transmit_http from "../transmission/transmit_http.js";
 import vars from "../../utilities/vars.js";
 
-const invite = function terminal_server_services_invite(socketData:socketData):void {
+const invite = function terminal_server_services_invite(socketData:socketData, transmit:transmit_type):void {
     const data:service_invite = socketData.data as service_invite,
+        remoteIP:string = getAddress(transmit).remote.address,
         inviteHttp = function terminal_server_services_invite_inviteHttp(agent:"agentRequest"|"agentSource"):void {
             const payload:socketData = {
                     data: data,
@@ -44,7 +47,7 @@ const invite = function terminal_server_services_invite(socketData:socketData):v
                             [data[type].hashUser]: {
                                 deviceData: null,
                                 ipAll: data[type].ipAll,
-                                ipSelected: data[type].ipSelected,
+                                ipSelected: remoteIP,
                                 name: data[type].nameUser,
                                 ports: data[type].ports,
                                 publicKey: data[type].keyUserPublic,
@@ -120,20 +123,13 @@ const invite = function terminal_server_services_invite(socketData:socketData):v
                 // formulation - local browser
                 // execution   - local terminal
                 // purpose     - Start the invitation process
-                data.action = "invite-request";
-                inviteHttp("agentSource");
-            },
-            "invite-request": function terminal_server_services_invite_request():void {
-                // Step 2
-                // formulation - local terminal
-                // execution   - remote terminal
-                // purpose     - Push the invitation to remote user UI
                 const date:number = Date.now();
                 hash({
                     algorithm: "sha3-512",
                     callback: function terminal_server_services_invite_request_hash(key:string):void {
-                        data.action = "invite-ask";
                         data.agentRequest.session = date.toString() + key;
+                        data.action = "invite-request";
+                        inviteHttp("agentSource");
                         sender.broadcast({
                             data: data,
                             service: "invite"
@@ -147,6 +143,18 @@ const invite = function terminal_server_services_invite(socketData:socketData):v
                     source: date.toString() + vars.identity.hashDevice,
                     stat: null
                 });
+            },
+            "invite-request": function terminal_server_services_invite_request():void {
+                // Step 2
+                // formulation - local terminal
+                // execution   - remote terminal
+                // purpose     - Push the invitation to remote user UI
+                data.action = "invite-ask";
+                data.agentRequest.ipSelected = remoteIP;
+                sender.broadcast({
+                    data: data,
+                    service: "invite"
+                }, "browser");
             },
             "invite-ask": function terminal_server_services_invite_ask():void {
                 // Step 3
@@ -170,8 +178,20 @@ const invite = function terminal_server_services_invite(socketData:socketData):v
                             if (data.type === "device") {
                                 data.agentSource.devices = vars.agents.device;
                             } else {
-                                data.agentSource.devices = null;
-                                data.agentSource.keyUserPublic = vars.identity.keyUserPublic;
+                                const userData:userData = common.userData(vars.agents.device, "user", "");
+                                data.agentSource = {
+                                    devices: null,
+                                    hashUser: vars.identity.hashUser,
+                                    ipAll: userData[1],
+                                    ipSelected: data.agentSource.ipSelected,
+                                    keyUserPublic: vars.identity.keyUserPublic,
+                                    keyUserPrivate: "",
+                                    modal: data.agentSource.modal,
+                                    nameUser: vars.identity.nameUser,
+                                    ports: vars.network.ports,
+                                    session: date + key,
+                                    shares: userData[0]
+                                };
                             }
                             data.agentSource.ipAll = vars.network.addresses;
                             data.agentSource.ports = vars.network.ports;
@@ -242,6 +262,21 @@ const invite = function terminal_server_services_invite(socketData:socketData):v
                             vars.identity.keyUserPrivate = data.agentRequest.keyUserPrivate;
                             vars.identity.keyDevicePublic = data.agentRequest.keyUserPublic;
                             vars.identity.nameUser = data.agentRequest.nameUser;
+                        } else {
+                            const userData:userData = common.userData(vars.agents.device, "user", "");
+                            data.agentRequest = {
+                                devices: null,
+                                hashUser: vars.identity.hashUser,
+                                ipAll: userData[1],
+                                ipSelected: data.agentRequest.ipSelected,
+                                keyUserPublic: vars.identity.keyUserPublic,
+                                keyUserPrivate: "",
+                                modal: data.agentSource.modal,
+                                nameUser: vars.identity.nameUser,
+                                ports: vars.network.ports,
+                                session: "",
+                                shares: userData[0]
+                            };
                         }
                         addAgent("agentRequest");
                     }

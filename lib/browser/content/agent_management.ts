@@ -476,12 +476,13 @@ const agent_management:module_agentManagement = {
                         devices: null,
                         hashUser: "",
                         ipAll: userData[1],
-                        ipSelected: ipSelected,
+                        ipSelected: "",
                         keyUserPrivate: "",
                         keyUserPublic: "",
                         modal: options.id,
                         nameUser: browser.identity.nameUser,
                         ports: browser.network.ports,
+                        session: "",
                         shares: userData[0]
                     },
                     agentSource: {
@@ -497,9 +498,9 @@ const agent_management:module_agentManagement = {
                             http: portNumber,
                             ws: 0
                         },
+                        session: "",
                         shares: null
                     },
-                    id: "",
                     message: saved.message,
                     status: "invited",
                     type: type

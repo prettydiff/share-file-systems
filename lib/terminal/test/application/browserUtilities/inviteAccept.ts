@@ -1,18 +1,9 @@
 
 /* lib/terminal/test/application/browserUtilities/inviteAccept - A test generator for accepting an invitation. */
 
-import common from "../../../../common/common.js";
-
 const inviteAccept = function terminal_test_application_browserUtilities_inviteAccept(from:string, to:string, type:agentType):test_browserItem {
     // read invitation
-    const fromName:string = (from === "self")
-            ? (type === "device")
-                ? "Primary Device"
-                : "User-self"
-            : from,
-        fromText:string = (fromName === "User-self")
-            ? "Primary Device"
-            : fromName;
+    const fromName:string = `User-${from}`;
     return {
         delay: {
             node: [
@@ -22,7 +13,7 @@ const inviteAccept = function terminal_test_application_browserUtilities_inviteA
             qualifier: "begins",
             target: ["innerHTML"],
             type: "property",
-            value: `${common.capitalize(type)} <strong>${fromName}</strong> from`
+            value: `User <strong>${fromName}</strong> from`
         },
         interaction: [
             {
@@ -53,7 +44,7 @@ const inviteAccept = function terminal_test_application_browserUtilities_inviteA
                 qualifier: "is",
                 target: ["value"],
                 type: "property",
-                value: `Hello to ${to} from ${fromText}.`
+                value: `Hello to ${to} from ${from}.`
             }
         ]
     };

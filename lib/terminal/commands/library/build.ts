@@ -1626,6 +1626,13 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                                             }
                                                             return false;
                                                         }()),
+                                                        dateFormat = function terminal_commands_library_build_version_packStat_date(input:Date):string {
+                                                            const dayString:string = input.getDate().toString(),
+                                                                dayPadded:string = (dayString.length < 2)
+                                                                    ? `0${dayString}`
+                                                                    : dayString;
+                                                            return `${dayPadded} ${month} ${input.getFullYear().toString()}`;
+                                                        },
                                                         dateRaw:number = (versionCheck === true)
                                                             ? Date.parse(stats.mtime.toDateString())
                                                             : config.versionDate,
@@ -1670,16 +1677,10 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                                             }
                                                         }()),
                                                         date:string = (versionCheck === true)
-                                                            ? (function terminal_commands_library_build_version_packStat_date():string {
-                                                                const dayString:string = dateObj.getDate().toString(),
-                                                                    dayPadded:string = (dayString.length < 2)
-                                                                        ? `0${dayString}`
-                                                                        : dayString;
-                                                                return `${dayPadded} ${month} ${dateObj.getFullYear().toString()}`;
-                                                            }())
-                                                            : vars.environment.date,
+                                                            ? dateFormat(dateObj)
+                                                            : dateFormat(new Date(dateRaw)),
                                                         version:version = {
-                                                            date: vars.environment.date,
+                                                            date: date,
                                                             git_hash: (stdout === "")
                                                                 ? "(git not used)"
                                                                 : stdout.replace(/\s+/g, ""),
