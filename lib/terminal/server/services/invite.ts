@@ -80,7 +80,7 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
             hash({
                 algorithm: "sha3-512",
                 callback: function terminal_server_services_invite_unmask_hash(key:string):void {
-                    if (date + key === mask) {
+                    if (date + data.type + key === mask) {
                         callback(true);
                     } else {
                         callback(false);
@@ -110,12 +110,21 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
          *                                    // Step 8: At remote terminal apply new identifiers, send new agent data to remote browser, open necessary sockets.
          *     "invite-identity": () => void; // Step 7: At local terminal send device and identity data by agent type to remote terminal.
          * }
-         *   1 start              2 request            3 ask
-         * x >---------------> xx >---------------> xx >---------------> x
-         *          complete 6           Response 5             answer 4
-         * x <---------------< xx <---------------< xx <---------------< x
-         *                        7 identity           8 complete
-         *                     xx >---------------> xx >---------------> x
+         * ```
+         * ``` text
+         *               Local               |              Remote
+         * ----------------------------------|----------------------------------
+         *                 start 1           |    request 2                ask 3
+         * x >----------------> xx >>--------|-------->> xx >----------------> x
+         * 6 complete            5 response  |            4 answer
+         * x <----------------< xx <<--------|--------<< xx <----------------< x
+         *                                   |   identity 7           complete 8
+         *                      xx >>--------|-------->> xx >----------------> x
+         * KEY
+         * > - Movement in/out of browser
+         * >> - Movement across a network
+         * x - Browser instance
+         * xx - Shell instance
          * ``` */
         actions:module_inviteActions = {
             "invite-start": function terminal_server_services_invite_start():void {
@@ -140,7 +149,7 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                     id: "",
                     list: false,
                     parent: 0,
-                    source: date.toString() + vars.identity.hashDevice,
+                    source: date.toString() + data.type + vars.identity.hashDevice,
                     stat: null
                 });
             },
@@ -184,8 +193,8 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                                     hashUser: vars.identity.hashUser,
                                     ipAll: userData[1],
                                     ipSelected: data.agentSource.ipSelected,
-                                    keyUserPublic: vars.identity.keyUserPublic,
                                     keyUserPrivate: "",
+                                    keyUserPublic: vars.identity.keyUserPublic,
                                     modal: data.agentSource.modal,
                                     nameUser: vars.identity.nameUser,
                                     ports: vars.network.ports,
@@ -203,7 +212,7 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                     id: "",
                     list: false,
                     parent: 0,
-                    source: date.toString() + vars.identity.hashDevice,
+                    source: date.toString() + data.type + vars.identity.hashDevice,
                     stat: null
                 });
             },
@@ -215,24 +224,29 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                 unmask(data.agentRequest.session, function terminal_server_services_invite_response_unmask(test:boolean):void {
                     if (test === true) {
                         if (data.status === "accepted") {
+                            const userData:userData = common.userData(vars.agents.device, "user", "");
                             addAgent("agentSource");
                             data.action = "invite-identity";
-                            data.agentRequest.devices = vars.agents.device;
-                            data.agentRequest.keyUserPublic = vars.identity.keyUserPublic;
-                            if (data.type === "device") {
-                                // add their devices
-                                data.agentRequest.devices = vars.agents.device;
-                                data.agentRequest.keyUserPrivate = vars.identity.keyUserPrivate;
-                            } else {
-                                data.agentRequest.devices = null;
-                                data.agentRequest.keyUserPrivate = null;
+                            data.agentRequest = {
+                                devices: (data.type === "device")
+                                    ? vars.agents.device
+                                    : null,
+                                hashUser: vars.identity.hashUser,
+                                ipAll: userData[1],
+                                ipSelected: data.agentRequest.ipSelected,
+                                keyUserPrivate: (data.type === "device")
+                                    ? vars.identity.keyUserPrivate
+                                    : "",
+                                keyUserPublic: vars.identity.keyUserPublic,
+                                modal: data.agentRequest.modal,
+                                nameUser: vars.identity.nameUser,
+                                ports: vars.network.ports,
+                                session: "",
+                                shares: userData[0]
                             }
                             inviteHttp("agentSource");
                             data.action = "invite-complete";
-                            sender.broadcast({
-                                data: data,
-                                service: "invite"
-                            }, "device");
+                            addAgent("agentSource");
                         }
                         data.action = "invite-complete";
                         sender.broadcast({
@@ -245,7 +259,7 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
             "invite-complete": function terminal_server_services_invite_complete():void {
                 // Step 6/8
                 // formulation - local/remote terminal
-                // execution   - local/remote browser, local devices
+                // execution   - local/remote browser, local/remote devices
                 // purpose     - Update the UI with the invitation changes
                 addAgent("agentRequest");
             },
@@ -262,21 +276,6 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                             vars.identity.keyUserPrivate = data.agentRequest.keyUserPrivate;
                             vars.identity.keyDevicePublic = data.agentRequest.keyUserPublic;
                             vars.identity.nameUser = data.agentRequest.nameUser;
-                        } else {
-                            const userData:userData = common.userData(vars.agents.device, "user", "");
-                            data.agentRequest = {
-                                devices: null,
-                                hashUser: vars.identity.hashUser,
-                                ipAll: userData[1],
-                                ipSelected: data.agentRequest.ipSelected,
-                                keyUserPublic: vars.identity.keyUserPublic,
-                                keyUserPrivate: "",
-                                modal: data.agentSource.modal,
-                                nameUser: vars.identity.nameUser,
-                                ports: vars.network.ports,
-                                session: "",
-                                shares: userData[0]
-                            };
                         }
                         addAgent("agentRequest");
                     }
@@ -291,6 +290,9 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
         });
     } else {
         actions[data.action]();
+    }
+    if (transmit.type === "http") {
+        transmit_http.respondEmpty(transmit);
     }
 };
 

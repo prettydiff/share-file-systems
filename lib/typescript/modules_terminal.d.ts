@@ -201,12 +201,21 @@ interface module_fileSystem {
  *                                    // Step 8: At remote terminal apply new identifiers, send new agent data to remote browser, open necessary sockets.
  *     "invite-identity": () => void; // Step 7: At local terminal send device and identity data by agent type to remote terminal.
  * }
- *   1 start              2 request            3 ask
- * x >---------------> xx >---------------> xx >---------------> x
- *          complete 6           Response 5             answer 4
- * x <---------------< xx <---------------< xx <---------------< x
- *                        7 identity           8 complete
- *                     xx >---------------> xx >---------------> x
+ * ```
+ * ``` text
+ *               Local               |              Remote
+ * ----------------------------------|----------------------------------
+ *                 start 1           |    request 2                ask 3
+ * x >----------------> xx >>--------|-------->> xx >----------------> x
+ * 6 complete            5 response  |            4 answer
+ * x <----------------< xx <<--------|--------<< xx <----------------< x
+ *                                   |   identity 7           complete 8
+ *                      xx >>--------|-------->> xx >----------------> x
+ * KEY
+ * > - Movement in/out of browser
+ * >> - Movement across a network
+ * x - Browser instance
+ * xx - Shell instance
  * ``` */
 interface module_inviteActions {
     "invite-answer": () => void;
