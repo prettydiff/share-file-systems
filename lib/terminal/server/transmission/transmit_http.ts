@@ -407,7 +407,8 @@ const transmit_http:module_transmit_http = {
         }
     },
     respondEmpty: function terminal_server_transmission_transmitHttp_respondEmpty(transmit:transmit_type):void {
-        if (transmit.type === "http") {
+        const http:httpSocket_request = transmit.socket as httpSocket_request;
+        if (transmit.type === "http" && http.writableEnded === false) {
             transmit_http.respond({
                 message: "",
                 mimeType: "text/plain",
