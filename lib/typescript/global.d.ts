@@ -65,6 +65,7 @@ interface agentCounts {
  *     modal: string;
  *     nameUser: string;
  *     ports: ports;
+ *     session: string;
  *     shares: agentShares;
  * }
  * ``` */
@@ -78,6 +79,7 @@ interface agentInvite {
     modal: string;
     nameUser: string;
     ports: ports;
+    session: string;
     shares: agentShares;
 }
 

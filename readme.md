@@ -9,8 +9,6 @@ Imagine your mom copy and paste a file from your computer to hers a hundred mile
 
 This application seeks to be inherently private.  Everything is directly point to point to users and devices you invite and therefore end-to-end encrypted and always private.
 
-*Please note* - Certificate installation is not yet tested on OSX.
-
 ## Media
 ### Videos
  * Product Demo - https://prettydiff.com/share-product-demo.mp4 (22 FEB 2021)

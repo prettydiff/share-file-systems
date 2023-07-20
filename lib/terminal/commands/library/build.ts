@@ -171,6 +171,15 @@ const build = function terminal_commands_library_build(config:config_command_bui
                             `To use as a ${vars.text.cyan}browser${vars.text.none} application execute the application with command: ${vars.text.bold + vars.text.green + vars.terminal.command_instruction + vars.text.none}`,
                             `To use as a ${vars.text.cyan}desktop${vars.text.none} application execute the application with command: ${vars.text.bold + vars.text.green}npm start${vars.text.none}`
                         ]);
+                        if (process.platform === "darwin" && certFlags.forced === true) {
+                            log([
+                                `${vars.text.angry}Certificates must be manually trusted in the Keychain!${vars.text.none}`,
+                                "Keychains: System, Category: Certificates",
+                                "Double click certificates share-file-ca and share-file then under category 'Trust' set value 'Always Trust'.",
+                                "Apple requires all trusted certificates to include a receipt from organization Certificate Transparency, which can only happen if a certificate is published to the public.",
+                                "Private certificates, like those created here, thus require manual trust."
+                            ]);
+                        }
                     } else {
                         const plural:string = (compileErrors === "1")
                                 ? ""
@@ -1297,15 +1306,6 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                             if (taskLength > 0) {
                                                 sudo();
                                             } else {
-                                                if (dist === "darwin") {
-                                                    log([
-                                                        `${vars.text.angry}Certificates must be manually trusted in the Keychain!${vars.text.none}`,
-                                                        "Keychains: System, Category: Certificates",
-                                                        "Double click certificates share-file-ca and share-file then under category 'Trust' set value 'Always Trust'.",
-                                                        "Apple requires all trusted certificates to include a receipt from organization Certificate Transparency, which can only happen if a certificate is published to the public.",
-                                                        "Private certificates, like those created here, thus require manual trust."
-                                                    ]);
-                                                }
                                                 next("No operating system specific tasks to perform.");
                                             }
                                         }

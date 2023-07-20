@@ -569,13 +569,13 @@ const util:module_util = {
     },
 
     /* Creates HTML radio button inside a list item. */
-    radioListItem: function browser_content_agentManagement_menu_radio(config:config_radioListItem):HTMLElement {
+    radioListItem: function browser_utilities_util_radioListItem(config:config_radioListItem):HTMLElement {
         let li:HTMLElement = null,
             label:HTMLElement = null,
             input:HTMLInputElement = null,
             index:number = 0;
         const len:number = config.list.length,
-            click = function browser_content_agentManagement_menu_radio(event:MouseEvent):void {
+            click = function browser_utilities_util_radioListItem_click(event:MouseEvent):void {
                 const target:HTMLInputElement = event.target as HTMLInputElement,
                     ul:HTMLElement = target.getAncestor("ul", "tag"),
                     radios:HTMLCollectionOf<HTMLInputElement> = ul.getElementsByTagName("input");

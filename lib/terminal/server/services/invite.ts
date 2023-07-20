@@ -88,32 +88,11 @@ const invite = function terminal_server_services_invite(socketData:socketData):v
                 id: "",
                 list: false,
                 parent: 0,
-                source: date + vars.identity.hashUser,
+                source: date + vars.identity.hashDevice,
                 stat: null
             });
 
         },
-        /**
-        * Methods for processing the various stages of the invitation process.
-        * The "invite-complete" step executes as the final step in the terminal at both ends of the transaction.
-        * ```typescript
-        * interface module_inviteActions {
-        *     "invite-start"   : () => void; // Step 1: At local browser send invitation message to local terminal.
-        *     "invite-request" : () => void; // Step 2: At local terminal forward invitation message to remote terminal.
-        *     "invite-ask"     : () => void; // Step 3: At remote terminal send invitation message to remote browser.
-        *     "invite-answer"  : () => void; // Step 4: At remote browser send invitation answer to remote terminal.
-        *     "invite-response": () => void; // Step 5: At remote terminal send invitation answer to local terminal.
-        *     "invite-complete": () => void; // Step 6: At local terminal send new agent data to local browser.
-        *                                    // Step 8: At remote terminal apply new identifiers, send new agent data to remote browser, open necessary sockets.
-        *     "invite-identity": () => void; // Step 7: At local terminal send device and identity data by agent type to remote terminal.
-        * }
-        *   1 start                  2 request                     3 ask
-        * x --------------------> xx -------------------------> xx --------------------> x
-        *   <--------------------    <-------------------------    <-------------------- x
-        *              complete 6                    Response 5                 answer 4
-        *                            ------------------------->    -------------------->
-        *                            7 identity                    8 complete
-        * ``` */
        /**
          * Methods for processing the various stages of the invitation process.
          * The "invite-complete" step executes as the final step in the terminal at both ends of the transaction.
@@ -154,7 +133,7 @@ const invite = function terminal_server_services_invite(socketData:socketData):v
                     algorithm: "sha3-512",
                     callback: function terminal_server_services_invite_request_hash(key:string):void {
                         data.action = "invite-ask";
-                        data.id = date.toString() + key;
+                        data.agentRequest.session = date.toString() + key;
                         sender.broadcast({
                             data: data,
                             service: "invite"
@@ -165,7 +144,7 @@ const invite = function terminal_server_services_invite(socketData:socketData):v
                     id: "",
                     list: false,
                     parent: 0,
-                    source: date.toString() + vars.identity.hashUser,
+                    source: date.toString() + vars.identity.hashDevice,
                     stat: null
                 });
             },
@@ -186,7 +165,7 @@ const invite = function terminal_server_services_invite(socketData:socketData):v
                     algorithm: "sha3-512",
                     callback: function terminal_server_services_invite_answer_hash(key:string):void {
                         data.action = "invite-response";
-                        data.message = date.toString() + key;
+                        data.agentSource.session = date.toString() + key;
                         if (data.status === "accepted") {
                             if (data.type === "device") {
                                 data.agentSource.devices = vars.agents.device;
@@ -204,7 +183,7 @@ const invite = function terminal_server_services_invite(socketData:socketData):v
                     id: "",
                     list: false,
                     parent: 0,
-                    source: date.toString() + vars.identity.hashUser,
+                    source: date.toString() + vars.identity.hashDevice,
                     stat: null
                 });
             },
@@ -213,7 +192,7 @@ const invite = function terminal_server_services_invite(socketData:socketData):v
                 // formulation - remote terminal
                 // execution   - local terminal
                 // purpose     - Respond with the invitation answer
-                unmask(data.id, function terminal_server_services_invite_response_unmask(test:boolean):void {
+                unmask(data.agentRequest.session, function terminal_server_services_invite_response_unmask(test:boolean):void {
                     if (test === true) {
                         if (data.status === "accepted") {
                             addAgent("agentSource");
@@ -255,7 +234,7 @@ const invite = function terminal_server_services_invite(socketData:socketData):v
                 // formulation - local terminal
                 // execution   - remote terminal
                 // purpose     - Receive identifying data at the remote, remote opens sockets
-                unmask(data.message, function terminal_server_services_invite_identity_unmask(test:boolean):void {
+                unmask(data.agentSource.session, function terminal_server_services_invite_identity_unmask(test:boolean):void {
                     if (test === true) {
                         data.action = "invite-complete";
                         if (data.type === "device") {

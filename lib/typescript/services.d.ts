@@ -217,7 +217,6 @@ interface service_hashShare {
  *     action: inviteAction;
  *     agentRequest: agentInvite;
  *     agentSource: agentInvite;
- *     id: string;
  *     message: string;
  *     status: inviteStatus;
  *     type: agentType;
@@ -229,7 +228,6 @@ interface service_invite {
     action: inviteAction;
     agentRequest: agentInvite;
     agentSource: agentInvite;
-    id: string;
     message: string;
     status: inviteStatus;
     type: agentType;
