@@ -24,16 +24,14 @@
  *     action: "add" | "delete" | "modify" | "rename";
  *     agentFrom: string;
  *     agents: agentData;
- *     userHash: string;
- *     userName: string;
+ *     identity: identity;
  * }
  * ``` */
 interface service_agentManagement {
     action: "add" | "delete" | "modify" | "rename";
     agentFrom: string;
     agents: agentData;
-    userHash: string;
-    userName: string;
+    identity: identity;
 }
 
 /**

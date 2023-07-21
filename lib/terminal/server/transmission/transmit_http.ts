@@ -640,8 +640,7 @@ const transmit_http:module_transmit_http = {
                                                                             user: {}
                                                                         },
                                                                         agentFrom: vars.identity.hashDevice,
-                                                                        userHash: null,
-                                                                        userName: null
+                                                                        identity: null
                                                                     };
                                                                     agent_management({
                                                                         data: agentManagement,

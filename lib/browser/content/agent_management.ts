@@ -545,8 +545,7 @@ const agent_management:module_agentManagement = {
                         user: {}
                     },
                     agentFrom: browser.identity.hashDevice,
-                    userHash: null,
-                    userName: null
+                    identity: null
                 },
                 modifyModals = function browser_content_agentManagement_confirmModify_modifyModals(agent:string, type:agentType, name:string):void {
                     const typeString:string = `${common.capitalize(type)}, `;
@@ -617,8 +616,7 @@ const agent_management:module_agentManagement = {
                         device: {},
                         user: {}
                     },
-                    userHash: null,
-                    userName: null
+                    identity: null
                 };
             let a:number = 0;
             if (length < 1) {
@@ -837,8 +835,7 @@ const agent_management:module_agentManagement = {
                         device: {},
                         user: {}
                     },
-                    userHash: null,
-                    userName: null
+                    identity: null
                 };
             let a:number = list.length,
                 count:number = 0,
@@ -1044,9 +1041,11 @@ const agent_management:module_agentManagement = {
                         } while (a < keyLength);
                     }
                 };
-                if (data.userHash !== null && data.userName !== null && data.userHash.length === 128) {
-                    browser.identity.hashUser = data.userHash;
-                    browser.identity.nameUser = data.userName;
+                if (data.identity !== null) {
+                    browser.identity.hashUser = data.identity.hashUser;
+                    browser.identity.keyUserPrivate = data.identity.keyUserPrivate;
+                    browser.identity.keyUserPublic = data.identity.keyUserPublic;
+                    browser.identity.nameUser = data.identity.nameUser;
                 }
                 addAgents("device");
                 addAgents("user");
