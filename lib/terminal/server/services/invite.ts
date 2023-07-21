@@ -80,7 +80,7 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
             hash({
                 algorithm: "sha3-512",
                 callback: function terminal_server_services_invite_unmask_hash(title:string, output:hash_output):void {
-                    if (date + data.type + output.hash === mask) {
+                    if (date + output.hash === mask) {
                         callback(true);
                     } else {
                         callback(false);
@@ -183,8 +183,10 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                     callback: function terminal_server_services_invite_answer_hash(title:string, output:hash_output):void {
                         data.action = "invite-response";
                         if (data.status === "accepted") {
+                            const session:string = date.toString() + output.hash;
                             if (data.type === "device") {
                                 data.agentSource.devices = vars.agents.device;
+                                data.agentSource.session = session;
                             } else {
                                 const userData:userData = common.userData(vars.agents.device, "user", "");
                                 data.agentSource = {
@@ -197,7 +199,7 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                                     modal: data.agentSource.modal,
                                     nameUser: vars.identity.nameUser,
                                     ports: vars.network.ports,
-                                    session: date.toString() + output.hash,
+                                    session: session,
                                     shares: userData[0]
                                 };
                             }
