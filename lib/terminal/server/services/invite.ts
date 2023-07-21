@@ -291,9 +291,6 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
     } else {
         actions[data.action]();
     }
-    if (transmit.type === "http") {
-        transmit_http.respondEmpty(transmit);
-    }
 };
 
 export default invite;
