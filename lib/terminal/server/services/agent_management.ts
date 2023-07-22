@@ -25,7 +25,7 @@ const agent_management = function terminal_server_services_agentManagement(socke
                     a = a + 1;
                 } while (a < lengthKeys);
                 if (count > 0) {
-                    if (vars.agents.device[data.agentFrom] !== undefined && data.identity !== null) {
+                    if (type === "device" && vars.agents.device[data.agentFrom] !== undefined && data.identity !== null) {
                         vars.identity.hashUser = data.identity.hashUser;
                         vars.identity.keyUserPrivate = data.identity.keyUserPrivate;
                         vars.identity.keyUserPublic = data.identity.keyUserPublic;

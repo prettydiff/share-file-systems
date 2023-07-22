@@ -117,11 +117,15 @@ const transmit_ws:module_transmit_ws = {
                         : (config.socketType === "user")
                             ? vars.identity.hashUser
                             : config.hash,
-                    key:node_crypto_KeyObject = (vars.identity.hashDevice === "")
-                        ? null
-                        : (config.socketType === "device")
-                            ? node.crypto.createPrivateKey(vars.identity.keyDevicePrivate)
-                            : node.crypto.createPrivateKey(vars.identity.keyUserPrivate),
+                    key:node_crypto_KeyObject = (function terminal_server_transmission_transmitWs_createSocket_hash_privateKey():node_crypto_KeyObject {
+                        if (vars.identity.hashDevice === "") {
+                            return null;
+                        }
+                        const keyName:"keyDevicePrivate"|"keyUserPrivate" = (config.socketType === "device")
+                            ? "keyDevicePrivate"
+                            : "keyUserPrivate";
+                        return node.crypto.createPrivateKey(vars.identity[keyName]);
+                    }()),
                     privateKey:string = (key === null)
                         ? ""
                         : `challenge: ${node.crypto.privateEncrypt(key, Buffer.from(headerHash)).toString()}`,
@@ -975,8 +979,7 @@ const transmit_ws:module_transmit_ws = {
                                 user: {[config.identifier]: vars.agents.user[config.identifier]}
                             },
                             agentFrom: config.identifier,
-                            userName: null,
-                            userHash: null
+                            identity: null
                         };
                         agent_management({
                             data: management,
