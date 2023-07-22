@@ -34,8 +34,8 @@ const hashAgent = function terminal_server_services_hashAgent(socketData:socketD
                     keyCallback = function terminal_server_services_hashAgent_user_device_keyCallback(type:agentType, keyPrivate:Buffer, keyPublic:Buffer):void {
                         const namePrivate:"keyDevicePrivate" = `key${common.capitalize(type)}Private` as "keyDevicePrivate",
                             namePublic:"keyDevicePublic" = `key${common.capitalize(type)}Public` as "keyDevicePublic";
-                        vars.identity[namePrivate] = keyPrivate.toString("hex");
-                        vars.identity[namePublic] = keyPublic.toString("hex");
+                        vars.identity[namePrivate] = keyPrivate.toString();
+                        vars.identity[namePublic] = keyPublic.toString();
                         flags[type] = true;
                         if (flags.device === true && flags.user === true) {
                             vars.agents.device[hashAgent.hash] = {
@@ -82,9 +82,12 @@ const hashAgent = function terminal_server_services_hashAgent(socketData:socketD
                             error(["Error creating user key pair in hashAgent library."], keyError);
                         }
                     },
-                    options:node_crypto_ED448KeyPairOptions = {
+                    options:node_crypto_ECKeyPairOptions = {
+                        namedCurve: "sect571k1",
                         privateKeyEncoding: {
+                            cipher: "aes-256-cbc",
                             format: "pem",
+                            passphrase: hashAgent.hash,
                             type: "pkcs8"
                         },
                         publicKeyEncoding: {
@@ -103,9 +106,9 @@ const hashAgent = function terminal_server_services_hashAgent(socketData:socketD
                     nameUser: hashData.user
                 };
                 // @ts-ignore - Bad TypeScript definition: @types/node, crypto.d.ts - The TypeScript definitions for generateKeyPair are too overloaded for this method to compile correctly.
-                node.crypto.generateKeyPair("ed448", options, keyDevice);
+                node.crypto.generateKeyPair("ec", options, keyDevice);
                 // @ts-ignore - Bad TypeScript definition: @types/node, crypto.d.ts - The TypeScript definitions for generateKeyPair are too overloaded for this method to compile correctly.
-                node.crypto.generateKeyPair("ed448", options, keyUser);
+                node.crypto.generateKeyPair("ec", options, keyUser);
             };
             input.callback = callbackDevice;
             input.source = hashUser.hash + hashData.device;

@@ -124,7 +124,13 @@ const transmit_ws:module_transmit_ws = {
                         const keyName:"keyDevicePrivate"|"keyUserPrivate" = (config.socketType === "device")
                             ? "keyDevicePrivate"
                             : "keyUserPrivate";
-                        return node.crypto.createPrivateKey(vars.identity[keyName]);
+                        return node.crypto.createPrivateKey({
+                            encoding: "utf8",
+                            format: "pem",
+                            key: vars.identity[keyName],
+                            passphrase: vars.identity.hashDevice,
+                            type: "pkcs8"
+                        });
                     }()),
                     privateKey:string = (key === null)
                         ? ""
