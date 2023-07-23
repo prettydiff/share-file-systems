@@ -113,7 +113,7 @@ public class Window {
                     powershell.stdin.end();
                 },
                 // * netStat is an application that performs port mapping.  I am using it to map a client port to a process ID.
-                netStat = function terminal_server_osNotification_wsClients_netStat(statError:Error, statOut:string):void {
+                netStat = function terminal_server_osNotification_wsClients_netStat(statError:node_childProcess_ExecException, statOut:string):void {
                     if (statError === null) {
                         const args:string[] = statOut.replace(/\s+$/, "").split(" "),
                             pid:string = args[args.length - 1];

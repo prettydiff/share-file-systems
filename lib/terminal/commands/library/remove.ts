@@ -63,7 +63,7 @@ const remove = function terminal_commands_library_remove(filePath:string, exclus
                     len:number = fileList.length,
                     destroy = function terminal_commands_library_remove_removeItems_destroy(item:directory_item):void {
                         let b:number = exclusions.length;
-                        const destruction = function terminal_commands_library_remove_removeItems_destroy_destruction(er:NodeJS.ErrnoException):void {
+                        const destruction = function terminal_commands_library_remove_removeItems_destroy_destruction(er:node_error):void {
                             // error handling
                             if (vars.settings.verbose === true && er !== null && er.toString().indexOf("no such file or directory") < 0) {
                                 if (er.code === "ENOTEMPTY") {

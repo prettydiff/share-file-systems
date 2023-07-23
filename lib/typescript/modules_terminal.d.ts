@@ -153,7 +153,7 @@ interface module_fileCopy {
  *     actions: {
  *         destroy    : (data:service_fileSystem) => void; // Service handler to remove a file system artifact.
  *         directory  : (data:service_fileSystem) => void; // A service handler to read directory information, such as navigating a file system in the browser.
- *         error      : (error:NodeJS.ErrnoException, agentRequest:fileAgent, agentSource:fileAgent) => void; // packages error messaging for transport
+ *         error      : (error:node_error, agentRequest:fileAgent, agentSource:fileAgent) => void; // packages error messaging for transport
  *         execute    : (data:service_fileSystem) => void; // Tells the operating system to execute the given file system artifact using the default application for the resolved file type.
  *         newArtifact: (data:service_fileSystem) => void; // Creates new empty directories or files.
  *         read       : (data:service_fileSystem) => void; // Opens a file and responds with the file contents as a UTF8 string.
@@ -172,7 +172,7 @@ interface module_fileSystem {
     actions: {
         destroy: (data:service_fileSystem) => void;
         directory: (data:service_fileSystem) => void;
-        error: (error:NodeJS.ErrnoException, agentRequest:fileAgent, agentSource:fileAgent) => void;
+        error: (error:node_error, agentRequest:fileAgent, agentSource:fileAgent) => void;
         execute: (data:service_fileSystem) => void;
         newArtifact: (data:service_fileSystem) => void;
         read: (data:service_fileSystem) => void;

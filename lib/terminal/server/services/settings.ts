@@ -14,7 +14,7 @@ const settings = function terminal_server_services_settings(dataPackage:socketDa
             ? data.settings as ui_data
             : null,
         changeName = function terminal_server_services_settings_changeName():void {
-            node.fs.rename(fileName, `${location}.json`, function terminal_server_services_settings_rename_renameNode(erName:Error):void {
+            node.fs.rename(fileName, `${location}.json`, function terminal_server_services_settings_rename_renameNode(erName:node_error):void {
                 if (erName !== null) {
                     node.fs.unlink(fileName, function terminal_server_services_settings_rename_renameNode_unlink():void {
                         return;
@@ -25,7 +25,7 @@ const settings = function terminal_server_services_settings(dataPackage:socketDa
                 }
             });
         },
-        writeCallback = function terminal_server_services_settings_writeCallback(erSettings:Error):void {
+        writeCallback = function terminal_server_services_settings_writeCallback(erSettings:node_error):void {
             if (erSettings === null) {
                 if (data.type === "ui") {
                     vars.settings.ui = settingsData;
@@ -53,7 +53,7 @@ const settings = function terminal_server_services_settings(dataPackage:socketDa
             vars.settings.ui.storage = settingsData.storage;
             node.fs.writeFile(fileName, JSON.stringify(data.settings), "utf8", writeCallback);
         } else {
-            node.fs.stat(settingsData.storage, function terminal_server_services_settings_storageStat(storageError:NodeJS.ErrnoException):void {
+            node.fs.stat(settingsData.storage, function terminal_server_services_settings_storageStat(storageError:node_error):void {
                 if (storageError === null) {
                     if (settingsData.storage.charAt(settingsData.storage.length - 1) !== vars.path.sep) {
                         settingsData.storage = settingsData.storage + vars.path.sep;

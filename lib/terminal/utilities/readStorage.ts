@@ -7,7 +7,7 @@ import vars from "./vars.js";
 // cspell: words brotli
 
 const readStorage = function terminal_utilities_readStorage(fromFile:boolean, callback:(settings:state_storage) => void):void {
-    node.fs.readdir(vars.path.settings, function terminal_utilities_readStorage_readdir(erd:Error, fileList:string[]):void {
+    node.fs.readdir(vars.path.settings, function terminal_utilities_readStorage_readdir(erd:node_error, fileList:string[]):void {
         if (erd === null) {
             let length:number = fileList.length;
             const flag:flagList = {},
@@ -83,7 +83,7 @@ const readStorage = function terminal_utilities_readStorage(fromFile:boolean, ca
                     callback(settings);
                 },
                 read = function terminal_utilities_readStorage_readdir_read(fileName:string):void {
-                    node.fs.readFile(vars.path.settings + fileName, "utf8", function terminal_utilities_readStorage_readdir_read_readFile(err:Error, fileData:string):void {
+                    node.fs.readFile(vars.path.settings + fileName, "utf8", function terminal_utilities_readStorage_readdir_read_readFile(err:node_error, fileData:string):void {
                         if (err === null) {
                             const item:settingsType = fileName.replace(".json", "") as settingsType;
                             if (item === "device" || item === "user") {

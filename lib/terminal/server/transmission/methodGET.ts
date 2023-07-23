@@ -121,7 +121,7 @@ const methodGET = function terminal_server_transmission_methodGET(request:node_h
         };
         readStorage(false, appliedData);
     } else {
-        node.fs.stat(localPath, function terminal_server_transmission_methodGET_stat(ers:NodeJS.ErrnoException, stat:node_fs_Stats):void {
+        node.fs.stat(localPath, function terminal_server_transmission_methodGET_stat(ers:node_error, stat:node_fs_Stats):void {
             const random:number = Math.random();
             if (request.url.indexOf("favicon.ico") < 0 && request.url.indexOf("images/apple") < 0) {
                 const page:string = [
@@ -130,7 +130,7 @@ const methodGET = function terminal_server_transmission_methodGET(request:node_h
                 ].join("");
                 if (ers === null) {
                     if (stat.isDirectory() === true) {
-                        node.fs.readdir(localPath, function terminal_server_transmission_methodGET_stat_dir(erd:Error, list:string[]) {
+                        node.fs.readdir(localPath, function terminal_server_transmission_methodGET_stat_dir(erd:node_error, list:string[]) {
                             const dirList:string[] = [`<p>directory of ${localPath}</p> <ul>`];
                             if (erd !== null) {
                                 error([`Error reading directory of ${localPath}`], erd);

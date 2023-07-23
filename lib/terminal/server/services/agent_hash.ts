@@ -68,14 +68,14 @@ const hashAgent = function terminal_server_services_hashAgent(socketData:socketD
                             }, "browser");
                         }
                     },
-                    keyDevice = function terminal_server_services_hashAgent_user_device_keyDevice(keyError:NodeJS.ErrnoException, keyPublic:Buffer, keyPrivate:Buffer):void {
+                    keyDevice = function terminal_server_services_hashAgent_user_device_keyDevice(keyError:node_error, keyPublic:Buffer, keyPrivate:Buffer):void {
                         if (keyError === null) {
                             keyCallback("device", keyPrivate, keyPublic);
                         } else {
                             error(["Error creating device key pair in hashAgent library."], keyError);
                         }
                     },
-                    keyUser = function terminal_server_services_hashAgent_user_device_keyUser(keyError:NodeJS.ErrnoException, keyPublic:Buffer, keyPrivate:Buffer):void {
+                    keyUser = function terminal_server_services_hashAgent_user_device_keyUser(keyError:node_error, keyPublic:Buffer, keyPrivate:Buffer):void {
                         if (keyError === null) {
                             keyCallback("user", keyPrivate, keyPublic);
                         } else {

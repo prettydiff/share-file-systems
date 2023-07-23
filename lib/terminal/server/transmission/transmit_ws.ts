@@ -147,7 +147,7 @@ const transmit_ws:module_transmit_ws = {
                         `hash: ${headerHash}`,
                         `Sec-WebSocket-Key: ${hashOutput.hash}`
                     ],
-                    callbackError = function terminal_server_transmission_transmitWs_createSocket_hash_error(errorMessage:NodeJS.ErrnoException):void {
+                    callbackError = function terminal_server_transmission_transmitWs_createSocket_hash_error(errorMessage:node_error):void {
                         if (config.socketType === "device" || config.socketType === "user") {
                             transmit_ws.ipAttempts[config.socketType][config.hash].push(config.ip);
                             client.hash = config.hash;
@@ -914,9 +914,9 @@ const transmit_ws:module_transmit_ws = {
             (config.type === "perf" && (config.socket.remoteAddress === "::1" || config.socket.remoteAddress.replace("::ffff:", "") === "127.0.0.1")) ||
             transmit_ws.socketList[config.type as agentType | "browser"][config.identifier] === undefined
         ) {
-            const ping = function terminal_server_transmission_transmitWs_socketExtension_ping(ttl:number, callback:(err:NodeJS.ErrnoException, roundtrip:bigint) => void):void {
-                const errorObject = function terminal_server_transmission_transmitWs_socketExtension_ping_errorObject(code:string, message:string):NodeJS.ErrnoException {
-                        const err:NodeJS.ErrnoException = new Error(),
+            const ping = function terminal_server_transmission_transmitWs_socketExtension_ping(ttl:number, callback:(err:node_error, roundtrip:bigint) => void):void {
+                const errorObject = function terminal_server_transmission_transmitWs_socketExtension_ping_errorObject(code:string, message:string):node_error {
+                        const err:node_error = new Error(),
                             agent:agent = (config.socket.type === "browser")
                                 ? null
                                 : vars.agents[config.socket.type as agentType][config.socket.hash],
@@ -1004,7 +1004,7 @@ const transmit_ws:module_transmit_ws = {
                 config.socket.status = "end";
                 transmit_ws.list();
             });
-            config.socket.on("error", function terminal_server_transmission_transmitWs_socketExtension_socketError(errorMessage:NodeJS.ErrnoException):void {
+            config.socket.on("error", function terminal_server_transmission_transmitWs_socketExtension_socketError(errorMessage:node_error):void {
                 if (vars.settings.verbose === true || vars.test.type === "browser_device" || vars.test.type === "browser_user") {
                     error([
                         `Error on socket of type ${config.socket.type} at location ${config.socket.role} with identifier ${config.socket.hash}.`,

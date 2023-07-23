@@ -14,7 +14,7 @@ const certificate = function terminal_commands_library_certificate(config:config
         crypto = function terminal_commands_library_certificate_crypto():void {
             node.child_process.exec(commands[index], {
                 cwd: config.location
-            }, function terminal_commands_library_certificate_child(erChild:Error):void {
+            }, function terminal_commands_library_certificate_child(erChild:node_childProcess_ExecException):void {
                 if (erChild === null) {
                     index = index + 1;
                     if (index < commands.length) {
@@ -28,7 +28,7 @@ const certificate = function terminal_commands_library_certificate(config:config
             });
         };
 
-    node.fs.stat(config.location, function terminal_commands_library_certificate_createStat(stats:NodeJS.ErrnoException):void {
+    node.fs.stat(config.location, function terminal_commands_library_certificate_createStat(stats:node_error):void {
 
         // OpenSSL features used:
         // * file extensions

@@ -24,9 +24,9 @@ const entry = function terminal_utilities_entry(callback:(title:string, text:str
         },
         version:string = `${vars.path.project}version.json`;
     disallowed(false);
-    node.fs.stat(version, function terminal_utilities_entry_version(erStat:Error):void {
+    node.fs.stat(version, function terminal_utilities_entry_version(erStat:node_error):void {
         if (erStat === null) {
-            node.fs.readFile(version, "utf8", function terminal_utilities_entry_version_read(er:Error, versionFile:string):void {
+            node.fs.readFile(version, "utf8", function terminal_utilities_entry_version_read(er:node_error, versionFile:string):void {
                 if (er === null) {
                     const data:version = JSON.parse(versionFile) as version;
                     vars.environment.date = data.date;

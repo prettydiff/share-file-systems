@@ -21,7 +21,7 @@ import service from "../../test/application/service.js";
  *     actions: {
  *         destroy    : (data:service_fileSystem) => void; // Service handler to remove a file system artifact.
  *         directory  : (data:service_fileSystem) => void; // A service handler to read directory information, such as navigating a file system in the browser.
- *         error      : (error:NodeJS.ErrnoException, agentRequest:fileAgent, agentSource:fileAgent) => void; // packages error messaging for transport
+ *         error      : (error:node_error, agentRequest:fileAgent, agentSource:fileAgent) => void; // packages error messaging for transport
  *         execute    : (data:service_fileSystem) => void; // Tells the operating system to execute the given file system artifact using the default application for the resolved file type.
  *         newArtifact: (data:service_fileSystem) => void; // Creates new empty directories or files.
  *         read       : (data:service_fileSystem) => void; // Opens a file and responds with the file contents as a UTF8 string.
@@ -126,7 +126,7 @@ const fileSystem:module_fileSystem = {
                 if (value === "\\" || value === "\\\\") {
                     pathRead();
                 } else {
-                    node.fs.stat(value, function terminal_server_services_fileSystem_directory_pathEach_stat(erp:Error):void {
+                    node.fs.stat(value, function terminal_server_services_fileSystem_directory_pathEach_stat(erp:node_error):void {
                         if (erp === null) {
                             pathRead();
                         } else {
@@ -139,7 +139,7 @@ const fileSystem:module_fileSystem = {
                 }
             });
         },
-        error: function terminal_server_services_fileSystem_routeError(error:NodeJS.ErrnoException, agentRequest:fileAgent, agentSource:fileAgent):void {
+        error: function terminal_server_services_fileSystem_routeError(error:node_error, agentRequest:fileAgent, agentSource:fileAgent):void {
             fileSystem.route({
                 data: Object.assign({
                     agentRequest: agentRequest,
@@ -202,7 +202,7 @@ const fileSystem:module_fileSystem = {
                     fileSystem.status.generate(data, null);
                 });
             } else if (data.name === "file") {
-                node.fs.writeFile(data.location[0], "", "utf8", function terminal_server_services_fileSystem_newArtifact_file(erNewFile:NodeJS.ErrnoException):void {
+                node.fs.writeFile(data.location[0], "", "utf8", function terminal_server_services_fileSystem_newArtifact_file(erNewFile:node_error):void {
                     if (erNewFile === null) {
                         fileSystem.status.generate(data, null);
                     } else {
@@ -242,7 +242,7 @@ const fileSystem:module_fileSystem = {
                     }
                 },
                 fileReader = function terminal_server_services_fileSystem_read_fileReader(fileInput:config_command_base64):void {
-                    node.fs.readFile(fileInput.source, "utf8", function terminal_server_services_fileSystem_read_fileReader_readFile(readError:NodeJS.ErrnoException, fileData:string) {
+                    node.fs.readFile(fileInput.source, "utf8", function terminal_server_services_fileSystem_read_fileReader_readFile(readError:node_error, fileData:string) {
                         const inputConfig:base64Output = {
                             base64: fileData,
                             id: fileInput.id,
@@ -303,12 +303,12 @@ const fileSystem:module_fileSystem = {
                 tempPath.push(data.name);
                 return tempPath.join(vars.path.sep);
             }());
-            node.fs.stat(newPath, function terminal_server_services_fileSystem_rename_stat(statError:NodeJS.ErrnoException):void {
+            node.fs.stat(newPath, function terminal_server_services_fileSystem_rename_stat(statError:node_error):void {
                 if (statError === null) {
                     data.name = `File <em>${newPath}</em> already exists.`;
                     fileSystem.status.generate(data, null);
                 } else if (statError.code === "ENOENT") {
-                    node.fs.rename(data.location[0], newPath, function terminal_server_services_fileSystem_rename_callback(erRename:NodeJS.ErrnoException):void {
+                    node.fs.rename(data.location[0], newPath, function terminal_server_services_fileSystem_rename_callback(erRename:node_error):void {
                         if (erRename === null) {
                             data.name = `Renamed ${data.name} from ${data.location[0]}`;
                             fileSystem.status.generate(data, null);
@@ -324,7 +324,7 @@ const fileSystem:module_fileSystem = {
             
         },
         write: function terminal_server_services_fileSystem_write(data:service_fileSystem):void {
-            node.fs.writeFile(data.location[0], data.name, "utf8", function terminal_server_services_fileSystem_write_callback(erw:Error):void {
+            node.fs.writeFile(data.location[0], data.name, "utf8", function terminal_server_services_fileSystem_write_callback(erw:node_error):void {
                 const dirs:string[] = data.location[0].split(vars.path.sep);
                 dirs.pop();
                 data.agentSource.modalAddress = dirs.join(vars.path.sep);

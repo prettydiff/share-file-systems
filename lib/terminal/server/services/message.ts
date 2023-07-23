@@ -49,7 +49,7 @@ const message = function terminal_server_services_message(socketData:socketData)
                 });
             };
             if (vars.settings.message.length > count) {
-                node.fs.readdir(`${vars.path.project}lib${vars.path.sep}settings${vars.path.sep}message_archive`, function terminal_server_services_message_readdir(erd:Error, files:string[]):void {
+                node.fs.readdir(`${vars.path.project}lib${vars.path.sep}settings${vars.path.sep}message_archive`, function terminal_server_services_message_readdir(erd:node_error, files:string[]):void {
                     if (erd === null) {
                         const fileName:string = (function terminal_server_services_message_readdir_fileName():string {
                             const test:RegExp = (/message\d+\.json/),
@@ -81,7 +81,7 @@ const message = function terminal_server_services_message(socketData:socketData)
                             vars.settings.message = vars.settings.message.slice(count);
                             save();
                         });
-                        writeStream.on("error", function terminal_server_services_message_readdir_writeError(errMessage:NodeJS.ErrnoException):void {
+                        writeStream.on("error", function terminal_server_services_message_readdir_writeError(errMessage:node_error):void {
                             error(["Error on write stream to message archive"], errMessage);
                         });
                     } else {

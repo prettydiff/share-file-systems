@@ -38,7 +38,7 @@ const readCerts = function terminal_server_readCerts(callback:(options:transmit_
             const location:string = (certType === "ca")
                 ? `${certLocation + caName}.crt`
                 : `${certLocation + certName}.${certType}`;
-            node.fs.readFile(location, "utf8", function terminal_server_readCerts_httpsRead_readFile(fileError:Error, fileData:string):void {
+            node.fs.readFile(location, "utf8", function terminal_server_readCerts_httpsRead_readFile(fileError:node_error, fileData:string):void {
                 https.fileFlag[certType] = true;
                 if (fileError === null) {
                     if (certType === "crt") {
@@ -54,7 +54,7 @@ const readCerts = function terminal_server_readCerts(callback:(options:transmit_
             const location:string = (certType === "ca")
                 ? `${certLocation + caName}.crt`
                 : `${certLocation + certName}.${certType}`;
-            node.fs.stat(location, function terminal_server_readCerts_httpsFile_stat(statError:Error):void {
+            node.fs.stat(location, function terminal_server_readCerts_httpsFile_stat(statError:node_error):void {
                 if (statError === null) {
                     httpsRead(certType);
                 } else {

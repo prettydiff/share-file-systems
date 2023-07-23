@@ -140,7 +140,7 @@ const directory = function terminal_commands_library_directory(args:config_comma
                     args.callback(title, [summary, longest], list);
                 }
             },
-            method:(filePath:string, callback:(er:Error, stat:node_fs_Stats) => void) => void = (args.symbolic === true)
+            method:(filePath:string, callback:(er:node_error, stat:node_fs_Stats) => void) => void = (args.symbolic === true)
                 ? node.fs.lstat
                 : node.fs.stat,
             dirCounter = function terminal_commands_library_directory_dirCounter(item:string):void {
@@ -177,7 +177,7 @@ const directory = function terminal_commands_library_directory(args:config_comma
                 }
             },
             statWrapper = function terminal_commands_library_directory_statWrapper(filePath:string, parent:number):void {
-                method(filePath, function terminal_commands_library_directory_statWrapper_stat(er:Error, stats:node_fs_Stats):void {
+                method(filePath, function terminal_commands_library_directory_statWrapper_stat(er:node_error, stats:node_fs_Stats):void {
                     const statData:directory_data = (((vars.test.type === "service" || vars.test.type === "simulation") && vars.environment.command === "directory") || stats === undefined)
                         ? null
                         : {
@@ -255,7 +255,7 @@ const directory = function terminal_commands_library_directory(args:config_comma
                             };
                             if (item === "\\") {
                                 //cspell:disable-next-line
-                                node.child_process.exec("wmic logicaldisk get name", function terminal_commands_library_directory_statWrapper_stat_dir_windowsRoot(erw:Error, stdout:string, stderr:string):void {
+                                node.child_process.exec("wmic logicaldisk get name", function terminal_commands_library_directory_statWrapper_stat_dir_windowsRoot(erw:node_childProcess_ExecException, stdout:string, stderr:string):void {
                                     if (erw !== null || stderr !== "") {
                                         list.failures.push(item);
                                         if (dirs > 0) {
@@ -269,7 +269,7 @@ const directory = function terminal_commands_library_directory(args:config_comma
                                     }
                                 });
                             } else {
-                                node.fs.readdir(item, {encoding: "utf8"}, function terminal_commands_library_directory_statWrapper_stat_dir_readDir(erd:Error, files:string[]):void {
+                                node.fs.readdir(item, {encoding: "utf8"}, function terminal_commands_library_directory_statWrapper_stat_dir_readDir(erd:node_error, files:string[]):void {
                                     if (erd !== null) {
                                         list.failures.push(item);
                                         if (dirs > 0) {
@@ -332,12 +332,12 @@ const directory = function terminal_commands_library_directory(args:config_comma
                             }
                             populate("link");
                         },
-                        linkCallback = function terminal_commands_library_directory_statWrapper_stat_linkCallback(linkErr:Error, linkStat:node_fs_Stats):void {
+                        linkCallback = function terminal_commands_library_directory_statWrapper_stat_linkCallback(linkErr:node_error, linkStat:node_fs_Stats):void {
                             if (linkErr === null) {
                                 statData.linkType = (linkStat.isDirectory() === true)
                                     ? "directory"
                                     : "file";
-                                node.fs.realpath(filePath, function terminal_Commands_directory_statWrapper_stat_linkCallback_realPath(realErr:Error, realPath:string):void {
+                                node.fs.realpath(filePath, function terminal_Commands_directory_statWrapper_stat_linkCallback_realPath(realErr:node_error, realPath:string):void {
                                     if (realErr === null) {
                                         statData.linkPath = realPath;
                                         linkAction();

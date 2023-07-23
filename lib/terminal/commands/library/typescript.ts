@@ -7,14 +7,14 @@ import node from "../../utilities/node.js";
 import vars from "../../utilities/vars.js";
 
 const typescript = function terminal_commands_library_typescript(typePath:string, callback:commandCallback):void {
-    const errorOut = function terminal_commands_library_typescript_stat_errorOut(message:string, errorObject:node_childProcess_ExecException|NodeJS.ErrnoException):void {
+    const errorOut = function terminal_commands_library_typescript_stat_errorOut(message:string, errorObject:node_childProcess_ExecException|node_error):void {
         error([message], errorObject);
         process.exit(1);
     };
     if (typeof typePath !== "string" || typePath.length < 1) {
         typePath = vars.path.project;
     }
-    node.fs.stat(typePath, function terminal_commands_library_typescript_stat(statError:NodeJS.ErrnoException, stat:node_fs_Stats):void {
+    node.fs.stat(typePath, function terminal_commands_library_typescript_stat(statError:node_error, stat:node_fs_Stats):void {
         if (statError === null) {
             const dir:boolean = stat.isDirectory();
             if (dir === true) {
@@ -22,7 +22,7 @@ const typescript = function terminal_commands_library_typescript(typePath:string
                     args:node_childProcess_ExecOptions = {
                         cwd: typePath
                     };
-                node.child_process.exec(command, args, function terminal_commands_library_typescript_stat_exec(err:Error, stdout:string):void {
+                node.child_process.exec(command, args, function terminal_commands_library_typescript_stat_exec(err:node_childProcess_ExecException, stdout:string):void {
                     const control:string = "\u001b[91m";
                     if (stdout !== "") {
                         let compileErrors:string = stdout.slice(stdout.indexOf("Found"));

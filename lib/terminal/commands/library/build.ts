@@ -246,12 +246,12 @@ const build = function terminal_commands_library_build(config:config_command_bui
                     fileLength:number = 0;
                 const files:string[] = [],
                     filePath:string = `${vars.path.project}lib${vars.path.sep}css${vars.path.sep}`,
-                    dirCallback = function terminal_commands_library_build_bundleCSS_dirCallback(dirError:NodeJS.ErrnoException, fileList:string[]):void {
+                    dirCallback = function terminal_commands_library_build_bundleCSS_dirCallback(dirError:node_error, fileList:string[]):void {
                         if (dirError === null) {
                             const readComplete = function terminal_commands_library_build_bundleCSS_readComplete():void {
                                 fileCount = fileCount + 1;
                                 if (fileCount === fileLength) {
-                                    node.fs.writeFile(`${filePath}bundle.css`, files.join(node.os.EOL), function terminal_commands_library_build_bundleCSS_readComplete_writeFile(writeError:NodeJS.ErrnoException):void {
+                                    node.fs.writeFile(`${filePath}bundle.css`, files.join(node.os.EOL), function terminal_commands_library_build_bundleCSS_readComplete_writeFile(writeError:node_error):void {
                                         if (writeError === null) {
                                             next("CSS bundle written.");
                                         } else {
@@ -265,7 +265,7 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                 if (value === "bundle.css") {
                                     readComplete();
                                 } else {
-                                    node.fs.readFile(filePath + value, function terminal_commands_library_build_build_buildCSS_dirCallback_each_readFile(readError:NodeJS.ErrnoException, fileData:Buffer):void {
+                                    node.fs.readFile(filePath + value, function terminal_commands_library_build_build_buildCSS_dirCallback_each_readFile(readError:node_error, fileData:Buffer):void {
                                         if (readError === null) {
                                             files.push(fileData.toString().replace(/\r?\n/g, "").replace(/\/\*(\s|\w|-|,|:|\/|\\)+\*\//g, "").replace(/ +/g, " ").replace(/@font-face/g, `${node.os.EOL}@font-face`));
                                             readComplete();
@@ -295,7 +295,7 @@ const build = function terminal_commands_library_build(config:config_command_bui
                     ],
                     dirLen:number = dirs.length,
                     index = function terminal_commands_library_build_bundleJS_index():void {
-                        node.fs.readFile(`${filePath}index.js`, function terminal_commands_library_build_bundleJS_index_read(readError:NodeJS.ErrnoException, fileData:Buffer):void {
+                        node.fs.readFile(`${filePath}index.js`, function terminal_commands_library_build_bundleJS_index_read(readError:node_error, fileData:Buffer):void {
                             if (readError === null) {
                                 const storageCallback = function terminal_commands_library_build_bundleJS_index_read_storageCallback(settingsData:state_storage):void {
                                     let file:string = fileData.toString(),
@@ -326,7 +326,7 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                         // set state for Electron
                                         file = file.replace(/state = \{\s*addresses: null,\s*settings: null,\s*test: null\s*\}/, `state = {addresses:{"addresses":${JSON.stringify(vars.network.addresses)},"ports":${JSON.stringify(vars.network.ports)}},settings:${JSON.stringify(settingsData).replace(/'/g, "&#39;")},test:${testBrowser}}`);
                                     }
-                                    node.fs.writeFile(`${filePath}bundle.js`, file, function terminal_commands_library_build_bundleJS_index_read_writeFile(writeError:NodeJS.ErrnoException):void {
+                                    node.fs.writeFile(`${filePath}bundle.js`, file, function terminal_commands_library_build_bundleJS_index_read_writeFile(writeError:node_error):void {
                                         if (writeError === null) {
                                             next("Browser JavaScript bundle written.");
                                         } else {
@@ -344,11 +344,11 @@ const build = function terminal_commands_library_build(config:config_command_bui
                             }
                         });
                     },
-                    dirCallback = function terminal_commands_library_build_bundleJS_dirCallback(err:NodeJS.ErrnoException, fileList:string[]):void {
+                    dirCallback = function terminal_commands_library_build_bundleJS_dirCallback(err:node_error, fileList:string[]):void {
                         if (err === null) {
                             fileLength = fileLength + fileList.length;
                             fileList.forEach(function terminal_commands_library_build_bundleJS_dirCallback_each(fileName:string):void {
-                                node.fs.readFile(dirs[dirIndex] + vars.path.sep + fileName, function terminal_commands_library_build_bundleJS_dirCallback_each_fileContents(readError:NodeJS.ErrnoException, fileData:Buffer):void {
+                                node.fs.readFile(dirs[dirIndex] + vars.path.sep + fileName, function terminal_commands_library_build_bundleJS_dirCallback_each_fileContents(readError:node_error, fileData:Buffer):void {
                                     if (readError === null) {
                                         let file:string = fileData.toString();
                                         const commentPath:string = file.slice(0, file.indexOf(" -")).replace(/\/\*\s*/, "");
@@ -399,7 +399,7 @@ const build = function terminal_commands_library_build(config:config_command_bui
                 const selfSignCount:1|3 = (certFlags.selfSign === true)
                         ? 1
                         : 3,
-                    statCallback = function terminal_commands_library_build_certificate_statCallback(statError:NodeJS.ErrnoException):void {
+                    statCallback = function terminal_commands_library_build_certificate_statCallback(statError:node_error):void {
                         statCount = statCount + 1;
                         if (statError !== null) {
                             certStatError = true;
@@ -434,7 +434,7 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                     },
                                     cnfRead = function terminal_commands_library_build_certificate_statCallback_makeCerts_cnfRead():void {
                                         const cnfPath:string = `${certFlags.path}extensions.cnf`;
-                                        node.fs.readFile(cnfPath, function terminal_commands_library_build_certificate_statCallback_makeCerts_cnfRead_readCallback(readError:NodeJS.ErrnoException, fileData:Buffer):void {
+                                        node.fs.readFile(cnfPath, function terminal_commands_library_build_certificate_statCallback_makeCerts_cnfRead_readCallback(readError:node_error, fileData:Buffer):void {
                                             if (readError === null) {
                                                 let fileStr:string = fileData.toString();
                                                 const fields:string[] = [
@@ -466,7 +466,7 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                                         fileStr.slice(fileStr.indexOf(fields[3])).replace(/\s+$/, ""),
                                                         ""
                                                     ].join("\n");
-                                                    node.fs.writeFile(cnfPath, fileStr, function terminal_commands_library_build_certificate_statCallback_makeCerts_cnfRead_readCallback_writeFile(writeError:NodeJS.ErrnoException):void {
+                                                    node.fs.writeFile(cnfPath, fileStr, function terminal_commands_library_build_certificate_statCallback_makeCerts_cnfRead_readCallback_writeFile(writeError:node_error):void {
                                                         if (writeError === null) {
                                                             configComplete();
                                                         } else {
@@ -505,7 +505,7 @@ const build = function terminal_commands_library_build(config:config_command_bui
             },
             // clearStorage removes temporary settings files that should have been removed, but weren't
             clearStorage: function terminal_commands_library_build_clearStorage():void {
-                node.fs.readdir(`${vars.path.project}lib${vars.path.sep}settings`, function terminal_commands_library_build_clearStorage_dir(erd:Error, dirList:string[]) {
+                node.fs.readdir(`${vars.path.project}lib${vars.path.sep}settings`, function terminal_commands_library_build_clearStorage_dir(erd:node_error, dirList:string[]) {
                     if (erd !== null) {
                         error(["Error reading from settings directory."], erd);
                         return;
@@ -518,7 +518,7 @@ const build = function terminal_commands_library_build(config:config_command_bui
                     do {
                         if (tempTest.test(dirList[a]) === true) {
                             start = start + 1;
-                            node.fs.unlink(`${vars.path.project}lib${vars.path.sep}settings${vars.path.sep + dirList[a]}`, function terminal_commands_library_build_clearStorage_dir_unlink(eru:Error):void {
+                            node.fs.unlink(`${vars.path.project}lib${vars.path.sep}settings${vars.path.sep + dirList[a]}`, function terminal_commands_library_build_clearStorage_dir_unlink(eru:node_error):void {
                                 if (eru !== null) {
                                     error(["Error removing files from settings directory."], eru);
                                     return;
@@ -564,7 +564,7 @@ const build = function terminal_commands_library_build(config:config_command_bui
                     examples.forEach(eachExample);
                     output.push("");
                 });
-                node.fs.writeFile(filePath, output.join("\n"), "utf8", function terminal_commands_library_build_commands_write(err:Error):void {
+                node.fs.writeFile(filePath, output.join("\n"), "utf8", function terminal_commands_library_build_commands_write(err:node_error):void {
                     if (err === null) {
                         next(`File ${filePath} successfully written.`);
                         return;
@@ -574,12 +574,12 @@ const build = function terminal_commands_library_build(config:config_command_bui
             },
             // writes configuration data to files
             configurations: function terminal_commands_library_build_configurations():void {
-                node.fs.readFile(`${vars.path.project}lib${vars.path.sep}configurations.json`, "utf8", function terminal_commands_library_build_configurations_readFile(err:Error, fileData:string) {
+                node.fs.readFile(`${vars.path.project}lib${vars.path.sep}configurations.json`, "utf8", function terminal_commands_library_build_configurations_readFile(err:node_error, fileData:string) {
                     if (err === null) {
                         const config:configuration_application = JSON.parse(fileData) as configuration_application,
                             keys:string[] = Object.keys(config),
                             length:number = keys.length,
-                            writeCallback = function terminal_commands_library_build_configurations_readFile_writeCallback(wErr:Error):void {
+                            writeCallback = function terminal_commands_library_build_configurations_readFile_writeCallback(wErr:node_error):void {
                                 if (wErr === null) {
                                     a = a + 1;
                                     if (a === length) {
@@ -696,7 +696,7 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                     fileContents.push(`${path} - ${files[a].description}`);
                                     a = a + 1;
                                 } while (a < fileLength);
-                                node.fs.writeFile(filePath, fileContents.join("\n"), "utf8", function terminal_commands_library_build_libReadme_masterList_write(erWrite:NodeJS.ErrnoException):void {
+                                node.fs.writeFile(filePath, fileContents.join("\n"), "utf8", function terminal_commands_library_build_libReadme_masterList_write(erWrite:node_error):void {
                                     if (erWrite !== null) {
                                         error(["Error writing library_list.md documentation file."], erWrite);
                                         return;
@@ -723,7 +723,7 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                     writeComplete();
                                     return;
                                 }
-                                node.fs.readFile(filePath, "utf8", function terminal_commands_library_build_libReadme_write_readFile(erRead:Error, readme:string):void {
+                                node.fs.readFile(filePath, "utf8", function terminal_commands_library_build_libReadme_write_readFile(erRead:node_error, readme:string):void {
                                     if (erRead !== null) {
                                         error([
                                             "Error reading file during documentation build task.",
@@ -735,7 +735,7 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                         index:number = readme.indexOf(sample) + sample.length;
                                     readme = readme.slice(0, index) + `\n\n${fileList}`;
                                     // Ninth, write the documentation to each respective file
-                                    node.fs.writeFile(filePath, readme, "utf8", function terminal_commands_library_build_libReadme_write_readFile_writeFile(erWrite:Error):void {
+                                    node.fs.writeFile(filePath, readme, "utf8", function terminal_commands_library_build_libReadme_write_readFile_writeFile(erWrite:node_error):void {
                                         if (erWrite !== null) {
                                             error([
                                                 "Error writing file during documentation build task.",
@@ -750,7 +750,7 @@ const build = function terminal_commands_library_build(config:config_command_bui
                             },
 
                             // read code files for the required supporting comment at the top each code file
-                            fileRead = function terminal_commands_library_build_libReadme_fileRead(erRead:Error, file:string):void {
+                            fileRead = function terminal_commands_library_build_libReadme_fileRead(erRead:node_error, file:string):void {
                                 if (erRead !== null) {
                                     error(["Error reading file during documentation build task."], erRead);
                                     return;
@@ -877,7 +877,7 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                                 }
 
                                                 // write the updated file
-                                                node.fs.writeFile(codeFiles[a], file, "utf8", function terminal_commands_library_build_libReadme_fileRead_moduleComment_writeFile(writeError:NodeJS.ErrnoException):void {
+                                                node.fs.writeFile(codeFiles[a], file, "utf8", function terminal_commands_library_build_libReadme_fileRead_moduleComment_writeFile(writeError:node_error):void {
                                                     if (writeError !== null) {
                                                         error(["Error writing TypeScript module comment to code file."], writeError);
                                                     }
@@ -957,7 +957,7 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                 return false;
                             },
                             readModules = function terminal_commands_library_build_libReadme_readModules(type:"browser"|"terminal"):void {
-                                node.fs.readFile(`${vars.path.project}lib${vars.path.sep}typescript${vars.path.sep}modules_${type}.d.ts`, "utf8", function terminal_commands_library_build_libReadme_readModules_readFile(moduleError:NodeJS.ErrnoException, fileData:string):void {
+                                node.fs.readFile(`${vars.path.project}lib${vars.path.sep}typescript${vars.path.sep}modules_${type}.d.ts`, "utf8", function terminal_commands_library_build_libReadme_readModules_readFile(moduleError:node_error, fileData:string):void {
                                     const modulesComplete = function terminal_commands_library_build_libReadme_readModules_readFile_modulesComplete():void {
                                         // Fifth, read from the files, the callback is recursive
                                         a = 0;
@@ -1053,7 +1053,7 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                     windowsTrust:"My"|"Root" = "Root",
                                     windowsStore:string = `Cert:\\${windowsStoreName}\\${windowsTrust}`,
                                     importCerts = function terminal_commands_library_build_osSpecific_windows_certs_importCerts():void {
-                                        node.fs.readFile(`${vars.path.project}lib${vars.path.sep}certificate${vars.path.sep}windows.ps1`, function terminal_commands_library_build_osSpecific_windows_certs_importCerts_readFile(readError:NodeJS.ErrnoException, fileData:Buffer):void {
+                                        node.fs.readFile(`${vars.path.project}lib${vars.path.sep}certificate${vars.path.sep}windows.ps1`, function terminal_commands_library_build_osSpecific_windows_certs_importCerts_readFile(readError:node_error, fileData:Buffer):void {
                                             if (readError === null) {
                                                 const str:string = fileData.toString().replace(/Get-Content "lib\\certificate\\/g, `Get-Content "${vars.path.project}lib${vars.path.sep}certificate${vars.path.sep}`);
                                                 node.child_process.exec(str, {
@@ -1200,7 +1200,7 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                     },
                                     // forces an absolute path into the linux.sh file for ease of troubleshooting
                                     modifyLinux = function terminal_commands_library_build_osSpecific_distributions_modifyLinux():void {
-                                        node.fs.readFile(linuxPath, function terminal_commands_library_build_osSpecific_distributions_modifyLinux_readLinux(err:NodeJS.ErrnoException, fileData:Buffer):void {
+                                        node.fs.readFile(linuxPath, function terminal_commands_library_build_osSpecific_distributions_modifyLinux_readLinux(err:node_error, fileData:Buffer):void {
                                             if (err === null) {
                                                 const linuxFile:string = fileData.toString(),
                                                     start:number = fileData.indexOf("certfile=\""),
@@ -1209,7 +1209,7 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                                 segments.push(linuxFile.slice(0, start));
                                                 segments.push(`certfile="${certFlags.path}share-file-root.crt"\n`);
                                                 segments.push(linuxFile.slice(end));
-                                                node.fs.writeFile(linuxPath, segments.join(""), function terminal_commands_library_build_osSpecific_distributions_modifyLinux_readLinux_writeLinux(errWrite:NodeJS.ErrnoException):void {
+                                                node.fs.writeFile(linuxPath, segments.join(""), function terminal_commands_library_build_osSpecific_distributions_modifyLinux_readLinux_writeLinux(errWrite:node_error):void {
                                                     if (errWrite === null) {
                                                         linuxCallback();
                                                     } else {
@@ -1267,7 +1267,7 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                             error(["Error executing a command with sudo."], sudoErr);
                                         }
                                     },
-                                    statCallback = function terminal_commands_library_build_osSpecific_distributions_statCallback(certError:NodeJS.ErrnoException):void {
+                                    statCallback = function terminal_commands_library_build_osSpecific_distributions_statCallback(certError:node_error):void {
                                         statCount = statCount + 1;
                                         if (certError !== null) {
                                             flags.statError = true;
@@ -1313,12 +1313,12 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                 modifyLinux();
                             },
                             callbacks:build_posix_distribution = {
-                                arch: function terminal_commands_library_build_osSpecific_callbackArch(statErr:NodeJS.ErrnoException):void {
+                                arch: function terminal_commands_library_build_osSpecific_callbackArch(statErr:node_error):void {
                                     if (statErr === null) {
                                         distributions("arch");
                                     }
                                 },
-                                darwin: function terminal_commands_library_build_osSpecific_callbackDarwin(statErr:NodeJS.ErrnoException):void {
+                                darwin: function terminal_commands_library_build_osSpecific_callbackDarwin(statErr:node_error):void {
                                     if (statErr === null) {
                                         if (certFlags.forced === true || certStatError === true) {
                                             distributions("darwin");
@@ -1327,12 +1327,12 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                         }
                                     }
                                 },
-                                fedora: function terminal_commands_library_build_osSpecific_callbackFedora(statErr:NodeJS.ErrnoException):void {
+                                fedora: function terminal_commands_library_build_osSpecific_callbackFedora(statErr:node_error):void {
                                     if (statErr === null) {
                                         distributions("fedora");
                                     }
                                 },
-                                ubuntu: function terminal_commands_library_build_osSpecific_callbackUbuntu(statErr:NodeJS.ErrnoException):void {
+                                ubuntu: function terminal_commands_library_build_osSpecific_callbackUbuntu(statErr:node_error):void {
                                     if (statErr === null) {
                                         storeList.ubuntu = `${storeList.ubuntu}/extra`;
                                         distributions("ubuntu");
@@ -1359,7 +1359,7 @@ const build = function terminal_commands_library_build(config:config_command_bui
             },
             // same as NPM global install, but without NPM
             shellGlobal: function terminal_commands_library_build_shellGlobal():void {
-                node.child_process.exec("npm root -g", function terminal_commands_library_build_shellGlobal_npm(err:Error, npm:string):void {
+                node.child_process.exec("npm root -g", function terminal_commands_library_build_shellGlobal_npm(err:node_childProcess_ExecException, npm:string):void {
                     if (err === null) {
                         // commandName is attained from package.json
                         const globalPath:string = npm.replace(/\s+$/, "") + vars.path.sep + commandName,
@@ -1372,7 +1372,7 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                     readEntry = function terminal_commands_library_build_shellGlobal_npm_files_readEntry():void {
                                         node.fs.readFile(`${vars.path.js}terminal${vars.path.sep}utilities${vars.path.sep}entry.js`, {
                                             encoding: "utf8"
-                                        }, function terminal_commands_library_build_shellGlobal_npm_files_remove_read(readError:Error, fileData:string):void {
+                                        }, function terminal_commands_library_build_shellGlobal_npm_files_remove_read(readError:node_error, fileData:string):void {
                                             if (readError === null) {
                                                 const varsName:string = (vars.environment.module_type === "module")
                                                         ? "vars"
@@ -1508,7 +1508,7 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                     removeCallback = function terminal_commands_library_build_shellGlobal_npm_files_removeCallback():void {
                                         removeCount = removeCount + 1;
                                         if (removeCount === 2) {
-                                            node.fs.stat(vars.settings.ui.storage, function terminal_commands_library_build_shellGlobal_npm_files_removeCallback_storageStat(storageError:NodeJS.ErrnoException):void {
+                                            node.fs.stat(vars.settings.ui.storage, function terminal_commands_library_build_shellGlobal_npm_files_removeCallback_storageStat(storageError:node_error):void {
                                                 if (storageError === null) {
                                                     readEntry();
                                                 } else {
@@ -1522,7 +1522,7 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                 remove(binName.replace(".mjs", ".js"), [], removeCallback);
                                 remove(binName, [], removeCallback);
                             };
-                        node.fs.stat(bin, function terminal_commands_library_build_shellGlobal_npm_stat(errs:NodeJS.ErrnoException):void {
+                        node.fs.stat(bin, function terminal_commands_library_build_shellGlobal_npm_stat(errs:node_error):void {
                             if (errs === null) {
                                 files();
                             } else {
@@ -1570,26 +1570,26 @@ const build = function terminal_commands_library_build(config:config_command_bui
             version: function terminal_commands_library_build_version():void {
                 const pack:string = `${vars.path.project}package.json`,
                     configPath:string = `${vars.path.project}lib${vars.path.sep}configurations.json`,
-                    packStat = function terminal_commands_library_build_version_packStat(ers:Error, stats:node_fs_Stats):void {
+                    packStat = function terminal_commands_library_build_version_packStat(ers:node_error, stats:node_fs_Stats):void {
                         if (ers !== null) {
                             error(["Error executing stat on package.json file for version task of build."], ers);
                             return;
                         }
-                        const readPack = function terminal_commands_library_build_version_packStat_readPack(err:Error, data:string):void {
+                        const readPack = function terminal_commands_library_build_version_packStat_readPack(err:node_error, data:string):void {
                                 if (err === null) {
                                     const packageData:configuration_packageJSON = JSON.parse(data) as configuration_packageJSON,
-                                        commitHash = function terminal_commands_library_build_version_packStat_readPack_commitHash(hashErr:Error, stdout:string, stderr:string):void {
+                                        commitHash = function terminal_commands_library_build_version_packStat_readPack_commitHash(hashErr:node_childProcess_ExecException, stdout:string, stderr:string):void {
                                             const flag:flagList = {
                                                     config: false,
                                                     package: false
                                                 },
-                                                readConfig = function terminal_commands_library_build_version_packStat_readPack_commitHash_readConfig(err:Error, configFile:string):void {
+                                                readConfig = function terminal_commands_library_build_version_packStat_readPack_commitHash_readConfig(err:node_error, configFile:string):void {
                                                     if (err !== null) {
                                                         error(["Error reading configuration.json file."], err);
                                                         return;
                                                     }
                                                     const config:configuration_application = JSON.parse(configFile) as configuration_application,
-                                                        writeConfig = function terminal_commands_library_build_version_packStat_readPack_commitHash_readConfig_writeConfig(erc:Error):void {
+                                                        writeConfig = function terminal_commands_library_build_version_packStat_readPack_commitHash_readConfig_writeConfig(erc:node_error):void {
                                                             if (erc !== null) {
                                                                 error(["Error writing configuration.json file."], erc);
                                                                 return;
@@ -1599,7 +1599,7 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                                                 next("Version data written");
                                                             }
                                                         },
-                                                        versionWrite = function terminal_commands_library_build_version_packStat_readPack_commitHash_packageWrite(err:Error):void {
+                                                        versionWrite = function terminal_commands_library_build_version_packStat_readPack_commitHash_packageWrite(err:node_error):void {
                                                             if (err === null) {
                                                                 flag.package = true;
                                                                 if (flag.config === true) {
@@ -1714,7 +1714,7 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                             node.fs.readFile(configPath, "utf8", readConfig);
                                         };
                                     
-                                    node.fs.stat(`${vars.path.project}.git`, function terminal_commands_library_build_version_packStat_readPack_gitStat(gitError:Error):void {
+                                    node.fs.stat(`${vars.path.project}.git`, function terminal_commands_library_build_version_packStat_readPack_gitStat(gitError:node_error):void {
                                         if (gitError === null) {
                                             node.child_process.exec("git rev-parse HEAD", {
                                                 cwd: vars.path.project

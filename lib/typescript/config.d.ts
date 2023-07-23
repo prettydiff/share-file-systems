@@ -463,14 +463,14 @@ interface config_radioListItem {
  * For rename of terminal/utilities/rename.
  * ```typescript
  * interface config_rename {
- *     callback: (error:NodeJS.ErrnoException, newList:directory_list[]) => void;
+ *     callback: (error:node_error, newList:directory_list[]) => void;
  *     destination: string;
  *     list: directory_list[];
  *     replace: boolean;
  * }
  * ``` */
 interface config_rename {
-    callback: (error:NodeJS.ErrnoException, newList:directory_list[]) => void;
+    callback: (error:node_error, newList:directory_list[]) => void;
     destination: string;
     list: directory_list[];
     replace: boolean;
@@ -694,14 +694,14 @@ interface config_websocket_server {
  * For writeStream of terminal/utilities/writeStream
  * ```typescript
  * interface config_writeStream {
- *     callback: (error:NodeJS.ErrnoException) => void;
+ *     callback: (error:node_error) => void;
  *     destination: string;
  *     source: string;
  *     stat: directory_data;
  * }
  * ``` */
 interface config_writeStream {
-    callback: (error:NodeJS.ErrnoException) => void;
+    callback: (error:node_error) => void;
     destination: string;
     source: Buffer | string;
     stat: directory_data;

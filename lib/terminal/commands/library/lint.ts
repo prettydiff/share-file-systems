@@ -16,7 +16,7 @@ const lint = function terminal_commands_library_lint(lintPath:string, callback:c
         text:string[] = [];
     node.child_process.exec(`npx eslint ${lintPath} --ext ts`, {
         cwd: vars.path.project
-    }, function terminal_commands_lint_eslint(err:Error, stdout:string, stderr:string) {
+    }, function terminal_commands_lint_eslint(err:node_childProcess_ExecException, stdout:string, stderr:string) {
         if (stdout.indexOf("error") > 0) {
             error([stdout, `Lint failure.${bell}`], null, true);
             return;

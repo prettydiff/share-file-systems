@@ -403,7 +403,7 @@ const fileCopy:module_fileCopy = {
                                 status.failures = status.failures + 1;
                                 failList.push(path_source);
                                 error([message], null);
-                                node.fs.unlink(path_write, function terminal_server_services_fileCopy_write_fileReceive_fileError_unlink(unlinkErr:NodeJS.ErrnoException):void {
+                                node.fs.unlink(path_write, function terminal_server_services_fileCopy_write_fileReceive_fileError_unlink(unlinkErr:node_error):void {
                                     if (unlinkErr !== null) {
                                         error([`Error removing file system artifact ${path_write}`], unlinkErr);
                                     }
@@ -463,7 +463,7 @@ const fileCopy:module_fileCopy = {
                                     fileError(`Write stream terminated before response end for file ${file_name}.`);
                                 }
                             });
-                            fileResponse.on("error", function terminal_fileService_serviceCopy_requestFiles_callbackStream_streamer_error(error:Error):void {
+                            fileResponse.on("error", function terminal_fileService_serviceCopy_requestFiles_callbackStream_streamer_error(error:node_error):void {
                                 fileError(error.toString());
                             });
                         }
@@ -529,7 +529,7 @@ const fileCopy:module_fileCopy = {
                             transmit_http.request(request);
                         }
                     },
-                    renameCallback = function terminal_server_services_fileCopy_write_renameCallback(renameError:NodeJS.ErrnoException, list:directory_list[]):void {
+                    renameCallback = function terminal_server_services_fileCopy_write_renameCallback(renameError:node_error, list:directory_list[]):void {
                         if (renameError === null) {
                             const securityCallback = function terminal_server_services_fileCopy_write_renameCallback_securityCallback():void {
                                 let listIndex:number = 0,

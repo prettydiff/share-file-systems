@@ -11,7 +11,7 @@ const mkdir = function terminal_commands_library_mkdir(dir:string, callback:comm
     const dirs:string[] = dir.split(vars.path.sep),
         title:string = "Make Directory",
         len:number = dirs.length,
-        errorHandler = function terminal_commands_library_mkdir_errorHandler(errorInstance:NodeJS.ErrnoException, statInstance:node_fs_Stats, errorCallback:() => void):void {
+        errorHandler = function terminal_commands_library_mkdir_errorHandler(errorInstance:node_error, statInstance:node_fs_Stats, errorCallback:() => void):void {
             if (errorInstance !== null) {
                 if (errorInstance.code === "ENOENT") {
                     errorCallback();
@@ -49,9 +49,9 @@ const mkdir = function terminal_commands_library_mkdir(dir:string, callback:comm
         recursiveStat = function terminal_commands_library_mkdir_recursiveStat():void {
             ind = ind + 1;
             const target:string = dirs.slice(0, ind).join(vars.path.sep);
-            node.fs.stat(target, function terminal_commands_library_mkdir_recursiveStat_callback(errA:NodeJS.ErrnoException, statA:node_fs_Stats):void {
+            node.fs.stat(target, function terminal_commands_library_mkdir_recursiveStat_callback(errA:node_error, statA:node_fs_Stats):void {
                 errorHandler(errA, statA, function terminal_commands_library_mkdir_recursiveStat_callback_errorHandler():void {
-                    node.fs.mkdir(target, function terminal_commands_library_mkdir_recursiveStat_callback_errorHandler_makeDir(errB:NodeJS.ErrnoException):void {
+                    node.fs.mkdir(target, function terminal_commands_library_mkdir_recursiveStat_callback_errorHandler_makeDir(errB:node_error):void {
                         if (errB !== null && vars.settings.verbose === true && errB.toString().indexOf("file already exists") < 0) {
                             callback(title, [JSON.stringify(errB)], true);
                         } else if (ind < len) {
@@ -66,7 +66,7 @@ const mkdir = function terminal_commands_library_mkdir(dir:string, callback:comm
     if (dirs[0] === "") {
         ind = ind + 1;
     }
-    node.fs.stat(dir, function terminal_commands_library_mkdir_stat(statError:NodeJS.ErrnoException, stats:node_fs_Stats):void {
+    node.fs.stat(dir, function terminal_commands_library_mkdir_stat(statError:node_error, stats:node_fs_Stats):void {
         if (statError === null) {
             if (stats.isDirectory() === true) {
                 callback(title, [`Directory already exists: ${dir}`], false);

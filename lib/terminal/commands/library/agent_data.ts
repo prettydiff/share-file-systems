@@ -186,7 +186,7 @@ const agentData = function terminal_commands_library_agentData(type:agentType, c
                 callback("Data for User Agents", text, null);
             }
         },
-        deviceCallback = function terminal_commands_library_agentData_deviceCallback(readErr:NodeJS.ErrnoException, fileData:string):void {
+        deviceCallback = function terminal_commands_library_agentData_deviceCallback(readErr:node_error, fileData:string):void {
             if (readErr === null) {
                 agents.device = JSON.parse(fileData) as agents;
                 readFlag[0] = true;
@@ -204,7 +204,7 @@ const agentData = function terminal_commands_library_agentData(type:agentType, c
                 return;
             }
         },
-        userCallback = function terminal_commands_library_agentData_userCallback(readErr:NodeJS.ErrnoException, fileData:string):void {
+        userCallback = function terminal_commands_library_agentData_userCallback(readErr:node_error, fileData:string):void {
             if (readErr === null) {
                 agents.user = JSON.parse(fileData) as agents;
                 readFlag[1] = true;

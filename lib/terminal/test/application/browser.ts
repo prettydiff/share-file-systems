@@ -414,7 +414,7 @@ const defaultCommand:commands = vars.environment.command,
                                         return `${keyword} ${process.argv[0]} ${path}`;
                                     }())
                                     : `${keyword} ${path}`,
-                                child = function terminal_test_application_browser_reset_readdir_browserLaunch_child(errs:Error, stdout:string, stderr:Buffer | string):void {
+                                child = function terminal_test_application_browser_reset_readdir_browserLaunch_child(errs:node_childProcess_ExecException, stdout:string, stderr:Buffer | string):void {
                                     if (errs !== null) {
                                         error(["Error opening browser in test automation."], errs);
                                         return;

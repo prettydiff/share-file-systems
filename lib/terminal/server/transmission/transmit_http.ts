@@ -147,7 +147,7 @@ const transmit_http:module_transmit_http = {
                                 if (test() === true) {
                                     post();
                                 } else {
-                                    node.fs.stat(`${vars.path.project}lib${vars.path.sep}settings${vars.path.sep}user.json`, function terminal_server_transmission_transmitHttp_receive_requestEnd_delay_userStat(err:NodeJS.ErrnoException):void {
+                                    node.fs.stat(`${vars.path.project}lib${vars.path.sep}settings${vars.path.sep}user.json`, function terminal_server_transmission_transmitHttp_receive_requestEnd_delay_userStat(err:node_error):void {
                                         if (err === null) {
                                             destroy();
                                         }
@@ -177,7 +177,7 @@ const transmit_http:module_transmit_http = {
                     postTest(agent, true);
                 }
             },
-            requestError = function terminal_server_transmission_transmitHttp_receive_requestError(errorMessage:NodeJS.ErrnoException):void {
+            requestError = function terminal_server_transmission_transmitHttp_receive_requestError(errorMessage:node_error):void {
                 const errorString:string = JSON.stringify(errorMessage);
                 if (errorMessage.code !== "ETIMEDOUT" && (ended === false || (ended === true && errorString.indexOf("Error: aborted") < 0))) {
                     const body:string = chunks.join("");
@@ -192,7 +192,7 @@ const transmit_http:module_transmit_http = {
                     ]);
                 }
             },
-            responseError = function terminal_server_transmission_transmitHttp_receive_responseError(errorMessage:NodeJS.ErrnoException):void {
+            responseError = function terminal_server_transmission_transmitHttp_receive_responseError(errorMessage:node_error):void {
                 if (errorMessage.code !== "ETIMEDOUT") {
                     const body:string = chunks.join("");
                     log([
@@ -249,7 +249,7 @@ const transmit_http:module_transmit_http = {
                             ? 7200000
                             : 5000
                 },
-                errorMessage = function terminal_sever_transmission_transmitHttp_request_errorMessage(type:"request"|"response", errorItem:NodeJS.ErrnoException):string[] {
+                errorMessage = function terminal_sever_transmission_transmitHttp_request_errorMessage(type:"request"|"response", errorItem:node_error):string[] {
                     const agent:agent = vars.agents[config.agentType][config.agent],
                         errorText:string[] = [`${vars.text.angry}Error on client HTTP ${type} for service:${vars.text.none} ${config.payload.service}`];
                     if (agent === undefined) {
@@ -261,7 +261,7 @@ const transmit_http:module_transmit_http = {
                     errorText.push(JSON.stringify(errorItem));
                     return errorText;
                 },
-                requestError = function terminal_server_transmission_transmitHttp_request_requestError(erRequest:NodeJS.ErrnoException):void {
+                requestError = function terminal_server_transmission_transmitHttp_request_requestError(erRequest:node_error):void {
                     if (vars.settings.verbose === true || vars.test.type.indexOf("browser") > -1) {
                         log(errorMessage("request", erRequest));
                     }
@@ -283,7 +283,7 @@ const transmit_http:module_transmit_http = {
                                 config.callback(JSON.parse(body) as socketData, fsResponse);
                             }
                         });
-                        fsResponse.on("error", function terminal_server_transmission_transmitHttp_request_requestCallback_onError(erResponse:NodeJS.ErrnoException):void {
+                        fsResponse.on("error", function terminal_server_transmission_transmitHttp_request_requestCallback_onError(erResponse:node_error):void {
                             if (erResponse.code !== "ETIMEDOUT") {
                                 errorMessage("response", erResponse);
                             }
@@ -457,7 +457,7 @@ const transmit_http:module_transmit_http = {
                 }
                 if (serverOptions.browser === true) {
                     const browserCommand:string = `${vars.terminal.executionKeyword} ${scheme}://${vars.network.domain[0] + portString}/`;
-                    node.child_process.exec(browserCommand, {cwd: vars.terminal.cwd}, function terminal_server_transmission_transmitHttp_server_browser_child(errs:Error, stdout:string, stdError:Buffer | string):void {
+                    node.child_process.exec(browserCommand, {cwd: vars.terminal.cwd}, function terminal_server_transmission_transmitHttp_server_browser_child(errs:node_childProcess_ExecException, stdout:string, stdError:Buffer | string):void {
                         if (errs !== null) {
                             error([], errs);
                             return;
@@ -595,7 +595,7 @@ const transmit_http:module_transmit_http = {
                                     logOutput();
                                 } else {
                                     readStorage(true, function terminal_server_transmission_transmitHttp_server_start_listen_websocketCallback_readComplete(storage:state_storage):void {
-                                        node.fs.stat(storage.ui.storage, function terminal_server_transmission_transmitHttp_server_start_listen_websocketCallback_readComplete_storageStat(storageError:NodeJS.ErrnoException):void {
+                                        node.fs.stat(storage.ui.storage, function terminal_server_transmission_transmitHttp_server_start_listen_websocketCallback_readComplete_storageStat(storageError:node_error):void {
                                             if (storageError === null) {
                                                 vars.settings.ui.storage = storage.ui.storage;
                                             }

@@ -53,7 +53,7 @@ type qualifierFile = "file begins" | "file contains" | "file ends" | "file is" |
 type resizeDirection = "b" | "bl" | "br" | "l" | "r" | "t" | "tl" | "tr";
 type searchType = "fragment" | "negation" | "regex";
 type selector = "class" | "id" | "tag";
-type service_error = fileSystem_agents & NodeJS.ErrnoException;
+type service_error = fileSystem_agents & node_error;
 // eslint-disable-next-line
 type service_log = any[];
 type service_message = message_item[];
