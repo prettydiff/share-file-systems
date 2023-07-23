@@ -23,7 +23,8 @@ import vars from "../../utilities/vars.js";
  *     agentClose      : (socket:websocket_client) => void;                                    // A uniform way to notify browsers when a remote agent goes offline
  *     clientReceiver  : websocket_messageHandler;                                             // Processes data from regular agent websocket tunnels into JSON for processing by receiver library.
  *     createSocket    : (config:config_websocket_create) => void;                             // Creates a new socket for use by openAgent and openService methods.
- *     ipAttempts: {
+ *     encryption      : (keySize:"private"|"public", input:string, socketType:agentType) => string; // provides a common abstraction for encryption operations.
+ *     ipAttempts      : {
  *         device: {
  *             [key:string]: string[];
  *         };
@@ -194,18 +195,26 @@ const transmit_ws:module_transmit_ws = {
                     return null;
                 }
                 const keyName:"keyDevicePrivate"|"keyDevicePublic"|"keyUserPrivate"|"keyUserPublic" = (socketType === "device")
-                    ? (keySide === "private")
-                        ? "keyDevicePrivate"
-                        : "keyDevicePublic"
-                    : (keySide === "private")
-                        ? "keyUserPrivate"
-                        : "keyUserPublic";
-                return node.crypto.createPrivateKey({
+                        ? (keySide === "private")
+                            ? "keyDevicePrivate"
+                            : "keyDevicePublic"
+                        : (keySide === "private")
+                            ? "keyUserPrivate"
+                            : "keyUserPublic";
+                if (keySide === "private") {
+                    return node.crypto.createPrivateKey({
+                        encoding: "utf8",
+                        format: "pem",
+                        key: vars.identity[keyName],
+                        passphrase: vars.identity.hashDevice,
+                        type: "pkcs8"
+                    });
+                }
+                return node.crypto.createPublicKey({
                     encoding: "utf8",
                     format: "pem",
                     key: vars.identity[keyName],
-                    passphrase: "",
-                    type: "pkcs8"
+                    type: "spki"
                 });
             }()),
             operation:"privateEncrypt"|"publicDecrypt" = (keySide === "private")
