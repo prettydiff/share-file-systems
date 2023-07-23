@@ -20,10 +20,10 @@ import vars from "../../utilities/vars.js";
  * The websocket library
  * ```typescript
  * interface transmit_ws {
- *     agentClose      : (socket:websocket_client) => void;                                    // A uniform way to notify browsers when a remote agent goes offline
- *     clientReceiver  : websocket_messageHandler;                                             // Processes data from regular agent websocket tunnels into JSON for processing by receiver library.
- *     createSocket    : (config:config_websocket_create) => void;                             // Creates a new socket for use by openAgent and openService methods.
- *     encryption      : (keySize:"private"|"public", input:string, socketType:agentType) => string; // provides a common abstraction for encryption operations.
+ *     agentClose      : (socket:websocket_client) => void;                                     // A uniform way to notify browsers when a remote agent goes offline
+ *     clientReceiver  : websocket_messageHandler;                                              // Processes data from regular agent websocket tunnels into JSON for processing by receiver library.
+ *     createSocket    : (config:config_websocket_create) => void;                              // Creates a new socket for use by openAgent and openService methods.
+ *     encryption      : (keySize:"private"|"public", input:string, keyValue:string) => string; // provides a common abstraction for encryption operations.
  *     ipAttempts      : {
  *         device: {
  *             [key:string]: string[];
@@ -31,25 +31,25 @@ import vars from "../../utilities/vars.js";
  *         user: {
  *             [key:string]: string[];
  *         };
- *     };                                                                                      // stores connection attempts as a list of ip addresses by agent hash
- *     list            : () => void;                                                           // Updates local device socket list for storage on transmit_ws.status.
- *     listener        : (socket:websocket_client) => void;                                    // A handler attached to each socket to listen for incoming messages.
+ *     };                                                                                       // stores connection attempts as a list of ip addresses by agent hash
+ *     list            : () => void;                                                            // Updates local device socket list for storage on transmit_ws.status.
+ *     listener        : (socket:websocket_client) => void;                                     // A handler attached to each socket to listen for incoming messages.
  *     open: {
  *         agent:   (config:config_websocket_openAgent) => void;   // Opens a long-term socket tunnel between known agents.
  *         service: (config:config_websocket_openService) => void; // Opens a service specific tunnel that ends when the service completes.
- *     };                                                                                      // methods to open sockets according to different security contexts
- *     queue           : (body:Buffer|socketData, socket:socketClient, opcode:number) => void; // Pushes outbound data into a managed queue to ensure data frames are not intermixed.
- *     queueSend       : (socket:websocket_client) => void;                                    // Pushes messages stored from the agent's offline queue into the transmission queue.
- *     server          : (config:config_websocket_server) => node_net_Server;                  // Creates a websocket server.
- *     socketExtensions: (config:config_websocket_extensions) => void;                         // applies application specific extensions to sockets
+ *     };                                                                                       // methods to open sockets according to different security contexts
+ *     queue           : (body:Buffer|socketData, socket:socketClient, opcode:number) => void;  // Pushes outbound data into a managed queue to ensure data frames are not intermixed.
+ *     queueSend       : (socket:websocket_client) => void;                                     // Pushes messages stored from the agent's offline queue into the transmission queue.
+ *     server          : (config:config_websocket_server) => node_net_Server;                   // Creates a websocket server.
+ *     socketExtensions: (config:config_websocket_extensions) => void;                          // applies application specific extensions to sockets
  *     socketList      : {
  *         browser   : websocket_list;
  *         device    : websocket_list;
  *         testRemote: websocket_list;
  *         user      : websocket_list;
- *     };                                                                                      // A store of open sockets by agent type.
- *     status          : socketList;                                                           // Stores open socket status information for all devices.
- *     statusUpdate    : (socketData:socketData) => void;                                      // Receive socket status list updates from other devices.
+ *     };                                                                                       // A store of open sockets by agent type.
+ *     status          : socketList;                                                            // Stores open socket status information for all devices.
+ *     statusUpdate    : (socketData:socketData) => void;                                       // Receive socket status list updates from other devices.
  * }
  * ``` */
 const transmit_ws:module_transmit_ws = {
@@ -118,7 +118,11 @@ const transmit_ws:module_transmit_ws = {
                         : (config.socketType === "user")
                             ? vars.identity.hashUser
                             : config.hash,
-                    privateKey:string = transmit_ws.encryption("private", vars.identity.hashDevice, config.socketType as agentType),
+                    privateKey:string = (config.socketType === "device" || config.socketType === "user")
+                        ? transmit_ws.encryption("private", vars.identity.hashDevice, (config.socketType === "device")
+                            ? vars.identity.keyDevicePrivate
+                            : vars.identity.keyUserPrivate)
+                        : null,
                     header:string[] = [
                         "GET / HTTP/1.1",
                         (config.ip.indexOf(":") > -1)
@@ -186,26 +190,16 @@ const transmit_ws:module_transmit_ws = {
             stat: null
         });
     },
-    encryption: function terminal_server_transmission_transmitWs_encryption(keySide:"private"|"public", input:string, socketType:agentType):string {
+    encryption: function terminal_server_transmission_transmitWs_encryption(keySide:"private"|"public", input:string, keyValue:string):string {
         const key:node_crypto_KeyObject = (function terminal_server_transmission_transmitWs_createSocket_hash_privateKey():node_crypto_KeyObject {
                 if (vars.identity.hashDevice === "") {
                     return null;
                 }
-                if (socketType !== "device" && socketType !== "user") {
-                    return null;
-                }
-                const keyName:"keyDevicePrivate"|"keyDevicePublic"|"keyUserPrivate"|"keyUserPublic" = (socketType === "device")
-                        ? (keySide === "private")
-                            ? "keyDevicePrivate"
-                            : "keyDevicePublic"
-                        : (keySide === "private")
-                            ? "keyUserPrivate"
-                            : "keyUserPublic";
                 if (keySide === "private") {
                     return node.crypto.createPrivateKey({
                         encoding: "utf8",
                         format: "pem",
-                        key: vars.identity[keyName],
+                        key: keyValue,
                         passphrase: vars.identity.hashDevice,
                         type: "pkcs8"
                     });
@@ -213,7 +207,7 @@ const transmit_ws:module_transmit_ws = {
                 return node.crypto.createPublicKey({
                     encoding: "utf8",
                     format: "pem",
-                    key: vars.identity[keyName],
+                    key: keyValue,
                     type: "spki"
                 });
             }()),
@@ -223,10 +217,13 @@ const transmit_ws:module_transmit_ws = {
         if (key === null) {
             return null;
         }
-        if (input.length > 114) {
-            input = input.slice(input.length - 114);
-        }
-        return node.crypto[operation](key, Buffer.from(input)).toString();
+        //if (input.length > 114) {
+        //    input = input.slice(input.length - 114);
+        //}
+        return node.crypto[operation]({
+            key: key,
+            padding: node.crypto.constants.RSA_NO_PADDING
+        }, Buffer.from(input)).toString();
     },
     ipAttempts: {
         device: {},
@@ -829,9 +826,14 @@ const transmit_ws:module_transmit_ws = {
                                             return;
                                         }
                                         if (vars.identity.hashDevice !== "") {
-                                            let challenge:string = dataString.slice(dataString.indexOf("\r\nchallenge:")).replace(/\s+challenge:\s*/, "");
+                                            let challenge:string = dataString.slice(dataString.indexOf("\r\nchallenge:")).replace(/\s+challenge:\s*/, ""),
+                                                decrypted:string = "";
                                             challenge = challenge.slice(0, challenge.indexOf("\r")).replace(/\s+/g, "");
-                                            if (transmit_ws.encryption("public", challenge, socket.type as agentType) !== hashName) {
+                                            decrypted = transmit_ws.encryption("public", challenge, vars.agents[type][hashName].publicKey);
+                                            if (decrypted !== hashName) {
+                                                console.log(decrypted);
+                                                console.log(hashName);
+                                                console.log(decrypted.length+" "+hashName.length);
                                                 socket.destroy();
                                                 return;
                                             }

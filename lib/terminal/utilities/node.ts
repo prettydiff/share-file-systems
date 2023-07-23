@@ -1,7 +1,7 @@
 /* lib/terminal/utilities/node - All the Node APIs used in the project stored in a single location. */
 
 import { exec, spawn } from "child_process";
-import { createHash, createPrivateKey, createPublicKey, generateKeyPair, Hash, privateEncrypt, publicDecrypt } from "crypto";
+import { constants as constantsCrypto, createHash, createPrivateKey, createPublicKey, generateKeyPair, Hash, privateEncrypt, publicDecrypt } from "crypto";
 import { createReadStream, createWriteStream, lstat, mkdir, open, read, readdir, readFile, readlink, realpath, rename, rm, rmdir, stat, Stats, symlink, unlink, utimes, writeFile } from "fs";
 import { createServer as httpServer, get as httpGet, request as httpRequest, STATUS_CODES } from "http";
 import { createServer as httpsServer, get as httpsGet, request as httpsRequest } from "https";
@@ -12,7 +12,7 @@ import { clearScreenDown, cursorTo } from "readline";
 import { Readable } from "stream";
 import { StringDecoder } from "string_decoder";
 import { connect as tlsConnect, createServer as tlsCreateServer } from "tls";
-import { constants, createBrotliCompress, createBrotliDecompress } from "zlib";
+import { constants as constantsZlib, createBrotliCompress, createBrotliDecompress } from "zlib";
 
 // eslint-disable-next-line
 const node = {
@@ -21,6 +21,7 @@ const node = {
         spawn: spawn
     },
     crypto: {
+        constants: constantsCrypto,
         createHash: createHash,
         createPrivateKey: createPrivateKey,
         createPublicKey: createPublicKey,
@@ -97,7 +98,7 @@ const node = {
         createServer: tlsCreateServer
     },
     zlib: {
-        constants: constants,
+        constants: constantsZlib,
         createBrotliCompress: createBrotliCompress,
         createBrotliDecompress: createBrotliDecompress
     }

@@ -562,10 +562,10 @@ interface module_transmit_http {
  * The websocket library
  * ```typescript
  * interface transmit_ws {
- *     agentClose      : (socket:websocket_client) => void;                                    // A uniform way to notify browsers when a remote agent goes offline
- *     clientReceiver  : websocket_messageHandler;                                             // Processes data from regular agent websocket tunnels into JSON for processing by receiver library.
- *     createSocket    : (config:config_websocket_create) => void;                             // Creates a new socket for use by openAgent and openService methods.
- *     encryption      : (keySize:"private"|"public", input:string, socketType:agentType) => string; // provides a common abstraction for encryption operations.
+ *     agentClose      : (socket:websocket_client) => void;                                     // A uniform way to notify browsers when a remote agent goes offline
+ *     clientReceiver  : websocket_messageHandler;                                              // Processes data from regular agent websocket tunnels into JSON for processing by receiver library.
+ *     createSocket    : (config:config_websocket_create) => void;                              // Creates a new socket for use by openAgent and openService methods.
+ *     encryption      : (keySize:"private"|"public", input:string, keyValue:string) => string; // provides a common abstraction for encryption operations.
  *     ipAttempts      : {
  *         device: {
  *             [key:string]: string[];
@@ -573,32 +573,32 @@ interface module_transmit_http {
  *         user: {
  *             [key:string]: string[];
  *         };
- *     };                                                                                      // stores connection attempts as a list of ip addresses by agent hash
- *     list            : () => void;                                                           // Updates local device socket list for storage on transmit_ws.status.
- *     listener        : (socket:websocket_client) => void;                                    // A handler attached to each socket to listen for incoming messages.
+ *     };                                                                                       // stores connection attempts as a list of ip addresses by agent hash
+ *     list            : () => void;                                                            // Updates local device socket list for storage on transmit_ws.status.
+ *     listener        : (socket:websocket_client) => void;                                     // A handler attached to each socket to listen for incoming messages.
  *     open: {
  *         agent:   (config:config_websocket_openAgent) => void;   // Opens a long-term socket tunnel between known agents.
  *         service: (config:config_websocket_openService) => void; // Opens a service specific tunnel that ends when the service completes.
- *     };                                                                                      // methods to open sockets according to different security contexts
- *     queue           : (body:Buffer|socketData, socket:socketClient, opcode:number) => void; // Pushes outbound data into a managed queue to ensure data frames are not intermixed.
- *     queueSend       : (socket:websocket_client) => void;                                    // Pushes messages stored from the agent's offline queue into the transmission queue.
- *     server          : (config:config_websocket_server) => node_net_Server;                  // Creates a websocket server.
- *     socketExtensions: (config:config_websocket_extensions) => void;                         // applies application specific extensions to sockets
+ *     };                                                                                       // methods to open sockets according to different security contexts
+ *     queue           : (body:Buffer|socketData, socket:socketClient, opcode:number) => void;  // Pushes outbound data into a managed queue to ensure data frames are not intermixed.
+ *     queueSend       : (socket:websocket_client) => void;                                     // Pushes messages stored from the agent's offline queue into the transmission queue.
+ *     server          : (config:config_websocket_server) => node_net_Server;                   // Creates a websocket server.
+ *     socketExtensions: (config:config_websocket_extensions) => void;                          // applies application specific extensions to sockets
  *     socketList      : {
  *         browser   : websocket_list;
  *         device    : websocket_list;
  *         testRemote: websocket_list;
  *         user      : websocket_list;
- *     };                                                                                      // A store of open sockets by agent type.
- *     status          : socketList;                                                           // Stores open socket status information for all devices.
- *     statusUpdate    : (socketData:socketData) => void;                                      // Receive socket status list updates from other devices.
+ *     };                                                                                       // A store of open sockets by agent type.
+ *     status          : socketList;                                                            // Stores open socket status information for all devices.
+ *     statusUpdate    : (socketData:socketData) => void;                                       // Receive socket status list updates from other devices.
  * }
  * ``` */
 interface module_transmit_ws {
     agentClose: (socket:websocket_client) => void;
     clientReceiver: websocket_messageHandler;
     createSocket: (config:config_websocket_create) => void;
-    encryption: (keySize:"private"|"public", input:string, socketType:agentType) => string;
+    encryption: (keySize:"private"|"public", input:string, keyValue:string) => string;
     ipAttempts: {
         device: {
             [key:string]: string[];
