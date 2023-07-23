@@ -117,24 +117,7 @@ const transmit_ws:module_transmit_ws = {
                         : (config.socketType === "user")
                             ? vars.identity.hashUser
                             : config.hash,
-                    key:node_crypto_KeyObject = (function terminal_server_transmission_transmitWs_createSocket_hash_privateKey():node_crypto_KeyObject {
-                        if (vars.identity.hashDevice === "") {
-                            return null;
-                        }
-                        const keyName:"keyDevicePrivate"|"keyUserPrivate" = (config.socketType === "device")
-                            ? "keyDevicePrivate"
-                            : "keyUserPrivate";
-                        return node.crypto.createPrivateKey({
-                            encoding: "utf8",
-                            format: "pem",
-                            key: vars.identity[keyName],
-                            passphrase: vars.identity.hashDevice,
-                            type: "pkcs8"
-                        });
-                    }()),
-                    privateKey:string = (key === null)
-                        ? ""
-                        : `challenge: ${node.crypto.privateEncrypt(key, Buffer.from(headerHash)).toString()}`,
+                    privateKey:string = transmit_ws.encryption("private", vars.identity.hashDevice, config.socketType as agentType),
                     header:string[] = [
                         "GET / HTTP/1.1",
                         (config.ip.indexOf(":") > -1)
@@ -188,7 +171,7 @@ const transmit_ws:module_transmit_ws = {
                     } while (a < len);
                 }
                 if (privateKey !== null) {
-                    header.push(privateKey);
+                    header.push(`challenge: ${privateKey}`);
                 }
                 client.once("error", callbackError);
                 client.once("ready", callbackReady);
@@ -201,6 +184,40 @@ const transmit_ws:module_transmit_ws = {
             source: Buffer.from(Math.random().toString(), "base64").toString(),
             stat: null
         });
+    },
+    encryption: function terminal_server_transmission_transmitWs_encryption(keySide:"private"|"public", input:string, socketType:agentType):string {
+        const key:node_crypto_KeyObject = (function terminal_server_transmission_transmitWs_createSocket_hash_privateKey():node_crypto_KeyObject {
+                if (vars.identity.hashDevice === "") {
+                    return null;
+                }
+                if (socketType !== "device" && socketType !== "user") {
+                    return null;
+                }
+                const keyName:"keyDevicePrivate"|"keyDevicePublic"|"keyUserPrivate"|"keyUserPublic" = (socketType === "device")
+                    ? (keySide === "private")
+                        ? "keyDevicePrivate"
+                        : "keyDevicePublic"
+                    : (keySide === "private")
+                        ? "keyUserPrivate"
+                        : "keyUserPublic";
+                return node.crypto.createPrivateKey({
+                    encoding: "utf8",
+                    format: "pem",
+                    key: vars.identity[keyName],
+                    passphrase: "",
+                    type: "pkcs8"
+                });
+            }()),
+            operation:"privateEncrypt"|"publicDecrypt" = (keySide === "private")
+                ? "privateEncrypt"
+                : "publicDecrypt";
+        if (key === null) {
+            return null;
+        }
+        if (input.length > 114) {
+            input = input.slice(input.length - 114);
+        }
+        return node.crypto[operation](key, Buffer.from(input)).toString();
     },
     ipAttempts: {
         device: {},
@@ -803,10 +820,9 @@ const transmit_ws:module_transmit_ws = {
                                             return;
                                         }
                                         if (vars.identity.hashDevice !== "") {
-                                            const key:node_crypto_KeyObject = node.crypto.createPublicKey(vars.agents[type][hashName].publicKey);
                                             let challenge:string = dataString.slice(dataString.indexOf("\r\nchallenge:")).replace(/\s+challenge:\s*/, "");
                                             challenge = challenge.slice(0, challenge.indexOf("\r")).replace(/\s+/g, "");
-                                            if (node.crypto.publicDecrypt(key, Buffer.from(challenge)).toString() !== hashName) {
+                                            if (transmit_ws.encryption("public", challenge, socket.type as agentType) !== hashName) {
                                                 socket.destroy();
                                                 return;
                                             }

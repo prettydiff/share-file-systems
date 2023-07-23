@@ -82,14 +82,15 @@ const hashAgent = function terminal_server_services_hashAgent(socketData:socketD
                             error(["Error creating user key pair in hashAgent library."], keyError);
                         }
                     },
-                    options:node_crypto_ECKeyPairOptions = {
-                        namedCurve: "sect571k1",
+                    options:node_crypto_RSAKeyPairOptions = {
+                        modulusLength: 4096,
                         privateKeyEncoding: {
                             cipher: "aes-256-cbc",
                             format: "pem",
                             passphrase: hashAgent.hash,
                             type: "pkcs8"
                         },
+                        publicExponent: 0x10111,
                         publicKeyEncoding: {
                             format: "pem",
                             type: "spki"
@@ -106,9 +107,9 @@ const hashAgent = function terminal_server_services_hashAgent(socketData:socketD
                     nameUser: hashData.user
                 };
                 // @ts-ignore - Bad TypeScript definition: @types/node, crypto.d.ts - The TypeScript definitions for generateKeyPair are too overloaded for this method to compile correctly.
-                node.crypto.generateKeyPair("ec", options, keyDevice);
+                node.crypto.generateKeyPair("rsa", options, keyDevice);
                 // @ts-ignore - Bad TypeScript definition: @types/node, crypto.d.ts - The TypeScript definitions for generateKeyPair are too overloaded for this method to compile correctly.
-                node.crypto.generateKeyPair("ec", options, keyUser);
+                node.crypto.generateKeyPair("rsa", options, keyUser);
             };
             input.callback = callbackDevice;
             input.source = hashUser.hash + hashData.device;

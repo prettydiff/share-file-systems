@@ -250,7 +250,7 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                                 ports: vars.network.ports,
                                 session: "",
                                 shares: userData[0]
-                            }
+                            };
                             inviteHttp("agentSource");
                             data.action = "invite-complete";
                         }

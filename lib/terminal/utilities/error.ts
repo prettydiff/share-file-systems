@@ -53,7 +53,9 @@ const error = function terminal_utilities_error(errText:string[], errObject:node
             }
             logger("");
             if (errObject !== null) {
-                logger(`Code: ${errObject.code.toString()}`);
+                if (errObject.code !== undefined) {
+                    logger(`Code: ${errObject.code.toString()}`);
+                }
                 logger(errObject.message);
                 logger("");
             }

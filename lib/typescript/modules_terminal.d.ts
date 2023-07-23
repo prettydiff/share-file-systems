@@ -565,7 +565,8 @@ interface module_transmit_http {
  *     agentClose      : (socket:websocket_client) => void;                                    // A uniform way to notify browsers when a remote agent goes offline
  *     clientReceiver  : websocket_messageHandler;                                             // Processes data from regular agent websocket tunnels into JSON for processing by receiver library.
  *     createSocket    : (config:config_websocket_create) => void;                             // Creates a new socket for use by openAgent and openService methods.
- *     ipAttempts: {
+ *     encryption      : (keySize:"private"|"public", input:string, socketType:agentType) => string; // provides a common abstraction for encryption operations.
+ *     ipAttempts      : {
  *         device: {
  *             [key:string]: string[];
  *         };
@@ -597,6 +598,7 @@ interface module_transmit_ws {
     agentClose: (socket:websocket_client) => void;
     clientReceiver: websocket_messageHandler;
     createSocket: (config:config_websocket_create) => void;
+    encryption: (keySize:"private"|"public", input:string, socketType:agentType) => string;
     ipAttempts: {
         device: {
             [key:string]: string[];

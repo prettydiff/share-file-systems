@@ -460,9 +460,6 @@ const agent_management:module_agentManagement = {
                     }
                     return null;
                 }()),
-                ipSelected:string = ((/(\d{1,3}\.){3}\d{1,3}/).test(ip) === false && browser.network.addresses.IPv6.length > 0)
-                    ? browser.network.addresses.IPv6[0]
-                    : browser.network.addresses.IPv4[0],
                 saved:invite_saved = {
                     ip: ip,
                     message: content.getElementsByTagName("textarea")[0].value.replace(/"/g, "\\\""),
