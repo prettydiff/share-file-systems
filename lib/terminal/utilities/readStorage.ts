@@ -19,12 +19,10 @@ const readStorage = function terminal_utilities_readStorage(fromFile:boolean, ca
                     identity: {
                         hashDevice: "",
                         hashUser: "",
-                        keyDevicePrivate: "",
-                        keyDevicePublic: "",
-                        keyUserPrivate: "",
-                        keyUserPublic: "",
                         nameDevice: "",
-                        nameUser: ""
+                        nameUser: "",
+                        secretDevice: "",
+                        secretUser: ""
                     },
                     message: [],
                     queue: {

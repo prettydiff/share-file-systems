@@ -9,12 +9,10 @@ const browser:browser = {
     identity: {
         hashDevice: "",
         hashUser: "",
-        keyDevicePrivate: "",
-        keyDevicePublic: "",
-        keyUserPrivate: "",
-        keyUserPublic: "",
         nameDevice: "",
-        nameUser: ""
+        nameUser: "",
+        secretDevice: "",
+        secretUser: ""
     },
     loading: true,
     loadQueue: [],

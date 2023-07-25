@@ -23,7 +23,6 @@ import vars from "../../utilities/vars.js";
  *     agentClose      : (socket:websocket_client) => void;                                     // A uniform way to notify browsers when a remote agent goes offline
  *     clientReceiver  : websocket_messageHandler;                                              // Processes data from regular agent websocket tunnels into JSON for processing by receiver library.
  *     createSocket    : (config:config_websocket_create) => void;                              // Creates a new socket for use by openAgent and openService methods.
- *     encryption      : (keySize:"private"|"public", input:string, keyValue:string) => string; // provides a common abstraction for encryption operations.
  *     ipAttempts      : {
  *         device: {
  *             [key:string]: string[];
@@ -118,11 +117,6 @@ const transmit_ws:module_transmit_ws = {
                         : (config.socketType === "user")
                             ? vars.identity.hashUser
                             : config.hash,
-                    privateKey:string = (config.socketType === "device" || config.socketType === "user")
-                        ? transmit_ws.encryption("private", vars.identity.hashDevice, (config.socketType === "device")
-                            ? vars.identity.keyDevicePrivate
-                            : vars.identity.keyUserPrivate)
-                        : null,
                     header:string[] = [
                         "GET / HTTP/1.1",
                         (config.ip.indexOf(":") > -1)
@@ -175,9 +169,6 @@ const transmit_ws:module_transmit_ws = {
                         a = a + 1;
                     } while (a < len);
                 }
-                if (privateKey !== null) {
-                    header.push(`challenge: ${privateKey}`);
-                }
                 client.once("error", callbackError);
                 client.once("ready", callbackReady);
             },
@@ -189,41 +180,6 @@ const transmit_ws:module_transmit_ws = {
             source: Buffer.from(Math.random().toString(), "base64").toString(),
             stat: null
         });
-    },
-    encryption: function terminal_server_transmission_transmitWs_encryption(keySide:"private"|"public", input:string, keyValue:string):string {
-        const key:node_crypto_KeyObject = (function terminal_server_transmission_transmitWs_createSocket_hash_privateKey():node_crypto_KeyObject {
-                if (vars.identity.hashDevice === "") {
-                    return null;
-                }
-                if (keySide === "private") {
-                    return node.crypto.createPrivateKey({
-                        encoding: "utf8",
-                        format: "pem",
-                        key: keyValue,
-                        passphrase: vars.identity.hashDevice,
-                        type: "pkcs8"
-                    });
-                }
-                return node.crypto.createPublicKey({
-                    encoding: "utf8",
-                    format: "pem",
-                    key: keyValue,
-                    type: "spki"
-                });
-            }()),
-            operation:"privateEncrypt"|"publicDecrypt" = (keySide === "private")
-                ? "privateEncrypt"
-                : "publicDecrypt";
-        if (key === null) {
-            return null;
-        }
-        //if (input.length > 114) {
-        //    input = input.slice(input.length - 114);
-        //}
-        return node.crypto[operation]({
-            key: key,
-            padding: node.crypto.constants.RSA_NO_PADDING
-        }, Buffer.from(input)).toString();
     },
     ipAttempts: {
         device: {},
@@ -825,11 +781,13 @@ const transmit_ws:module_transmit_ws = {
                                             socket.destroy();
                                             return;
                                         }
-                                        if (vars.identity.hashDevice !== "") {
-                                            let challenge:string = dataString.slice(dataString.indexOf("\r\nchallenge:")).replace(/\s+challenge:\s*/, ""),
+                                        /*if (vars.identity.hashDevice !== "") {
+                                            let challenge:string = dataString.slice(dataString.indexOf("\r\nchallenge:")).replace(/(\s+challenge:\s*)/, ""),
                                                 decrypted:string = "";
                                             challenge = challenge.slice(0, challenge.indexOf("\r")).replace(/\s+/g, "");
-                                            decrypted = transmit_ws.encryption("public", challenge, vars.agents[type][hashName].publicKey);
+                                            decrypted = transmit_ws.encryption("private", challenge, (type === "device")
+                                                ? vars.identity.keyDevicePrivate
+                                                : vars.identity.keyUserPrivate);
                                             if (decrypted !== hashName) {
                                                 console.log(decrypted);
                                                 console.log(hashName);
@@ -837,7 +795,7 @@ const transmit_ws:module_transmit_ws = {
                                                 socket.destroy();
                                                 return;
                                             }
-                                        }
+                                        }*/
                                     }
                                     if (type === "testRemote" && vars.test.type !== "browser_remote") {
                                         socket.destroy();

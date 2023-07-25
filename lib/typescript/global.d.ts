@@ -22,7 +22,7 @@ interface agency {
  *     ipSelected: string;
  *     name: string;
  *     ports: ports;
- *     publicKey: string;
+ *     secret: string;
  *     shares: agentShares;
  *     status: activityStatus;
  * }
@@ -34,7 +34,7 @@ interface agent {
     ipSelected: string;
     name: string;
     ports: ports;
-    publicKey: string;
+    secret: string;
     shares: agentShares;
     status: activityStatus;
 }
@@ -60,11 +60,10 @@ interface agentCounts {
  *     hashUser: string;
  *     ipAll: transmit_addresses_IP;
  *     ipSelected: string;
- *     keyUserPrivate: string;
- *     keyUserPublic: string;
  *     modal: string;
  *     nameUser: string;
  *     ports: ports;
+ *     secret: string;
  *     session: string;
  *     shares: agentShares;
  * }
@@ -74,11 +73,10 @@ interface agentInvite {
     hashUser: string;
     ipAll: transmit_addresses_IP;
     ipSelected: string;
-    keyUserPrivate: string;
-    keyUserPublic: string;
     modal: string;
     nameUser: string;
     ports: ports;
+    secret: string;
     session: string;
     shares: agentShares;
 }
@@ -223,25 +221,21 @@ interface flagList {
  * Stores artifacts associated with local device and user identification.
  * ```typescript
  * {
- *      hashDevice      : string;
- *      hashUser        : string;
- *      keyDevicePrivate: string;
- *      keyDevicePublic : string;
- *      keyUserPrivate  : string;
- *      keyUserPublic   : string;
- *      nameDevice      : string;
- *      nameUser        : string;
+ *      hashDevice  : string;
+ *      hashUser    : string;
+ *      nameDevice  : string;
+ *      nameUser    : string;
+ *      secretDevice: string;
+ *      secretUser  : string;
  * };
  * ``` */
 interface identity {
-    hashDevice      : string;
-    hashUser        : string;
-    keyDevicePrivate: string;
-    keyDevicePublic : string;
-    keyUserPrivate  : string;
-    keyUserPublic   : string;
-    nameDevice      : string;
-    nameUser        : string;
+    hashDevice  : string;
+    hashUser    : string;
+    nameDevice  : string;
+    nameUser    : string;
+    secretDevice: string;
+    secretUser  : string;
 }
 
 /**

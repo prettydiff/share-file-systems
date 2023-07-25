@@ -460,12 +460,10 @@ const defaultCommand:commands = vars.environment.command,
                         vars.identity = {
                             hashDevice: "",
                             hashUser: "",
-                            keyDevicePrivate: "",
-                            keyDevicePublic: "",
-                            keyUserPrivate: "",
-                            keyUserPublic: "",
                             nameDevice: "",
-                            nameUser: ""
+                            nameUser: "",
+                            secretDevice: "",
+                            secretUser: ""
                         };
                         vars.settings.message = [];
                         vars.settings.queue = {

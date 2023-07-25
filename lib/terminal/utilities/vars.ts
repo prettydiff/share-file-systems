@@ -85,12 +85,10 @@ const vars:module_terminalVariables = {
     identity: {
         hashDevice: "",
         hashUser: "",
-        keyDevicePrivate: "",
-        keyDevicePublic: "",
-        keyUserPrivate: "",
-        keyUserPublic: "",
         nameDevice: "",
-        nameUser: ""
+        nameUser: "",
+        secretDevice: "",
+        secretUser: ""
     },
     network: {
         addresses: (function terminal_server_addresses():transmit_addresses_IP {

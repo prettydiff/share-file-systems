@@ -474,11 +474,10 @@ const agent_management:module_agentManagement = {
                         hashUser: "",
                         ipAll: userData[1],
                         ipSelected: "",
-                        keyUserPrivate: "",
-                        keyUserPublic: "",
                         modal: options.id,
                         nameUser: browser.identity.nameUser,
                         ports: browser.network.ports,
+                        secret: "",
                         session: "",
                         shares: userData[0]
                     },
@@ -487,14 +486,13 @@ const agent_management:module_agentManagement = {
                         hashUser: "",
                         ipAll: null,
                         ipSelected: ip,
-                        keyUserPrivate: "",
-                        keyUserPublic: "",
                         modal: "",
                         nameUser: "",
                         ports: {
                             http: portNumber,
                             ws: 0
                         },
+                        secret: "",
                         session: "",
                         shares: null
                     },
@@ -1040,8 +1038,6 @@ const agent_management:module_agentManagement = {
                 };
                 if (data.identity !== null) {
                     browser.identity.hashUser = data.identity.hashUser;
-                    browser.identity.keyUserPrivate = data.identity.keyUserPrivate;
-                    browser.identity.keyUserPublic = data.identity.keyUserPublic;
                     browser.identity.nameUser = data.identity.nameUser;
                 }
                 addAgents("device");

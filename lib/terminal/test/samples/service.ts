@@ -37,7 +37,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                                     http: 9999,
                                     ws: 9999
                                 },
-                                publicKey: "04007a361a914662031c071355a908710b0c8d91cd21d67e8918f2a47e4f44f7c866f63b53636ee0ca85bad92e9dd54917eb8a188df88067ee979a0a5ee24b4b94a89c4ef0dc17f4bf058b12f77b8ea5ed1a743e4a1f3910f02e0a5d7a5803f15e75acf0d971944ccaed92c6cad8c1781b51f9a26beca2e3ed87c7ffeaf16a1973c599e816c6b04f8f356df0e000c9b6ab",
+                                secret: "",
                                 shares: {
                                     "a89e4ac7eec0c4b557aab68ad7499dd136d21d8eb2e5f51a6973dcf5f854b9a1895bec63f3a9d1b5e6243524e6bb8bc29d34c9741c1fc7fc77a7f0e8a934d153": {
                                         execute: false,
@@ -78,7 +78,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                                     http: 9999,
                                     ws: 9999
                                 },
-                                publicKey: "ba6b9c000e0fd653f8f40b6c618e995c3791a61faeff7c78de3e2aceb62a9f15b1871c8dac6c29deacc449179d0fca57e51f3085a7d5a0e20f0193f1a4e347a1de5ae8b77f21b850fb4f71cd0fe4c98a49b4b42ee5a0a979ee76088fd881a8be71945dd9e29dab58ac0ee63635b36f668c7f44f4e74a2f8198e76d12dc19d8c0b017809a553170c130266419a163a70040",
+                                secret: "",
                                 shares: {
                                     "ccd7be8a1603ae4ca8d39f142e538c18fa16b157ce8f315a0f8a66060b3fbe71fa429bc309c964e8b8ce6c7cf699b4802777a99b5c961e8419ae24d6bfaf241b": {
                                         execute: false,
@@ -119,7 +119,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                                     http: 9999,
                                     ws: 9999
                                 },
-                                publicKey: "4f71cd0fe4c98a49b4b42ee5a0a979ee76088fd881a8be71945dd9e29dab58ac0ee63635b36f668c7f44f4e74a2f8198e76d12dc19d8c0b017809a553170c130266419a163a70040ba6b9c000e0fd653f8f40b6c618e995c3791a61faeff7c78de3e2aceb62a9f15b1871c8dac6c29deacc449179d0fca57e51f3085a7d5a0e20f0193f1a4e347a1de5ae8b77f21b850fb",
+                                secret: "",
                                 shares: {
                                     "36b0d1a2ddc81858b0339d3296b4f69513b779a122ec279ea71a1cb50231952e5f5ba9197c6438e91cd3d8bd6b3d5feee78ce4fd0e4386abe3af0487449a02d7": {
                                         execute: false,
@@ -147,8 +147,6 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                         hashUser: vars.identity.hashUser,
                         ipAll: null,
                         ipSelected: "",
-                        keyUserPrivate: "",
-                        keyUserPublic: "",
                         modal: "test-modal-requestor",
                         nameDevice: "old desktop computer",
                         nameUser: "local user name",
@@ -156,6 +154,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                             http: 9999,
                             ws: 9999
                         },
+                        secret: "",
                         session: "",
                         shares: {}
                     },
@@ -165,8 +164,6 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                         hashUser: "",
                         ipAll: null,
                         ipSelected: "",
-                        keyUserPrivate: "",
-                        keyUserPublic: "",
                         modal: "test-modal-responder",
                         nameDevice: "responding device",
                         nameUser: "responding user",
@@ -174,6 +171,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                             http: 9999,
                             ws: 9999
                         },
+                        secret: "",
                         session: "",
                         shares: {}
                     },
@@ -1708,7 +1706,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                                 http: 9999,
                                 ws: 9999
                             },
-                            publicKey: "04007a361a914662031c071355a908710b0c8d91cd21d67e8918f2a47e4f44f7c866f63b53636ee0ca85bad92e9dd54917eb8a188df88067ee979a0a5ee24b4b94a89c4ef0dc17f4bf058b12f77b8ea5ed1a743e4a1f3910f02e0a5d7a5803f15e75acf0d971944ccaed92c6cad8c1781b51f9a26beca2e3ed87c7ffeaf16a1973c599e816c6b04f8f356df0e000c9b6ab",
+                            secret: "",
                             shares: {
                                 "a89e4ac7eec0c4b557aab68ad7499dd136d21d8eb2e5f51a6973dcf5f854b9a1895bec63f3a9d1b5e6243524e6bb8bc29d34c9741c1fc7fc77a7f0e8a934d153": {
                                     execute: false,
@@ -1749,7 +1747,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                                 http: 9999,
                                 ws: 9999
                             },
-                            publicKey: "ba6b9c000e0fd653f8f40b6c618e995c3791a61faeff7c78de3e2aceb62a9f15b1871c8dac6c29deacc449179d0fca57e51f3085a7d5a0e20f0193f1a4e347a1de5ae8b77f21b850fb4f71cd0fe4c98a49b4b42ee5a0a979ee76088fd881a8be71945dd9e29dab58ac0ee63635b36f668c7f44f4e74a2f8198e76d12dc19d8c0b017809a553170c130266419a163a70040",
+                            secret: "",
                             shares: {
                                 "ccd7be8a1603ae4ca8d39f142e538c18fa16b157ce8f315a0f8a66060b3fbe71fa429bc309c964e8b8ce6c7cf699b4802777a99b5c961e8419ae24d6bfaf241b": {
                                     execute: false,
@@ -1790,7 +1788,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                                 http: 9999,
                                 ws: 9999
                             },
-                            publicKey: "4f71cd0fe4c98a49b4b42ee5a0a979ee76088fd881a8be71945dd9e29dab58ac0ee63635b36f668c7f44f4e74a2f8198e76d12dc19d8c0b017809a553170c130266419a163a70040ba6b9c000e0fd653f8f40b6c618e995c3791a61faeff7c78de3e2aceb62a9f15b1871c8dac6c29deacc449179d0fca57e51f3085a7d5a0e20f0193f1a4e347a1de5ae8b77f21b850fb",
+                            secret: "",
                             shares: {
                                 "36b0d1a2ddc81858b0339d3296b4f69513b779a122ec279ea71a1cb50231952e5f5ba9197c6438e91cd3d8bd6b3d5feee78ce4fd0e4386abe3af0487449a02d7": {
                                     execute: false,
@@ -1825,6 +1823,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                         http: 9999,
                         ws: 9999
                     },
+                    secret: "",
                     session: "",
                     shares: {}
                 },
@@ -1848,7 +1847,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                                 http: 9999,
                                 ws: 9999
                             },
-                            publicKey: "04007a361a914662031c071355a908710b0c8d91cd21d67e8918f2a47e4f44f7c866f63b53636ee0ca85bad92e9dd54917eb8a188df88067ee979a0a5ee24b4b94a89c4ef0dc17f4bf058b12f77b8ea5ed1a743e4a1f3910f02e0a5d7a5803f15e75acf0d971944ccaed92c6cad8c1781b51f9a26beca2e3ed87c7ffeaf16a1973c599e816c6b04f8f356df0e000c9b6ab",
+                            secret: "",
                             shares: {
                                 "a89e4ac7eec0c4b557aab68ad7499dd136d21d8eb2e5f51a6973dcf5f854b9a1895bec63f3a9d1b5e6243524e6bb8bc29d34c9741c1fc7fc77a7f0e8a934d153": {
                                     execute: false,
@@ -1889,7 +1888,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                                 http: 9999,
                                 ws: 9999
                             },
-                            publicKey: "ba6b9c000e0fd653f8f40b6c618e995c3791a61faeff7c78de3e2aceb62a9f15b1871c8dac6c29deacc449179d0fca57e51f3085a7d5a0e20f0193f1a4e347a1de5ae8b77f21b850fb4f71cd0fe4c98a49b4b42ee5a0a979ee76088fd881a8be71945dd9e29dab58ac0ee63635b36f668c7f44f4e74a2f8198e76d12dc19d8c0b017809a553170c130266419a163a70040",
+                            secret: "",
                             shares: {
                                 "ccd7be8a1603ae4ca8d39f142e538c18fa16b157ce8f315a0f8a66060b3fbe71fa429bc309c964e8b8ce6c7cf699b4802777a99b5c961e8419ae24d6bfaf241b": {
                                     execute: false,
@@ -1930,7 +1929,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                                 http: 9999,
                                 ws: 9999
                             },
-                            publicKey: "4f71cd0fe4c98a49b4b42ee5a0a979ee76088fd881a8be71945dd9e29dab58ac0ee63635b36f668c7f44f4e74a2f8198e76d12dc19d8c0b017809a553170c130266419a163a70040ba6b9c000e0fd653f8f40b6c618e995c3791a61faeff7c78de3e2aceb62a9f15b1871c8dac6c29deacc449179d0fca57e51f3085a7d5a0e20f0193f1a4e347a1de5ae8b77f21b850fb",
+                            secret: "",
                             shares: {
                                 "36b0d1a2ddc81858b0339d3296b4f69513b779a122ec279ea71a1cb50231952e5f5ba9197c6438e91cd3d8bd6b3d5feee78ce4fd0e4386abe3af0487449a02d7": {
                                     execute: false,
@@ -1965,6 +1964,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                         http: 9999,
                         ws: 9999
                     },
+                    secret: "",
                     session: "",
                     shares: {
                         "a89e4ac7eec0c4b557aab68ad7499dd136d21d8eb2e5f51a6973dcf5f854b9a1895bec63f3a9d1b5e6243524e6bb8bc29d34c9741c1fc7fc77a7f0e8a934d153": {
@@ -2057,7 +2057,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                                 http: 9999,
                                 ws: 9999
                             },
-                            publicKey: "04007a361a914662031c071355a908710b0c8d91cd21d67e8918f2a47e4f44f7c866f63b53636ee0ca85bad92e9dd54917eb8a188df88067ee979a0a5ee24b4b94a89c4ef0dc17f4bf058b12f77b8ea5ed1a743e4a1f3910f02e0a5d7a5803f15e75acf0d971944ccaed92c6cad8c1781b51f9a26beca2e3ed87c7ffeaf16a1973c599e816c6b04f8f356df0e000c9b6ab",
+                            secret: "",
                             shares: {
                                 "a89e4ac7eec0c4b557aab68ad7499dd136d21d8eb2e5f51a6973dcf5f854b9a1895bec63f3a9d1b5e6243524e6bb8bc29d34c9741c1fc7fc77a7f0e8a934d153": {
                                     execute: false,
@@ -2098,7 +2098,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                                 http: 9999,
                                 ws: 9999
                             },
-                            publicKey: "ba6b9c000e0fd653f8f40b6c618e995c3791a61faeff7c78de3e2aceb62a9f15b1871c8dac6c29deacc449179d0fca57e51f3085a7d5a0e20f0193f1a4e347a1de5ae8b77f21b850fb4f71cd0fe4c98a49b4b42ee5a0a979ee76088fd881a8be71945dd9e29dab58ac0ee63635b36f668c7f44f4e74a2f8198e76d12dc19d8c0b017809a553170c130266419a163a70040",
+                            secret: "",
                             shares: {
                                 "ccd7be8a1603ae4ca8d39f142e538c18fa16b157ce8f315a0f8a66060b3fbe71fa429bc309c964e8b8ce6c7cf699b4802777a99b5c961e8419ae24d6bfaf241b": {
                                     execute: false,
@@ -2139,7 +2139,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                                 http: 9999,
                                 ws: 9999
                             },
-                            publicKey: "4f71cd0fe4c98a49b4b42ee5a0a979ee76088fd881a8be71945dd9e29dab58ac0ee63635b36f668c7f44f4e74a2f8198e76d12dc19d8c0b017809a553170c130266419a163a70040ba6b9c000e0fd653f8f40b6c618e995c3791a61faeff7c78de3e2aceb62a9f15b1871c8dac6c29deacc449179d0fca57e51f3085a7d5a0e20f0193f1a4e347a1de5ae8b77f21b850fb",
+                            secret: "",
                             shares: {
                                 "36b0d1a2ddc81858b0339d3296b4f69513b779a122ec279ea71a1cb50231952e5f5ba9197c6438e91cd3d8bd6b3d5feee78ce4fd0e4386abe3af0487449a02d7": {
                                     execute: false,
@@ -2167,8 +2167,6 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     hashUser: vars.identity.hashUser,
                     ipAll: null,
                     ipSelected: "",
-                    keyUserPrivate: "01fb3b0287fd99245147930c202b125bf7ae308b2b3d85e7a8348bba40b11f6b1861760a1656a3ea735d816b59a993951c8cc32396ffca6a53d02c8832016fa16234ba906db0b0ba",
-                    keyUserPublic: "04004a0be5adb842b4bea1ef97753c53cce5f11ce09a6489461f85285b1b57cfd3ace7fc3914e9371111495c8b2f1a79837d4ac6be3ddd763b76e1974c030b838522be1e1fd312311b009fd3a0fa109ac5a400998f969146cd60e6baf99698164f2e9db0f7daf0b72fdcf2b1b561d6a3c64fa6bb24f902e36d8f0836c1fefc7ff16fb89ea7bbf27894429d26995e80ba4a",
                     modal: "test-modal-requestor",
                     nameDevice: "old desktop computer",
                     nameUser: "local user name",
@@ -2176,6 +2174,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                         http: 9999,
                         ws: 9999
                     },
+                    secret: "",
                     session: "",
                     shares: {}
                 },
@@ -2185,8 +2184,6 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     hashUser: "",
                     ipAll: null,
                     ipSelected: "",
-                    keyUserPrivate: "",
-                    keyUserPublic: "",
                     modal: "test-modal-responder",
                     nameDevice: "responding device",
                     nameUser: "responding user",
@@ -2194,6 +2191,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                         http: 9999,
                         ws: 9999
                     },
+                    secret: "",
                     session: "",
                     shares: null
                 },

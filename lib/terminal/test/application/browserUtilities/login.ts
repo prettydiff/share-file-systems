@@ -44,11 +44,6 @@ const login = function terminal_test_application_browserUtilities_login(machine:
                     ["parentNode", "", null],
                     ["getElementsByTagName", "button", 0]
                 ]
-            },
-            {
-                event: "wait",
-                node: null,
-                value: "3000"
             }
         ],
         machine: machine,

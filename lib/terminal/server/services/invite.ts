@@ -51,25 +51,23 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                                 ipSelected: remoteIP,
                                 name: data[type].nameUser,
                                 ports: data[type].ports,
-                                publicKey: data[type].keyUserPublic,
+                                secret: data[type].secret,
                                 shares: data[type].shares,
                                 status: "active"
                             }
                         }
                     },
                 agentFrom: vars.identity.hashDevice,
-                identity: (type === "agentRequest")
+                identity: (data.type === "device" && (data.action === "invite-complete" || data.action === "invite-identity"))
                     ? {
                         hashDevice: null,
-                        hashUser: data.agentRequest.hashUser,
-                        keyDevicePrivate: null,
-                        keyDevicePublic: null,
-                        keyUserPrivate: data.agentRequest.keyUserPrivate,
-                        keyUserPublic: data.agentRequest.keyUserPublic,
+                        hashUser: data[type].hashUser,
                         nameDevice: null,
-                        nameUser: data.agentRequest.nameUser
+                        nameUser: data[type].nameUser,
+                        secretDevice: null,
+                        secretUser: data[type].secret
                     }
-                    : vars.identity
+                    : null
             };
             if (vars.test.type !== "service") {
                 agent_management({
@@ -82,11 +80,14 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
             }
         },
         unmask = function terminal_server_services_invite_unmask(mask:string, callback:(test:boolean) => void):void {
-            const date:string = mask.slice(0, 13);
+            const date:string = mask.slice(0, 13),
+                dateNumber:number = Number(date),
+                now:number = (Date.now() - dateNumber) / 1e6;
             hash({
                 algorithm: "sha3-512",
                 callback: function terminal_server_services_invite_unmask_hash(title:string, output:hash_output):void {
-                    if (date + output.hash === mask) {
+                    // verify date portion is within 48 hours and used with the device hash to formulate the shared hash
+                    if (date + output.hash === mask && ((now > 0 && now < 172.8) || (now < 0 && now > -172.8))) {
                         callback(true);
                     } else {
                         callback(false);
@@ -202,17 +203,17 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                                     hashUser: vars.identity.hashUser,
                                     ipAll: userData[1],
                                     ipSelected: data.agentSource.ipSelected,
-                                    keyUserPrivate: "",
-                                    keyUserPublic: vars.identity.keyUserPublic,
                                     modal: data.agentSource.modal,
                                     nameUser: vars.identity.nameUser,
                                     ports: vars.network.ports,
+                                    secret: "",
                                     session: session,
                                     shares: userData[0]
                                 };
                             }
+                        } else {
+                            inviteHttp("agentRequest");
                         }
-                        inviteHttp("agentRequest");
                     },
                     digest: "hex",
                     directInput: true,
@@ -241,13 +242,10 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                                 hashUser: vars.identity.hashUser,
                                 ipAll: userData[1],
                                 ipSelected: data.agentRequest.ipSelected,
-                                keyUserPrivate: (data.type === "device")
-                                    ? vars.identity.keyUserPrivate
-                                    : "",
-                                keyUserPublic: vars.identity.keyUserPublic,
                                 modal: data.agentRequest.modal,
                                 nameUser: vars.identity.nameUser,
                                 ports: vars.network.ports,
+                                secret: vars.identity.secretUser,
                                 session: "",
                                 shares: userData[0]
                             };

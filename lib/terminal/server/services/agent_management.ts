@@ -27,9 +27,8 @@ const agent_management = function terminal_server_services_agentManagement(socke
                 if (count > 0) {
                     if (type === "device" && vars.agents.device[data.agentFrom] !== undefined && data.identity !== null) {
                         vars.identity.hashUser = data.identity.hashUser;
-                        vars.identity.keyUserPrivate = data.identity.keyUserPrivate;
-                        vars.identity.keyUserPublic = data.identity.keyUserPublic;
                         vars.identity.nameUser = data.identity.nameUser;
+                        vars.identity.secretUser = data.identity.secretUser;
                     }
                     settings({
                         data: {
@@ -111,12 +110,10 @@ const agent_management = function terminal_server_services_agentManagement(socke
             vars.identity = {
                 hashDevice: "",
                 hashUser: "",
-                keyDevicePrivate: "",
-                keyDevicePublic: "",
-                keyUserPrivate: "",
-                keyUserPublic: "",
                 nameDevice: "",
-                nameUser: ""
+                nameUser: "",
+                secretDevice: "",
+                secretUser: ""
             };
             vars.agents = {
                 device: {},
@@ -197,7 +194,7 @@ const agent_management = function terminal_server_services_agentManagement(socke
                         ipSelected: "",
                         name: vars.identity.nameUser,
                         ports: vars.network.ports,
-                        publicKey: vars.identity.keyUserPublic,
+                        secret: vars.identity.secretUser,
                         shares: userData[0],
                         status: "active"
                     };

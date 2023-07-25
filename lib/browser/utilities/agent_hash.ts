@@ -24,7 +24,7 @@ const agent_hash:module_agentHash = {
                 ipSelected: "",
                 name: browser.identity.nameDevice,
                 ports: browser.network.ports,
-                publicKey: browser.identity.keyDevicePublic,
+                secret: browser.identity.secretDevice,
                 shares: {},
                 status: "idle"
             };
