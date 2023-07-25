@@ -460,6 +460,7 @@ const modal:module_modal = {
             if (type === "invite-ask") {
                 const inviteBody:HTMLElement = box.getElementsByClassName("agentInvitation")[0] as HTMLElement,
                     invitation:service_invite = JSON.parse(inviteBody.dataset.invitation) as service_invite;
+                invitation.action = "invite-answer";
                 invitation.status = "ignored";
                 network.send(invitation, "invite");
             } else if (type === "media") {

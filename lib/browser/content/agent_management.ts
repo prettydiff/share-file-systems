@@ -676,6 +676,7 @@ const agent_management:module_agentManagement = {
                 boxLocal:HTMLElement = element.getAncestor("box", "class"),
                 inviteBody:HTMLElement = boxLocal.getElementsByClassName("agentInvitation")[0] as HTMLElement,
                 invitation:service_invite = JSON.parse(inviteBody.dataset.invitation) as service_invite;
+            invitation.action = "invite-answer";
             invitation.status = "declined";
             network.send(invitation, "invite");
             modal.events.close(event);

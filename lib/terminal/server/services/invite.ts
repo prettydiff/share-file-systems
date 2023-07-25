@@ -195,6 +195,7 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                                 data.agentSource.devices = vars.agents.device;
                                 data.agentSource.ipAll = vars.network.addresses;
                                 data.agentSource.ports = vars.network.ports;
+                                data.agentSource.secret = vars.identity.secretDevice;
                                 data.agentSource.session = session;
                             } else {
                                 const userData:userData = common.userData(vars.agents.device, "user", "");
@@ -206,14 +207,13 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                                     modal: data.agentSource.modal,
                                     nameUser: vars.identity.nameUser,
                                     ports: vars.network.ports,
-                                    secret: "",
+                                    secret: vars.identity.secretUser,
                                     session: session,
                                     shares: userData[0]
                                 };
                             }
-                        } else {
-                            inviteHttp("agentRequest");
                         }
+                        inviteHttp("agentRequest");
                     },
                     digest: "hex",
                     directInput: true,
