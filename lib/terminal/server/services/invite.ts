@@ -34,7 +34,7 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                 transmit_http.request(httpConfig);
             }
         },
-        addAgent = function terminal_server_services_invite_addAgent(type:agentTransmit, callback:(agents:agents) => void):void {
+        addAgent = function terminal_server_services_invite_addAgent(type:agentTransmit, openSocket:boolean):void {
             const addAgentData:service_agentManagement = {
                 action: "add",
                 agents: (data.type === "device")
@@ -75,8 +75,23 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                     service: "agent-management"
                 });
             }
-            if (callback !== null) {
-                callback(addAgentData.agents[data.type]);
+            if (openSocket === true) {
+                const keys:string[] = Object.keys(addAgentData.agents);
+                if (data.type === "device") {
+                    keys.forEach(function terminal_server_services_invite_identity_unmask_accepted_each(device:string):void {
+                        transmit_ws.open.agent({
+                            agent: device,
+                            agentType: "device",
+                            callback: null
+                        });
+                    });
+                } else {
+                    transmit_ws.open.agent({
+                        agent: keys[0],
+                        agentType: "user",
+                        callback: null
+                    });
+                }
             }
         },
         unmask = function terminal_server_services_invite_unmask(mask:string, callback:(test:boolean) => void):void {
@@ -233,7 +248,7 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                     if (test === true) {
                         if (data.status === "accepted") {
                             const userData:userData = common.userData(vars.agents.device, "user", "");
-                            addAgent("agentSource", null);
+                            addAgent("agentSource", false);
                             data.action = "invite-identity";
                             data.agentRequest = {
                                 devices: (data.type === "device")
@@ -265,7 +280,7 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                 // formulation - local/remote terminal
                 // execution   - local/remote browser, local/remote devices
                 // purpose     - Update the UI with the invitation changes
-                addAgent("agentRequest", null);
+                addAgent("agentRequest", true);
             },
             "invite-identity": function terminal_server_services_invite_identity():void {
                 // Step 7
@@ -275,24 +290,11 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                 unmask(data.agentSource.session, function terminal_server_services_invite_identity_unmask(test:boolean):void {
                     if (test === true) {
                         data.action = "invite-complete";
-                        addAgent("agentRequest", function terminal_server_services_invite_identity_unmask_accepted(agents:agents):void {
-                            const keys:string[] = Object.keys(agents);
-                            if (data.type === "device") {
-                                keys.forEach(function terminal_server_services_invite_identity_unmask_accepted_each(device:string):void {
-                                    transmit_ws.open.agent({
-                                        agent: device,
-                                        agentType: "device",
-                                        callback: null
-                                    });
-                                });
-                            } else {
-                                transmit_ws.open.agent({
-                                    agent: keys[0],
-                                    agentType: "user",
-                                    callback: null
-                                });
-                            }
-                        });
+                        sender.broadcast({
+                            data: data,
+                            service: "invite"
+                        }, "device");
+                        addAgent("agentRequest", true);
                     }
                 });
             }

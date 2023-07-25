@@ -152,6 +152,14 @@ const transmit_ws:module_transmit_ws = {
                         client.once("data", function terminal_server_transmission_transmitWs_createSocket_hash_ready_data():void {
                             if (config.socketType === "device" || config.socketType === "user") {
                                 transmit_ws.ipAttempts[config.socketType][config.hash] = [];
+                                vars.agents[config.socketType][config.hash].ipSelected = config.ip;
+                                settings({
+                                    data: {
+                                        settings: vars.agents[config.socketType],
+                                        type: config.socketType
+                                    },
+                                    service: "settings"
+                                });
                             }
                             transmit_ws.socketExtensions({
                                 callback: config.callback,
@@ -486,11 +494,11 @@ const transmit_ws:module_transmit_ws = {
                                 return null;
                             },
                             IPv6:string = ipList("IPv6");
-                        if (attempts.length < 1) {
-                            return agent.ipSelected;
-                        }
                         if (IPv6 === null) {
                             return ipList("IPv4");
+                        }
+                        if (attempts.length < 1) {
+                            return agent.ipSelected;
                         }
                         return IPv6;
                     }());
