@@ -34,7 +34,7 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                 transmit_http.request(httpConfig);
             }
         },
-        addAgent = function terminal_server_services_invite_addAgent(type:agentTransmit, openSocket:boolean):void {
+        addAgent = function terminal_server_services_invite_addAgent(type:agentTransmit):void {
             const addAgentData:service_agentManagement = {
                 action: "add",
                 agents: (data.type === "device")
@@ -74,23 +74,25 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                     data: addAgentData,
                     service: "agent-management"
                 });
-            }
-            if (openSocket === true) {
-                const keys:string[] = Object.keys(addAgentData.agents);
-                if (data.type === "device") {
-                    keys.forEach(function terminal_server_services_invite_identity_unmask_accepted_each(device:string):void {
+                if (type === "agentRequest") {
+                    const keys:string[] = Object.keys(addAgentData.agents[data.type]);
+                    if (data.type === "device") {
+                        keys.forEach(function terminal_server_services_invite_addAgent_each(device:string):void {
+                            if (device !== vars.identity.hashDevice) {
+                                transmit_ws.open.agent({
+                                    agent: device,
+                                    agentType: "device",
+                                    callback: null
+                                });
+                            }
+                        });
+                    } else {
                         transmit_ws.open.agent({
-                            agent: device,
-                            agentType: "device",
+                            agent: keys[0],
+                            agentType: "user",
                             callback: null
                         });
-                    });
-                } else {
-                    transmit_ws.open.agent({
-                        agent: keys[0],
-                        agentType: "user",
-                        callback: null
-                    });
+                    }
                 }
             }
         },
@@ -248,7 +250,7 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                     if (test === true) {
                         if (data.status === "accepted") {
                             const userData:userData = common.userData(vars.agents.device, "user", "");
-                            addAgent("agentSource", false);
+                            addAgent("agentSource");
                             data.action = "invite-identity";
                             data.agentRequest = {
                                 devices: (data.type === "device")
@@ -280,7 +282,7 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                 // formulation - local/remote terminal
                 // execution   - local/remote browser, local/remote devices
                 // purpose     - Update the UI with the invitation changes
-                addAgent("agentRequest", true);
+                addAgent("agentRequest");
             },
             "invite-identity": function terminal_server_services_invite_identity():void {
                 // Step 7
@@ -294,7 +296,7 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                             data: data,
                             service: "invite"
                         }, "device");
-                        addAgent("agentRequest", true);
+                        addAgent("agentRequest");
                     }
                 });
             }

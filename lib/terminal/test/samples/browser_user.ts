@@ -77,41 +77,7 @@ const docFiles:string = "Writing 100.00% complete. 21 files written at size ",
         inviteModal("self"),
         inviteSend("self", "VM1", "device"),
         inviteAccept("self", "VM1", "device"),
-        {
-            delay: {
-                node: [
-                    ["getElementById", "device", null],
-                    ["getElementsByTagName", "li", 3],
-                    ["getElementsByTagName", "button", 0]
-                ],
-                qualifier: "is",
-                target: ["lastChild", "textContent"],
-                type: "property",
-                value: " Primary Device"
-            },
-            interaction: [
-                {
-                    event: "click",
-                    node: [
-                        ["getModalsByModalType", "invite-ask", 0],
-                        ["getElementsByClassName", "confirm", 0]
-                    ]
-                }
-            ],
-            machine: "VM1",
-            name: "On VM1 accept device invitation from self",
-            unit: [
-                {
-                    node: [
-                        ["getModalsByModalType", "invite-ask", 0]
-                    ],
-                    qualifier: "is",
-                    target: [],
-                    type: "element",
-                    value: undefined
-                }
-            ]
-        },
+        inviteConfirm("self", "VM1", "device"),
         {
             delay: {
                 node: [

@@ -7,13 +7,22 @@ const inviteConfirm = function terminal_test_application_browserUtilities_invite
         delay: {
             node: [
                 ["getElementById", type, null],
-                ["getElementsByTagName", "li", (type === "device") ? 2 : 1],
+                ["getElementsByTagName", "li", (type === "device")
+                    ? (from === "self" && to === "VM1")
+                        ? 3
+                        : 2
+                    : 1
+                ],
                 ["getElementsByTagName", "button", 0]
             ],
             qualifier: "is",
             target: ["lastChild", "textContent"],
             type: "property",
-            value: ` ${(from === "self") ? "User-self" : from}`
+            value: ` ${(from === "self")
+                ? (type === "device")
+                    ? "Primary Device"
+                    : "User-self"
+                : from}`
         },
         interaction: [
             {
