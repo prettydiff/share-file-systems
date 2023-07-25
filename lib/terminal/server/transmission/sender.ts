@@ -1,6 +1,6 @@
 /* lib/terminal/server/transmission/sender - Abstracts away the communication channel from the message. */
 
-import deviceMask from "../services/deviceMask.js";
+import mask from "../../utilities/mask.js";
 import settings from "../services/settings.js";
 import transmit_ws from "./transmit_ws.js";
 import vars from "../../utilities/vars.js";
@@ -96,13 +96,13 @@ const sender:module_transmit_sender = {
                 // same user
                 if (device.length === 141) {
                     // masked device
-                    deviceMask.unmask(device, callback);
+                    mask.unmask(device, callback);
                 } else if (device.length === 128) {
                     // normal device
                     callback(device);
                 } else if (destination.share.length === 128) {
                     // resolve from share
-                    callback(deviceMask.resolve(destination));
+                    callback(mask.resolve(destination));
                 }
             };
         let destination:fileAgent = data[config.destination];
@@ -133,7 +133,7 @@ const sender:module_transmit_sender = {
                 sendUser = function terminal_server_transmission_sender_route_sendUser(device:string):void {
                     if (device === vars.identity.hashDevice) {
                         // if current device holds socket to destination user, send data to user with masked device identity
-                        deviceMask.mask(data[config.origination], function terminal_server_transmission_sender_route_sendUser_mask(device:string):void {
+                        mask.fileAgent(data[config.origination], function terminal_server_transmission_sender_route_sendUser_mask(device:string):void {
                             data[config.origination].device = device;
                             sender.send(config.socketData, {
                                 device: "",
@@ -183,7 +183,7 @@ const sender:module_transmit_sender = {
             } else {
                 if (agents.user === vars.identity.hashUser) {
                     if (agents.device.length === 141) {
-                        deviceMask.unmask(agents.device, function terminal_server_transmission_sender_send_unmask(actualDevice:string):void {
+                        mask.unmask(agents.device, function terminal_server_transmission_sender_send_unmask(actualDevice:string):void {
                             sender.agentQueue("device", actualDevice, data);
                         });
                     } else {

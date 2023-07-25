@@ -3,7 +3,7 @@
 
 import common from "../../../common/common.js";
 import copy from "../../commands/library/copy.js";
-import deviceMask from "../services/deviceMask.js";
+import mask from "../../utilities/mask.js";
 import directory from "../../commands/library/directory.js";
 import error from "../../utilities/error.js";
 import fileExecution from "./fileExecution.js";
@@ -122,7 +122,7 @@ const fileCopy:module_fileCopy = {
                                     if (data.agentWrite.user === data.agentSource.user) {
                                         listBuild(data.agentSource.device);
                                     } else {
-                                        deviceMask.mask(data.agentSource, listBuild);
+                                        mask.fileAgent(data.agentSource, listBuild);
                                     }
                                 }
                             };
@@ -158,7 +158,7 @@ const fileCopy:module_fileCopy = {
                         search: "",
                         symbolic: false
                     };
-                    deviceMask.unmask(data.agentWrite.device, function terminal_server_services_fileCopy_copyList_security_listStatus(device:string):void {
+                    mask.unmask(data.agentWrite.device, function terminal_server_services_fileCopy_copyList_security_listStatus(device:string):void {
                         const messageType:agentType = (data.agentSource.user === data.agentWrite.user)
                                 ? "device"
                                 : "user",
@@ -746,7 +746,7 @@ const fileCopy:module_fileCopy = {
             resolve = function terminal_server_services_fileCopy_security_resolve(type:agentCopy):void {
                 if (config[type].user === vars.identity.hashUser) {
                     if (config[type].share !== "" && config[type].device === "") {
-                        config[type].device = deviceMask.resolve(config[type]);
+                        config[type].device = mask.resolve(config[type]);
                         complete();
                     } else {
                         const unmasked = function terminal_server_services_fileCopy_security_resolve_unmasked(device:string):void {
@@ -755,7 +755,7 @@ const fileCopy:module_fileCopy = {
                             }
                             complete();
                         };
-                        deviceMask.unmask(config[type].device, unmasked);
+                        mask.unmask(config[type].device, unmasked);
                     }
                 } else {
                     complete();

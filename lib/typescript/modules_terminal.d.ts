@@ -100,24 +100,6 @@ interface module_commandList {
 }
 
 /**
- * Methods to mask or unmask a device identity between users.
- * ```typescript
- * interface module_deviceMask {
- *     mask: (agent:fileAgent, callback:(hashMask:string) => void) => void; // Converts a device identity into a new hash of 141 character length.
- *     resolve: (agent:fileAgent) => string;                                // Resolves a device identifier from a share for the current local user.
- *     token: (date:string, device:string) => string;                       // Provides a uniform sample to hash for creating or comparing device masks.
- *     unmask: (mask:string, callback:(device:string) => void) => void;     // Compares a temporary 141 character device identity against owned devices to determine validity of share permissions.
- * }
- * ``` */
-interface module_deviceMask {
-
-    mask: (agent:fileAgent, callback:(key:string) => void) => void;
-    resolve: (agent:fileAgent) => string;
-    token: (date:string, device:string) => string;
-    unmask: (mask:string, callback:(device:string) => void) => void;
-}
-
-/**
  * Stores file copy services.
  * ```typescript
  * interface module_fileCopy {
@@ -225,6 +207,25 @@ interface module_inviteActions {
     "invite-request": () => void;
     "invite-response": () => void;
     "invite-start": () => void;
+}
+
+/**
+ * Methods to mask or unmask a device identity between users.
+ * ```typescript
+ * interface module_mask {
+ *     fileAgent: (agent:fileAgent, callback:(key:string) => void) => void; // An abstraction layer specific for fileAgent data.
+ *     mask: (input:string, callback:(key:string) => void) => void;         // Converts a device identity into a new hash of 141 character length.
+ *     resolve: (agent:fileAgent) => string;                                // Resolves a device identifier from a share for the current local user.
+ *     token: (date:string, device:string) => string;                       // Provides a uniform sample to hash for creating or comparing device masks.
+ *     unmask: (mask:string, callback:(device:string) => void) => void;     // Compares a temporary 141 character device identity against owned devices to determine validity of share permissions.
+ * }
+ * ``` */
+interface module_mask {
+    fileAgent: (agent:fileAgent, callback:(key:string) => void) => void;
+    mask: (input:string, callback:(key:string) => void) => void;
+    resolve: (agent:fileAgent) => string;
+    token: (date:string, device:string) => string;
+    unmask: (mask:string, callback:(device:string) => void) => void;
 }
 
 /**

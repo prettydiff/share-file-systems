@@ -3,7 +3,7 @@
 
 import agent_management from "../services/agent_management.js";
 import common from "../../../common/common.js";
-import deviceMask from "../services/deviceMask.js";
+import mask from "../../utilities/mask.js";
 import error from "../../utilities/error.js";
 import hash from "../../commands/library/hash.js";
 import ipList from "../../utilities/ipList.js";
@@ -170,7 +170,7 @@ const transmit_http:module_transmit_http = {
                         destroy();
                     }
                 } else if (agent.length === 141 && requestType === "copy-send-file") {
-                    deviceMask.unmask(agent, function terminal_server_transmission_transmitHttp_receive_unmask(device:string):void {
+                    mask.unmask(agent, function terminal_server_transmission_transmitHttp_receive_unmask(device:string):void {
                         postTest(device, false);
                     });
                 } else {
