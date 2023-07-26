@@ -11,7 +11,6 @@ import vars from "./vars.js";
  *     fileAgent: (agent:fileAgent, callback:(key:string) => void) => void;                   // An abstraction layer specific for fileAgent data.
  *     mask: (input:string, callback:(key:string) => void) => void;                           // Converts a device identity into a new hash of 141 character length.
  *     resolve: (agent:fileAgent) => string;                                                  // Resolves a device identifier from a share for the current local user.
- *     token: (date:string, device:string) => string;                                         // Provides a uniform sample to hash for creating or comparing device masks.
  *     unmaskDevice: (maskItem:string, callback:(device:string) => void) => void;             // Compares a temporary 141 character device identity against owned devices to determine validity of share permissions.
  *     unmaskToken: (maskItem:string, token:string, callback:(test:boolean) => void) => void; // Compares a 141 character masked hash against a string hashed from a date and submitted token.
  * }
@@ -39,7 +38,7 @@ const mask:module_mask = {
                 id: null,
                 list: false,
                 parent: null,
-                source: mask.token(date, input),
+                source: date + input,
                 stat: null
             };
         hash(hashInput);
@@ -61,9 +60,6 @@ const mask:module_mask = {
         }
         return agent.device;
     },
-    token: function terminal_utilities_mask_token(date:string, device:string):string {
-        return date + vars.identity.hashUser + device;
-    },
     unmaskDevice: function terminal_utilities_mask_unmaskDevice(maskItem:string, callback:(device:string) => void):void {
         if (maskItem.length === 141) {
             const date:string = maskItem.slice(0, 13),
@@ -76,7 +72,7 @@ const mask:module_mask = {
                         } else {
                             index = index - 1;
                             if (index > -1) {
-                                hashInput.source = mask.token(date, devices[index]);
+                                hashInput.source = date + devices[index];
                                 hash(hashInput);
                             } else {
                                 callback("");
@@ -92,7 +88,7 @@ const mask:module_mask = {
                     stat: null
                 };
             let index:number = devices.length - 1;
-            hashInput.source = mask.token(date, devices[index]);
+            hashInput.source = date + devices[index];
             hash(hashInput);
         } else {
             callback(maskItem);
@@ -100,10 +96,12 @@ const mask:module_mask = {
     },
     unmaskToken: function terminal_utilities_mask_unmaskToken(maskItem:string, token:string, callback:(test:boolean) => void):void {
         const date:string = maskItem.slice(0, 13),
+            dateNumber:number = Number(date),
+            now:number = (Date.now() - dateNumber) / 1e6,
             hashInput:config_command_hash = {
                 algorithm: "sha3-512",
                 callback: function terminal_mask_unmaskToken_callback(title:string, output:hash_output):void {
-                    if (date + output.hash === maskItem) {
+                    if (date + output.hash === maskItem && ((now > 0 && now < 172.8) || (now < 0 && now > -172.8))) {
                         callback(true);
                     } else {
                         callback(false);

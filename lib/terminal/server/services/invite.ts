@@ -4,7 +4,7 @@
 import agent_management from "./agent_management.js";
 import common from "../../../common/common.js";
 import getAddress from "../../utilities/getAddress.js";
-import hash from "../../commands/library/hash.js";
+import mask from "../../utilities/mask.js";
 import sender from "../transmission/sender.js";
 import service from "../../test/application/service.js";
 import transmit_http from "../transmission/transmit_http.js";
@@ -96,30 +96,6 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                 }
             }
         },
-        unmask = function terminal_server_services_invite_unmask(mask:string, callback:(test:boolean) => void):void {
-            const date:string = mask.slice(0, 13),
-                dateNumber:number = Number(date),
-                now:number = (Date.now() - dateNumber) / 1e6;
-            hash({
-                algorithm: "sha3-512",
-                callback: function terminal_server_services_invite_unmask_hash(title:string, output:hash_output):void {
-                    // verify date portion is within 48 hours and used with the device hash to formulate the shared hash
-                    if (date + output.hash === mask && ((now > 0 && now < 172.8) || (now < 0 && now > -172.8))) {
-                        callback(true);
-                    } else {
-                        callback(false);
-                    }
-                },
-                digest: "hex",
-                directInput: true,
-                id: "",
-                list: false,
-                parent: 0,
-                source: date + data.type + vars.identity.hashDevice,
-                stat: null
-            });
-
-        },
        /**
          * Methods for processing the various stages of the invitation process.
          * The "invite-complete" step executes as the final step in the terminal at both ends of the transaction.
@@ -156,25 +132,14 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                 // formulation - local browser
                 // execution   - local terminal
                 // purpose     - Start the invitation process
-                const date:number = Date.now();
-                hash({
-                    algorithm: "sha3-512",
-                    callback: function terminal_server_services_invite_request_hash(title:string, output:hash_output):void {
-                        data.agentRequest.session = date.toString() + output.hash;
-                        data.action = "invite-request";
-                        inviteHttp("agentSource");
-                        sender.broadcast({
-                            data: data,
-                            service: "invite"
-                        }, "browser");
-                    },
-                    digest: "hex",
-                    directInput: true,
-                    id: "",
-                    list: false,
-                    parent: 0,
-                    source: date.toString() + data.type + vars.identity.hashDevice,
-                    stat: null
+                mask.mask(vars.identity.hashDevice, function terminal_server_services_invite_start_mask(key:string):void {
+                    data.agentRequest.session = key;
+                    data.action = "invite-request";
+                    inviteHttp("agentSource");
+                    sender.broadcast({
+                        data: data,
+                        service: "invite"
+                    }, "browser");
                 });
             },
             "invite-request": function terminal_server_services_invite_request():void {
@@ -201,44 +166,33 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                 // formulation - remote browser
                 // execution   - remote terminal
                 // purpose     - Inform the terminal of the answer to the invitation
-                const date:number = Date.now();
-                hash({
-                    algorithm: "sha3-512",
-                    callback: function terminal_server_services_invite_answer_hash(title:string, output:hash_output):void {
-                        data.action = "invite-response";
-                        if (data.status === "accepted") {
-                            const session:string = date.toString() + output.hash;
-                            if (data.type === "device") {
-                                data.agentSource.devices = vars.agents.device;
-                                data.agentSource.ipAll = vars.network.addresses;
-                                data.agentSource.ports = vars.network.ports;
-                                data.agentSource.secret = vars.identity.secretUser;
-                                data.agentSource.session = session;
-                            } else {
-                                const userData:userData = common.userData(vars.agents.device, "user", "");
-                                data.agentSource = {
-                                    devices: null,
-                                    hashUser: vars.identity.hashUser,
-                                    ipAll: userData[1],
-                                    ipSelected: data.agentSource.ipSelected,
-                                    modal: data.agentSource.modal,
-                                    nameUser: vars.identity.nameUser,
-                                    ports: vars.network.ports,
-                                    secret: vars.identity.secretUser,
-                                    session: session,
-                                    shares: userData[0]
-                                };
-                            }
+                mask.mask(vars.identity.hashDevice, function terminal_server_services_invite_answer_mask(key:string):void {
+                    data.action = "invite-response";
+                    if (data.status === "accepted") {
+                        const session:string = key;
+                        if (data.type === "device") {
+                            data.agentSource.devices = vars.agents.device;
+                            data.agentSource.ipAll = vars.network.addresses;
+                            data.agentSource.ports = vars.network.ports;
+                            data.agentSource.secret = vars.identity.secretUser;
+                            data.agentSource.session = session;
+                        } else {
+                            const userData:userData = common.userData(vars.agents.device, "user", "");
+                            data.agentSource = {
+                                devices: null,
+                                hashUser: vars.identity.hashUser,
+                                ipAll: userData[1],
+                                ipSelected: data.agentSource.ipSelected,
+                                modal: data.agentSource.modal,
+                                nameUser: vars.identity.nameUser,
+                                ports: vars.network.ports,
+                                secret: vars.identity.secretUser,
+                                session: session,
+                                shares: userData[0]
+                            };
                         }
-                        inviteHttp("agentRequest");
-                    },
-                    digest: "hex",
-                    directInput: true,
-                    id: "",
-                    list: false,
-                    parent: 0,
-                    source: date.toString() + data.type + vars.identity.hashDevice,
-                    stat: null
+                    }
+                    inviteHttp("agentRequest");
                 });
             },
             "invite-response": function terminal_server_services_invite_response():void {
@@ -246,7 +200,7 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                 // formulation - remote terminal
                 // execution   - local terminal
                 // purpose     - Respond with the invitation answer
-                unmask(data.agentRequest.session, function terminal_server_services_invite_response_unmask(test:boolean):void {
+                mask.unmaskToken(data.agentRequest.session, vars.identity.hashDevice, function terminal_server_services_invite_response_unmask(test:boolean):void {
                     if (test === true) {
                         if (data.status === "accepted") {
                             const userData:userData = common.userData(vars.agents.device, "user", "");
@@ -289,7 +243,7 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                 // formulation - local terminal
                 // execution   - remote terminal
                 // purpose     - Receive identifying data at the remote, remote opens sockets
-                unmask(data.agentSource.session, function terminal_server_services_invite_identity_unmask(test:boolean):void {
+                mask.unmaskToken(data.agentSource.session, vars.identity.hashDevice, function terminal_server_services_invite_identity_unmask(test:boolean):void {
                     if (test === true) {
                         data.action = "invite-complete";
                         sender.broadcast({
