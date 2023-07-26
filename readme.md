@@ -36,7 +36,7 @@ This application seeks to be inherently private.  Everything is directly point t
 [AGPLv3](https://www.gnu.org/licenses/agpl-3.0.en.html)
 
 ## Version
-0.2.27
+0.3.0
 
 ## Build and execute on desktop
 ### First build
