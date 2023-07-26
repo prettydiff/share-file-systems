@@ -708,7 +708,7 @@ const docFiles:string = "Writing 100.00% complete. 21 files written at size ",
                 qualifier: "ends",
                 target: ["firstChild", "textContent"],
                 type: "property",
-                value: "temp"
+                value: "application"
             },
             interaction: [
                 {
@@ -722,7 +722,20 @@ const docFiles:string = "Writing 100.00% complete. 21 files written at size ",
                 {
                     event: "wait",
                     node: null,
-                    value: "100"
+                    value: "200"
+                },
+                {
+                    event: "click",
+                    node: [
+                        ["getModalsByModalType", "file-navigate", 0],
+                        ["getElementsByClassName", "header", 0],
+                        ["getElementsByClassName", "parentDirectory", 0]
+                    ]
+                },
+                {
+                    event: "wait",
+                    node: null,
+                    value: "200"
                 },
                 {
                     event: "contextmenu",
@@ -770,7 +783,7 @@ const docFiles:string = "Writing 100.00% complete. 21 files written at size ",
                     qualifier: "ends",
                     target: ["firstChild", "textContent"],
                     type: "property",
-                    value: "temp"
+                    value: "application"
                 },
                 {
                     node: [
@@ -1382,7 +1395,7 @@ const docFiles:string = "Writing 100.00% complete. 21 files written at size ",
                         ["getModalsByModalType", "shares", 0],
                         ["getElementsByClassName", "body", 0],
                         ["getElementsByTagName", "ul", 1],
-                        ["getElementsByTagName", "li", 0],
+                        ["getElementsByClassName", "full-access", 0],
                         ["getElementsByTagName", "strong", 0]
                     ],
                     qualifier: "is",
@@ -1404,7 +1417,7 @@ const docFiles:string = "Writing 100.00% complete. 21 files written at size ",
                 qualifier: "is",
                 target: ["innerHTML"],
                 type: "property",
-                value: "1 directory, 5 files, 0 symbolic links, 0 errors"
+                value: "1 directory, 7 files, 0 symbolic links, 0 errors"
             },
             interaction: [
                 {
@@ -1412,7 +1425,8 @@ const docFiles:string = "Writing 100.00% complete. 21 files written at size ",
                     node: [
                         ["getModalsByModalType", "shares", 0],
                         ["getElementsByClassName", "body", 0],
-                        ["getElementsByClassName", "user-share", 1]
+                        ["getElementsByClassName", "full-access", 0],
+                        ["getElementsByTagName", "button", 0]
                     ]
                 }
             ],
@@ -1547,6 +1561,11 @@ const docFiles:string = "Writing 100.00% complete. 21 files written at size ",
                     ],
                     value: "Control"
                 },
+                {
+                    event: "wait",
+                    node: null,
+                    value: "500"
+                }
             ],
             machine: "self",
             name: "On self copy a directory to full access share of VM3",
@@ -1736,7 +1755,7 @@ const docFiles:string = "Writing 100.00% complete. 21 files written at size ",
                 qualifier: "begins",
                 target: ["innerHTML"],
                 type: "property",
-                value: docFiles
+                value: "Writing 100.00% complete. 14 files written at size "
             },
             interaction: [
                 {
@@ -2286,7 +2305,7 @@ const docFiles:string = "Writing 100.00% complete. 21 files written at size ",
                 qualifier: "ends",
                 target: ["innerHTML"],
                 type: "property",
-                value: "documentation"
+                value: "browserUtilities"
             },
             interaction: [
                 {

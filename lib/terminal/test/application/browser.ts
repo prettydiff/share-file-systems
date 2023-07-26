@@ -434,6 +434,7 @@ const defaultCommand:commands = vars.environment.command,
                     vars.agents.device = {};
                     vars.agents.user = {};
                     transmit_ws.status = {};
+                    remove(`${vars.path.project}lib${vars.path.sep}terminal${vars.path.sep}test${vars.path.sep}application${vars.path.sep}documentation`, [], null);
                     // close sockets
                     {
                         const types:socketType[] = Object.keys(transmit_ws.socketList) as socketType[];
