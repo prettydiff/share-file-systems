@@ -96,7 +96,7 @@ const sender:module_transmit_sender = {
                 // same user
                 if (device.length === 141) {
                     // masked device
-                    mask.unmask(device, callback);
+                    mask.unmaskDevice(device, callback);
                 } else if (device.length === 128) {
                     // normal device
                     callback(device);
@@ -183,7 +183,7 @@ const sender:module_transmit_sender = {
             } else {
                 if (agents.user === vars.identity.hashUser) {
                     if (agents.device.length === 141) {
-                        mask.unmask(agents.device, function terminal_server_transmission_sender_send_unmask(actualDevice:string):void {
+                        mask.unmaskDevice(agents.device, function terminal_server_transmission_sender_send_unmask(actualDevice:string):void {
                             sender.agentQueue("device", actualDevice, data);
                         });
                     } else {

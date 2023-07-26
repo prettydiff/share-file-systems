@@ -158,7 +158,7 @@ const fileCopy:module_fileCopy = {
                         search: "",
                         symbolic: false
                     };
-                    mask.unmask(data.agentWrite.device, function terminal_server_services_fileCopy_copyList_security_listStatus(device:string):void {
+                    mask.unmaskDevice(data.agentWrite.device, function terminal_server_services_fileCopy_copyList_security_listStatus(device:string):void {
                         const messageType:agentType = (data.agentSource.user === data.agentWrite.user)
                                 ? "device"
                                 : "user",
@@ -755,7 +755,7 @@ const fileCopy:module_fileCopy = {
                             }
                             complete();
                         };
-                        mask.unmask(config[type].device, unmasked);
+                        mask.unmaskDevice(config[type].device, unmasked);
                     }
                 } else {
                     complete();

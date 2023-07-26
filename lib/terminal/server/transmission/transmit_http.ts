@@ -170,7 +170,7 @@ const transmit_http:module_transmit_http = {
                         destroy();
                     }
                 } else if (agent.length === 141 && requestType === "copy-send-file") {
-                    mask.unmask(agent, function terminal_server_transmission_transmitHttp_receive_unmask(device:string):void {
+                    mask.unmaskDevice(agent, function terminal_server_transmission_transmitHttp_receive_unmask(device:string):void {
                         postTest(device, false);
                     });
                 } else {

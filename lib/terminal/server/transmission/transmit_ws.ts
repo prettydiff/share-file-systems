@@ -9,6 +9,7 @@ import error from "../../utilities/error.js";
 import getAddress from "../../utilities/getAddress.js";
 import hash from "../../commands/library/hash.js";
 import log from "../../utilities/log.js";
+import mask from "../../utilities/mask.js";
 import node from "../../utilities/node.js";
 import receiver from "./receiver.js";
 import sender from "./sender.js";
@@ -178,7 +179,13 @@ const transmit_ws:module_transmit_ws = {
                     } while (a < len);
                 }
                 client.once("error", callbackError);
-                client.once("ready", callbackReady);
+                if (config.socketType === "device" || config.socketType === "user") {
+                    mask.mask(vars.agents[config.socketType][config.hash].secret, function terminal_server_transmission_transmitWs_createSocket_hash_maskDevice(key:string):void {
+                        header.push(`challenge: ${key}`);
+                    });
+                } else {
+                    client.once("ready", callbackReady);
+                }
             },
             digest: "base64",
             directInput: true,
@@ -784,49 +791,50 @@ const transmit_ws:module_transmit_ws = {
                                     };
                                 // some complexity is present because browsers will not have a "hash" heading
                                 if (flags.type === true && flags.key === true && (type === "browser" || flags.hash === true)) {
+                                    const headerComplete = function terminal_serveR_transmission_transmitWs_server_connection_handshake_headers_headerComplete(test:boolean):void {
+                                        if (test === false) {
+                                            socket.destroy();
+                                            return;
+                                        }
+                                        const identifier:string = (type === "browser")
+                                            ? hashKey
+                                            : (type === "testRemote" && vars.test.type === "browser_remote")
+                                                ? "self"
+                                                : hashName;
+                                        if ((type === "device" || type === "user") && transmit_ws.socketList[type][identifier] !== undefined) {
+                                            transmit_ws.agentClose(transmit_ws.socketList[type][identifier]);
+                                        }
+                                        transmit_ws.socketExtensions({
+                                            callback: (type === "testRemote")
+                                                ? testReset
+                                                : clientRespond,
+                                            handler: transmit_ws.clientReceiver,
+                                            identifier: identifier,
+                                            role: "server",
+                                            socket: socket,
+                                            type: type
+                                        });
+                                    };
+                                    if (type === "testRemote" && vars.test.type !== "browser_remote") {
+                                        socket.destroy();
+                                        return;
+                                    }
                                     if (type === "device" || type === "user") {
                                         if (vars.agents[type][hashName] === undefined) {
                                             socket.destroy();
                                             return;
                                         }
-                                        /*if (vars.identity.hashDevice !== "") {
-                                            let challenge:string = dataString.slice(dataString.indexOf("\r\nchallenge:")).replace(/(\s+challenge:\s*)/, ""),
-                                                decrypted:string = "";
+                                        if (vars.identity.hashDevice !== "") {
+                                            const token:string = (type === "device")
+                                                ? vars.identity.secretDevice
+                                                : vars.identity.secretUser;
+                                            let challenge:string = dataString.slice(dataString.indexOf("\r\nchallenge:")).replace(/(\s+challenge:\s*)/, "");
                                             challenge = challenge.slice(0, challenge.indexOf("\r")).replace(/\s+/g, "");
-                                            decrypted = transmit_ws.encryption("private", challenge, (type === "device")
-                                                ? vars.identity.keyDevicePrivate
-                                                : vars.identity.keyUserPrivate);
-                                            if (decrypted !== hashName) {
-                                                console.log(decrypted);
-                                                console.log(hashName);
-                                                console.log(decrypted.length+" "+hashName.length);
-                                                socket.destroy();
-                                                return;
-                                            }
-                                        }*/
+                                            mask.unmaskToken(challenge, token, headerComplete);
+                                        }
+                                    } else {
+                                        headerComplete(true);
                                     }
-                                    if (type === "testRemote" && vars.test.type !== "browser_remote") {
-                                        socket.destroy();
-                                        return;
-                                    }
-                                    const identifier:string = (type === "browser")
-                                        ? hashKey
-                                        : (type === "testRemote" && vars.test.type === "browser_remote")
-                                            ? "self"
-                                            : hashName;
-                                    if ((type === "device" || type === "user") && transmit_ws.socketList[type][identifier] !== undefined) {
-                                        transmit_ws.agentClose(transmit_ws.socketList[type][identifier]);
-                                    }
-                                    transmit_ws.socketExtensions({
-                                        callback: (type === "testRemote")
-                                            ? testReset
-                                            : clientRespond,
-                                        handler: transmit_ws.clientReceiver,
-                                        identifier: identifier,
-                                        role: "server",
-                                        socket: socket,
-                                        type: type
-                                    });
                                 }
                             },
                             headerEach = function terminal_server_transmission_transmitWs_server_connection_handshake_headerEach(header:string):void {
