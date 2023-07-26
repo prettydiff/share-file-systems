@@ -182,6 +182,7 @@ const transmit_ws:module_transmit_ws = {
                 if (config.socketType === "device" || config.socketType === "user") {
                     mask.mask(vars.agents[config.socketType][config.hash].secret, function terminal_server_transmission_transmitWs_createSocket_hash_maskDevice(key:string):void {
                         header.push(`challenge: ${key}`);
+                        client.once("ready", callbackReady);
                     });
                 } else {
                     client.once("ready", callbackReady);
@@ -820,18 +821,16 @@ const transmit_ws:module_transmit_ws = {
                                         return;
                                     }
                                     if (type === "device" || type === "user") {
-                                        if (vars.agents[type][hashName] === undefined) {
+                                        if (vars.agents[type][hashName] === undefined || typeof vars.identity.hashDevice !== "string" || vars.identity.hashDevice.length !== 128) {
                                             socket.destroy();
                                             return;
                                         }
-                                        if (vars.identity.hashDevice !== "") {
-                                            const token:string = (type === "device")
-                                                ? vars.identity.secretDevice
-                                                : vars.identity.secretUser;
-                                            let challenge:string = dataString.slice(dataString.indexOf("\r\nchallenge:")).replace(/(\s+challenge:\s*)/, "");
-                                            challenge = challenge.slice(0, challenge.indexOf("\r")).replace(/\s+/g, "");
-                                            mask.unmaskToken(challenge, token, headerComplete);
-                                        }
+                                        const token:string = (type === "device")
+                                            ? vars.identity.secretDevice
+                                            : vars.identity.secretUser;
+                                        let challenge:string = dataString.slice(dataString.indexOf("\r\nchallenge:")).replace(/(\s+challenge:\s*)/, "");
+                                        challenge = challenge.slice(0, challenge.indexOf("\r")).replace(/\s+/g, "");
+                                        mask.unmaskToken(challenge, token, headerComplete);
                                     } else {
                                         headerComplete(true);
                                     }
