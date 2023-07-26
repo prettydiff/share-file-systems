@@ -434,6 +434,27 @@ const defaultCommand:commands = vars.environment.command,
                     vars.agents.device = {};
                     vars.agents.user = {};
                     transmit_ws.status = {};
+                    // close sockets
+                    {
+                        const types:socketType[] = Object.keys(transmit_ws.socketList) as socketType[];
+                        let sockets:string[] = null,
+                            socketIndex:number = 0,
+                            typeIndex:number = types.length;
+                        do {
+                            typeIndex = typeIndex - 1;
+                            if (types[typeIndex] !== "testRemote") {
+                                sockets = Object.keys(transmit_ws.socketList[types[typeIndex]]);
+                                socketIndex = sockets.length;
+                                if (socketIndex > 0) {
+                                    do {
+                                        socketIndex = socketIndex - 1;
+                                        transmit_ws.socketList[types[typeIndex]][sockets[socketIndex]].destroy();
+                                    } while (socketIndex > 0);
+                                    transmit_ws.socketList[types[typeIndex]] = {};
+                                }
+                            }
+                        } while (typeIndex > 0);
+                    }
                     if (browser.args.mode === "remote" || browser.args.mode === "all") {
                         const ui:ui_data = {
                             audio: false,

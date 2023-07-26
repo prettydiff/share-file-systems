@@ -13,7 +13,9 @@ import vars from "../../utilities/vars.js";
 
 const invite = function terminal_server_services_invite(socketData:socketData, transmit:transmit_type):void {
     const data:service_invite = socketData.data as service_invite,
-        remoteIP:string = getAddress(transmit).remote.address,
+        remoteIP:string = (vars.test.type === "service")
+            ? null
+            : getAddress(transmit).remote.address,
         inviteHttp = function terminal_server_services_invite_inviteHttp(agent:"agentRequest"|"agentSource"):void {
             const payload:socketData = {
                     data: data,
@@ -135,11 +137,18 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                 mask.mask(vars.identity.hashDevice, function terminal_server_services_invite_start_mask(key:string):void {
                     data.agentRequest.session = key;
                     data.action = "invite-request";
-                    inviteHttp("agentSource");
-                    sender.broadcast({
-                        data: data,
-                        service: "invite"
-                    }, "browser");
+                    if (vars.test.type === "service") {
+                        service.evaluation({
+                            data: data,
+                            service: "invite"
+                        });
+                    } else {
+                        inviteHttp("agentSource");
+                        sender.broadcast({
+                            data: data,
+                            service: "invite"
+                        }, "browser");
+                    }
                 });
             },
             "invite-request": function terminal_server_services_invite_request():void {
@@ -149,10 +158,17 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                 // purpose     - Push the invitation to remote user UI
                 data.action = "invite-ask";
                 data.agentRequest.ipSelected = remoteIP;
-                sender.broadcast({
-                    data: data,
-                    service: "invite"
-                }, "browser");
+                if (vars.test.type === "service") {
+                    service.evaluation({
+                        data: data,
+                        service: "invite"
+                    });
+                } else {
+                    sender.broadcast({
+                        data: data,
+                        service: "invite"
+                    }, "browser");
+                }
             },
             "invite-ask": function terminal_server_services_invite_ask():void {
                 // Step 3
@@ -192,7 +208,14 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                             };
                         }
                     }
-                    inviteHttp("agentRequest");
+                    if (vars.test.type === "service") {
+                        service.evaluation({
+                            data: data,
+                            service: "invite"
+                        });
+                    } else {
+                        inviteHttp("agentRequest");
+                    }
                 });
             },
             "invite-response": function terminal_server_services_invite_response():void {
@@ -200,7 +223,7 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                 // formulation - remote terminal
                 // execution   - local terminal
                 // purpose     - Respond with the invitation answer
-                mask.unmaskToken(data.agentRequest.session, vars.identity.hashDevice, function terminal_server_services_invite_response_unmask(test:boolean):void {
+                const unmask = function terminal_server_services_invite_response_unmask(test:boolean):void {
                     if (test === true) {
                         if (data.status === "accepted") {
                             const userData:userData = common.userData(vars.agents.device, "user", "");
@@ -218,18 +241,39 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                                 ports: vars.network.ports,
                                 secret: vars.identity.secretUser,
                                 session: "",
-                                shares: userData[0]
+                                shares: (data.type === "device")
+                                    ? {}
+                                    : userData[0]
                             };
-                            inviteHttp("agentSource");
-                            data.action = "invite-complete";
+                            if (vars.test.type === "service") {
+                                service.evaluation({
+                                    data: data,
+                                    service: "invite"
+                                });
+                            } else {
+                                inviteHttp("agentSource");
+                            }
                         }
                         data.action = "invite-complete";
-                        sender.broadcast({
-                            data: data,
-                            service: "invite"
-                        }, "browser");
+                        if (vars.test.type === "service" && data.status !== "accepted") {
+                            service.evaluation({
+                                data: data,
+                                service: "invite"
+                            });
+                        }
+                        if (vars.test.type !== "service") {
+                            sender.broadcast({
+                                data: data,
+                                service: "invite"
+                            }, "browser");
+                        }
                     }
-                });
+                };
+                if (vars.test.type === "service") {
+                    unmask(true);
+                } else {
+                    mask.unmaskToken(data.agentRequest.session, vars.identity.hashDevice, unmask);
+                }
             },
             "invite-complete": function terminal_server_services_invite_complete():void {
                 // Step 6/8
@@ -243,27 +287,31 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                 // formulation - local terminal
                 // execution   - remote terminal
                 // purpose     - Receive identifying data at the remote, remote opens sockets
-                mask.unmaskToken(data.agentSource.session, vars.identity.hashDevice, function terminal_server_services_invite_identity_unmask(test:boolean):void {
+                const unmask = function terminal_server_services_invite_identity_unmask(test:boolean):void {
                     if (test === true) {
                         data.action = "invite-complete";
-                        sender.broadcast({
-                            data: data,
-                            service: "invite"
-                        }, "device");
-                        addAgent("agentRequest");
+                        if (vars.test.type === "service") {
+                            service.evaluation({
+                                data: data,
+                                service: "invite"
+                            });
+                        } else {
+                            sender.broadcast({
+                                data: data,
+                                service: "invite"
+                            }, "device");
+                            addAgent("agentRequest");
+                        }
                     }
-                });
+                };
+                if (vars.test.type === "service") {
+                    unmask(true);
+                } else {
+                    mask.unmaskToken(data.agentSource.session, vars.identity.hashDevice, unmask);
+                }
             }
         };
-    if (vars.test.type === "service" && data.message.indexOf("Ignored") === 0) {
-        data.status = "ignored";
-        service.evaluation({
-            data: data,
-            service: "invite"
-        });
-    } else {
-        actions[data.action]();
-    }
+    actions[data.action]();
 };
 
 export default invite;

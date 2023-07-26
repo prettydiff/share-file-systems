@@ -43,10 +43,7 @@ import vars from "../../utilities/vars.js";
  *     server          : (config:config_websocket_server) => node_net_Server;                   // Creates a websocket server.
  *     socketExtensions: (config:config_websocket_extensions) => void;                          // applies application specific extensions to sockets
  *     socketList      : {
- *         browser   : websocket_list;
- *         device    : websocket_list;
- *         testRemote: websocket_list;
- *         user      : websocket_list;
+ *         [key:string]: websocket_list;
  *     };                                                                                       // A store of open sockets by agent type.
  *     status          : socketList;                                                            // Stores open socket status information for all devices.
  *     statusUpdate    : (socketData:socketData) => void;                                       // Receive socket status list updates from other devices.

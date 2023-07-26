@@ -152,7 +152,7 @@ const docFiles:string = "Writing 100.00% complete. 21 files written at size ",
                     qualifier: "is",
                     target: ["value"],
                     type: "property",
-                    value: "Hello to VM3 from Primary Device."
+                    value: "Hello to VM3 from self."
                 }
             ]
         },
@@ -1382,7 +1382,7 @@ const docFiles:string = "Writing 100.00% complete. 21 files written at size ",
                         ["getModalsByModalType", "shares", 0],
                         ["getElementsByClassName", "body", 0],
                         ["getElementsByTagName", "ul", 1],
-                        ["getElementsByTagName", "li", 1],
+                        ["getElementsByTagName", "li", 0],
                         ["getElementsByTagName", "strong", 0]
                     ],
                     qualifier: "is",
