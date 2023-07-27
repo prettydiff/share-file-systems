@@ -70,7 +70,7 @@ const share:module_share = {
                     agentIdentity: true,
                     agentType: agentType,
                     content: null,
-                    read_only: browser[agentType][agent].shares[share].readOnly,
+                    read_only: browser.agents[agentType][agent].shares[share].readOnly,
                     share: (agentType === "user")
                         ? share
                         : "",
@@ -98,8 +98,8 @@ const share:module_share = {
             // hardware and OS details about a device
             agentDetails = function browser_content_share_content_agentDetails(type:agentType, agentString:string):HTMLElement {
                 const agentDetails:HTMLElement = document.createElement("ul"),
-                    agent:agent = browser[type][agentString],
-                    ip:string[] = (type === "device" && agentString === browser.data.hashDevice)
+                    agent:agent = browser.agents[type][agentString],
+                    ip:string[] = (type === "device" && agentString === browser.identity.hashDevice)
                         ? ["127.0.0.1", "::1"]
                         : [agent.ipSelected],
                     createListItem = function browser_content_share_content_agentDetails_createListItem(message:string, dataList?:string[]):void {
@@ -130,7 +130,7 @@ const share:module_share = {
                     };
                 createListItem(`${common.capitalize(type)} ID: ${agentString}`);
                 if (type === "device") {
-                    createListItem(`User ID: ${browser.data.hashUser}`);
+                    createListItem(`User ID: ${browser.identity.hashUser}`);
                 }
                 createListItem("Selected IP Address: ", ip);
                 createListItem("IPv4 Addresses: ", agent.ipAll.IPv4);
@@ -153,7 +153,7 @@ const share:module_share = {
                         toolList:HTMLElement = document.createElement("ul"),
                         subTitle = function browser_content_share_content_perAgent_subTitle(text:string):void {
                             const subTitleElement:HTMLElement = document.createElement("h5");
-                            subTitleElement.appendText(`${browser[agentNames.agentType][agentNames.agent].name} ${text}`);
+                            subTitleElement.appendText(`${browser.agents[agentNames.agentType][agentNames.agent].name} ${text}`);
                             agent.appendChild(subTitleElement);
                         };
                     shareListUL = document.createElement("ul");
@@ -161,7 +161,7 @@ const share:module_share = {
                     agent = document.createElement("div");
 
                     // title
-                    title.appendText(browser[agentNames.agentType][agentNames.agent].name);
+                    title.appendText(browser.agents[agentNames.agentType][agentNames.agent].name);
                     agent.appendChild(title);
 
                     // tool list
@@ -186,12 +186,12 @@ const share:module_share = {
                             text: "Command Terminal"
                         });
                     }
-                    if (agentNames.agentType !== "device" || (agentNames.agentType === "device" && agentNames.agent !== browser.data.hashDevice)) {
+                    if (agentNames.agentType !== "device" || (agentNames.agentType === "device" && agentNames.agent !== browser.identity.hashDevice)) {
                         // text button
                         toolButton({
                             className: "message",
                             handler: message.events.shareButton,
-                            identity: ` ${browser[agentNames.agentType][agentNames.agent].name}`,
+                            identity: ` ${browser.agents[agentNames.agentType][agentNames.agent].name}`,
                             list: toolList,
                             text: "Text"
                         });
@@ -209,12 +209,12 @@ const share:module_share = {
 
                     // share list
                     subTitle("shares");
-                    if (Object.keys(browser[agentNames.agentType][agentNames.agent].shares).length > 0) {
+                    if (Object.keys(browser.agents[agentNames.agentType][agentNames.agent].shares).length > 0) {
                         agent.appendChild(shareListUL);
                     } else {
                         const p:HTMLElement = document.createElement("p"),
                             em:HTMLElement = document.createElement("em");
-                        em.appendText(browser[agentNames.agentType][agentNames.agent].name);
+                        em.appendText(browser.agents[agentNames.agentType][agentNames.agent].name);
                         p.appendText(`${common.capitalize(agentNames.agentType)} `);
                         p.appendChild(em);
                         p.appendText(" has no shares.");
@@ -236,7 +236,7 @@ const share:module_share = {
                     const title:HTMLElement = document.createElement("h3"),
                         span:HTMLElement = document.createElement("span"),
                         strong:HTMLElement = document.createElement("strong"),
-                        list:string[] = Object.keys(browser[type]),
+                        list:string[] = Object.keys(browser.agents[type]),
                         listLength:number = list.length,
                         plural:string = (listLength === 1)
                             ? ""
@@ -272,7 +272,7 @@ const share:module_share = {
                     button:HTMLElement = document.createElement("button"),
                     status:HTMLElement = document.createElement("strong"),
                     span:HTMLElement = document.createElement("span"),
-                    shareItem:agentShare = browser[agentNames.agentType][agentNames.agent].shares[agentNames.share],
+                    shareItem:agentShare = browser.agents[agentNames.agentType][agentNames.agent].shares[agentNames.share],
                     shareType:string = shareItem.type;
                 button.setAttribute("class", `${agentNames.agentType}-share`);
                 span.appendText(shareItem.name);
@@ -353,7 +353,7 @@ const share:module_share = {
         context: function browser_content_share_context():void {
             const element:HTMLElement = context.element,
                 addresses:[string, fileType, string][] = util.selectedAddresses(element, "share"),
-                deviceData:agentShares = browser.device[addresses[0][2]].shares,
+                deviceData:agentShares = browser.agents.device[addresses[0][2]].shares,
                 shares:string[] = Object.keys(deviceData),
                 shareLength:number = shares.length,
                 addressesLength:number = addresses.length,
@@ -410,25 +410,24 @@ const share:module_share = {
                 hashShare:string = parent.dataset.hash,
                 manage:service_agentManagement = {
                     action: "modify",
-                    agentFrom: browser.data.hashDevice,
+                    agentFrom: browser.identity.hashDevice,
                     agents: {
                         device: {},
                         user: {}
                     },
-                    userHash: null,
-                    userName: null
+                    identity: null
                 };
             let item:agentShare = null;
             if (hashDevice === null) {
                 return;
             }
-            item = browser.device[hashDevice].shares[hashShare];
+            item = browser.agents.device[hashDevice].shares[hashShare];
             if (item.readOnly === true) {
                 item.readOnly = false;
             } else {
                 item.readOnly = true;
             }
-            manage.agents.device[hashDevice] = browser.device[hashDevice];
+            manage.agents.device[hashDevice] = browser.agents.device[hashDevice];
             network.send(manage, "agent-management");
             share.tools.update("");
         }
@@ -441,17 +440,16 @@ const share:module_share = {
             const hash:service_hashShare = socketData.data as service_hashShare,
                 management:service_agentManagement = {
                     action: "modify",
-                    agentFrom: browser.data.hashDevice,
+                    agentFrom: browser.identity.hashDevice,
                     agents: {
                         device: {
-                            [hash.device]: browser.device[hash.device]
+                            [hash.device]: browser.agents.device[hash.device]
                         },
                         user: {}
                     },
-                    userHash: null,
-                    userName: null
+                    identity: null
                 };
-            browser.device[hash.device].shares[hash.hash] = {
+            browser.agents.device[hash.device].shares[hash.hash] = {
                 execute: false,
                 name: hash.share,
                 readOnly: true,
@@ -465,7 +463,7 @@ const share:module_share = {
 
         /* Updates the contents of share modals */
         update: function browser_content_share_update(exclusion:string):void {
-            const modals:string[] = Object.keys(browser.data.modals),
+            const modals:string[] = Object.keys(browser.ui.modals),
                 modalLength:number = modals.length,
                 closer = function browser_content_share_update_closer(id:string):void {
                     const button:HTMLButtonElement = document.getElementById(id).getElementsByClassName("close")[0] as HTMLButtonElement;
@@ -477,12 +475,12 @@ const share:module_share = {
                 item:config_modal;
             do {
                 if (exclusion !== modals[a]) {
-                    item = browser.data.modals[modals[a]];
-                    if (item !== undefined && (item.agentType === "device" || item.agentType === "user") && item.agent !== "" && browser[item.agentType][item.agent] === undefined && item.type !== "shares" && item.type !== "configuration" && item.type === "agent-management") {
+                    item = browser.ui.modals[modals[a]];
+                    if (item !== undefined && (item.agentType === "device" || item.agentType === "user") && item.agent !== "" && browser.agents[item.agentType][item.agent] === undefined && item.type !== "shares" && item.type !== "configuration" && item.type === "agent-management") {
                         closer(modals[a]);
                     } else if (item.type === "shares") {
                         modal = document.getElementById(modals[a]);
-                        if (item.agent !== "" && browser[item.agentType][item.agent] === undefined) {
+                        if (item.agent !== "" && browser.agents[item.agentType][item.agent] === undefined) {
                             closer(modals[a]);
                         } else {
                             body = modal.getElementsByClassName("body")[0] as HTMLElement;

@@ -99,7 +99,7 @@ type ui_input = "cancel" | "close" | "confirm" | "maximize" | "minimize" | "save
 
 ### type modal_types, The type of modal supported
 ```typescript
-type modalType = "agent-management" | "configuration" | "console" | "details" | "document" | "export" | "file-edit" | "file-navigate" | "invite-accept" | "message" | "shares" | "tex-pad";
+type modalType = "agent-management" | "configuration" | "console" | "details" | "document" | "export" | "file-edit" | "file-navigate" | "invite-ask" | "message" | "shares" | "tex-pad";
 ```
 
 * **agent-management** - Displays forms to invite new agents, rename existing agents, or delete agents.
@@ -109,7 +109,7 @@ type modalType = "agent-management" | "configuration" | "console" | "details" | 
 * **export** - A text pad modal with the settings loaded as the default value and a confirmation button to apply changes.
 * **file-edit** - Allows editing a file as text and writing those changes back into the file.
 * **file-navigate** - A means of walking, visualizing, and interacting with a device's file system.
-* **invite-accept** - The modal that appears on the remote device when an invitation is sent.
+* **invite-ask** - The modal that appears on the remote device asking for permission when an invitation is sent.
 * **message** - Allows display and writing of text messages.
 * **shares** The modal that displays a user's current shares when click on the user's button from the right side user list.
 * **text-pad** - A minimal modal where the body area is filled with a textarea HTML element for free type text.

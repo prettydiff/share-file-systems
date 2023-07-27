@@ -60,17 +60,17 @@ interface build_moduleType {
  * Stores handlers for a fs.stat operation used to identify the type of POSIX operating system by location of root certificate store available.
  * ```typescript
  * interface build_posix_distribution {
- *     arch: (statErr:NodeJS.ErrnoException) => void;
- *     darwin: (statErr:NodeJS.ErrnoException) => void;
- *     fedora: (statErr:NodeJS.ErrnoException) => void;
- *     ubuntu: (statErr:NodeJS.ErrnoException) => void;
+ *     arch: (statErr:node_error) => void;
+ *     darwin: (statErr:node_error) => void;
+ *     fedora: (statErr:node_error) => void;
+ *     ubuntu: (statErr:node_error) => void;
  * }
  * ``` */
 interface build_posix_distribution {
-    arch: (statErr:NodeJS.ErrnoException) => void;
-    darwin: (statErr:NodeJS.ErrnoException) => void;
-    fedora: (statErr:NodeJS.ErrnoException) => void;
-    ubuntu: (statErr:NodeJS.ErrnoException) => void;
+    arch: (statErr:node_error) => void;
+    darwin: (statErr:node_error) => void;
+    fedora: (statErr:node_error) => void;
+    ubuntu: (statErr:node_error) => void;
 }
 
 /**
@@ -487,11 +487,11 @@ interface message_item {
 /**
  * I cannot find a TypeScript name reference to the node class SystemError that extends Error.errors, so this is a custom name.
  * ```typescript
- * interface NetworkError extends NodeJS.ErrnoException {
+ * interface NetworkError extends node_error {
  *     port: number;
  * }
  * ``` */
-interface NetworkError extends NodeJS.ErrnoException {
+interface NetworkError extends node_error {
     port: number;
 }
 
@@ -515,20 +515,20 @@ interface remove_count {
 /**
  * A means of organizing all stored data types into a single object for portability.
  * ```typescript
- * interface settings_item {
- *     configuration: ui_data;
- *     device: agents;
+ * interface state_storage {
+ *     agents: agentData;
+ *     identity: identity;
  *     message: service_message;
  *     queue: transmit_queue;
- *     user: agents;
+ *     ui: ui_data;
  * }
  * ``` */
-interface settings_item {
-    configuration: ui_data;
-    device: agents;
+interface state_storage {
+    agents: agentData;
+    identity: identity;
     message: service_message;
     queue: transmit_queue;
-    user: agents;
+    ui: ui_data;
 }
 
 /**
@@ -665,7 +665,7 @@ interface transmit_type {
  *     frameExtended: number;
  *     handler: websocket_messageHandler;
  *     hash: string;
- *     ping: (ttl:bigint, callback:(err:NodeJS.ErrnoException, roundtrip:bigint) => void) => void;
+ *     ping: (ttl:bigint, callback:(err:node_error, roundtrip:bigint) => void) => void;
  *     pong: {
  *         [key:string]: websocket_pong;
  *     };
@@ -681,7 +681,7 @@ interface transmit_type {
     frameExtended: number;
     handler: websocket_messageHandler;
     hash: string;
-    ping: (ttl:number, callback:(err:NodeJS.ErrnoException, roundtrip:bigint) => void) => void;
+    ping: (ttl:number, callback:(err:node_error, roundtrip:bigint) => void) => void;
     pong: {
         [key:string]: websocket_pong;
     };
@@ -752,18 +752,18 @@ interface websocket_meta {
  * Provides data storage for ping details by which a corresponding pong may reference.
  * ```typescript
  * interface websocket_pong {
- *     callback: (err:NodeJS.ErrnoException, roundTrip:bigint) => void;
+ *     callback: (err:node_error, roundTrip:bigint) => void;
  *     start: bigint;
  *     timeOut: NodeJS.Timeout;
- *     timeOutMessage: NodeJS.ErrnoException;
+ *     timeOutMessage: node_error;
  *     ttl: bigint;
  * }
  * ``` */
 interface websocket_pong {
-    callback: (err:NodeJS.ErrnoException, roundTrip:bigint) => void;
+    callback: (err:node_error, roundTrip:bigint) => void;
     start: bigint;
     timeOut: NodeJS.Timeout;
-    timeOutMessage: NodeJS.ErrnoException;
+    timeOutMessage: node_error;
     ttl: bigint;
 }
 

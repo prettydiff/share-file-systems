@@ -40,6 +40,7 @@ const commandName = function terminal_utilities_command(globalName:string):strin
         len:number = (arg === undefined)
             ? 0
             : arg.length + 1,
+        test_simulation:number = process.argv.lastIndexOf("test_simulation"),
         commandFilter = function terminal_utilities_command_commandFilter(item:string):boolean {
             if (item.indexOf(arg.slice(0, a)) === 0) {
                 return true;
@@ -48,6 +49,11 @@ const commandName = function terminal_utilities_command(globalName:string):strin
         },
         // eslint-disable-next-line
         logger:(input:string) => void = console.log;
+
+    if ((process.argv[0] === globalName && test_simulation > 1) || (process.argv[0] !== globalName && test_simulation > 2)) {
+        vars.test.type = "simulation";
+        process.argv.splice(test_simulation, 1);
+    }
 
     // set paths
     vars.path.node = process.argv[0];

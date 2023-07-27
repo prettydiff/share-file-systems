@@ -49,12 +49,12 @@ const modal:module_modal = {
             widths:[number, number] = null;
         const id:string = (options.type === "configuration")
                 ? "configuration-modal"
-                : (options.id || `${options.type}-${Math.random().toString() + String(browser.data.zIndex + 1)}`),
+                : (options.id || `${options.type}-${Math.random().toString() + String(browser.ui.zIndex + 1)}`),
             titleButton:HTMLButtonElement = document.createElement("button"),
             box:modal = document.createElement("article"),
             body:HTMLElement = document.createElement("div"),
             border:HTMLElement = document.createElement("div"),
-            modalCount:number = Object.keys(browser.data.modals).length,
+            modalCount:number = Object.keys(browser.ui.modals).length,
             button = function browser_utilities_modal_content_fileNavigateButtons(config:config_modal_button):void {
                 const el:HTMLButtonElement = document.createElement("button");
                 el.setAttribute("type", "button");
@@ -73,34 +73,30 @@ const modal:module_modal = {
                 ? "ws"
                 : "wss",
             socket:WebSocket = (options.socket === true)
-                ? new webSocket.sock(`${scheme}://localhost:${browser.network.ports.ws}/`, [`${options.type}-${browser.data.hashDevice}`])
+                ? new webSocket.sock(`${scheme}://localhost:${browser.network.ports.ws}/`, [`${options.type}-${browser.identity.hashDevice}`])
                 : null;
 
         // Uniqueness constraints
-        if (browser.data.modalTypes.indexOf(options.type) > -1) {
+        if (browser.ui.modalTypes.indexOf(options.type) > -1) {
             if (options.single === true) {
-                const keys:string[] = Object.keys(browser.data.modals),
+                const keys:string[] = Object.keys(browser.ui.modals),
                     length:number = keys.length;
-                let a:number = 0,
-                    modalSingle:HTMLElement;
+                let a:number = 0;
                 do {
-                    if (browser.data.modals[keys[a]].type === options.type) {
-                        modalSingle = document.getElementById(keys[a]);
-                        modal.events.zTop(null, modalSingle);
-                        return modalSingle;
+                    if (browser.ui.modals[keys[a]].type === options.type && document.getElementById(keys[a]) !== null) {
+                        return document.getElementById(keys[a]);
                     }
                     a = a + 1;
                 } while (a < length);
-                return;
             }
         } else {
-            browser.data.modalTypes.push(options.type);
+            browser.ui.modalTypes.push(options.type);
         }
 
         // Default values
-        browser.data.zIndex = browser.data.zIndex + 1;
+        browser.ui.zIndex = browser.ui.zIndex + 1;
         if (options.zIndex === undefined) {
-            options.zIndex = browser.data.zIndex;
+            options.zIndex = browser.ui.zIndex;
         }
         if (options.left === undefined) {
             options.left = 200 + (modalCount * 10) - modalCount;
@@ -118,7 +114,7 @@ const modal:module_modal = {
             options.status = "normal";
         }
         if (options.agent === undefined) {
-            options.agent = browser.data.hashDevice;
+            options.agent = browser.identity.hashDevice;
         }
         if (options.agentType === undefined) {
             options.agentType = "device";
@@ -141,10 +137,10 @@ const modal:module_modal = {
                     }
                     if (options.agent === "") {
                         text.push(`All ${common.capitalize(options.agentType)} Shares`);
-                    } else if (browser[options.agentType][options.agent].name === undefined) {
+                    } else if (browser.agents[options.agentType][options.agent].name === undefined) {
                         text.push("Shares");
                     } else {
-                        text.push(`${common.capitalize(options.agentType)} ${browser[options.agentType][options.agent].name} Shares`);
+                        text.push(`${common.capitalize(options.agentType)} ${browser.agents[options.agentType][options.agent].name} Shares`);
                     }
                 }
             } else {
@@ -153,7 +149,7 @@ const modal:module_modal = {
                     text.push(options.title_supplement);
                 }
                 if (options.agentIdentity === true) {
-                    text.push(`- ${common.capitalize(options.agentType)}, ${browser[options.agentType][options.agent].name}`);
+                    text.push(`- ${common.capitalize(options.agentType)}, ${browser.agents[options.agentType][options.agent].name}`);
                 }
                 span.appendText(modal_configuration.titles[options.type].icon);
             }
@@ -173,7 +169,7 @@ const modal:module_modal = {
         border.appendChild(section);
 
         // Box universal definitions
-        browser.data.modals[id] = options;
+        browser.ui.modals[id] = options;
         box.socket = socket;
         box.setAttribute("id", id);
         box.onmousedown = modal.events.zTop;
@@ -182,7 +178,7 @@ const modal:module_modal = {
         box.setAttribute("data-agenttype", options.agentType);
         border.setAttribute("class", "border");
         body.setAttribute("class", "body");
-        box.style.zIndex = browser.data.zIndex.toString();
+        box.style.zIndex = browser.ui.zIndex.toString();
         box.style.left = `${options.left / 10}em`;
         box.style.top = `${options.top / 10}em`;
         body.style.height = `${options.height / 10}em`;
@@ -302,12 +298,12 @@ const modal:module_modal = {
             if (options.type === "file-navigate" || options.type === "terminal") {
                 if (options.history === undefined) {
                     if (options.text_value === undefined) {
-                        browser.data.modals[id].history = [];
+                        browser.ui.modals[id].history = [];
                     } else {
-                        browser.data.modals[id].history = [options.text_value];
+                        browser.ui.modals[id].history = [options.text_value];
                     }
                 } else {
-                    browser.data.modals[id].history = options.history;
+                    browser.ui.modals[id].history = options.history;
                 }
             }
         }
@@ -369,7 +365,7 @@ const modal:module_modal = {
             if (options.inputs.indexOf("cancel") > -1) {
                 button({
                     class: "cancel",
-                    event: (options.type === "invite-accept")
+                    event: (options.type === "invite-ask")
                         ? agent_management.events.inviteDecline
                         : modal.events.close,
                     parent: extra,
@@ -417,15 +413,15 @@ const modal:module_modal = {
         // Apply universal controls from saved state
         if (options.status === "maximized" && options.inputs.indexOf("maximize") > -1) {
             const maximize:HTMLElement = box.getElementsByClassName("maximize")[0] as HTMLElement;
-            browser.data.modals[options.id].status = "normal";
+            browser.ui.modals[options.id].status = "normal";
             modal.events.maximize(null, options.callback, maximize);
         } else if (options.status === "minimized" && options.inputs.indexOf("minimize") > -1) {
             const minimize:HTMLElement = box.getElementsByClassName("minimize")[0] as HTMLElement;
-            browser.data.modals[options.id].status = "normal";
+            browser.ui.modals[options.id].status = "normal";
             modal.events.minimize(null, options.callback, minimize);
         } else {
             if (options.status === "hidden") {
-                browser.data.modals[options.id].status = "hidden";
+                browser.ui.modals[options.id].status = "hidden";
                 box.style.display = "none";
             }
             if (browser.loading === false) {
@@ -445,13 +441,13 @@ const modal:module_modal = {
         /* Removes a modal from the DOM for garbage collection */
         close: function browser_utilities_modal_close(event:MouseEvent):void {
             const element:HTMLElement = event.target,
-                keys:string[] = Object.keys(browser.data.modals),
+                keys:string[] = Object.keys(browser.ui.modals),
                 keyLength:number = keys.length,
                 box:modal = element.getAncestor("box", "class"),
                 id:string = box.getAttribute("id"),
-                type:modalType = (browser.data.modals[id] === undefined)
+                type:modalType = (browser.ui.modals[id] === undefined)
                     ? null
-                    : browser.data.modals[id].type;
+                    : browser.ui.modals[id].type;
             let a:number = 0,
                 count:number = 0;
             
@@ -461,13 +457,14 @@ const modal:module_modal = {
             }
     
             // modal type specific instructions
-            if (type === "invite-accept") {
+            if (type === "invite-ask") {
                 const inviteBody:HTMLElement = box.getElementsByClassName("agentInvitation")[0] as HTMLElement,
                     invitation:service_invite = JSON.parse(inviteBody.dataset.invitation) as service_invite;
+                invitation.action = "invite-answer";
                 invitation.status = "ignored";
                 network.send(invitation, "invite");
             } else if (type === "media") {
-                media.tools.kill(browser.data.modals[id]);
+                media.tools.kill(browser.ui.modals[id]);
             }
     
             // remove the box
@@ -476,7 +473,7 @@ const modal:module_modal = {
     
             // remove from modal type list if the last of respective modal types open
             do {
-                if (browser.data.modals[keys[a]].type === type) {
+                if (browser.ui.modals[keys[a]].type === type) {
                     count = count + 1;
                     if (count > 1) {
                         break;
@@ -485,11 +482,11 @@ const modal:module_modal = {
                 a = a + 1;
             } while (a < keyLength);
             if (count === 1) {
-                browser.data.modalTypes.splice(browser.data.modalTypes.indexOf(type), 1);
+                browser.ui.modalTypes.splice(browser.ui.modalTypes.indexOf(type), 1);
             }
     
             // remove from state and send to storage
-            delete browser.data.modals[id];
+            delete browser.ui.modals[id];
             network.configuration();
         },
     
@@ -500,7 +497,7 @@ const modal:module_modal = {
             if (box.getAttribute("class") === "box") {
                 box.style.display = "none";
                 // this must remain separated from modal identity as more than one thing users it
-                browser.data.modals[box.getAttribute("id")].status = "hidden";
+                browser.ui.modals[box.getAttribute("id")].status = "hidden";
             }
             network.configuration();
         },
@@ -510,10 +507,10 @@ const modal:module_modal = {
             const element:HTMLElement = event.target,
                 box:modal = element.getAncestor("box", "class"),
                 id:string = box.getAttribute("id"),
-                options:config_modal = browser.data.modals[id];
+                options:config_modal = browser.ui.modals[id];
             if (options.type === "export") {
                 modal.events.importSettings(event);
-            } else if (options.type === "invite-accept") {
+            } else if (options.type === "invite-ask") {
                 agent_management.tools.inviteAccept(box);
             } else if (options.type === "agent-management") {
                 const section:HTMLElement = box.getElementsByClassName("section")[0] as HTMLElement,
@@ -552,18 +549,18 @@ const modal:module_modal = {
         /* Modifies saved settings from an imported JSON string then reloads the page */
         importSettings: function browser_utilities_modal_importSettings(event:MouseEvent):void {
             const element:HTMLElement = event.target,
-                dataString:string = JSON.stringify(browser.data),
+                dataString:string = JSON.stringify(browser.ui),
                 box:modal = element.getAncestor("box", "class"),
                 button:HTMLButtonElement = document.getElementsByClassName("cancel")[0] as HTMLButtonElement,
                 textArea:HTMLTextAreaElement = box.getElementsByTagName("textarea")[0];
             if (textArea.value !== dataString) {
-                browser.data = JSON.parse(textArea.value) as ui_data;
+                browser.ui = JSON.parse(textArea.value) as ui_data;
             }
             button.click();
             if (textArea.value !== dataString) {
                 network.send({
-                    settings: browser.data,
-                    type: "configuration"
+                    settings: browser.ui,
+                    type: "ui"
                 }, "settings");
                 location.reload();
             }
@@ -599,20 +596,20 @@ const modal:module_modal = {
             if (box === document.documentElement) {
                 return;
             }
-            if (browser.data.modals[id].status === "maximized") {
+            if (browser.ui.modals[id].status === "maximized") {
                 titleButton.style.cursor = "move";
                 titleButton.onmousedown = modal.events.move;
-                browser.data.modals[id].status = "normal";
-                box.style.top = `${browser.data.modals[id].top / 10}em`;
-                box.style.left = `${browser.data.modals[id].left / 10}em`;
-                body.style.width = `${browser.data.modals[id].width / 10}em`;
-                body.style.height = `${browser.data.modals[id].height / 10}em`;
+                browser.ui.modals[id].status = "normal";
+                box.style.top = `${browser.ui.modals[id].top / 10}em`;
+                box.style.left = `${browser.ui.modals[id].left / 10}em`;
+                body.style.width = `${browser.ui.modals[id].width / 10}em`;
+                body.style.height = `${browser.ui.modals[id].height / 10}em`;
                 if (status !== undefined) {
-                    status.style.width = `${(browser.data.modals[id].width - 20) / 10}em`;
-                    statusBar.style.width = `${(browser.data.modals[id].width - 40) / 15}em`;
+                    status.style.width = `${(browser.ui.modals[id].width - 20) / 10}em`;
+                    statusBar.style.width = `${(browser.ui.modals[id].width - 40) / 15}em`;
                 }
             } else {
-                browser.data.modals[id].status = "maximized";
+                browser.ui.modals[id].status = "maximized";
                 titleButton.style.cursor = "default";
                 titleButton.onmousedown = null;
                 box.style.top = "0em";
@@ -667,7 +664,7 @@ const modal:module_modal = {
                 return;
             }
             title.onmousedown = modal.events.move;
-            if (browser.data.modals[id].status === "minimized") {
+            if (browser.ui.modals[id].status === "minimized") {
                 const li:HTMLElement = box.parentNode,
                     body:HTMLElement = border.getElementsByClassName("body")[0] as HTMLElement;
                 do {
@@ -677,22 +674,22 @@ const modal:module_modal = {
                 } while (a < children.length);
                 document.getElementById("tray").getElementsByTagName("ul")[0].removeChild(li);
                 li.removeChild(box);
-                box.style.zIndex = browser.data.modals[id].zIndex.toString();
+                box.style.zIndex = browser.ui.modals[id].zIndex.toString();
                 titleButton.style.cursor = "move";
                 browser.content.appendChild(box);
-                browser.data.modals[id].status = "normal";
-                box.style.top = `${browser.data.modals[id].top / 10}em`;
-                box.style.left = `${browser.data.modals[id].left / 10}em`;
-                body.style.width = `${browser.data.modals[id].width / 10}em`;
-                body.style.height = `${browser.data.modals[id].height / 10}em`;
+                browser.ui.modals[id].status = "normal";
+                box.style.top = `${browser.ui.modals[id].top / 10}em`;
+                box.style.left = `${browser.ui.modals[id].left / 10}em`;
+                body.style.width = `${browser.ui.modals[id].width / 10}em`;
+                body.style.height = `${browser.ui.modals[id].height / 10}em`;
                 if (statusBar !== undefined) {
-                    statusBar.style.width = `${(browser.data.modals[id].width - 20) / 10}em`;
+                    statusBar.style.width = `${(browser.ui.modals[id].width - 20) / 10}em`;
                 }
                 buttons = box.getElementsByClassName("buttons")[0] as HTMLElement;
                 borders = (border.getElementsByClassName("corner-tl").length > 0)
                     ? 15
                     : 0;
-                titleButton.style.width = `${(browser.data.modals[id].width - buttons.clientWidth - borders) / 18}em`;
+                titleButton.style.width = `${(browser.ui.modals[id].width - buttons.clientWidth - borders) / 18}em`;
                 titleButton.lastChild.textContent = titleButton.lastChild.textContent.replace(" - Minimized", "");
             } else {
                 const li:HTMLLIElement = document.createElement("li");
@@ -709,7 +706,7 @@ const modal:module_modal = {
                 title.style.width = "";
                 li.appendChild(box);
                 document.getElementById("tray").getElementsByTagName("ul")[0].appendChild(li);
-                browser.data.modals[id].status = "minimized";
+                browser.ui.modals[id].status = "minimized";
             }
             if (browser.loading === false) {
                 network.configuration();
@@ -724,7 +721,7 @@ const modal:module_modal = {
             const element:HTMLElement = event.target,
                 box:modal = element.getAncestor("box", "class"),
                 boxParent:HTMLElement = box.parentNode,
-                settings:config_modal = browser.data.modals[box.getAttribute("id")],
+                settings:config_modal = browser.ui.modals[box.getAttribute("id")],
                 border:HTMLElement = box.getElementsByTagName("div")[0],
                 minifyTest:boolean = (boxParent.lowName() === "li"),
                 touch:boolean = (event !== null && event.type === "touchstart"),
@@ -809,7 +806,7 @@ const modal:module_modal = {
                 }
                 return;
             }
-            if (browser.data.modals[box.getAttribute("id")].status === "maximized") {
+            if (browser.ui.modals[box.getAttribute("id")].status === "maximized") {
                 return;
             }
             element.focus();
@@ -839,7 +836,7 @@ const modal:module_modal = {
                 heading:HTMLElement = box.getElementsByTagName("h2")[0],
                 headingButton:HTMLElement = heading.getElementsByTagName("button")[0],
                 touch:boolean = (event !== null && event.type === "touchstart"),
-                boxStatus:string = browser.data.modals[box.getAttribute("id")].status,
+                boxStatus:string = browser.ui.modals[box.getAttribute("id")].status,
                 header:HTMLElement = box.getElementsByClassName("header")[0] as HTMLElement,
                 headerHeight:number = (header === undefined)
                     ? 0
@@ -883,7 +880,7 @@ const modal:module_modal = {
                     : -20,
                 sideHeight:number = headerHeight + statusHeight + footerHeight + 1,
                 drop  = function browser_utilities_modal_resize_drop():void {
-                    const settings:config_modal = browser.data.modals[box.getAttribute("id")];
+                    const settings:config_modal = browser.ui.modals[box.getAttribute("id")];
                     if (touch === true) {
                         document.ontouchmove = null;
                         document.ontouchstart = null;
@@ -1051,7 +1048,7 @@ const modal:module_modal = {
         textSave: function browser_utilities_modal_textSave(event:Event):void {
             const element:HTMLTextAreaElement = event.target as HTMLTextAreaElement,
                 box:modal = element.getAncestor("box", "class"),
-                data:config_modal = browser.data.modals[box.getAttribute("id")];
+                data:config_modal = browser.ui.modals[box.getAttribute("id")];
             if (box.timer !== undefined) {
                 window.clearTimeout(box.timer);
             }
@@ -1063,7 +1060,7 @@ const modal:module_modal = {
         textTimer: function browser_utilities_modal_textTimer(event:KeyboardEvent):void {
             const element:HTMLTextAreaElement = event.target as HTMLTextAreaElement,
                 box:modal = element.getAncestor("box", "class"),
-                data:config_modal = browser.data.modals[box.getAttribute("id")];
+                data:config_modal = browser.ui.modals[box.getAttribute("id")];
             if (box.timer !== undefined) {
                 window.clearTimeout(box.timer);
             }
@@ -1073,7 +1070,7 @@ const modal:module_modal = {
                     data.text_value = element.value;
                     network.configuration();
                 }
-            }, browser.data.statusTime);
+            }, browser.ui.statusTime);
         },
     
         /* Restore a minimized modal to its prior size and location */
@@ -1097,9 +1094,9 @@ const modal:module_modal = {
             if ((parent.getAttribute("class") === "fileList" || grandParent.getAttribute("class") === "fileList") && event.shiftKey === true) {
                 event.preventDefault();
             }
-            browser.data.zIndex = browser.data.zIndex + 1;
-            browser.data.modals[box.getAttribute("id")].zIndex = browser.data.zIndex;
-            box.style.zIndex = browser.data.zIndex.toString();
+            browser.ui.zIndex = browser.ui.zIndex + 1;
+            browser.ui.modals[box.getAttribute("id")].zIndex = browser.ui.zIndex;
+            box.style.zIndex = browser.ui.zIndex.toString();
         }
     },
 

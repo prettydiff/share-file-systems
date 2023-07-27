@@ -9,7 +9,7 @@
  *     perAgent?: (agentNames:agentNames, counts:agentCounts) => void;
  *     perAgentType?: (agentNames:agentNames, counts:agentCounts) => void;
  *     perShare?: (agentNames:agentNames, counts:agentCounts) => void;
- *     source: browser | settings_item | terminalVariables;
+ *     source: browser | module_terminalVariables | state_storage;
  * }
  * ``` */
 interface config_agentIdentity{
@@ -18,7 +18,7 @@ interface config_agentIdentity{
     perAgent?: (agentNames:agentNames, counts:agentCounts) => void;
     perAgentType?: (agentNames:agentNames, counts:agentCounts) => void;
     perShare?: (agentNames:agentNames, counts:agentCounts) => void;
-    source: browser | settings_item | terminalVariables_settings;
+    source: browser | module_terminalVariables | state_storage;
 }
 
 /**
@@ -350,7 +350,7 @@ interface config_list {
  *     zIndex?: number;
  * }
  * type modalStatus = "hidden" | "maximized" | "minimized" | "normal";
- * type modalType = "agent-management" | "configuration" | "details" | "document" | "export" | "file-edit" | "file-navigate" | "invite-accept" | "media" | "message" | "shares" | "terminal" | "text-pad";
+ * type modalType = "agent-management" | "configuration" | "details" | "document" | "export" | "file-edit" | "file-navigate" | "invite-ask" | "media" | "message" | "shares" | "terminal" | "text-pad";
  * type ui_input = "cancel" | "close" | "confirm" | "maximize" | "minimize" | "save" | "text";
  * ``` */
 interface config_modal extends agency {
@@ -463,14 +463,14 @@ interface config_radioListItem {
  * For rename of terminal/utilities/rename.
  * ```typescript
  * interface config_rename {
- *     callback: (error:NodeJS.ErrnoException, newList:directory_list[]) => void;
+ *     callback: (error:node_error, newList:directory_list[]) => void;
  *     destination: string;
  *     list: directory_list[];
  *     replace: boolean;
  * }
  * ``` */
 interface config_rename {
-    callback: (error:NodeJS.ErrnoException, newList:directory_list[]) => void;
+    callback: (error:node_error, newList:directory_list[]) => void;
     destination: string;
     list: directory_list[];
     replace: boolean;
@@ -694,14 +694,14 @@ interface config_websocket_server {
  * For writeStream of terminal/utilities/writeStream
  * ```typescript
  * interface config_writeStream {
- *     callback: (error:NodeJS.ErrnoException) => void;
+ *     callback: (error:node_error) => void;
  *     destination: string;
  *     source: string;
  *     stat: directory_data;
  * }
  * ``` */
 interface config_writeStream {
-    callback: (error:NodeJS.ErrnoException) => void;
+    callback: (error:node_error) => void;
     destination: string;
     source: Buffer | string;
     stat: directory_data;

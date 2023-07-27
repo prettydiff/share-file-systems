@@ -70,7 +70,7 @@ const terminal:module_terminal = {
                         data.autoComplete = fragmentStart.length;
                         terminal.output(data);
                     },
-                    dirCallback = function terminal_server_services_terminal_input_autoComplete_dirCallback(err:NodeJS.ErrnoException, dirs:string[]):void {
+                    dirCallback = function terminal_server_services_terminal_input_autoComplete_dirCallback(err:node_error, dirs:string[]):void {
                         if (err === null) {
                             let index:number = 0;
                             const len:number = dirs.length;
@@ -84,7 +84,7 @@ const terminal:module_terminal = {
                             } while (index < len);
                         }
                     },
-                    statCallback = function terminal_server_services_terminal_input_autoComplete_statCallback(err:NodeJS.ErrnoException):void {
+                    statCallback = function terminal_server_services_terminal_input_autoComplete_statCallback(err:node_error):void {
                         if (err === null) {
                             if (last === "") {
                                 complete();
@@ -118,7 +118,7 @@ const terminal:module_terminal = {
                 address = (node.path.isAbsolute(address) === true)
                     ? node.path.resolve(address)
                     : node.path.resolve(data.directory + vars.path.sep + address);
-                node.fs.stat(address, function terminal_server_services_terminal_input_stat(err:NodeJS.ErrnoException):void {
+                node.fs.stat(address, function terminal_server_services_terminal_input_stat(err:node_error):void {
                     if (err === null) {
                         data.directory = address;
                     } else {
@@ -140,7 +140,7 @@ const terminal:module_terminal = {
                             data.logs = output.toString().replace(/\r\n/g, "\n").split("\n");
                             terminal.output(data);
                         },
-                        errorHandle = function terminal_server_services_terminal_input_errorHandle(errorMessage:NodeJS.ErrnoException):void {
+                        errorHandle = function terminal_server_services_terminal_input_errorHandle(errorMessage:node_error):void {
                             data.logs = JSON.stringify(errorMessage).split("\n");
                             terminal.output(data);
                         };
@@ -168,7 +168,7 @@ const terminal:module_terminal = {
                 }
                 terminal.output(data);
             };
-        if (data.target === "agentSource" && data.agentSource.agent === vars.settings.hashDevice && data.agentSource.agentType === "device") {
+        if (data.target === "agentSource" && data.agentSource.agent === vars.identity.hashDevice && data.agentSource.agentType === "device") {
             data.target = "agentRequest";
             // source - local device
             if (data.instruction === "close-modal") {
@@ -208,7 +208,7 @@ const terminal:module_terminal = {
         }
     },
     output: function terminal_server_services_terminalOutput(data:service_terminal):void {
-        if (data[data.target].agent === vars.settings.hashDevice && data[data.target].agentType === "device") {
+        if (data[data.target].agent === vars.identity.hashDevice && data[data.target].agentType === "device") {
             sender.broadcast({
                 data: data,
                 service: "terminal"
@@ -217,7 +217,7 @@ const terminal:module_terminal = {
             const agents:transmit_agents = (data[data.target].agentType === "device")
                 ? {
                     device: data[data.target].agent,
-                    user: vars.settings.hashUser
+                    user: vars.identity.hashUser
                 }
                 : {
                     device: null,

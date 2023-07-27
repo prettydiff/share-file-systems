@@ -23,10 +23,10 @@ const base64 = function terminal_commands_library_base64(input:config_command_ba
                 });
             },
             fileWrapper = function terminal_commands_library_base64_fileWrapper(filePath:string):void {
-                node.fs.stat(filePath, function terminal_commands_library_base64_fileWrapper_stat(er:Error, stat:node_fs_Stats):void {
+                node.fs.stat(filePath, function terminal_commands_library_base64_fileWrapper_stat(er:node_error, stat:node_fs_Stats):void {
                     const angryPath:string = `File path ${vars.text.angry + filePath + vars.text.none} is not a file or directory.`,
                         file = function terminal_commands_library_base64_fileWrapper_stat_file():void {
-                            node.fs.open(filePath, "r", function terminal_commands_library_base64_fileWrapper_stat_file_open(ero:Error, fd:number):void {
+                            node.fs.open(filePath, "r", function terminal_commands_library_base64_fileWrapper_stat_file_open(ero:node_error, fd:number):void {
                                 const buff:Buffer = Buffer.alloc(Number(stat.size));
                                 if (ero !== null) {
                                     if (http === true) {
@@ -39,7 +39,7 @@ const base64 = function terminal_commands_library_base64(input:config_command_ba
                                         return;
                                     }
                                 }
-                                node.fs.read(fd, buff, 0, stat.size, 0, function terminal_commands_library_base64_fileWrapper_stat_file_open_read(err:Error, bytes:number, buffer:Buffer):number {
+                                node.fs.read(fd, buff, 0, stat.size, 0, function terminal_commands_library_base64_fileWrapper_stat_file_open_read(err:node_error, bytes:number, buffer:Buffer):number {
                                     if (http === true) {
                                         remove(filePath, [], function terminal_commands_library_base64_fileWrapper_stat_file_open_read_callback():void {
                                             return;

@@ -102,7 +102,7 @@ const media:module_media = {
         close: function browser_content_media_close(event:MouseEvent):void {
             const box:modal = event.target.getAncestor("box", "class"),
                 id:string = box.getAttribute("id");
-            media.tools.kill(browser.data.modals[id]);
+            media.tools.kill(browser.ui.modals[id]);
             modal.events.close(event);
         },
 

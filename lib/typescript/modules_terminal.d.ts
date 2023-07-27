@@ -100,24 +100,6 @@ interface module_commandList {
 }
 
 /**
- * Methods to mask or unmask a device identity between users.
- * ```typescript
- * interface module_deviceMask {
- *     mask: (agent:fileAgent, callback:(hashMask:string) => void) => void; // Converts a device identity into a new hash of 141 character length.
- *     resolve: (agent:fileAgent) => string;                                // Resolves a device identifier from a share for the current local user.
- *     token: (date:string, device:string) => string;                       // Provides a uniform sample to hash for creating or comparing device masks.
- *     unmask: (mask:string, callback:(device:string) => void) => void;     // Compares a temporary 141 character device identity against owned devices to determine validity of share permissions.
- * }
- * ``` */
-interface module_deviceMask {
-
-    mask: (agent:fileAgent, callback:(key:string) => void) => void;
-    resolve: (agent:fileAgent) => string;
-    token: (date:string, device:string) => string;
-    unmask: (mask:string, callback:(device:string) => void) => void;
-}
-
-/**
  * Stores file copy services.
  * ```typescript
  * interface module_fileCopy {
@@ -153,7 +135,7 @@ interface module_fileCopy {
  *     actions: {
  *         destroy    : (data:service_fileSystem) => void; // Service handler to remove a file system artifact.
  *         directory  : (data:service_fileSystem) => void; // A service handler to read directory information, such as navigating a file system in the browser.
- *         error      : (error:NodeJS.ErrnoException, agentRequest:fileAgent, agentSource:fileAgent) => void; // packages error messaging for transport
+ *         error      : (error:node_error, agentRequest:fileAgent, agentSource:fileAgent) => void; // packages error messaging for transport
  *         execute    : (data:service_fileSystem) => void; // Tells the operating system to execute the given file system artifact using the default application for the resolved file type.
  *         newArtifact: (data:service_fileSystem) => void; // Creates new empty directories or files.
  *         read       : (data:service_fileSystem) => void; // Opens a file and responds with the file contents as a UTF8 string.
@@ -172,7 +154,7 @@ interface module_fileSystem {
     actions: {
         destroy: (data:service_fileSystem) => void;
         directory: (data:service_fileSystem) => void;
-        error: (error:NodeJS.ErrnoException, agentRequest:fileAgent, agentSource:fileAgent) => void;
+        error: (error:node_error, agentRequest:fileAgent, agentSource:fileAgent) => void;
         execute: (data:service_fileSystem) => void;
         newArtifact: (data:service_fileSystem) => void;
         read: (data:service_fileSystem) => void;
@@ -189,19 +171,61 @@ interface module_fileSystem {
 
 /**
  * Methods for processing the various stages of the invitation process.
+ * The "invite-complete" step executes as the final step in the terminal at both ends of the transaction.
  * ```typescript
  * interface module_inviteActions {
- *     "invite-complete": () => void; // Step 4: Receipt of the response at the originating device terminal for transmission to the browser.
- *     "invite-request" : () => void; // Step 2: Receipt of the invitation request at the remote machine's terminal for processing to its browser.
- *     "invite-response": () => void; // Step 3: Receipt of the remote user's response at the remote machine's terminal for transmission to the originating machine.
- *     "invite-start"   : () => void; // Step 1: Receipt of an invite request from the local browser.
+ *     "invite-start"   : () => void; // Step 1: At local browser send invitation message to local terminal.
+ *     "invite-request" : () => void; // Step 2: At local terminal forward invitation message to remote terminal.
+ *     "invite-ask"     : () => void; // Step 3: At remote terminal send invitation message to remote browser.
+ *     "invite-answer"  : () => void; // Step 4: At remote browser send invitation answer to remote terminal.
+ *     "invite-response": () => void; // Step 5: At remote terminal send invitation answer to local terminal.
+ *     "invite-complete": () => void; // Step 6: At local terminal send new agent data to local browser.
+ *                                    // Step 8: At remote terminal apply new identifiers, send new agent data to remote browser, open necessary sockets.
+ *     "invite-identity": () => void; // Step 7: At local terminal send device and identity data by agent type to remote terminal.
  * }
+ * ```
+ * ``` text
+ *               Local               |              Remote
+ * ----------------------------------|----------------------------------
+ *                 start 1           |    request 2                ask 3
+ * x >----------------> xx >>--------|-------->> xx >----------------> x
+ * 6 complete            5 response  |            4 answer
+ * x <----------------< xx <<--------|--------<< xx <----------------< x
+ *                                   |   identity 7           complete 8
+ *                      xx >>--------|-------->> xx >----------------> x
+ * KEY
+ * > - Movement in/out of browser
+ * >> - Movement across a network
+ * x - Browser instance
+ * xx - Shell instance
  * ``` */
 interface module_inviteActions {
+    "invite-answer": () => void;
+    "invite-ask": () => void;
     "invite-complete": () => void;
+    "invite-identity": () => void;
     "invite-request": () => void;
     "invite-response": () => void;
     "invite-start": () => void;
+}
+
+/**
+ * Methods to mask or unmask a device identity between users.
+ * ```typescript
+ * interface module_mask {
+ *     fileAgent: (agent:fileAgent, callback:(key:string) => void) => void;                   // An abstraction layer specific for fileAgent data.
+ *     mask: (input:string, callback:(key:string) => void) => void;                           // Converts a device identity into a new hash of 141 character length.
+ *     resolve: (agent:fileAgent) => string;                                                  // Resolves a device identifier from a share for the current local user.
+ *     unmaskDevice: (maskItem:string, callback:(device:string) => void) => void;             // Compares a temporary 141 character device identity against owned devices to determine validity of share permissions.
+ *     unmaskToken: (maskItem:string, token:string, callback:(test:boolean) => void) => void; // Compares a 141 character masked hash against a string hashed from a date and submitted token.
+ * }
+ * ``` */
+interface module_mask {
+    fileAgent: (agent:fileAgent, callback:(key:string) => void) => void;
+    mask: (input:string, callback:(key:string) => void) => void;
+    resolve: (agent:fileAgent) => string;
+    unmaskDevice: (maskItem:string, callback:(device:string) => void) => void;
+    unmaskToken: (maskItem:string, token:string, callback:(test:boolean) => void) => void;
 }
 
 /**
@@ -270,6 +294,7 @@ interface module_terminal {
  * The global environmental variable available to all tasks, services,  and commands executed from the terminal.
  * ```typescript
  * interface module_terminalVariables {
+ *     agents: agentData; // agent storage
  *     environment: {
  *         command     : commands;              // command name currently executing the application
  *         date        : string;                // dynamically populated static value of date of prior version change
@@ -280,9 +305,9 @@ interface module_terminal {
  *         module_type : "commonjs" | "module"  // the type of module system the application is currently using
  *         name        : string;                // a static name of the application
  *         startTime   : bigint;                // nanosecond precision time the application starts for measuring execution performance
- *         stateDefault: settings_item          // stores default keys/values for passing and resetting state
  *         version     : string;                // dynamically populated static value of application version number string
  *     };
+ *     identity: identity;
  *     network: {
  *         addresses   : transmit_addresses_IP;          // ip addresses available to this device
  *         count       : terminalVariables_networkCount; // a count of network transmissions by protocol type and send/receive
@@ -298,20 +323,7 @@ interface module_terminal {
  *         sep     : string; // file system separator character
  *         settings: string; // location where configuration files are read from and written to
  *     };
- *     settings: {
- *         brotli    : brotli;          // stores the brotli compress level
- *         device    : agents;          // stores the device type agents
- *         hashDevice: string;          // hash identifier for this device
- *         hashType  : hash;            // current selected hash algorithm, default: sha3-512
- *         hashUser  : string;          // hash identifier for the user of this device
- *         message   : service_message; // a store of message objects
- *         nameDevice: string;          // user friendly name of this device
- *         nameUser  : string;          // user friendly name of this device's user
- *         status    : activityStatus;  // device activity status
- *         storage   : string;          // location for temporary file writes when requesting to execute a file not on this immediate device
- *         user      : agents;          // stores a list of user type agents
- *         verbose   : boolean;         // whether verbose message should be applied to the terminal
- *     };
+ *     settings: terminalVariables_settings;
  *     terminal: {
  *         arguments          : string;               // a list of all terminal arguments before this list is modified, only used in error reporting
  *         command_instruction: string;               // terminal command that executes this application from a terminal, such as "node js/lib/terminal/utilities/terminal "
@@ -335,9 +347,10 @@ interface module_terminal {
  * type brotli = 0|1|2|3|4|5|6|7|8|9|10|11;
  * type commands = "agent_data" | "agent_online" | "base64" | "build" | "certificate" | "commands" | "copy" | "directory" | "get" | "hash" | "lint" | "mkdir" | "remove" | "service" | "test_browser" | "test_service" | "test_simulation" | "test" | "update" | "version | websocket";
  * type hash = "blake2d512" | "blake2s256" | "sha1" | "sha3-224" | "sha3-256" | "sha3-384" | "sha3-512" | "sha384" | "sha512-224" | "sha512-256" | "sha512" | "shake128" | "shake256";
- * type testListType = "" | "browser_device" | "browser_remote" | "browser_self" | "browser_user" | "service" | "simulation";
+ * type test_listType = "" | "browser_delete" | "browser_device" | "browser_remote" | "browser_self" | "browser_user" | "service" | "simulation";
  * ``` */
 interface module_terminalVariables {
+    agents: agentData;
     environment: {
         command     : commands;
         date        : string;
@@ -347,9 +360,9 @@ interface module_terminalVariables {
         module_type : "commonjs" | "module";
         name        : string;
         startTime   : bigint;
-        stateDefault: settings_item;
         version     : string;
     };
+    identity: identity;
     network: {
         addresses   : transmit_addresses_IP;
         count       : terminalVariables_networkCount;
@@ -550,35 +563,32 @@ interface module_transmit_http {
  * The websocket library
  * ```typescript
  * interface transmit_ws {
- *     agentClose      : (socket:websocket_client) => void;                                    // A uniform way to notify browsers when a remote agent goes offline
- *     clientReceiver  : websocket_messageHandler;                                             // Processes data from regular agent websocket tunnels into JSON for processing by receiver library.
- *     createSocket    : (config:config_websocket_create) => void;                             // Creates a new socket for use by openAgent and openService methods.
- *     ipAttempts: {
+ *     agentClose      : (socket:websocket_client) => void;                                     // A uniform way to notify browsers when a remote agent goes offline
+ *     clientReceiver  : websocket_messageHandler;                                              // Processes data from regular agent websocket tunnels into JSON for processing by receiver library.
+ *     createSocket    : (config:config_websocket_create) => void;                              // Creates a new socket for use by openAgent and openService methods.
+ *     ipAttempts      : {
  *         device: {
  *             [key:string]: string[];
  *         };
  *         user: {
  *             [key:string]: string[];
  *         };
- *     };                                                                                      // stores connection attempts as a list of ip addresses by agent hash
- *     list            : () => void;                                                           // Updates local device socket list for storage on transmit_ws.status.
- *     listener        : (socket:websocket_client) => void;                                    // A handler attached to each socket to listen for incoming messages.
+ *     };                                                                                       // stores connection attempts as a list of ip addresses by agent hash
+ *     list            : () => void;                                                            // Updates local device socket list for storage on transmit_ws.status.
+ *     listener        : (socket:websocket_client) => void;                                     // A handler attached to each socket to listen for incoming messages.
  *     open: {
  *         agent:   (config:config_websocket_openAgent) => void;   // Opens a long-term socket tunnel between known agents.
  *         service: (config:config_websocket_openService) => void; // Opens a service specific tunnel that ends when the service completes.
- *     };                                                                                      // methods to open sockets according to different security contexts
- *     queue           : (body:Buffer|socketData, socket:socketClient, opcode:number) => void; // Pushes outbound data into a managed queue to ensure data frames are not intermixed.
- *     queueSend       : (socket:websocket_client) => void;                                    // Pushes messages stored from the agent's offline queue into the transmission queue.
- *     server          : (config:config_websocket_server) => node_net_Server;                  // Creates a websocket server.
- *     socketExtensions: (config:config_websocket_extensions) => void;                         // applies application specific extensions to sockets
+ *     };                                                                                       // methods to open sockets according to different security contexts
+ *     queue           : (body:Buffer|socketData, socket:socketClient, opcode:number) => void;  // Pushes outbound data into a managed queue to ensure data frames are not intermixed.
+ *     queueSend       : (socket:websocket_client) => void;                                     // Pushes messages stored from the agent's offline queue into the transmission queue.
+ *     server          : (config:config_websocket_server) => node_net_Server;                   // Creates a websocket server.
+ *     socketExtensions: (config:config_websocket_extensions) => void;                          // applies application specific extensions to sockets
  *     socketList      : {
- *         browser   : websocket_list;
- *         device    : websocket_list;
- *         testRemote: websocket_list;
- *         user      : websocket_list;
- *     };                                                                                      // A store of open sockets by agent type.
- *     status          : socketList;                                                           // Stores open socket status information for all devices.
- *     statusUpdate    : (socketData:socketData) => void;                                      // Receive socket status list updates from other devices.
+ *         [key:string]: websocket_list;
+ *     };                                                                                       // A store of open sockets by agent type.
+ *     status          : socketList;                                                            // Stores open socket status information for all devices.
+ *     statusUpdate    : (socketData:socketData) => void;                                       // Receive socket status list updates from other devices.
  * }
  * ``` */
 interface module_transmit_ws {
@@ -604,10 +614,7 @@ interface module_transmit_ws {
     server: (config:config_websocket_server) => node_net_Server;
     socketExtensions: (config:config_websocket_extensions) => void;
     socketList: {
-        browser: websocket_list;
-        device: websocket_list;
-        testRemote: websocket_list;
-        user: websocket_list;
+        [key:string]: websocket_list;
     };
     status: socketList;
     statusUpdate: (socketData:socketData) => void;

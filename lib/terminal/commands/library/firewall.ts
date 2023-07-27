@@ -8,7 +8,7 @@ import vars from "../../utilities/vars.js";
 // cspell: words advfirewall netsh runas
 
 const firewall = function terminal_commands_library_firewall(callback:commandCallback):void {
-    const errorOut = function terminal_commands_library_fireWall_errorOut(message:string, errorObject:node_childProcess_ExecException|NodeJS.ErrnoException):void {
+    const errorOut = function terminal_commands_library_fireWall_errorOut(message:string, errorObject:node_childProcess_ExecException|node_error):void {
         error([message], errorObject);
         process.exit(1);
     };
@@ -37,7 +37,7 @@ const firewall = function terminal_commands_library_firewall(callback:commandCal
                     commands.push(`netsh advfirewall firewall add rule name="node nvm" program="${nvmPath}" action="allow" protocol=TCP profile="any" dir=out`);
                 }
                 commands.push("exit");
-                node.fs.writeFile(writeLocation, commands.join(`;${node.os.EOL}`), function terminal_commands_library_firewall_nvm_instructions_write(writeError:NodeJS.ErrnoException):void {
+                node.fs.writeFile(writeLocation, commands.join(`;${node.os.EOL}`), function terminal_commands_library_firewall_nvm_instructions_write(writeError:node_error):void {
                     if (writeError === null) {
                         node.child_process.exec(`Start-Process powershell -verb runas -WindowStyle "hidden" -ArgumentList "-file ${writeLocation}"`, {
                             shell: "powershell"

@@ -8,7 +8,7 @@ import sender from "../server/transmission/sender.js";
 import vars from "./vars.js";
 
 // uniform error formatting
-const error = function terminal_utilities_error(errText:string[], errObject:node_childProcess_ExecException|NodeJS.ErrnoException, noStack?:boolean):void {
+const error = function terminal_utilities_error(errText:string[], errObject:node_childProcess_ExecException|node_error, noStack?:boolean):void {
     // eslint-disable-next-line
     const logger:(input:string|object) => void = console.log,
         bell = function terminal_utilities_error_bell():void {
@@ -25,16 +25,16 @@ const error = function terminal_utilities_error(errText:string[], errObject:node
                     ? null
                     : stack.replace(/^Error/, "").replace(/\s+at\s/g, "splitMe").replace(/error\.js:\d+:\d+\)\r?\n/, "splitMe").split("splitMe").slice(3);
             if (vars.environment.command === "service") {
-                const server:NodeJS.ErrnoException = {
+                const server:node_error = {
                         message: errText.join("\n"),
                         name: "Terminal Error",
                         stack: stackTrace.join("")
                     },
                     agent:fileAgent = {
-                        device: vars.settings.hashDevice,
+                        device: vars.identity.hashDevice,
                         modalAddress: "",
                         share: "",
-                        user: vars.settings.hashUser
+                        user: vars.identity.hashUser
                     };
                 sender.broadcast({
                     data: Object.assign({
@@ -52,6 +52,13 @@ const error = function terminal_utilities_error(errText:string[], errObject:node
                 logger(stackTrace);
             }
             logger("");
+            if (errObject !== null) {
+                if (errObject.code !== undefined) {
+                    logger(`Code: ${errObject.code.toString()}`);
+                }
+                logger(errObject.message);
+                logger("");
+            }
             logger(`${vars.text.angry}Error Message${vars.text.none}`);
             logger("-------------");
             if (errText[0] === "" && errText.length < 2) {

@@ -67,7 +67,7 @@ const agent_management:module_agentManagement = {
             common.agents({
                 countBy: "agent",
                 perAgent: function browser_content_agentManagement_deleteAgents_perAgent(agentNames:agentNames):void {
-                    if (agentNames.agentType !== "device" || (agentNames.agentType === "device" && agentNames.agent !== browser.data.hashDevice)) {
+                    if (agentNames.agentType !== "device" || (agentNames.agentType === "device" && agentNames.agent !== browser.identity.hashDevice)) {
                         li = document.createElement("li");
                         li.setAttribute("class", "summary");
                         label = document.createElement("label");
@@ -77,7 +77,7 @@ const agent_management:module_agentManagement = {
                         input.setAttribute("data-type", agentNames.agentType);
                         input.onclick = agent_management.events.deleteToggle;
                         label.appendChild(input);
-                        label.appendText(browser[agentNames.agentType][agentNames.agent].name);
+                        label.appendText(browser.agents[agentNames.agentType][agentNames.agent].name);
                         li.appendChild(label);
                         ul.appendChild(li);
                     }
@@ -85,7 +85,7 @@ const agent_management:module_agentManagement = {
                 perAgentType: function browser_content_agentManagement_deleteAgents_perAgentType(agentNames:agentNames):void {
                     h4 = document.createElement("h4");
                     h4.appendText(`${common.capitalize(agentNames.agentType)}s`);
-                    names = Object.keys(browser[agentNames.agentType]);
+                    names = Object.keys(browser.agents[agentNames.agentType]);
                     length = names.length;
                     content.appendChild(h4);
                     total = total + length;
@@ -119,6 +119,7 @@ const agent_management:module_agentManagement = {
             const div:HTMLElement = document.createElement("div"),
                 agentInvite:agentInvite = invitation.agentRequest,
                 strong:HTMLElement = document.createElement("strong"),
+                angryStrong:HTMLElement = document.createElement("strong"),
                 em:HTMLElement = document.createElement("em"),
                 ip:string = (agentInvite.ipSelected.indexOf(":") < 0)
                     ? `${agentInvite.ipSelected}:${agentInvite.ports.http}`
@@ -128,14 +129,15 @@ const agent_management:module_agentManagement = {
             let text:HTMLElement = document.createElement("h3");
 
             div.setAttribute("class", "agentInvitation");
-            div.setAttribute("data-agent", invitation.type);
-            div.setAttribute("data-agenttype", (invitation.type === "device")
-                ? agentInvite.hashDevice
-                : agentInvite.hashUser);
+            div.setAttribute("data-agenttype", invitation.type);
             strong.appendText(name);
-            text.appendText(`${common.capitalize(invitation.type)} `);
+            text.appendText("User ");
             text.appendChild(strong);
-            text.appendText(` from ${ip} is inviting you to share.`);
+            text.appendText(` from ${ip} is inviting you to share of type `);
+            angryStrong.appendText(common.capitalize(invitation.type));
+            angryStrong.setAttribute("class", "warning");
+            text.appendChild(angryStrong);
+            text.appendText(".");
             div.appendChild(text);
             text = document.createElement("p");
             label.appendText(`${name} said:`);
@@ -164,7 +166,7 @@ const agent_management:module_agentManagement = {
                         inputs:HTMLCollectionOf<HTMLInputElement> = box.getElementsByTagName("input"),
                         textArea:HTMLTextAreaElement = box.getElementsByTagName("textarea")[0];
                     agent_management.events.invitePortValidation(focusEvent);
-                    browser.data.modals[id].text_value = inputs[0].value + separator + inputs[1].value + separator + textArea.value;
+                    browser.ui.modals[id].text_value = inputs[0].value + separator + inputs[1].value + separator + textArea.value;
                     network.configuration();
                 },
                 textInput = function browser_content_agentManagement_inviteStart_textInput(labelText:string):void {
@@ -298,7 +300,7 @@ const agent_management:module_agentManagement = {
                 section = function browser_content_agentManagement_modifyAgents_section(agentType:agentType):void {
                     const container:HTMLElement = document.createElement("div"),
                         heading:HTMLElement = document.createElement("h4"),
-                        keys:string[] = Object.keys(browser[agentType]),
+                        keys:string[] = Object.keys(browser.agents[agentType]),
                         len:number = keys.length,
                         list:HTMLElement = (len < 1)
                             ? document.createElement("p")
@@ -317,7 +319,7 @@ const agent_management:module_agentManagement = {
                             // agent name
                             p = document.createElement("p");
                             input.type = "text";
-                            input.value = browser[agentType][key].name;
+                            input.value = browser.agents[agentType][key].name;
                             input.setAttribute("data-agent", key);
                             input.setAttribute("data-type", agentType);
                             label.appendText("Name");
@@ -392,7 +394,7 @@ const agent_management:module_agentManagement = {
                     return null;
                 }());
             if (type === "invite") {
-                agent_management.events.confirmInvite(event, browser.data.modals[box.getAttribute("id")]);
+                agent_management.events.confirmInvite(event, browser.ui.modals[box.getAttribute("id")]);
             } else if (type === "edit_names") {
                 agent_management.events.confirmModify(event);
             } else if (type === "delete") {
@@ -458,49 +460,40 @@ const agent_management:module_agentManagement = {
                     }
                     return null;
                 }()),
-                ipSelected:string = ((/(\d{1,3}\.){3}\d{1,3}/).test(ip) === false && browser.network.addresses.IPv6.length > 0)
-                    ? browser.network.addresses.IPv6[0]
-                    : browser.network.addresses.IPv4[0],
                 saved:invite_saved = {
                     ip: ip,
                     message: content.getElementsByTagName("textarea")[0].value.replace(/"/g, "\\\""),
                     port: port,
                     type: type
                 },
-                userData:userData = common.userData(browser.device, type, browser.data.hashDevice),
+                userData:userData = common.userData(browser.agents.device, type, browser.identity.hashDevice),
                 invitation:service_invite = {
                     action: "invite-start",
                     agentRequest: {
-                        devices: (type === "device")
-                            ? browser.device
-                            : {},
-                        hashDevice: (type === "device")
-                            ? browser.data.hashDevice
-                            : "",
-                        hashUser: browser.data.hashUser,
+                        devices: null,
+                        hashUser: "",
                         ipAll: userData[1],
-                        ipSelected: ipSelected,
+                        ipSelected: "",
                         modal: options.id,
-                        nameDevice: (type === "device")
-                            ? browser.data.nameDevice
-                            : "",
-                        nameUser: browser.data.nameUser,
+                        nameUser: browser.identity.nameUser,
                         ports: browser.network.ports,
+                        secret: "",
+                        session: "",
                         shares: userData[0]
                     },
                     agentSource: {
                         devices: null,
-                        hashDevice: "",
                         hashUser: "",
                         ipAll: null,
                         ipSelected: ip,
                         modal: "",
-                        nameDevice: "",
                         nameUser: "",
                         ports: {
                             http: portNumber,
                             ws: 0
                         },
+                        secret: "",
+                        session: "",
                         shares: null
                     },
                     message: saved.message,
@@ -546,9 +539,8 @@ const agent_management:module_agentManagement = {
                         device: {},
                         user: {}
                     },
-                    agentFrom: browser.data.hashDevice,
-                    userHash: null,
-                    userName: null
+                    agentFrom: browser.identity.hashDevice,
+                    identity: null
                 },
                 modifyModals = function browser_content_agentManagement_confirmModify_modifyModals(agent:string, type:agentType, name:string):void {
                     const typeString:string = `${common.capitalize(type)}, `;
@@ -574,14 +566,14 @@ const agent_management:module_agentManagement = {
                 len = len - 1;
                 agent = inputs[len].dataset.agent;
                 type = inputs[len].dataset.type as agentType;
-                name = browser[type][agent].name;
+                name = browser.agents[type][agent].name;
                 value = inputs[len].value;
                 if (value !== name) {
                     flags[type] = true;
-                    browser[type][agent].name = value;
+                    browser.agents[type][agent].name = value;
                     document.getElementById(agent).lastChild.textContent = ` ${value}`;
                     modifyModals(agent, type, value);
-                    modifyService.agents[type][agent] = browser[type][agent];
+                    modifyService.agents[type][agent] = browser.agents[type][agent];
                 }
             } while (len > 0);
             if (flags.user === true || flags.device === true) {
@@ -605,7 +597,7 @@ const agent_management:module_agentManagement = {
                 address:string = parent.getElementsByClassName("read-only-status")[0].previousSibling.textContent,
                 shares:agentShares = (agent === null)
                     ? null
-                    : browser.device[agent].shares,
+                    : browser.agents.device[agent].shares,
                 keys:string[] = (agent === null)
                     ? null
                     : Object.keys(shares),
@@ -614,13 +606,12 @@ const agent_management:module_agentManagement = {
                     : keys.length,
                 manage:service_agentManagement = {
                     action: "modify",
-                    agentFrom: browser.data.hashDevice,
+                    agentFrom: browser.identity.hashDevice,
                     agents: {
                         device: {},
                         user: {}
                     },
-                    userHash: null,
-                    userName: null
+                    identity: null
                 };
             let a:number = 0;
             if (length < 1) {
@@ -637,7 +628,7 @@ const agent_management:module_agentManagement = {
                 const p:HTMLElement = document.createElement("p"),
                     granny:HTMLElement = parent.parentNode,
                     em:HTMLElement = document.createElement("em");
-                em.appendText(browser.device[agent].name);
+                em.appendText(browser.agents.device[agent].name);
                 p.appendText("Device ");
                 p.appendChild(em);
                 p.appendText(" has no shares.");
@@ -647,7 +638,7 @@ const agent_management:module_agentManagement = {
                 parent.parentNode.removeChild(parent);
             }
             share.tools.update(box.getAttribute("id"));
-            manage.agents.device[agent] = browser.device[agent];
+            manage.agents.device[agent] = browser.agents.device[agent];
             network.send(manage, "agent-management");
         },
 
@@ -685,6 +676,7 @@ const agent_management:module_agentManagement = {
                 boxLocal:HTMLElement = element.getAncestor("box", "class"),
                 inviteBody:HTMLElement = boxLocal.getElementsByClassName("agentInvitation")[0] as HTMLElement,
                 invitation:service_invite = JSON.parse(inviteBody.dataset.invitation) as service_invite;
+            invitation.action = "invite-answer";
             invitation.status = "declined";
             network.send(invitation, "invite");
             modal.events.close(event);
@@ -771,22 +763,22 @@ const agent_management:module_agentManagement = {
                 addStyle = function browser_content_agentManagement_addUser_addStyle():void {
                     let body:string,
                         heading:string;
-                    if (browser.data.colors[input.type][input.hash] === undefined) {
-                        body = configuration.colorDefaults[browser.data.color][0];
-                        heading = configuration.colorDefaults[browser.data.color][1];
-                        browser.data.colors[input.type][input.hash] = [body, heading];
+                    if (browser.ui.colors[input.type][input.hash] === undefined) {
+                        body = configuration.colorDefaults[browser.ui.color][0];
+                        heading = configuration.colorDefaults[browser.ui.color][1];
+                        browser.ui.colors[input.type][input.hash] = [body, heading];
                         if (input.callback === undefined) {
                             network.configuration();
                         } else {
                             network.send({
-                                settings: browser.data,
-                                type: "configuration"
+                                settings: browser.ui,
+                                type: "ui"
                             }, "settings");
                             input.callback();
                         }
                     } else {
-                        body = browser.data.colors[input.type][input.hash][0];
-                        heading = browser.data.colors[input.type][input.hash][1];
+                        body = browser.ui.colors[input.type][input.hash][0];
+                        heading = browser.ui.colors[input.type][input.hash][1];
                     }
                     if (browser.loading === false) {
                         configuration.tools.styleText({
@@ -810,10 +802,10 @@ const agent_management:module_agentManagement = {
             button.appendChild(status("idle"));
             button.appendChild(status("offline"));
             button.appendText(` ${input.name}`);
-            if (input.hash === browser.data.hashDevice) {
+            if (input.hash === browser.identity.hashDevice) {
                 button.setAttribute("class", "active");
             } else {
-                button.setAttribute("class", browser[input.type][input.hash].status);
+                button.setAttribute("class", browser.agents[input.type][input.hash].status);
             }
             button.setAttribute("id", input.hash);
             button.setAttribute("data-agenttype", input.type);
@@ -834,13 +826,12 @@ const agent_management:module_agentManagement = {
                 list:HTMLCollectionOf<Element> = body.getElementsByClassName("delete-agents")[0].getElementsByTagName("li"),
                 manage:service_agentManagement = {
                     action: "delete",
-                    agentFrom: browser.data.hashDevice,
+                    agentFrom: browser.identity.hashDevice,
                     agents: {
                         device: {},
                         user: {}
                     },
-                    userHash: null,
-                    userName: null
+                    identity: null
                 };
             let a:number = list.length,
                 count:number = 0,
@@ -867,7 +858,7 @@ const agent_management:module_agentManagement = {
                     } else {
                         list[a].parentNode.removeChild(list[a]);
                     }
-                    manage.agents[type][hash] = browser[type][hash];
+                    manage.agents[type][hash] = browser.agents[type][hash];
                     parent.parentNode.removeChild(parent);
                     agent_management.tools.deleteAgent(hash, type);
                     count = count + 1;
@@ -912,8 +903,8 @@ const agent_management:module_agentManagement = {
             }
     
             // remove the agent from the data structures
-            delete browser[agentType][agent];
-            delete browser.data.colors[agentType][agent];
+            delete browser.agents[agentType][agent];
+            delete browser.ui.colors[agentType][agent];
     
             // remove agent associated share modals
             if (shareLength > 0) {
@@ -936,18 +927,18 @@ const agent_management:module_agentManagement = {
         inviteAccept: function browser_content_agentManagement_inviteAccept(box:modal):void {
             const div:HTMLElement = box.getElementsByClassName("agentInvitation")[0] as HTMLElement,
                 invitation:service_invite = JSON.parse(div.dataset.invitation) as service_invite;
-            invitation.action = "invite-response";
+            invitation.action = "invite-answer";
             invitation.message = `Invite accepted: ${common.dateFormat(new Date())}`;
             invitation.status = "accepted";
             if (invitation.type === "device") {
-                browser.data.hashUser = invitation.agentRequest.hashUser;
-                browser.data.nameUser = invitation.agentRequest.nameUser;
+                browser.identity.hashUser = invitation.agentRequest.hashUser;
+                browser.identity.nameUser = invitation.agentRequest.nameUser;
                 network.configuration();
             }
             network.send(invitation, "invite");
         },
 
-        /* Handles final status of an invitation response */
+        /* Handles final status of an invitation completion */
         inviteComplete: function browser_content_agentManagement_inviteComplete(invitation:service_invite):void {
             const modal:HTMLElement = document.getElementById(invitation.agentRequest.modal);
             if (modal !== null) {
@@ -987,52 +978,35 @@ const agent_management:module_agentManagement = {
             }
         },
 
-        /* Receive an invitation from another user */
+        /* Receive an invitation from another agent */
         inviteReceive: function browser_content_agentManagement_inviteReceive(invitation:service_invite):void {
             const agentInvite:agentInvite = invitation.agentRequest,
                 config:config_modal = {
-                    agent: browser.data.hashDevice,
+                    agent: browser.identity.hashDevice,
                     agentIdentity: false,
                     agentType: "device",
                     closeHandler: agent_management.events.inviteDecline,
                     content: null,
                     height: 300,
+                    id: invitation.agentRequest.modal,
                     inputs: ["cancel", "confirm", "close"],
                     read_only: false,
-                    share: browser.data.hashDevice,
+                    share: browser.identity.hashDevice,
                     text_value: JSON.stringify(invitation),
-                    title_supplement: (invitation.type === "device")
-                        ? `Device ${agentInvite.nameDevice}`
-                        : `User ${agentInvite.nameUser}`,
-                    type: "invite-accept",
+                    title_supplement: `User ${agentInvite.nameUser}`,
+                    type: "invite-ask",
                     width: 500
                 };
-            invitation.agentSource.modal = modal_configuration.modals["invite-accept"](null, config).getAttribute("id");
+            modal_configuration.modals["invite-ask"](null, config);
             util.audio("invite");
         },
 
         /* Routes invitation messaging from the network to the appropriate method. */
         inviteTransmissionReceipt: function browser_content_agentManagement_inviteTransmissionReceipt(socketData:socketData):void {
-            const invitation:service_invite = socketData.data as service_invite,
-                modalType:modalType = (invitation.action === "invite-complete")
-                    ? "agent-management"
-                    : "invite-accept",
-                modals:HTMLElement[] = document.getModalsByModalType(modalType),
-                agentInvite:agentInvite = (modalType === "agent-management")
-                    ? invitation.agentSource
-                    : invitation.agentRequest,
-                hashType:"hashDevice"|"hashUser" = (invitation.type === "device")
-                    ? "hashDevice"
-                    : "hashUser";
-            let index:number = modals.length;
-            if (index > 0) {
-                do {
-                    index = index - 1;
-                    if (modals[index].dataset.agent === agentInvite[hashType]) {
-                        // there should only be one invitation at a time from a given agent otherwise there is spam
-                        return;
-                    }
-                } while (index > 0);
+            const invitation:service_invite = socketData.data as service_invite;
+            if (document.getElementById(invitation.agentRequest.modal) !== null) {
+                // there should only be one invitation at a time from a given agent otherwise there is spam
+                return;
             }
             if (invitation.action === "invite-complete") {
                 agent_management.tools.inviteComplete(invitation);
@@ -1051,8 +1025,8 @@ const agent_management:module_agentManagement = {
                     if (keyLength > 0) {
                         let a:number = 0;
                         do {
-                            if (browser[agentType][keys[a]] === undefined) {
-                                browser[agentType][keys[a]] = data.agents[agentType][keys[a]];
+                            if (browser.agents[agentType][keys[a]] === undefined) {
+                                browser.agents[agentType][keys[a]] = data.agents[agentType][keys[a]];
                                 agent_management.tools.addAgent({
                                     hash: keys[a],
                                     name: data.agents[agentType][keys[a]].name,
@@ -1063,9 +1037,9 @@ const agent_management:module_agentManagement = {
                         } while (a < keyLength);
                     }
                 };
-                if (data.userHash !== null && data.userName !== null && data.userHash.length === 128) {
-                    browser.data.hashUser = data.userHash;
-                    browser.data.nameUser = data.userName;
+                if (data.identity !== null) {
+                    browser.identity.hashUser = data.identity.hashUser;
+                    browser.identity.nameUser = data.identity.nameUser;
                 }
                 addAgents("device");
                 addAgents("user");
@@ -1077,7 +1051,7 @@ const agent_management:module_agentManagement = {
                     if (keyLength > 0) {
                         let a:number = 0;
                         do {
-                            if (keys[a] === browser.data[property]) {
+                            if (keys[a] === browser.identity[property]) {
                                 agent_management.tools.deleteAgent(data.agentFrom, agentType);
                             } else {
                                 agent_management.tools.deleteAgent(keys[a], agentType);
@@ -1110,8 +1084,8 @@ const agent_management:module_agentManagement = {
                         if (keyLength > 0) {
                             let a:number = 0;
                             do {
-                                if (browser[agentType][keys[a]] !== undefined) {
-                                    browser[agentType][keys[a]] = data.agents[agentType][keys[a]];
+                                if (browser.agents[agentType][keys[a]] !== undefined) {
+                                    browser.agents[agentType][keys[a]] = data.agents[agentType][keys[a]];
                                     shareContent(keys[a], agentType);
                                 }
                                 a = a + 1;

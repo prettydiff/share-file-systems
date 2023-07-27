@@ -475,7 +475,7 @@ const tutorial = function browser_content_tutorial():void {
             return wrapper;
         },
         contentModal:modal = modal_configuration.modals.document(null, {
-            agent: browser.data.hashDevice,
+            agent: browser.identity.hashDevice,
             agentIdentity: false,
             agentType: "device",
             content: content(),
@@ -491,7 +491,7 @@ const tutorial = function browser_content_tutorial():void {
     contentModal.style.zIndex = "10001";
     close.onclick = function browser_content_tutorial_close(event:MouseEvent):void {
         const node:HTMLElement = remote.node(tutorialData[index].node, null);
-        browser.data.tutorial = false;
+        browser.ui.tutorial = false;
         browser.pageBody.onkeydown = null;
         if (node !== undefined && node !== null && node.nodeType === 1) {
             node.removeHighlight();

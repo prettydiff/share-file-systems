@@ -27,16 +27,16 @@ const copy = function terminal_commands_library_copy(params:config_command_copy)
         // location where to write
         dirCallback = function terminal_commands_library_copy_dirCallback(title:string, text:[string, number], dirList:directory_list|string[]):void {
             const renameConfig:config_rename = {
-                    callback: function terminal_commands_library_copy_dirCallback_renameCallback(renameError:NodeJS.ErrnoException, renameList:directory_list[]):void {
+                    callback: function terminal_commands_library_copy_dirCallback_renameCallback(renameError:node_error, renameList:directory_list[]):void {
                         if (renameError === null) {
                             const list:directory_list = renameList[0],
                                 len:number = list.length,
                                 // identifies the absolution path apart from the item to copy
                                 link = function terminal_commands_library_copy_dirCallback_renameCallback_link(source:string, path:string):void {
-                                    node.fs.readlink(source, function terminal_commands_library_copy_dirCallback_renameCallback_link_readLink(linkError:Error, resolvedLink:string):void {
+                                    node.fs.readlink(source, function terminal_commands_library_copy_dirCallback_renameCallback_link_readLink(linkError:node_error, resolvedLink:string):void {
                                         if (linkError === null) {
                                             numb.link = numb.link + 1;
-                                            node.fs.stat(resolvedLink, function terminal_commands_library_copy_dirCallback_renameCallback_link_readLink_stat(statError:Error, stat:node_fs_Stats):void {
+                                            node.fs.stat(resolvedLink, function terminal_commands_library_copy_dirCallback_renameCallback_link_readLink_stat(statError:node_error, stat:node_fs_Stats):void {
                                                 if (statError === null) {
                                                     node.fs.symlink(
                                                         resolvedLink,
@@ -57,12 +57,12 @@ const copy = function terminal_commands_library_copy(params:config_command_copy)
                                     });
                                 },
                                 mkdirCallback = function terminal_commands_library_copy_dirCallback_renameCallback_mkdirCallback(title:string, text:string[], fail:boolean):void {
-                                    const errorText:Error = (fail === true)
+                                    const errorText:node_error = (fail === true)
                                         ? JSON.parse(text[0]) as Error
                                         : null;
                                     types(errorText);
                                 },
-                                types = function terminal_commands_library_copy_dirCallback_renameCallback_types(typeError:NodeJS.ErrnoException):void {
+                                types = function terminal_commands_library_copy_dirCallback_renameCallback_types(typeError:node_error):void {
                                     if (typeError === null) {
                                         if (a === len) {
                                             const text:string[] = [`${vars.environment.name} copied `],
@@ -118,7 +118,9 @@ const copy = function terminal_commands_library_copy(params:config_command_copy)
                                                     mkdir(list[a][6], mkdirCallback);
                                                 } else if (list[a][1] === "file") {
                                                     numb.files = numb.files + 1;
-                                                    numb.size = numb.size + list[a][5].size;
+                                                    if (list[a][5] !== null) {
+                                                        numb.size = numb.size + list[a][5].size;
+                                                    }
                                                     writeStream({
                                                         callback: terminal_commands_library_copy_dirCallback_renameCallback_types,
                                                         destination: list[a][6],
@@ -166,7 +168,7 @@ const copy = function terminal_commands_library_copy(params:config_command_copy)
                 };
                 rename(renameConfig);
             };
-    node.fs.stat(params.destination, function terminal_commands_library_copy_stat(erStat:Error):void {
+    node.fs.stat(params.destination, function terminal_commands_library_copy_stat(erStat:node_error):void {
         const dirConfig:config_command_directory = {
             callback: dirCallback,
             depth: 0,

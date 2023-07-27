@@ -156,19 +156,19 @@ import disallowed from "../common/disallowed.js";
                         }
                     },
                     minimizeAll = function browser_init_complete_minimizeAll():void {
-                        const keys:string[] = Object.keys(browser.data.modals),
+                        const keys:string[] = Object.keys(browser.ui.modals),
                             length:number = keys.length;
                         let a:number = 0,
                             status:modalStatus;
-                        browser.data.minimizeAll = true;
+                        browser.ui.minimizeAll = true;
                         do {
-                            status = browser.data.modals[keys[a]].status;
+                            status = browser.ui.modals[keys[a]].status;
                             if (status === "normal" || status === "maximized") {
                                 modal.tools.forceMinimize(keys[a]);
                             }
                             a = a + 1;
                         } while (a < length);
-                        browser.data.minimizeAll = false;
+                        browser.ui.minimizeAll = false;
                         network.configuration();
                     },
                     messageDelay = function browser_init_complete_messageDelay():void {
@@ -220,7 +220,7 @@ import disallowed from "../common/disallowed.js";
                 }
 
                 // populate text messages
-                if (browser.data.modalTypes.indexOf("message") > -1) {
+                if (browser.ui.modalTypes.indexOf("message") > -1) {
                     message.tools.populate("");
                 }
 
@@ -258,7 +258,7 @@ import disallowed from "../common/disallowed.js";
                 if (logInTest === true) {
                     testBrowserLoad(0);
                 }
-                if (location.href.indexOf("test_browser") < 0 && (browser.data.tutorial === true || location.href.indexOf("?tutorial") > 0)) {
+                if (location.href.indexOf("test_browser") < 0 && (browser.ui.tutorial === true || location.href.indexOf("?tutorial") > 0)) {
                     tutorial();
                 }
 
@@ -276,16 +276,14 @@ import disallowed from "../common/disallowed.js";
             restoreState = function browser_init_restoreState():void {
                 // state data
                 let modalItem:config_modal = null,
-                    count:number = 0,
-                    keyConfig:boolean = false,
-                    keySocketList:boolean = false;
-                const modalKeys:string[] = Object.keys(state.settings.configuration.modals),
+                    count:number = 0;
+                const modalKeys:string[] = Object.keys(state.settings.ui.modals),
                     indexes:[number, string][] = [],
                     // applies z-index to the modals in the proper sequence while restarting the value at 0
                     z = function browser_init_z(id:string):void {
                         count = count + 1;
                         if (id !== null) {
-                            indexes.push([state.settings.configuration.modals[id].zIndex, id]);
+                            indexes.push([state.settings.ui.modals[id].zIndex, id]);
                         }
                         if (count === modalKeys.length) {
                             let index:number = 0,
@@ -293,21 +291,21 @@ import disallowed from "../common/disallowed.js";
                                 modalItem:HTMLElement = null;
                             const len:number = indexes.length,
                                 restoreShares = function browser_init_restoreState_z_restoreShares(type:agentType):void {
-                                    const list:string[] = Object.keys(state.settings[type]),
+                                    const list:string[] = Object.keys(state.settings.agents[type]),
                                         listLength:number = list.length;
                                     let a:number = 0;
                                     if (listLength > 0) {
                                         do {
                                             agent_management.tools.addAgent({
                                                 hash: list[a],
-                                                name: browser[type][list[a]].name,
+                                                name: browser.agents[type][list[a]].name,
                                                 type: type
                                             });
                                             a = a + 1;
                                         } while (a < listLength);
                                     }
                                 };
-                            browser.data.zIndex = modalKeys.length;
+                            browser.ui.zIndex = modalKeys.length;
                             indexes.sort(function browser_init_restoreState_z_sort(aa:[number, string], bb:[number, string]):number {
                                 if (aa[0] < bb[0]) {
                                     return -1;
@@ -316,7 +314,7 @@ import disallowed from "../common/disallowed.js";
                             });
                             // apply z-index - depth and overlapping order
                             do {
-                                uiModal = state.settings.configuration.modals[indexes[index][1]];
+                                uiModal = state.settings.ui.modals[indexes[index][1]];
                                 modalItem = document.getElementById(indexes[index][1]);
                                 if (uiModal !== undefined && modalItem !== null) {
                                     uiModal.zIndex = index + 1;
@@ -324,45 +322,20 @@ import disallowed from "../common/disallowed.js";
                                 }
                                 index = index + 1;
                             } while (index < len);
-                            if (keyConfig ===  false) {
-                                modal_configuration.modals.configuration(null);
-                            }
-                            if (keySocketList ===  false) {
-                                modal_configuration.modals["socket-list"](null);
-                                configuration.tools.socketList({
-                                    data: state["socket-list"],
-                                    service: "socket-list"
-                                });
-                            }
                             restoreShares("device");
                             restoreShares("user");
                             loadComplete(true);
                         }
                     };
                 logInTest = true;
-                browser.data.color = state.settings.configuration.color;
-                browser.data.colors = state.settings.configuration.colors;
-                browser.data.fileSort = state.settings.configuration.fileSort;
-                browser.data.hashDevice = state.settings.configuration.hashDevice;
-                browser.data.hashUser = state.settings.configuration.hashUser;
-                browser.data.nameUser = state.settings.configuration.nameUser;
-                browser.data.nameDevice = state.settings.configuration.nameDevice;
-                browser.data.statusTime = state.settings.configuration.statusTime;
-                browser.data.storage = state.settings.configuration.storage;
-                browser.data.tutorial = state.settings.configuration.tutorial;
-                browser.device = state.settings.device;
-                browser.user = state.settings.user;
+                browser.agents = state.settings.agents;
+                browser.identity = state.settings.identity;
+                browser.ui = state.settings.ui;
                 modalKeys.forEach(function browser_init_restoreState_modalKeys(value:string) {
-                    modalItem = state.settings.configuration.modals[value];
+                    modalItem = state.settings.ui.modals[value];
                     modalItem.callback = function browser_init_restoreState_modalKeys_callback():void {
                         z(value);
                     };
-                    if (value === "configuration-modal") {
-                        keyConfig = true;
-                    }
-                    if (value === "socketList-modal") {
-                        keySocketList = true;
-                    }
                     modal_configuration.modals[modalItem.type](null, modalItem);
                 });
             },
@@ -396,12 +369,12 @@ import disallowed from "../common/disallowed.js";
         // set state from artifacts supplied to the page
         if (stateItem.getAttribute("type") === "hidden") {
             state = JSON.parse(stateItem.value) as stateData;
-            if (state.settings.configuration !== undefined) {
-                if (state.settings.configuration.hashDevice !== undefined) {
-                    hashDevice = state.settings.configuration.hashDevice;
+            if (state.settings.ui !== undefined) {
+                if (state.settings.identity.hashDevice !== undefined) {
+                    hashDevice = state.settings.identity.hashDevice;
                 }
-                if (state.settings.configuration.hashUser !== undefined) {
-                    hashUser = state.settings.configuration.hashUser;
+                if (state.settings.identity.hashUser !== undefined) {
+                    hashUser = state.settings.identity.hashUser;
                 }
             }
         }

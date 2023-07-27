@@ -2,22 +2,16 @@
 
 /**
  * Provides globally available utilities, such as string formatting tools.
- * * **agents** - Provides a means to loop through agent types, agents, and shares against a supplied function.
- * * **capitalize** - Converts the first character of a string to a capital letter if that first character is a lowercase letter.
- * * **commas** - Converts a number into a string with commas separating character triplets from the right.
- * * **dateFormat** - Converts a date object into US Army date format.
- * * **prettyBytes** - Converts a number into an abbreviated exponent of 2 describing storage size, example: 2134321 => 2.0MB.
- * * **selfShares** - Converts the list of shares from all devices into a single package for distribution to external users.
- * * **time** - Produce a formatted time string from a date object.
  * ```typescript
  * interface module_common {
- *     agents: (config:agentsConfiguration) => void;
- *     capitalize: (input:string) => string;
- *     commas: (input:number) => string;
- *     dateFormat: (date:Date) => string;
- *     prettyBytes: (input:number) => string;
- *     selfShares: (devices:agents) => agentShares;
- *     time: (date:Date) => string;
+ *     agents      : (config:agentsConfiguration) => void;                  // Provides a means to loop through agent types, agents, and shares against a supplied function.
+ *     capitalize  : (input:string) => string;                              // Converts the first character of a string to a capital letter if that first character is a lowercase letter.
+ *     commas      : (input:number) => string;                              // Converts a number into a string with commas separating character triplets from the right.
+ *     dateFormat  : (date:Date) => string;                                 // Converts a date object into US Army date format.
+ *     prettyBytes : (input:number) => string;                              // Converts a number into an abbreviated exponent of 2 describing storage size, example: 2134321 => 2.0MB.
+ *     sortFileList: (dirs:directory_list, location:string, sortName:fileSort) => directory_list; // sorts directory_list items by user preference.
+ *     time        : (date:Date) => string;                                 // Produce a formatted time string from a date object.
+ *     userData    : (devices:agents, type:agentType, hash:string) => agent // Generates shares and ip address from all devices representative of the user.
  * }
  * ``` */
 const common:module_common = {
@@ -25,8 +19,8 @@ const common:module_common = {
     /* loops through agent types, agents, and shares and allows a callback at each level */
     agents: function common_agents(config:config_agentIdentity):void {
         const agentTypes:agentList = {
-                device: Object.keys(config.source.device),
-                user: Object.keys(config.source.user)
+                device: Object.keys(config.source.agents.device),
+                user: Object.keys(config.source.agents.user)
             },
             agentsKeys:string[] = ["device", "user"],
             agentsKeysLength:number = agentsKeys.length,
@@ -77,7 +71,7 @@ const common:module_common = {
                             }, counts);
                         }
     
-                        shares = Object.keys(config.source[agentTypeKey][agent].shares);
+                        shares = Object.keys(config.source.agents[agentTypeKey][agent].shares);
                         shareLength = shares.length;
     
                         // loop through each share of each agent for each agent type

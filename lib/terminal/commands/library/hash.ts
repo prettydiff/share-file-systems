@@ -166,12 +166,12 @@ const hash = function terminal_commands_library_hash(input:config_command_hash):
             input.callback(title, output);
         });
     } else {
-        node.child_process.exec("ulimit -n", function terminal_commands_library_hash_ulimit(ulimit_err:Error, ulimit_out:string) {
+        node.child_process.exec("ulimit -n", function terminal_commands_library_hash_ulimit(ulimit_err:node_childProcess_ExecException, ulimit_out:string) {
             if (ulimit_err === null && ulimit_out !== "unlimited" && isNaN(Number(ulimit_out)) === false) {
                 limit = Number(ulimit_out);
                 shortLimit = Math.ceil(limit / 5);
             }
-            node.fs.stat(input.source, function terminal_commands_library_hash_stat(ers:NodeJS.ErrnoException, stats:node_fs_Stats):void {
+            node.fs.stat(input.source, function terminal_commands_library_hash_stat(ers:node_error, stats:node_fs_Stats):void {
                 if (ers === null) {
                     if (stats.isDirectory() === true || input.parent === undefined || (input.parent !== undefined && typeof input.id === "string" && input.id.length > 0)) {
                         // not coming from the directory library.  The directory library will always pass a parent property and not an id property

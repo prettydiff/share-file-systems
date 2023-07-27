@@ -125,7 +125,7 @@ const file_browser:module_fileBrowser = {
             if (browser.loading === true) {
                 return;
             }
-            browser.data.modals[id].text_value = JSON.stringify(payloadNetwork.location);
+            browser.ui.modals[id].text_value = JSON.stringify(payloadNetwork.location);
             network.send(payloadNetwork, "file-system");
             network.configuration();
             context.element = null;
@@ -356,7 +356,7 @@ const file_browser:module_fileBrowser = {
                                     }
                                     index = index + 1;
                                 } while (index < listLength);
-                                return common.sortFileList(output, location, browser.data.fileSort);
+                                return common.sortFileList(output, location, browser.ui.fileSort);
                             }
                             return output;
                         }
@@ -444,7 +444,7 @@ const file_browser:module_fileBrowser = {
         /* A utility to format and describe status bar messaging in a file navigator modal. */
         status: function browser_content_fileBrowser_status(socketData:socketData):void {
             const data:service_fileSystem_status = socketData.data as service_fileSystem_status,
-                keys:string[] = Object.keys(browser.data.modals),
+                keys:string[] = Object.keys(browser.ui.modals),
                 failures:[string[], number] = (data.fileList === null || typeof data.fileList === "string" || data.fileList.failures === undefined)
                     ? [[], 0]
                     : [data.fileList.failures, Math.min(10, data.fileList.failures.length)],
@@ -506,11 +506,11 @@ const file_browser:module_fileBrowser = {
             if (keyLength > 0) {
                 do {
                     keyLength = keyLength - 1;
-                    modal = browser.data.modals[keys[keyLength]];
+                    modal = browser.ui.modals[keys[keyLength]];
                     if (modal.type === "file-navigate") {
                         if (
                             // get modals from data.agentSource, this device, and targeted shares
-                            (modal.agent === data.agentSource[modal.agentType] || (browser.device[modal.agent] !== undefined && browser.device[modal.agent].shares[data.agentSource.share] !== undefined)) &&
+                            (modal.agent === data.agentSource[modal.agentType] || (browser.agents.device[modal.agent] !== undefined && browser.agents.device[modal.agent].shares[data.agentSource.share] !== undefined)) &&
                             // modals that match the data address posix (case sensitive) vs windows (case insensitive)
                             ((modal.text_value.charAt(0) === "/" && modal.text_value === data.agentSource.modalAddress) || (modal.text_value.charAt(0) !== "/" && modal.text_value.toLowerCase() === data.agentSource.modalAddress.toLowerCase())) &&
                             // if the data is a search result then only populate modals containing the specific fragment
@@ -569,7 +569,7 @@ const file_browser:module_fileBrowser = {
                 box:modal = element.getAncestor("box", "class"),
                 id:string = box.getAttribute("id"),
                 address:HTMLInputElement = box.getElementsByClassName("fileAddress")[0].getElementsByTagName("input")[0],
-                history:string[] = browser.data.modals[id].history;
+                history:string[] = browser.ui.modals[id].history;
             if (history.length > 1) {
                 history.pop();
                 address.value = history[history.length - 1];
@@ -701,7 +701,7 @@ const file_browser:module_fileBrowser = {
                                     if (ulTop < clientY && ulLeft < clientX) {
                                         ulBottom = ulTop + ulBody.clientHeight;
                                         ulRight = ulLeft + ulBody.clientWidth;
-                                        ulIndex = browser.data.modals[ulBox.getAttribute("id")].zIndex;
+                                        ulIndex = browser.ui.modals[ulBox.getAttribute("id")].zIndex;
                                         if (ulBottom > clientY && ulRight > clientX && ulIndex > zIndex) {
                                             zIndex = ulIndex;
                                             goal = ul[a];
@@ -795,7 +795,7 @@ const file_browser:module_fileBrowser = {
                 return;
             }
             list.style.display = "none";
-            list.style.zIndex = (browser.data.zIndex + 1).toString();
+            list.style.zIndex = (browser.ui.zIndex + 1).toString();
             if (touch === true) {
                 document.ontouchmove  = move;
                 document.ontouchstart = null;
@@ -1043,7 +1043,7 @@ const file_browser:module_fileBrowser = {
                 const searchParent:HTMLElement = element.parentNode;
                 searchParent.style.width = "12.5%";
                 addressLabel.style.width = "87.5%";
-                browser.data.modals[id].search = [address, value];
+                browser.ui.modals[id].search = [address, value];
                 network.configuration();
             }
             if (event === null || (event.type === "keyup" && keyboardEvent.key === "Enter")) {
@@ -1063,13 +1063,13 @@ const file_browser:module_fileBrowser = {
                 if (element.value.replace(/\s+/, "") === "") {
                     file_browser.events.text(event);
                     element.focus();
-                    browser.data.modals[id].search = [address, ""];
+                    browser.ui.modals[id].search = [address, ""];
                     network.configuration();
                     return;
                 }
                 if (browser.loading === false) {
-                    browser.data.modals[id].search = [address, value];
-                    browser.data.modals[id].selection = {};
+                    browser.ui.modals[id].search = [address, value];
+                    browser.ui.modals[id].selection = {};
                     network.configuration();
                 }
                 network.send(payload, "file-system");
@@ -1135,7 +1135,7 @@ const file_browser:module_fileBrowser = {
                 modal.events.zTop(keyboardEvent);
                 body = body.getAncestor("body", "class");
                 box = body.parentNode.parentNode;
-                modalData = browser.data.modals[box.getAttribute("id")];
+                modalData = browser.ui.modals[box.getAttribute("id")];
 
                 if (document.getElementById("dragBox") !== null) {
                     return;
@@ -1163,11 +1163,11 @@ const file_browser:module_fileBrowser = {
                         },
                         listLength:number = liList.length;
                     let a:number = 0,
-                        focus:HTMLElement = browser.data.modals[box.getAttribute("id")].focus,
+                        focus:HTMLElement = browser.ui.modals[box.getAttribute("id")].focus,
                         elementIndex:number = -1,
                         focusIndex:number = -1;
                     if (focus === null || focus === undefined) {
-                        browser.data.modals[box.getAttribute("id")].focus = liList[0];
+                        browser.ui.modals[box.getAttribute("id")].focus = liList[0];
                         focus = liList[0];
                     }
                     do {
@@ -1249,7 +1249,7 @@ const file_browser:module_fileBrowser = {
                 const id:string = box.getAttribute("id"),
                     agents:[fileAgent, fileAgent, fileAgent] = util.fileAgent(box, null, address),
                     payload:service_fileSystem = {
-                        action: (event !== null && event.target.getAttribute("class") === "reloadDirectory" && browser.data.modals[id].search[0] !== "")
+                        action: (event !== null && event.target.getAttribute("class") === "reloadDirectory" && browser.ui.modals[id].search[0] !== "")
                             ? "fs-search"
                             : "fs-directory",
                         agentRequest: agents[0],
@@ -1398,7 +1398,7 @@ const file_browser:module_fileBrowser = {
 
         /* Updates the address of a file-navigate modal in both UI and state */
         modalAddress: function browser_content_fileBrowser_modalAddress(event:FocusEvent|KeyboardEvent|MouseEvent, config:config_modal_history):void {
-            const modalData:config_modal = browser.data.modals[config.id],
+            const modalData:config_modal = browser.ui.modals[config.id],
                 modalItem:HTMLElement = document.getElementById(config.id),
                 lastHistory:string = (modalData.history.length > 1)
                     ? modalData.history[modalData.history.length - 1]

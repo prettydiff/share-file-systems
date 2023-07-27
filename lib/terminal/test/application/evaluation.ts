@@ -178,7 +178,7 @@ const testEvaluation = function terminal_test_application_testEvaluation(output:
         // replace numbers following a parenthesis
         output.values[0] = output.values[0].replace(/\(\d+ /g, "(XXXX ");
         // replace numbers separated by commas
-        output.values[0] = output.values[0].replace(/(\d+,)+\d+/, "XXXX");
+        // output.values[0] = output.values[0].replace(/(\d+,)+\d+/, "XXXX");
         if (output.testType === "service") {
             // replace port numbers in the stored test
             output.values[0] = output.values[0].replace(/"port":\d+,/g, "\"port\":0,");
@@ -199,7 +199,7 @@ const testEvaluation = function terminal_test_application_testEvaluation(output:
     if (output.test.qualifier.indexOf("file") === 0) {
         if (output.test.qualifier.indexOf("file ") === 0) {
             output.test.file = node.path.resolve(output.test.file);
-            node.fs.readFile(output.test.file, "utf8", function terminal_test_application_testEvaluation_file(err:Error, dump:string) {
+            node.fs.readFile(output.test.file, "utf8", function terminal_test_application_testEvaluation_file(err:node_error, dump:string) {
                 if (err !== null) {
                     increment([`fail - ${JSON.stringify(err)}`, ""]);
                     return;
@@ -232,7 +232,7 @@ const testEvaluation = function terminal_test_application_testEvaluation(output:
             });
         } else if (output.test.qualifier.indexOf("filesystem ") === 0) {
             output.test.test = node.path.resolve(test);
-            node.fs.stat(test, function terminal_test_application_testEvaluation_stat(ers:Error) {
+            node.fs.stat(test, function terminal_test_application_testEvaluation_stat(ers:node_error) {
                 if (ers === null) {
                     if (output.test.qualifier === "filesystem not contains") {
                         increment([`fail - ${capital} test ${vars.text.angry + name + vars.text.none} sees the following address in the local file system, but shouldn't: ${vars.text.cyan + output.test.test + vars.text.none}`, ""]);

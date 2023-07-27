@@ -24,7 +24,7 @@ const rename = function terminal_utilities_rename(config:config_rename):void {
             config.list[listIndex][0][6] = newPath;
             return newPath;
         },
-        statCallback = function terminal_utilities_rename_statCallback(statError:NodeJS.ErrnoException):void {
+        statCallback = function terminal_utilities_rename_statCallback(statError:node_error):void {
             const itemLength:number = config.list[index].length;
 
             // an error occurred, so stop and process that error only

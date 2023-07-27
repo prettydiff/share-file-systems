@@ -8,7 +8,6 @@ import ipList from "../../utilities/ipList.js";
 import log from "../../utilities/log.js";
 import node from "../../utilities/node.js";
 import remove from "../../commands/library/remove.js";
-import resetState from "../../utilities/resetState.js";
 import sender from "../../server/transmission/sender.js";
 import time from "../../utilities/time.js";
 import transmit_http from "../../server/transmission/transmit_http.js";
@@ -74,7 +73,7 @@ const defaultCommand:commands = vars.environment.command,
         },
         exitMessage: "",
         exitSummary: function terminal_test_application_browser_exitSummary():string[] {
-            const socketList:socketListItem[] = transmit_ws.status[vars.settings.hashDevice],
+            const socketList:socketListItem[] = transmit_ws.status[vars.identity.hashDevice],
                 output:string[] = [
                     browser.exitMessage,
                     "",
@@ -415,7 +414,7 @@ const defaultCommand:commands = vars.environment.command,
                                         return `${keyword} ${process.argv[0]} ${path}`;
                                     }())
                                     : `${keyword} ${path}`,
-                                child = function terminal_test_application_browser_reset_readdir_browserLaunch_child(errs:Error, stdout:string, stderr:Buffer | string):void {
+                                child = function terminal_test_application_browser_reset_readdir_browserLaunch_child(errs:node_childProcess_ExecException, stdout:string, stderr:Buffer | string):void {
                                     if (errs !== null) {
                                         error(["Error opening browser in test automation."], errs);
                                         return;
@@ -432,18 +431,75 @@ const defaultCommand:commands = vars.environment.command,
                             }, child);
                         };
                     log(["", "", timeStore[0]]);
-                    vars.settings.device = {};
-                    vars.settings.user = {};
+                    vars.agents.device = {};
+                    vars.agents.user = {};
                     transmit_ws.status = {};
+                    remove(`${vars.path.project}lib${vars.path.sep}terminal${vars.path.sep}test${vars.path.sep}application${vars.path.sep}documentation`, [], null);
+                    // close sockets
+                    {
+                        const types:socketType[] = Object.keys(transmit_ws.socketList) as socketType[];
+                        let sockets:string[] = null,
+                            socketIndex:number = 0,
+                            typeIndex:number = types.length;
+                        do {
+                            typeIndex = typeIndex - 1;
+                            if (types[typeIndex] !== "testRemote") {
+                                sockets = Object.keys(transmit_ws.socketList[types[typeIndex]]);
+                                socketIndex = sockets.length;
+                                if (socketIndex > 0) {
+                                    do {
+                                        socketIndex = socketIndex - 1;
+                                        transmit_ws.socketList[types[typeIndex]][sockets[socketIndex]].destroy();
+                                    } while (socketIndex > 0);
+                                    transmit_ws.socketList[types[typeIndex]] = {};
+                                }
+                            }
+                        } while (typeIndex > 0);
+                    }
                     if (browser.args.mode === "remote" || browser.args.mode === "all") {
-                        resetState(function terminal_test_application_browser_reset_readdir_browserLaunch_resetState():void {
-                            browser.methods.sendAction("close", browser.name);
-                            browser.methods.delay({
-                                action: start,
-                                browser: false,
-                                delay: 2000,
-                                message: "Delaying to close any open browsers."
-                            });
+                        const ui:ui_data = {
+                            audio: false,
+                            brotli: 0,
+                            color: "default",
+                            colors: {
+                                device: {},
+                                user: {}
+                            },
+                            fileSort: "file-system-type",
+                            hashType: "sha3-512",
+                            minimizeAll: false,
+                            modals: {},
+                            modalTypes: [],
+                            statusTime: 15000,
+                            storage: vars.settings.ui.storage,
+                            tutorial: false,
+                            zIndex: 0
+                        };
+                        vars.agents = {
+                            device: {},
+                            user: {}
+                        };
+                        vars.identity = {
+                            hashDevice: "",
+                            hashUser: "",
+                            nameDevice: "",
+                            nameUser: "",
+                            secretDevice: "",
+                            secretUser: ""
+                        };
+                        vars.settings.message = [];
+                        vars.settings.queue = {
+                            device: {},
+                            user: {}
+                        };
+                        vars.settings.ui = ui;
+                        transmit_ws.status = {};
+                        browser.methods.sendAction("close", browser.name);
+                        browser.methods.delay({
+                            action: start,
+                            browser: false,
+                            delay: 2000,
+                            message: "Delaying to close any open browsers."
                         });
                     } else {
                         start();

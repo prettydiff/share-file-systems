@@ -211,7 +211,7 @@ const context:module_context = {
                 }
             },
             box:modal = element.getAncestor("box", "class"),
-            readOnly:boolean = browser.data.modals[box.getAttribute("id")].read_only,
+            readOnly:boolean = browser.ui.modals[box.getAttribute("id")].read_only,
             clientHeight:number = browser.content.clientHeight;
         let clientX:number,
             clientY:number,
@@ -266,7 +266,7 @@ const context:module_context = {
         }
 
         // menu display position
-        menu.style.zIndex = `${browser.data.zIndex + 10}`;
+        menu.style.zIndex = `${browser.ui.zIndex + 10}`;
 
         menuTop = ((itemList.length * 52) + 1) + clientY;
         // vertical
@@ -342,7 +342,7 @@ const context:module_context = {
                     agentType: agency[2],
                     data: addresses,
                     id: id,
-                    share: browser.data.modals[id].share,
+                    share: browser.ui.modals[id].share,
                     type: type
                 },
                 clipStore:context_clipboard = (context.clipboard === "")

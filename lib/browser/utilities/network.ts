@@ -28,8 +28,8 @@ const network:module_network = {
     configuration: function browser_utilities_network_configuration():void {
         if (browser.loading === false) {
             network.send({
-                settings: browser.data,
-                type: "configuration"
+                settings: browser.ui,
+                type: "ui"
             }, "settings");
         }
     },
@@ -46,7 +46,7 @@ const network:module_network = {
                     if (xhr.status === 200 || xhr.status === 0) {
                         const offline:HTMLCollectionOf<Element> = document.getElementsByClassName("offline");
                         if (xhr.status === 200 && offline.length > 0 && offline[0].getAttribute("class") === "title offline") {
-                            webSocket.start(null, browser.data.hashDevice);
+                            webSocket.start(null, browser.identity.hashDevice);
                         }
                     } else {
                         const error:Error = {
@@ -77,7 +77,7 @@ const network:module_network = {
         if (socketData.service === "agent-hash") {
             xhr.setRequestHeader("agent-hash", "");
         } else {
-            xhr.setRequestHeader("agent-hash", browser.data.hashDevice);
+            xhr.setRequestHeader("agent-hash", browser.identity.hashDevice);
         }
         xhr.send(dataString);
     },

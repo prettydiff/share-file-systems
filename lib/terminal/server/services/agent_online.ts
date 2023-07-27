@@ -10,9 +10,9 @@ const agent_online = function terminal_server_services_agentOnline(socketData:so
         addresses:transmit_addresses_socket = getAddress(transmit),
         local:string = addresses.local.address,
         remote:string = addresses.remote.address;
-    vars.settings[agentData.agentType][agentData.agent].ipAll = agentData.ipAll;
+    vars.agents[agentData.agentType][agentData.agent].ipAll = agentData.ipAll;
     if (remote !== "") {
-        vars.settings[agentData.agentType][agentData.agent].ipSelected = remote;
+        vars.agents[agentData.agentType][agentData.agent].ipSelected = remote;
     }
     agentData.ipAll = (agentData.agentType === "device")
         ? vars.network.addresses

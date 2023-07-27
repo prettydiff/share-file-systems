@@ -74,10 +74,10 @@ const loopback:string = "127.0.0.1",
                         countBy: "agent",
                         perAgent: function terminal_test_application_services_addServers_servers_perAgent(agentNames:agentNames, counts:agentCounts):void {
                             const serverCallback = function terminal_test_application_services_addServers_servers_perAgent_serverCallback(output:http_server_output):void {
-                                vars.settings[output.agentType][output.agent].ports = output.ports;
-                                vars.settings[output.agentType][output.agent].ipSelected = loopback;
+                                vars.agents[output.agentType][output.agent].ports = output.ports;
+                                vars.agents[output.agentType][output.agent].ipSelected = loopback;
                                 service.agents[agentNames.agentType][agentNames.agent] = output.server;
-                                if (output.agentType === "device" && output.agent === vars.settings.hashDevice) {
+                                if (output.agentType === "device" && output.agent === vars.identity.hashDevice) {
                                     vars.network.ports.ws = output.ports.ws;
                                 }
                                 complete(counts);
@@ -94,7 +94,7 @@ const loopback:string = "127.0.0.1",
                                 callback: serverCallback
                             });
                         },
-                        source: vars.settings
+                        source: vars
                     });
                 },
                 settingsComplete = function terminal_test_application_services_addServers_settingsComplete():void {
@@ -167,7 +167,7 @@ const loopback:string = "127.0.0.1",
             service.index = config.index;
             service.fail = config.fail;
             receiver(test, {
-                socket: transmit_ws.socketList.device[vars.settings.hashDevice],
+                socket: transmit_ws.socketList.device[vars.identity.hashDevice],
                 type: "ws"
             });
         },
@@ -177,8 +177,8 @@ const loopback:string = "127.0.0.1",
             const agentComplete = function terminal_test_application_services_killServers_agentComplete(counts:agentCounts):void {
                 counts.count = counts.count + 1;
                 if (counts.count === counts.total) {
-                    vars.settings.device = {};
-                    vars.settings.user = {};
+                    vars.agents.device = {};
+                    vars.agents.user = {};
                     testComplete(complete);
                 }
             };
@@ -191,7 +191,7 @@ const loopback:string = "127.0.0.1",
                         agentComplete(counts);
                     });
                 },
-                source: vars.settings
+                source: vars
             });
         },
         list: [],

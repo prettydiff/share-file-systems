@@ -10,7 +10,7 @@ import vars from "../../utilities/vars.js";
 // run the test suite using the build application
 const update = function terminal_commands_library_update():void {
     let branchName:string = "";
-    const childError = function terminal_commands_library_update_childError(err:Error, task:string):boolean {
+    const childError = function terminal_commands_library_update_childError(err:node_childProcess_ExecException, task:string):boolean {
             if (err !== null) {
                 const error:string = err.toString(),
                     output:string[] = [
@@ -53,7 +53,7 @@ const update = function terminal_commands_library_update():void {
             }
         },
         // command 4 - build
-        build = function terminal_commands_library_update_build(err:Error):void {
+        build = function terminal_commands_library_update_build(err:node_childProcess_ExecException):void {
             vars.settings.verbose = true;
             if (childError(err, "build") === false) {
                 log([
@@ -63,7 +63,7 @@ const update = function terminal_commands_library_update():void {
             }
         },
         // command 3 - git
-        git = function terminal_commands_library_update_git(err:Error, stderr:string):void {
+        git = function terminal_commands_library_update_git(err:node_childProcess_ExecException, stderr:string):void {
             if (childError(err, "git") === false) {
                 const status:string = (stderr.indexOf("Already up-to-date.") > -1)
                         ? `${humanTime(false)}Code already up to date.`
@@ -92,7 +92,7 @@ const update = function terminal_commands_library_update():void {
             }
         },
         // command 2 - stash
-        stash = function terminal_commands_library_update_stash(err:Error):void {
+        stash = function terminal_commands_library_update_stash(err:node_childProcess_ExecException):void {
             if (childError(err, "stash") === false) {
                 log([`${humanTime(false)}Stashing changes to branch, if any.`]);
                 node.child_process.exec(`git pull origin ${branchName}`, {
@@ -101,7 +101,7 @@ const update = function terminal_commands_library_update():void {
             }
         },
         // command 1 - branch
-        branch = function terminal_commands_library_update_branch(err:Error, stderr:string):void {
+        branch = function terminal_commands_library_update_branch(err:node_childProcess_ExecException, stderr:string):void {
             if (childError(err, "branch") === false) {
                 if (process.argv[0] === undefined) {
                     branchName = stderr.slice(stderr.indexOf("* ") + 2);

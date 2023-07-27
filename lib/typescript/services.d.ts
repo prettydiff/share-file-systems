@@ -23,23 +23,15 @@
  * interface service_agentManagement {
  *     action: "add" | "delete" | "modify" | "rename";
  *     agentFrom: string;
- *     agents: {
- *         device: agents;
- *         user: agents;
- *     };
- *     userHash: string;
- *     userName: string;
+ *     agents: agentData;
+ *     identity: identity;
  * }
  * ``` */
 interface service_agentManagement {
     action: "add" | "delete" | "modify" | "rename";
     agentFrom: string;
-    agents: {
-        device: agents;
-        user: agents;
-    };
-    userHash: string;
-    userName: string;
+    agents: agentData;
+    identity: identity;
 }
 
 /**
@@ -227,7 +219,7 @@ interface service_hashShare {
  *     status: inviteStatus;
  *     type: agentType;
  * }
- * type inviteAction = "invite-complete" | "invite-request" | "invite-response" | "invite-start";
+ * type inviteAction = "invite-answer" | "invite-ask" | "invite-complete" | "invite-identity" | "invite-request" | "invite-response" | "invite-start";
  * type inviteStatus = "accepted" | "declined" | "ignored" | "invited";
  * ``` */
 interface service_invite {
@@ -243,12 +235,12 @@ interface service_invite {
  * Saves user generated data and configurations to a file.
  * ```typescript
  * interface service_settings {
- *     settings: agents | service_message | transmit_queue | ui_data;
+ *     settings: agents | identity | service_message | transmit_queue | ui_data;
  *     type: settingsType;
  * }
  * ``` */
 interface service_settings {
-    settings: agents | service_message | transmit_queue | ui_data;
+    settings: agents | identity | service_message | transmit_queue | ui_data;
     type: settingsType;
 }
 

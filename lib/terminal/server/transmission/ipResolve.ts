@@ -32,14 +32,14 @@ const ipResolve = function terminal_server_transmission_ipResolve(agentName:stri
             let status:string;
             if (agentOnline.mode === vars.test.type || (agentOnline.mode === "browser_remote" && vars.test.type.indexOf("browser_") === 0)) {
                 if (agentOnline.ipSelected !== "") {
-                    vars.settings[agentOnline.agentType][agentOnline.agent].ipSelected = agentOnline.ipSelected;
+                    vars.agents[agentOnline.agentType][agentOnline.agent].ipSelected = agentOnline.ipSelected;
                 }
                 status = "online";
             } else {
-                vars.settings[agentOnline.agentType][agentOnline.agent].ipSelected = "offline";
+                vars.agents[agentOnline.agentType][agentOnline.agent].ipSelected = "offline";
                 status = `test mode ${agentOnline.mode}`;
             }
-            vars.settings[agentOnline.agentType][agentOnline.agent].ipAll = agentOnline.ipAll;
+            vars.agents[agentOnline.agentType][agentOnline.agent].ipAll = agentOnline.ipAll;
             agentCallback(status, agentOnline.agent, agentOnline.agentType);
         },
         ipCycle = function terminal_server_transmission_ipResolve_ipCycle(ipCount:number, data:service_agentResolve, list:string[]):void {
@@ -47,7 +47,7 @@ const ipResolve = function terminal_server_transmission_ipResolve(agentName:stri
                 ipCount = ipCount - 1;
                 send(ipCount, data, list);
             } else {
-                vars.settings[data.agentType][data.agent].ipSelected = "offline";
+                vars.agents[data.agentType][data.agent].ipSelected = "offline";
                 agentCallback("offline", data.agent, data.agentType);
             }
         },
@@ -61,20 +61,20 @@ const ipResolve = function terminal_server_transmission_ipResolve(agentName:stri
                     data: data,
                     service: "agent-online"
                 },
-                port: vars.settings[data.agentType][data.agent].ports.http,
+                port: vars.agents[data.agentType][data.agent].ports.http,
                 stream: false
             });
         },
         perAgent = function terminal_server_transmission_ipResolve_perAgent(name:string, type:agentType):void {
-            const unk:boolean = vars.settings[type][name] === undefined,
+            const unk:boolean = vars.agents[type][name] === undefined,
                 list:string[] = (type === "user")
                     ? userList
                     : (unk === true)
                         ? []
-                        : vars.settings.device[name].ipAll.IPv6.concat(vars.settings.device[name].ipAll.IPv4);
+                        : vars.agents.device[name].ipAll.IPv6.concat(vars.agents.device[name].ipAll.IPv4);
             if (unk === true) {
                 agentCallback("unknown", name, type);
-            } else if (type === "device" && name === vars.settings.hashDevice) {
+            } else if (type === "device" && name === vars.identity.hashDevice) {
                 agentCallback("self", name, type);
             } else {
                 ipCycle(list.length, {
@@ -92,10 +92,10 @@ const ipResolve = function terminal_server_transmission_ipResolve(agentName:stri
     if (plural === true) {
         const devices:string[] = (agentName === "user")
                 ? []
-                : Object.keys(vars.settings.device),
+                : Object.keys(vars.agents.device),
             users:string[] = (agentName === "device")
                 ? []
-                : Object.keys(vars.settings.user),
+                : Object.keys(vars.agents.user),
             countD:number = devices.length,
             countU:number = users.length;
         let a:number = 0;
@@ -140,7 +140,7 @@ ipResolve.userAddresses = function terminal_server_transmission_ipResolve_userAd
             IPv4: [],
             IPv6: []
         },
-        deviceKeys:string[] = Object.keys(vars.settings.device),
+        deviceKeys:string[] = Object.keys(vars.agents.device),
         deviceLength:number = deviceKeys.length,
         populate4 = function terminal_server_transmission_ipResolve_userAddresses_populate4(value:string):void {
             if (output.IPv4.indexOf(value) < 0) {
@@ -155,8 +155,8 @@ ipResolve.userAddresses = function terminal_server_transmission_ipResolve_userAd
     let a:number = 0;
     if (deviceLength > 0) {
         do {
-            vars.settings.device[deviceKeys[a]].ipAll.IPv4.forEach(populate4);
-            vars.settings.device[deviceKeys[a]].ipAll.IPv6.forEach(populate6);
+            vars.agents.device[deviceKeys[a]].ipAll.IPv4.forEach(populate4);
+            vars.agents.device[deviceKeys[a]].ipAll.IPv6.forEach(populate6);
             a = a + 1;
         } while (a < deviceLength);
     }

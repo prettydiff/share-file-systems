@@ -6,12 +6,12 @@ const writeStream = function terminal_utilities_writeStream(config:config_writeS
     const readStream:node_fs_ReadStream  = node.fs.createReadStream(config.source),
         writeStream:node_fs_WriteStream = node.fs.createWriteStream(config.destination, {mode: config.stat.mode});
     let errorFlag:boolean = false;
-    readStream.on("error", function terminal_utilities_writeStream_readError(error:Error):void {
+    readStream.on("error", function terminal_utilities_writeStream_readError(error:node_error):void {
         config.callback(error);
         errorFlag = true;
     });
     if (errorFlag === false) {
-        writeStream.on("error", function terminal_utilities_writeStream_writeError(error:Error):void {
+        writeStream.on("error", function terminal_utilities_writeStream_writeError(error:node_error):void {
             config.callback(error);
             errorFlag = true;
         });

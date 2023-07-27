@@ -6,9 +6,8 @@
  * Defines a global environmental object to the browser environment.
  * ```typescript
  * interface browser {
+ *     agents: agentData;
  *     content: HTMLElement;
- *     data: ui_data;
- *     device: agents;
  *     loading: boolean;
  *     loadQueue: socketData[];
  *     message: service_message;
@@ -17,14 +16,14 @@
  *     style: HTMLStyleElement;
  *     testBrowser: service_testBrowser;
  *     title: string;
- *     user: agents;
+ *     ui: ui_data;
  *     visible: boolean;
  * }
  * ``` */
 interface browser {
+    agents: agentData;
     content: HTMLElement;
-    data: ui_data;
-    device: agents;
+    identity: identity;
     loading: boolean;
     loadQueue: socketData[];
     message: service_message;
@@ -34,7 +33,7 @@ interface browser {
     style: HTMLStyleElement;
     testBrowser: service_testBrowser;
     title: string;
-    user: agents;
+    ui: ui_data;
     visible: boolean;
 }
 
@@ -57,7 +56,7 @@ interface localNetwork {
  * interface stateData {
  *     name: string;
  *     network: localNetwork;
- *     settings: settings_item;
+ *     settings: state_storage;
  *     "socket-list": socketList;
  *     test: service_testBrowser;
  * }
@@ -65,7 +64,7 @@ interface localNetwork {
 interface stateData {
     name: string;
     network: localNetwork;
-    settings: settings_item;
+    settings: state_storage;
     "socket-list": socketList;
     test: service_testBrowser;
 }
@@ -100,61 +99,21 @@ interface terminalVariables_networkCount {
  * Stores settings related data for global access.
  * ```typescript
  * interface terminalVariables_settings {
- *     audio      : boolean;
- *     brotli     : brotli;
- *     color      : string;
- *     colors     : browser_colors;
- *     device     : agents;
- *     fileSort   : fileSort;
- *     hashDevice : string;
- *     hashType   : hash;
- *     hashUser   : string;
- *     message    : service_message;
- *     minimizeAll: boolean;
- *     modals     : {
- *         [key:string]: config_modal;
- *     };
- *     modalTypes : modalType[];
- *     nameDevice : string;
- *     nameUser   : string;
- *     queue      : transmit_queue;
- *     secure     : boolean;
- *     status     : activityStatus;
- *     statusTime : number;
- *     storage    : string;
- *     tutorial   : boolean;
- *     user       : agents;
- *     verbose    : boolean;
- *     zIndex     : number;
+ *     message : service_message;
+ *     queue   : transmit_queue;
+ *     secure  : boolean;
+ *     status  : activityStatus;
+ *     ui      : ui_data;
+ *     verbose : boolean;
  * }
  * ``` */
 interface terminalVariables_settings {
-    audio      : boolean;
-    brotli     : brotli;
-    color      : string;
-    colors     : browser_colors;
-    device     : agents;
-    fileSort   : fileSort;
-    hashDevice : string;
-    hashType   : hash;
-    hashUser   : string;
-    message    : service_message;
-    minimizeAll: boolean;
-    modals     : {
-        [key:string]: config_modal;
-    };
-    modalTypes : modalType[];
-    nameDevice : string;
-    nameUser   : string;
-    queue      : transmit_queue;
-    secure     : boolean;
-    status     : activityStatus;
-    statusTime : number;
-    storage    : string;
-    tutorial   : boolean;
-    user       : agents;
-    verbose    : boolean;
-    zIndex     : number;
+    message : service_message;
+    queue   : transmit_queue;
+    secure  : boolean;
+    status  : activityStatus;
+    ui      : ui_data;
+    verbose : boolean;
 }
 
 /**
@@ -166,16 +125,12 @@ interface terminalVariables_settings {
  *     color: string;
  *     colors: browser_colors;
  *     fileSort: fileSort;
- *     hashDevice: string;
  *     hashType: hash;
- *     hashUser: string;
  *     minimizeAll: boolean;
  *     modals: {
- *         [key:string]: modal;
+ *         [key:string]: config_modal;
  *     };
  *     modalTypes: modalType[];
- *     nameDevice: string;
- *     nameUser: string;
  *     statusTime: number;
  *     storage: string;
  *     tutorial: boolean;
@@ -188,16 +143,12 @@ interface ui_data {
     color: string;
     colors: browser_colors;
     fileSort: fileSort;
-    hashDevice: string;
     hashType: hash;
-    hashUser: string;
     minimizeAll: boolean;
     modals: {
         [key:string]: config_modal;
     };
     modalTypes: modalType[];
-    nameDevice: string;
-    nameUser: string;
     statusTime: number;
     storage: string;
     tutorial: boolean;

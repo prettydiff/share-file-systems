@@ -22,19 +22,19 @@ const methodGET = function terminal_server_transmission_methodGET(request:node_h
             ? "/"
             : vars.path.project + uri.slice(1).replace(/\/$/, "").replace(/\//g, vars.path.sep);
     if (localPath === "/") {
-        const appliedData = function terminal_server_transmission_methodGET_readCallback_pageState_appliedData(settingsData:settings_item):void {
+        const appliedData = function terminal_server_transmission_methodGET_readCallback_pageState_appliedData(settingsData:state_storage):void {
             settingsData.queue = null;
-            if (settingsData.configuration.hashDevice === "") {
-                settingsData.configuration.hashDevice = vars.settings.hashDevice;
+            if (settingsData.identity.hashDevice === "") {
+                settingsData.identity.hashDevice = vars.identity.hashDevice;
             } else {
                 common.agents({
                     countBy: "agent",
                     perAgent: function terminal_server_transmission_methodGET_readCallback_pageState_appliedData_perAgent(agentNames:agentNames):void {
-                        if (agentNames.agentType === "user" || (agentNames.agentType === "device" && agentNames.agent !== vars.settings.hashDevice)) {
-                            settingsData[agentNames.agentType][agentNames.agent].status = vars.settings[agentNames.agentType][agentNames.agent].status;
+                        if (agentNames.agentType === "user" || (agentNames.agentType === "device" && agentNames.agent !== vars.identity.hashDevice)) {
+                            settingsData.agents[agentNames.agentType][agentNames.agent].status = vars.agents[agentNames.agentType][agentNames.agent].status;
                         }
                     },
-                    source: vars.settings
+                    source: vars
                 });
             }
             const state:stateData = {
@@ -50,7 +50,7 @@ const methodGET = function terminal_server_transmission_methodGET(request:node_h
                         : null
                 },
                 storageString:string = `<input type="hidden" value='${JSON.stringify(state).replace(/'/g, "&#39;")}'/>`,
-                login:string = (settingsData.configuration.nameDevice === "")
+                login:string = (settingsData.identity.nameDevice === "")
                     ? " login"
                     : "",
                 pageApplication:string = `<!DOCTYPE html>
@@ -74,7 +74,7 @@ const methodGET = function terminal_server_transmission_methodGET(request:node_h
         <link href="lib/css/bundle.css" media="all" rel="stylesheet" type="text/css"/>
         <link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgo="/>
     </head>
-    <body class="${vars.settings.color + login}">
+    <body class="${vars.settings.ui.color + login}">
         ${storageString}
         <div id="spaces">
             <div id="login">
@@ -121,7 +121,7 @@ const methodGET = function terminal_server_transmission_methodGET(request:node_h
         };
         readStorage(false, appliedData);
     } else {
-        node.fs.stat(localPath, function terminal_server_transmission_methodGET_stat(ers:NodeJS.ErrnoException, stat:node_fs_Stats):void {
+        node.fs.stat(localPath, function terminal_server_transmission_methodGET_stat(ers:node_error, stat:node_fs_Stats):void {
             const random:number = Math.random();
             if (request.url.indexOf("favicon.ico") < 0 && request.url.indexOf("images/apple") < 0) {
                 const page:string = [
@@ -130,7 +130,7 @@ const methodGET = function terminal_server_transmission_methodGET(request:node_h
                 ].join("");
                 if (ers === null) {
                     if (stat.isDirectory() === true) {
-                        node.fs.readdir(localPath, function terminal_server_transmission_methodGET_stat_dir(erd:Error, list:string[]) {
+                        node.fs.readdir(localPath, function terminal_server_transmission_methodGET_stat_dir(erd:node_error, list:string[]) {
                             const dirList:string[] = [`<p>directory of ${localPath}</p> <ul>`];
                             if (erd !== null) {
                                 error([`Error reading directory of ${localPath}`], erd);

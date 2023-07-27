@@ -2,6 +2,7 @@
 :root {
     --fontMonospace:"Consolas", "Courier New", "Lucida Console", monospace;
     --fontText:"Cloud","Lucida Sans Unicode","Helvetica","Arial",sans-serif;
+    --offscreen: -2000em;
     --textSize:1.4em;
 }
 
@@ -108,7 +109,7 @@ body.login #spaces{bottom:0;padding:2.5em 0 0;position:fixed;top:0}
 /* Title bar and main menu */
 #spaces .title{border-style:none none solid;border-width:0.1em;display:block;height:5em}
 #spaces .title h1{display:inline-block;font-size:2em;margin:0;padding:0.5em}
-#spaces .title p{display:block;height:0.1em;position:absolute;top:-200em}
+#spaces .title p{display:block;height:0.1em;position:absolute;top:var(--offscreen)}
 #spaces #fullscreen{display:block;float:right}
 #spaces #minimize-all,
 #spaces #fullscreen,
@@ -181,7 +182,7 @@ body.login #spaces{bottom:0;padding:2.5em 0 0;position:fixed;top:0}
 #spaces .box p.summary strong{display:block}
 #spaces .box .header button span,
 #spaces .fileList .expansion span,
-#spaces .box .buttons span{display:block;height:0.05em;position:absolute;top:-200em;width:0.05em}
+#spaces .box .buttons span{display:block;height:0.05em;position:absolute;top:var(--offscreen);width:0.05em}
 #spaces .box .buttons button,
 #spaces .box .header button,
 #spaces .box .expansion,
@@ -226,7 +227,7 @@ body.login #spaces{bottom:0;padding:2.5em 0 0;position:fixed;top:0}
 #spaces .box .side-t span,
 #spaces .box .side-r span,
 #spaces .box .side-b span,
-#spaces .box .side-l span{position:absolute;top:-200em}
+#spaces .box .side-l span{position:absolute;top:var(--offscreen)}
 #spaces .box .footer{border-style:none solid solid;border-width:0 0.1em 0.1em;bottom:0;display:block;margin:0;padding:2em;position:relative;z-index:4}
 #spaces .box .footer .footer-buttons{float:right}
 #spaces .box .footer button{border-width:0.05em;display:inline-block;font-weight:bold;margin:0 0 0 2em}
@@ -235,7 +236,7 @@ body.login #spaces{bottom:0;padding:2.5em 0 0;position:fixed;top:0}
 #spaces .box .status-bar p{font-size:1.5em;height:1.5em;margin:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 #spaces .box .header{border-style:solid solid none;border-width:0.1em;clear:both;display:block;margin:0;padding:0 0.5em}
 #spaces .box .header label{display:inline-block}
-#spaces .box .header span{display:block;position:absolute;top:-200em}
+#spaces .box .header span{display:block;position:absolute;top:var(--offscreen)}
 #spaces .box .header .backDirectory{margin:0.25em 1.5em 0.5em -9em}
 #spaces .box .header .parentDirectory{margin:0.25em 1.5em 0.5em 0}
 #spaces .box .header .reloadDirectory{margin:0.25em 1.5em 0.5em 0}
@@ -251,7 +252,7 @@ body.login #spaces{bottom:0;padding:2.5em 0 0;position:fixed;top:0}
 #spaces .box .delay svg{display:block;height:80%;margin:0 auto;width:50%}
 #spaces .box .delay p{font-size:2em;text-align:center}
 #spaces .box .footer .terminal span,
-#spaces .box .text-pad span{display:block;position:absolute;text-indent:-2000em}
+#spaces .box .text-pad span{display:block;position:absolute;text-indent:var(--offscreen)}
 #spaces .heading .text-pad span{display:inline-block;position:static;text-indent:0}
 #spaces .box .text-pad textarea{border-style:none;display:block;font-size:var(--textSize);height:100%;margin:0;overflow:scroll;padding:0;resize:none;white-space:pre;width:100%}
 #spaces .box .footer textarea{border-style:solid;font-size:1.8em;height:5em;margin:0;resize:both;width:100%}
@@ -341,7 +342,7 @@ body.login #spaces{bottom:0;padding:2.5em 0 0;position:fixed;top:0}
 #spaces .agentList .share button{width:auto}
 #spaces .agentList .share button.delete{width:1.25em}
 #spaces .agentList .delete{border-style:solid;border-width:0.1em;display:block;float:left;font-size:1.5em;font-weight:normal;height:1.25em;line-height:1;margin:0.25em 1em 0 0;padding:0.125em;width:1.25em}
-#spaces .agentList .delete span{display:block;text-indent:-2000em}
+#spaces .agentList .delete span{display:block;text-indent:var(--offscreen)}
 #spaces .agentList .share-tool-file-navigate,
 #spaces .agentList .share-tool-message,
 #spaces .agentList .share-tool-terminal,
@@ -405,9 +406,9 @@ body.login #spaces{bottom:0;padding:2.5em 0 0;position:fixed;top:0}
 #spaces .fileList li p.cut{opacity:0.5;outline-style:solid;outline-width:0.2em}
 #spaces .fileList li li{font-size:1em}
 #spaces .fileList li span{display:block;float:right;margin:0 0 0 1em;white-space:normal;width:14em}
-#spaces .fileList li .selection{clear:both;left:-200em;position:absolute}
+#spaces .fileList li .selection{clear:both;position:absolute;top:var(--offscreen)}
 #spaces .fileList .expansion{font-size:2em;font-weight:normal;height:0.75em;line-height:0.775;margin:0.15em 1.2em 0 -1.95em;padding:0 0 0 0.1em;vertical-align:top;width:0.75em}
-#spaces .fileList .empty-list{border-style:none;height:0;text-indent:-2000em}
+#spaces .fileList .empty-list{border-style:none;height:0;text-indent:var(--offscreen)}
 #spaces #newFileItem{display:inline-block;margin:-0.2em 0 0}
 #spaces #file-list-drag{min-height:auto;opacity:0.75;padding:0;position:absolute}
 

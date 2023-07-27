@@ -11,6 +11,7 @@ let nameDevice:string;
  * The global environmental variable available to all tasks, services,  and commands executed from the terminal.
  * ```typescript
  * interface module_terminalVariables {
+ *     agents: agentData; // agent storage
  *     environment: {
  *         command     : commands;              // command name currently executing the application
  *         date        : string;                // dynamically populated static value of date of prior version change
@@ -21,9 +22,9 @@ let nameDevice:string;
  *         module_type : "commonjs" | "module"  // the type of module system the application is currently using
  *         name        : string;                // a static name of the application
  *         startTime   : bigint;                // nanosecond precision time the application starts for measuring execution performance
- *         stateDefault: settings_item          // stores default keys/values for passing and resetting state
  *         version     : string;                // dynamically populated static value of application version number string
  *     };
+ *     identity: identity;
  *     network: {
  *         addresses   : transmit_addresses_IP;          // ip addresses available to this device
  *         count       : terminalVariables_networkCount; // a count of network transmissions by protocol type and send/receive
@@ -39,20 +40,7 @@ let nameDevice:string;
  *         sep     : string; // file system separator character
  *         settings: string; // location where configuration files are read from and written to
  *     };
- *     settings: {
- *         brotli    : brotli;          // stores the brotli compress level
- *         device    : agents;          // stores the device type agents
- *         hashDevice: string;          // hash identifier for this device
- *         hashType  : hash;            // current selected hash algorithm, default: sha3-512
- *         hashUser  : string;          // hash identifier for the user of this device
- *         message   : service_message; // a store of message objects
- *         nameDevice: string;          // user friendly name of this device
- *         nameUser  : string;          // user friendly name of this device's user
- *         status    : activityStatus;  // device activity status
- *         storage   : string;          // location for temporary file writes when requesting to execute a file not on this immediate device
- *         user      : agents;          // stores a list of user type agents
- *         verbose   : boolean;         // whether verbose message should be applied to the terminal
- *     };
+ *     settings: terminalVariables_settings;
  *     terminal: {
  *         arguments          : string;               // a list of all terminal arguments before this list is modified, only used in error reporting
  *         command_instruction: string;               // terminal command that executes this application from a terminal, such as "node js/lib/terminal/utilities/terminal "
@@ -76,9 +64,13 @@ let nameDevice:string;
  * type brotli = 0|1|2|3|4|5|6|7|8|9|10|11;
  * type commands = "agent_data" | "agent_online" | "base64" | "build" | "certificate" | "commands" | "copy" | "directory" | "get" | "hash" | "lint" | "mkdir" | "remove" | "service" | "test_browser" | "test_service" | "test_simulation" | "test" | "update" | "version | websocket";
  * type hash = "blake2d512" | "blake2s256" | "sha1" | "sha3-224" | "sha3-256" | "sha3-384" | "sha3-512" | "sha384" | "sha512-224" | "sha512-256" | "sha512" | "shake128" | "shake256";
- * type testListType = "" | "browser_device" | "browser_remote" | "browser_self" | "browser_user" | "service" | "simulation";
+ * type test_listType = "" | "browser_delete" | "browser_device" | "browser_remote" | "browser_self" | "browser_user" | "service" | "simulation";
  * ``` */
 const vars:module_terminalVariables = {
+    agents: {
+        device: {},
+        user: {} 
+    },
     environment: {
         command: "service",
         date: "",
@@ -88,38 +80,15 @@ const vars:module_terminalVariables = {
         log: [],
         name: "Share File Systems",
         startTime: process.hrtime.bigint(),
-        stateDefault: {
-            configuration: {
-                audio: false,
-                brotli: 0,
-                color: "default",
-                colors: {
-                    device: {},
-                    user: {}
-                },
-                fileSort: "file-system-type",
-                hashDevice: "",
-                hashType: "sha3-512",
-                hashUser: "",
-                minimizeAll: false,
-                modals: {},
-                modalTypes: [],
-                nameDevice: "",
-                nameUser: "",
-                statusTime: 15000,
-                storage: "",
-                tutorial: false,
-                zIndex: 0
-            },
-            device: {},
-            message: [],
-            queue: {
-                device: {},
-                user: {}
-            },
-            user: {}
-        },
         version: ""
+    },
+    identity: {
+        hashDevice: "",
+        hashUser: "",
+        nameDevice: "",
+        nameUser: "",
+        secretDevice: "",
+        secretUser: ""
     },
     network: {
         addresses: (function terminal_server_addresses():transmit_addresses_IP {
@@ -205,36 +174,32 @@ const vars:module_terminalVariables = {
         testStorage: ""
     },
     settings: {
-        audio: true,
-        brotli: 7,
-        color: "default",
-        colors: {
-            device: {},
-            user: {}
-        },
-        device: {},
-        fileSort: "file-system-type",
-        hashDevice: "",
-        hashType: "sha3-512",
-        hashUser: "",
         message: [],
-        minimizeAll: false,
-        modals: {},
-        modalTypes: [],
-        nameDevice: nameDevice,
-        nameUser: "",
         queue: {
             device: {},
             user: {}
         },
         secure: true,
         status: "idle",
-        statusTime: 15000,
-        storage: "",
-        tutorial: true,
-        user: {},
-        verbose: false,
-        zIndex: 0
+        ui: {
+            audio: true,
+            brotli: 7,
+            color: "default",
+            colors: {
+                device: {},
+                user: {}
+            },
+            fileSort: "file-system-type",
+            hashType: "sha3-512",
+            minimizeAll: false,
+            modals: {},
+            modalTypes: [],
+            statusTime: 15000,
+            storage: "",
+            tutorial: true,
+            zIndex: 0
+        },
+        verbose: false
     },
     terminal: {
         arguments: process.argv.join(" "),
@@ -338,9 +303,9 @@ const vars:module_terminalVariables = {
         yellow   : "\u001b[33m"
     }
 };
+vars.identity.nameDevice = nameDevice;
 vars.path.settings = `${vars.path.project}lib${vars.path.sep}settings${vars.path.sep}`;
 vars.path.testStorage = `${vars.path.project}lib${vars.path.sep}terminal${vars.path.sep}test${vars.path.sep}storageBrowser${vars.path.sep}`;
-vars.settings.storage = `${vars.path.project}lib${vars.path.sep}storage${vars.path.sep}`;
-vars.environment.stateDefault.configuration.storage = `${vars.path.project}lib${vars.path.sep}storage${vars.path.sep}`;
+vars.settings.ui.storage = `${vars.path.project}lib${vars.path.sep}storage${vars.path.sep}`;
 
 export default vars;

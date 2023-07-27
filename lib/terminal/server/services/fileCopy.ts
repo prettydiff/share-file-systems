@@ -3,7 +3,7 @@
 
 import common from "../../../common/common.js";
 import copy from "../../commands/library/copy.js";
-import deviceMask from "../services/deviceMask.js";
+import mask from "../../utilities/mask.js";
 import directory from "../../commands/library/directory.js";
 import error from "../../utilities/error.js";
 import fileExecution from "./fileExecution.js";
@@ -122,7 +122,7 @@ const fileCopy:module_fileCopy = {
                                     if (data.agentWrite.user === data.agentSource.user) {
                                         listBuild(data.agentSource.device);
                                     } else {
-                                        deviceMask.mask(data.agentSource, listBuild);
+                                        mask.fileAgent(data.agentSource, listBuild);
                                     }
                                 }
                             };
@@ -158,7 +158,7 @@ const fileCopy:module_fileCopy = {
                         search: "",
                         symbolic: false
                     };
-                    deviceMask.unmask(data.agentWrite.device, function terminal_server_services_fileCopy_copyList_security_listStatus(device:string):void {
+                    mask.unmaskDevice(data.agentWrite.device, function terminal_server_services_fileCopy_copyList_security_listStatus(device:string):void {
                         const messageType:agentType = (data.agentSource.user === data.agentWrite.user)
                                 ? "device"
                                 : "user",
@@ -170,7 +170,7 @@ const fileCopy:module_fileCopy = {
                                 agentSource: data.agentWrite,
                                 agentWrite: null,
                                 fileList: null,
-                                message: `Preparing file ${action} to ${messageType} <em>${vars.settings[messageType][agent].name}</em>.`
+                                message: `Preparing file ${action} to ${messageType} <em>${vars.agents[messageType][agent].name}</em>.`
                             };
                         if (vars.test.type !== "service") {
                             fileSystem.route({
@@ -403,7 +403,7 @@ const fileCopy:module_fileCopy = {
                                 status.failures = status.failures + 1;
                                 failList.push(path_source);
                                 error([message], null);
-                                node.fs.unlink(path_write, function terminal_server_services_fileCopy_write_fileReceive_fileError_unlink(unlinkErr:NodeJS.ErrnoException):void {
+                                node.fs.unlink(path_write, function terminal_server_services_fileCopy_write_fileReceive_fileError_unlink(unlinkErr:node_error):void {
                                     if (unlinkErr !== null) {
                                         error([`Error removing file system artifact ${path_write}`], unlinkErr);
                                     }
@@ -463,7 +463,7 @@ const fileCopy:module_fileCopy = {
                                     fileError(`Write stream terminated before response end for file ${file_name}.`);
                                 }
                             });
-                            fileResponse.on("error", function terminal_fileService_serviceCopy_requestFiles_callbackStream_streamer_error(error:Error):void {
+                            fileResponse.on("error", function terminal_fileService_serviceCopy_requestFiles_callbackStream_streamer_error(error:node_error):void {
                                 fileError(error.toString());
                             });
                         }
@@ -505,7 +505,7 @@ const fileCopy:module_fileCopy = {
                                     agentRequest: data.agentRequest,
                                     agentSource: data.agentSource,
                                     agentWrite: data.agentWrite,
-                                    brotli: vars.settings.brotli,
+                                    brotli: vars.settings.ui.brotli,
                                     file_name: data.list[nextFileName[0]][nextFileName[1]][0].replace(data.agentSource.modalAddress, "").replace(/^(\/|\\)/, ""),
                                     file_size: data.list[nextFileName[0]][nextFileName[1]][5].size,
                                     path_source: data.list[nextFileName[0]][nextFileName[1]][0],
@@ -529,7 +529,7 @@ const fileCopy:module_fileCopy = {
                             transmit_http.request(request);
                         }
                     },
-                    renameCallback = function terminal_server_services_fileCopy_write_renameCallback(renameError:NodeJS.ErrnoException, list:directory_list[]):void {
+                    renameCallback = function terminal_server_services_fileCopy_write_renameCallback(renameError:node_error, list:directory_list[]):void {
                         if (renameError === null) {
                             const securityCallback = function terminal_server_services_fileCopy_write_renameCallback_securityCallback():void {
                                 let listIndex:number = 0,
@@ -606,7 +606,7 @@ const fileCopy:module_fileCopy = {
                     renameConfig:config_rename = {
                         callback: renameCallback,
                         destination: (data.execute === true)
-                            ? vars.settings.storage
+                            ? vars.settings.ui.storage
                             : data.agentWrite.modalAddress,
                         list: data.list,
                         replace: false
@@ -675,15 +675,15 @@ const fileCopy:module_fileCopy = {
             other1:fileAgent = config[others[1]],
             allResolved = function terminal_server_services_fileCopy_security_allResolved():void {
                 // same user, copy between devices
-                if (self.user === vars.settings.hashUser && self.user === other0.user && self.user === other1.user) {
+                if (self.user === vars.identity.hashUser && self.user === other0.user && self.user === other1.user) {
                     // must be distributed and known devices to satisfy security
-                    if (vars.settings.device[self.device] !== undefined && vars.settings.device[other0.device] !== undefined && vars.settings.device[other1.device] !== undefined && (self.device !== other0.device || self.device !== other1.device || other0.device !== other1.device)) {
+                    if (vars.agents.device[self.device] !== undefined && vars.agents.device[other0.device] !== undefined && vars.agents.device[other1.device] !== undefined && (self.device !== other0.device || self.device !== other1.device || other0.device !== other1.device)) {
                         config.callback();
                         return;
                     }
                 // different users - the agentRequest user must be known user, but agentSource and agentWrite do not need to know each other
-                } else if (vars.settings.user[config.agentRequest.user] !== undefined || vars.settings.hashUser === config.agentRequest.user) {
-                    const selfAgent:agent = vars.settings.device[vars.settings.hashDevice],
+                } else if (vars.agents.user[config.agentRequest.user] !== undefined || vars.identity.hashUser === config.agentRequest.user) {
+                    const selfAgent:agent = vars.agents.device[vars.identity.hashDevice],
                         shares:string[] = Object.keys(selfAgent.shares),
                         item:string = config.location;
                     let index:number = shares.length,
@@ -691,13 +691,13 @@ const fileCopy:module_fileCopy = {
                         share:agentShare = null;
 
                     // if the requesting user is the same as the writing user then security is satisfied
-                    if ((config.self === "agentRequest" || config.self === "agentWrite") && config.agentRequest.user === config.agentWrite.user && vars.settings.hashUser === config.agentRequest.user && vars.settings.device[config.agentRequest.device] !== undefined && vars.settings.device[config.agentWrite.device] !== undefined) {
+                    if ((config.self === "agentRequest" || config.self === "agentWrite") && config.agentRequest.user === config.agentWrite.user && vars.identity.hashUser === config.agentRequest.user && vars.agents.device[config.agentRequest.device] !== undefined && vars.agents.device[config.agentWrite.device] !== undefined) {
                         config.callback();
                         return;
                     }
 
                     // if the requesting user is trying to copy from itself to another user
-                    if (config.self === "agentSource" && config.agentSource.user === config.agentRequest.user && vars.settings.device[config.agentRequest.device] !== undefined) {
+                    if (config.self === "agentSource" && config.agentSource.user === config.agentRequest.user && vars.agents.device[config.agentRequest.device] !== undefined) {
                         config.callback();
                         return;
                     }
@@ -744,9 +744,9 @@ const fileCopy:module_fileCopy = {
                 }
             },
             resolve = function terminal_server_services_fileCopy_security_resolve(type:agentCopy):void {
-                if (config[type].user === vars.settings.hashUser) {
+                if (config[type].user === vars.identity.hashUser) {
                     if (config[type].share !== "" && config[type].device === "") {
-                        config[type].device = deviceMask.resolve(config[type]);
+                        config[type].device = mask.resolve(config[type]);
                         complete();
                     } else {
                         const unmasked = function terminal_server_services_fileCopy_security_resolve_unmasked(device:string):void {
@@ -755,7 +755,7 @@ const fileCopy:module_fileCopy = {
                             }
                             complete();
                         };
-                        deviceMask.unmask(config[type].device, unmasked);
+                        mask.unmaskDevice(config[type].device, unmasked);
                     }
                 } else {
                     complete();

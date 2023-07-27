@@ -71,8 +71,8 @@ const terminal:module_browserTerminal = {
                 id:string = box.getAttribute("id"),
                 list:HTMLElement = box.getElementsByClassName("terminal-list")[0] as HTMLElement,
                 clearTarget = function browser_content_terminal_command():void {
-                    browser.data.modals[id].text_value = "";
-                    browser.data.modals[id].historyIndex = browser.data.modals[id].history.length;
+                    browser.ui.modals[id].text_value = "";
+                    browser.ui.modals[id].historyIndex = browser.ui.modals[id].history.length;
                     target.value = "";
                     network.configuration();
                 };
@@ -84,7 +84,7 @@ const terminal:module_browserTerminal = {
             }
             if (key === "enter" && event.shiftKey === false) {
                 const value:string = target.value,
-                    history:string[] = browser.data.modals[id].history;
+                    history:string[] = browser.ui.modals[id].history;
                 event.preventDefault();
                 if (value === "clear") {
                     const scroll:terminal_scroll = {
@@ -111,16 +111,16 @@ const terminal:module_browserTerminal = {
                 box:modal = target.getAncestor("box", "class"),
                 list:HTMLElement = box.getElementsByClassName("terminal-list")[0] as HTMLElement,
                 id:string = box.getAttribute("id"),
-                history:string[] = browser.data.modals[id].history;
-            let index:number = (isNaN(browser.data.modals[id].historyIndex))
-                    ? browser.data.modals[id].history.length
-                    : browser.data.modals[id].historyIndex;
+                history:string[] = browser.ui.modals[id].history;
+            let index:number = (isNaN(browser.ui.modals[id].historyIndex))
+                    ? browser.ui.modals[id].history.length
+                    : browser.ui.modals[id].historyIndex;
             event.preventDefault();
             if (key === "arrowup") {
                 if (index > 0) {
                     index = index - 1;
                     target.value = history[index];
-                    browser.data.modals[id].historyIndex = index;
+                    browser.ui.modals[id].historyIndex = index;
                     network.configuration();
                 }
                 return;
@@ -129,11 +129,11 @@ const terminal:module_browserTerminal = {
                 if (index < history.length) {
                     index = index + 1;
                     if (index === history.length) {
-                        target.value = browser.data.modals[id].text_value;
+                        target.value = browser.ui.modals[id].text_value;
                     } else {
                         target.value = history[index];
                     }
-                    browser.data.modals[id].historyIndex = index;
+                    browser.ui.modals[id].historyIndex = index;
                     network.configuration();
                 }
                 return;
@@ -159,8 +159,8 @@ const terminal:module_browserTerminal = {
                     if (box !== null) {
                         const cwd:HTMLElement = box.getElementsByClassName("terminal-cwd")[0] as HTMLElement;
                         terminal.tools.populate(box, data.logs, false);
-                        if (browser.data.modals[data.id] !== null && browser.data.modals[data.id].text_placeholder !== data.directory) {
-                            browser.data.modals[data.id].text_placeholder = data.directory;
+                        if (browser.ui.modals[data.id] !== null && browser.ui.modals[data.id].text_placeholder !== data.directory) {
+                            browser.ui.modals[data.id].text_placeholder = data.directory;
                         }
                         cwd.appendText(data.directory, true);
                         network.configuration();
@@ -309,7 +309,7 @@ const terminal:module_browserTerminal = {
                             return "";
                         };
                     if (restore === false) {
-                        browser.data.modals[id].string_store.push(logItem);
+                        browser.ui.modals[id].string_store.push(logItem);
                     }
                     logItem = util.sanitizeHTML(logItem);
                     do {
@@ -345,12 +345,12 @@ const terminal:module_browserTerminal = {
                 payload:service_terminal = {
                     agentRequest: (agentType === "device")
                         ? {
-                            agent: browser.data.hashDevice,
+                            agent: browser.identity.hashDevice,
                             agentType: "device",
                             share: box.getAttribute("id")
                         }
                         : {
-                            agent: browser.data.hashUser,
+                            agent: browser.identity.hashUser,
                             agentType: "user"
                         },
                     agentSource: {

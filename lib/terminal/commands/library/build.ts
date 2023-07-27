@@ -171,6 +171,15 @@ const build = function terminal_commands_library_build(config:config_command_bui
                             `To use as a ${vars.text.cyan}browser${vars.text.none} application execute the application with command: ${vars.text.bold + vars.text.green + vars.terminal.command_instruction + vars.text.none}`,
                             `To use as a ${vars.text.cyan}desktop${vars.text.none} application execute the application with command: ${vars.text.bold + vars.text.green}npm start${vars.text.none}`
                         ]);
+                        if (process.platform === "darwin" && certFlags.forced === true) {
+                            log([
+                                `${vars.text.angry}Certificates must be manually trusted in the Keychain!${vars.text.none}`,
+                                "Keychains: System, Category: Certificates",
+                                "Double click certificates share-file-ca and share-file then under category 'Trust' set value 'Always Trust'.",
+                                "Apple requires all trusted certificates to include a receipt from organization Certificate Transparency, which can only happen if a certificate is published to the public.",
+                                "Private certificates, like those created here, thus require manual trust."
+                            ]);
+                        }
                     } else {
                         const plural:string = (compileErrors === "1")
                                 ? ""
@@ -237,12 +246,12 @@ const build = function terminal_commands_library_build(config:config_command_bui
                     fileLength:number = 0;
                 const files:string[] = [],
                     filePath:string = `${vars.path.project}lib${vars.path.sep}css${vars.path.sep}`,
-                    dirCallback = function terminal_commands_library_build_bundleCSS_dirCallback(dirError:NodeJS.ErrnoException, fileList:string[]):void {
+                    dirCallback = function terminal_commands_library_build_bundleCSS_dirCallback(dirError:node_error, fileList:string[]):void {
                         if (dirError === null) {
                             const readComplete = function terminal_commands_library_build_bundleCSS_readComplete():void {
                                 fileCount = fileCount + 1;
                                 if (fileCount === fileLength) {
-                                    node.fs.writeFile(`${filePath}bundle.css`, files.join(node.os.EOL), function terminal_commands_library_build_bundleCSS_readComplete_writeFile(writeError:NodeJS.ErrnoException):void {
+                                    node.fs.writeFile(`${filePath}bundle.css`, files.join(node.os.EOL), function terminal_commands_library_build_bundleCSS_readComplete_writeFile(writeError:node_error):void {
                                         if (writeError === null) {
                                             next("CSS bundle written.");
                                         } else {
@@ -256,7 +265,7 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                 if (value === "bundle.css") {
                                     readComplete();
                                 } else {
-                                    node.fs.readFile(filePath + value, function terminal_commands_library_build_build_buildCSS_dirCallback_each_readFile(readError:NodeJS.ErrnoException, fileData:Buffer):void {
+                                    node.fs.readFile(filePath + value, function terminal_commands_library_build_build_buildCSS_dirCallback_each_readFile(readError:node_error, fileData:Buffer):void {
                                         if (readError === null) {
                                             files.push(fileData.toString().replace(/\r?\n/g, "").replace(/\/\*(\s|\w|-|,|:|\/|\\)+\*\//g, "").replace(/ +/g, " ").replace(/@font-face/g, `${node.os.EOL}@font-face`));
                                             readComplete();
@@ -286,9 +295,9 @@ const build = function terminal_commands_library_build(config:config_command_bui
                     ],
                     dirLen:number = dirs.length,
                     index = function terminal_commands_library_build_bundleJS_index():void {
-                        node.fs.readFile(`${filePath}index.js`, function terminal_commands_library_build_bundleJS_index_read(readError:NodeJS.ErrnoException, fileData:Buffer):void {
+                        node.fs.readFile(`${filePath}index.js`, function terminal_commands_library_build_bundleJS_index_read(readError:node_error, fileData:Buffer):void {
                             if (readError === null) {
-                                const storageCallback = function terminal_commands_library_build_bundleJS_index_read_storageCallback(settingsData:settings_item):void {
+                                const storageCallback = function terminal_commands_library_build_bundleJS_index_read_storageCallback(settingsData:state_storage):void {
                                     let file:string = fileData.toString(),
                                         index:number = 0;
                                     const testBrowser:string = (vars.test.browser !== null)
@@ -302,8 +311,8 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                             });
                                             return output.join(node.os.EOL).replace(/,$/, "");
                                         }());
-                                    if (settingsData !== null && settingsData.configuration !== null && settingsData.configuration.hashDevice === "") {
-                                        settingsData.configuration.hashDevice = vars.settings.hashDevice;
+                                    if (settingsData !== null && settingsData.identity !== null && settingsData.identity.hashDevice === "") {
+                                        settingsData.identity.hashDevice = vars.identity.hashDevice;
                                     }
                                     // remove import/require statements from top of file
                                     file = file.slice(file.indexOf("(function"));
@@ -317,7 +326,7 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                         // set state for Electron
                                         file = file.replace(/state = \{\s*addresses: null,\s*settings: null,\s*test: null\s*\}/, `state = {addresses:{"addresses":${JSON.stringify(vars.network.addresses)},"ports":${JSON.stringify(vars.network.ports)}},settings:${JSON.stringify(settingsData).replace(/'/g, "&#39;")},test:${testBrowser}}`);
                                     }
-                                    node.fs.writeFile(`${filePath}bundle.js`, file, function terminal_commands_library_build_bundleJS_index_read_writeFile(writeError:NodeJS.ErrnoException):void {
+                                    node.fs.writeFile(`${filePath}bundle.js`, file, function terminal_commands_library_build_bundleJS_index_read_writeFile(writeError:node_error):void {
                                         if (writeError === null) {
                                             next("Browser JavaScript bundle written.");
                                         } else {
@@ -335,11 +344,11 @@ const build = function terminal_commands_library_build(config:config_command_bui
                             }
                         });
                     },
-                    dirCallback = function terminal_commands_library_build_bundleJS_dirCallback(err:NodeJS.ErrnoException, fileList:string[]):void {
+                    dirCallback = function terminal_commands_library_build_bundleJS_dirCallback(err:node_error, fileList:string[]):void {
                         if (err === null) {
                             fileLength = fileLength + fileList.length;
                             fileList.forEach(function terminal_commands_library_build_bundleJS_dirCallback_each(fileName:string):void {
-                                node.fs.readFile(dirs[dirIndex] + vars.path.sep + fileName, function terminal_commands_library_build_bundleJS_dirCallback_each_fileContents(readError:NodeJS.ErrnoException, fileData:Buffer):void {
+                                node.fs.readFile(dirs[dirIndex] + vars.path.sep + fileName, function terminal_commands_library_build_bundleJS_dirCallback_each_fileContents(readError:node_error, fileData:Buffer):void {
                                     if (readError === null) {
                                         let file:string = fileData.toString();
                                         const commentPath:string = file.slice(0, file.indexOf(" -")).replace(/\/\*\s*/, "");
@@ -387,79 +396,93 @@ const build = function terminal_commands_library_build(config:config_command_bui
             // tests for certificates and if not present generates them
             certificate: function terminal_commands_library_build_certificate():void {
                 let statCount:number = 0;
-                const selfSignCount:2|6 = (certFlags.selfSign === true)
-                        ? 2
-                        : 6,
-                    statCallback = function terminal_commands_library_build_certificate_statCallback(statError:NodeJS.ErrnoException):void {
+                const selfSignCount:1|3 = (certFlags.selfSign === true)
+                        ? 1
+                        : 3,
+                    statCallback = function terminal_commands_library_build_certificate_statCallback(statError:node_error):void {
                         statCount = statCount + 1;
                         if (statError !== null) {
                             certStatError = true;
                         }
                         if (statCount === selfSignCount) {
                             const makeCerts = function terminal_commands_library_build_certificate_statCallback_makeCerts():void {
-                                const cnfFlags:flagList = {
-                                        ca: false,
-                                        selfSign: false
-                                    },
-                                    configComplete = function terminal_commands_library_build_certificate_statCallback_makeCerts_configComplete(name:"ca"|"selfSign"):void {
-                                        cnfFlags[name] = true;
-                                        if (cnfFlags.ca === true && cnfFlags.selfSign === true) {
-                                            const certCallback = function terminal_commands_library_build_certificate_statCallback_certCallback():void {
-                                                next("Certificates created.");
-                                            };
-                                            certificate({
-                                                callback: certCallback,
-                                                days: 16384,
-                                                location: certFlags.path,
-                                                names: {
-                                                    intermediate: {
-                                                        domain: "share-file-ca",
-                                                        fileName: "share-file-ca"
-                                                    },
-                                                    organization: "share-file",
-                                                    root: {
-                                                        domain: "share-file-root",
-                                                        fileName: "share-file-root"
-                                                    },
-                                                    server: {
-                                                        domain: "share-file",
-                                                        fileName: "share-file"
-                                                    }
+                                const configComplete = function terminal_commands_library_build_certificate_statCallback_makeCerts_configComplete():void {
+                                        const certCallback = function terminal_commands_library_build_certificate_statCallback_certCallback():void {
+                                            next("Certificates created.");
+                                        };
+                                        certificate({
+                                            callback: certCallback,
+                                            days: 16384,
+                                            location: certFlags.path,
+                                            names: {
+                                                intermediate: {
+                                                    domain: "share-file-ca",
+                                                    fileName: "share-file-ca"
                                                 },
-                                                selfSign: certFlags.selfSign
-                                            });
-                                        }
+                                                organization: "share-file",
+                                                root: {
+                                                    domain: "share-file-root",
+                                                    fileName: "share-file-root"
+                                                },
+                                                server: {
+                                                    domain: "share-file",
+                                                    fileName: "share-file"
+                                                }
+                                            },
+                                            selfSign: certFlags.selfSign
+                                        });
                                     },
-                                    cnfRead = function terminal_commands_library_build_certificate_statCallback_makeCerts_cnfRead(name:"ca"|"selfSign"):void {
-                                        const cnfPath:string = `${certFlags.path + name}.cnf`;
-                                        node.fs.readFile(cnfPath, function terminal_commands_library_build_certificate_statCallback_makeCerts_cnfRead_readCallback(readError:NodeJS.ErrnoException, fileData:Buffer):void {
+                                    cnfRead = function terminal_commands_library_build_certificate_statCallback_makeCerts_cnfRead():void {
+                                        const cnfPath:string = `${certFlags.path}extensions.cnf`;
+                                        node.fs.readFile(cnfPath, function terminal_commands_library_build_certificate_statCallback_makeCerts_cnfRead_readCallback(readError:node_error, fileData:Buffer):void {
                                             if (readError === null) {
-                                                let index:number = 0,
-                                                    fileStr:string = fileData.toString();
-                                                const fragment:string = "[alt_names]",
-                                                    input:string[] = [""],
-                                                    len:number = vars.network.domain.length;
-                                                do {
-                                                    input.push(`DNS.${index + 1} = ${vars.network.domain[index]}`);
-                                                    index = index + 1;
-                                                } while (index < len);
-                                                fileStr = fileStr.slice(0, fileStr.indexOf(fragment) + fragment.length).replace(/\s+$/, "");
-                                                fileStr = fileStr + input.join("\n");
-                                                node.fs.writeFile(cnfPath, fileStr, function terminal_commands_library_build_certificate_statCallback_makeCerts_cnfRead_readCallback_writeFile(writeError:NodeJS.ErrnoException):void {
-                                                    if (writeError === null) {
-                                                        configComplete(name);
-                                                    } else {
-                                                        error([`Error writing file ${cnfPath}`], writeError);
-                                                    }
-                                                });
+                                                let fileStr:string = fileData.toString();
+                                                const fields:string[] = [
+                                                        "# Name constraints list is dynamically populated from vars.network.domain",
+                                                        "# End Constraints",
+                                                        "# Alt names list is dynamically populated from vars.network.domain",
+                                                        "# End Alt Names"
+                                                    ],
+                                                    indexFragment:number = fileStr.indexOf(fields[0]);
+                                                if (indexFragment > -1) {
+                                                    let index:number = 0;
+                                                    const subjectAltNames:string[] = [],
+                                                        nameConstraints:string[] = [],
+                                                        len:number = vars.network.domain.length;
+                                                    do {
+                                                        if (vars.network.domain.indexOf("127.0.0.1") < 0) {
+                                                            subjectAltNames.push(`DNS.${index + 1} = ${vars.network.domain[index]}`);
+                                                            nameConstraints.push(`permitted;${subjectAltNames[index]}`);
+                                                        }
+                                                        index = index + 1;
+                                                    } while (index < len);
+                                                    subjectAltNames.push("IP.1  = 127.0.0.1/255.0.0.0");
+                                                    nameConstraints.push(`permitted;${subjectAltNames[index]}`);
+                                                    fileStr = [
+                                                        fileStr.slice(0, fileStr.indexOf(fields[0]) + fields[0].length),
+                                                        nameConstraints.join("\n"),
+                                                        fileStr.slice(fileStr.indexOf(fields[1]), fileStr.indexOf(fields[2]) + fields[2].length),
+                                                        subjectAltNames.join("\n"),
+                                                        fileStr.slice(fileStr.indexOf(fields[3])).replace(/\s+$/, ""),
+                                                        ""
+                                                    ].join("\n");
+                                                    node.fs.writeFile(cnfPath, fileStr, function terminal_commands_library_build_certificate_statCallback_makeCerts_cnfRead_readCallback_writeFile(writeError:node_error):void {
+                                                        if (writeError === null) {
+                                                            configComplete();
+                                                        } else {
+                                                            error([`Error writing file ${cnfPath}`], writeError);
+                                                        }
+                                                    });
+                                                } else {
+                                                    configComplete();
+                                                }
                                             } else {
                                                 error([`Error reading file ${cnfPath}`], readError);
                                             }
                                         });
                                     };
                                 // write supported domains to config files
-                                cnfRead("ca");
-                                cnfRead("selfSign");
+                                cnfRead();
                             };
                             if (certFlags.forced === true || certStatError === true) {
                                 if (certFlags.forced === true) {
@@ -475,17 +498,14 @@ const build = function terminal_commands_library_build(config:config_command_bui
                     };
                 log([`${humanTime(false)}Checking that certificate files are created for the project.`]);
                 node.fs.stat(`${certFlags.path}share-file.crt`, statCallback);
-                node.fs.stat(`${certFlags.path}share-file.key`, statCallback);
                 if (certFlags.selfSign === false) {
                     node.fs.stat(`${certFlags.path}share-file-ca.crt`, statCallback);
-                    node.fs.stat(`${certFlags.path}share-file-ca.key`, statCallback);
                     node.fs.stat(`${certFlags.path}share-file-root.crt`, statCallback);
-                    node.fs.stat(`${certFlags.path}share-file-root.key`, statCallback);
                 }
             },
             // clearStorage removes temporary settings files that should have been removed, but weren't
             clearStorage: function terminal_commands_library_build_clearStorage():void {
-                node.fs.readdir(`${vars.path.project}lib${vars.path.sep}settings`, function terminal_commands_library_build_clearStorage_dir(erd:Error, dirList:string[]) {
+                node.fs.readdir(`${vars.path.project}lib${vars.path.sep}settings`, function terminal_commands_library_build_clearStorage_dir(erd:node_error, dirList:string[]) {
                     if (erd !== null) {
                         error(["Error reading from settings directory."], erd);
                         return;
@@ -498,7 +518,7 @@ const build = function terminal_commands_library_build(config:config_command_bui
                     do {
                         if (tempTest.test(dirList[a]) === true) {
                             start = start + 1;
-                            node.fs.unlink(`${vars.path.project}lib${vars.path.sep}settings${vars.path.sep + dirList[a]}`, function terminal_commands_library_build_clearStorage_dir_unlink(eru:Error):void {
+                            node.fs.unlink(`${vars.path.project}lib${vars.path.sep}settings${vars.path.sep + dirList[a]}`, function terminal_commands_library_build_clearStorage_dir_unlink(eru:node_error):void {
                                 if (eru !== null) {
                                     error(["Error removing files from settings directory."], eru);
                                     return;
@@ -544,7 +564,7 @@ const build = function terminal_commands_library_build(config:config_command_bui
                     examples.forEach(eachExample);
                     output.push("");
                 });
-                node.fs.writeFile(filePath, output.join("\n"), "utf8", function terminal_commands_library_build_commands_write(err:Error):void {
+                node.fs.writeFile(filePath, output.join("\n"), "utf8", function terminal_commands_library_build_commands_write(err:node_error):void {
                     if (err === null) {
                         next(`File ${filePath} successfully written.`);
                         return;
@@ -554,12 +574,12 @@ const build = function terminal_commands_library_build(config:config_command_bui
             },
             // writes configuration data to files
             configurations: function terminal_commands_library_build_configurations():void {
-                node.fs.readFile(`${vars.path.project}lib${vars.path.sep}configurations.json`, "utf8", function terminal_commands_library_build_configurations_readFile(err:Error, fileData:string) {
+                node.fs.readFile(`${vars.path.project}lib${vars.path.sep}configurations.json`, "utf8", function terminal_commands_library_build_configurations_readFile(err:node_error, fileData:string) {
                     if (err === null) {
                         const config:configuration_application = JSON.parse(fileData) as configuration_application,
                             keys:string[] = Object.keys(config),
                             length:number = keys.length,
-                            writeCallback = function terminal_commands_library_build_configurations_readFile_writeCallback(wErr:Error):void {
+                            writeCallback = function terminal_commands_library_build_configurations_readFile_writeCallback(wErr:node_error):void {
                                 if (wErr === null) {
                                     a = a + 1;
                                     if (a === length) {
@@ -676,7 +696,7 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                     fileContents.push(`${path} - ${files[a].description}`);
                                     a = a + 1;
                                 } while (a < fileLength);
-                                node.fs.writeFile(filePath, fileContents.join("\n"), "utf8", function terminal_commands_library_build_libReadme_masterList_write(erWrite:NodeJS.ErrnoException):void {
+                                node.fs.writeFile(filePath, fileContents.join("\n"), "utf8", function terminal_commands_library_build_libReadme_masterList_write(erWrite:node_error):void {
                                     if (erWrite !== null) {
                                         error(["Error writing library_list.md documentation file."], erWrite);
                                         return;
@@ -703,7 +723,7 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                     writeComplete();
                                     return;
                                 }
-                                node.fs.readFile(filePath, "utf8", function terminal_commands_library_build_libReadme_write_readFile(erRead:Error, readme:string):void {
+                                node.fs.readFile(filePath, "utf8", function terminal_commands_library_build_libReadme_write_readFile(erRead:node_error, readme:string):void {
                                     if (erRead !== null) {
                                         error([
                                             "Error reading file during documentation build task.",
@@ -715,7 +735,7 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                         index:number = readme.indexOf(sample) + sample.length;
                                     readme = readme.slice(0, index) + `\n\n${fileList}`;
                                     // Ninth, write the documentation to each respective file
-                                    node.fs.writeFile(filePath, readme, "utf8", function terminal_commands_library_build_libReadme_write_readFile_writeFile(erWrite:Error):void {
+                                    node.fs.writeFile(filePath, readme, "utf8", function terminal_commands_library_build_libReadme_write_readFile_writeFile(erWrite:node_error):void {
                                         if (erWrite !== null) {
                                             error([
                                                 "Error writing file during documentation build task.",
@@ -730,7 +750,7 @@ const build = function terminal_commands_library_build(config:config_command_bui
                             },
 
                             // read code files for the required supporting comment at the top each code file
-                            fileRead = function terminal_commands_library_build_libReadme_fileRead(erRead:Error, file:string):void {
+                            fileRead = function terminal_commands_library_build_libReadme_fileRead(erRead:node_error, file:string):void {
                                 if (erRead !== null) {
                                     error(["Error reading file during documentation build task."], erRead);
                                     return;
@@ -857,7 +877,7 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                                 }
 
                                                 // write the updated file
-                                                node.fs.writeFile(codeFiles[a], file, "utf8", function terminal_commands_library_build_libReadme_fileRead_moduleComment_writeFile(writeError:NodeJS.ErrnoException):void {
+                                                node.fs.writeFile(codeFiles[a], file, "utf8", function terminal_commands_library_build_libReadme_fileRead_moduleComment_writeFile(writeError:node_error):void {
                                                     if (writeError !== null) {
                                                         error(["Error writing TypeScript module comment to code file."], writeError);
                                                     }
@@ -937,7 +957,7 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                 return false;
                             },
                             readModules = function terminal_commands_library_build_libReadme_readModules(type:"browser"|"terminal"):void {
-                                node.fs.readFile(`${vars.path.project}lib${vars.path.sep}typescript${vars.path.sep}modules_${type}.d.ts`, "utf8", function terminal_commands_library_build_libReadme_readModules_readFile(moduleError:NodeJS.ErrnoException, fileData:string):void {
+                                node.fs.readFile(`${vars.path.project}lib${vars.path.sep}typescript${vars.path.sep}modules_${type}.d.ts`, "utf8", function terminal_commands_library_build_libReadme_readModules_readFile(moduleError:node_error, fileData:string):void {
                                     const modulesComplete = function terminal_commands_library_build_libReadme_readModules_readFile_modulesComplete():void {
                                         // Fifth, read from the files, the callback is recursive
                                         a = 0;
@@ -1013,15 +1033,27 @@ const build = function terminal_commands_library_build(config:config_command_bui
                             },
                             outputLog:string[] = [],
                             complete = function terminal_commands_library_build_osSpecific_windows_complete():void {
+                                let files:number = 0;
+                                const certDir:string = `${vars.path.project}lib${vars.path.sep}certificate${vars.path.sep}`,
+                                    delComplete = function terminal_commands_library_build_certificate_statCallback_certCallback_delComplete():void {
+                                        files = files + 1;
+                                        if (files === 5) {
+                                            next(completeMessage);
+                                        }
+                                    };
                                 log(outputLog);
-                                next(completeMessage);
+                                remove(`${certDir}share-file-ca.csr`, [], delComplete);
+                                remove(`${certDir}share-file-root.csr`, [], delComplete);
+                                remove(`${certDir}share-file.csr`, [], delComplete);
+                                remove(`${certDir}share-file-ca.srl`, [], delComplete);
+                                remove(`${certDir}share-file-root.srl`, [], delComplete);
                             },
                             certs = function terminal_commands_library_build_osSpecific_windows_certs():void {
                                 const windowsStoreName:"CurrentUser"|"LocalMachine" = "CurrentUser",
                                     windowsTrust:"My"|"Root" = "Root",
                                     windowsStore:string = `Cert:\\${windowsStoreName}\\${windowsTrust}`,
                                     importCerts = function terminal_commands_library_build_osSpecific_windows_certs_importCerts():void {
-                                        node.fs.readFile(`${vars.path.project}lib${vars.path.sep}certificate${vars.path.sep}windows.ps1`, function terminal_commands_library_build_osSpecific_windows_certs_importCerts_readFile(readError:NodeJS.ErrnoException, fileData:Buffer):void {
+                                        node.fs.readFile(`${vars.path.project}lib${vars.path.sep}certificate${vars.path.sep}windows.ps1`, function terminal_commands_library_build_osSpecific_windows_certs_importCerts_readFile(readError:node_error, fileData:Buffer):void {
                                             if (readError === null) {
                                                 const str:string = fileData.toString().replace(/Get-Content "lib\\certificate\\/g, `Get-Content "${vars.path.project}lib${vars.path.sep}certificate${vars.path.sep}`);
                                                 node.child_process.exec(str, {
@@ -1168,7 +1200,7 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                     },
                                     // forces an absolute path into the linux.sh file for ease of troubleshooting
                                     modifyLinux = function terminal_commands_library_build_osSpecific_distributions_modifyLinux():void {
-                                        node.fs.readFile(linuxPath, function terminal_commands_library_build_osSpecific_distributions_modifyLinux_readLinux(err:NodeJS.ErrnoException, fileData:Buffer):void {
+                                        node.fs.readFile(linuxPath, function terminal_commands_library_build_osSpecific_distributions_modifyLinux_readLinux(err:node_error, fileData:Buffer):void {
                                             if (err === null) {
                                                 const linuxFile:string = fileData.toString(),
                                                     start:number = fileData.indexOf("certfile=\""),
@@ -1177,7 +1209,7 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                                 segments.push(linuxFile.slice(0, start));
                                                 segments.push(`certfile="${certFlags.path}share-file-root.crt"\n`);
                                                 segments.push(linuxFile.slice(end));
-                                                node.fs.writeFile(linuxPath, segments.join(""), function terminal_commands_library_build_osSpecific_distributions_modifyLinux_readLinux_writeLinux(errWrite:NodeJS.ErrnoException):void {
+                                                node.fs.writeFile(linuxPath, segments.join(""), function terminal_commands_library_build_osSpecific_distributions_modifyLinux_readLinux_writeLinux(errWrite:node_error):void {
                                                     if (errWrite === null) {
                                                         linuxCallback();
                                                     } else {
@@ -1235,7 +1267,7 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                             error(["Error executing a command with sudo."], sudoErr);
                                         }
                                     },
-                                    statCallback = function terminal_commands_library_build_osSpecific_distributions_statCallback(certError:NodeJS.ErrnoException):void {
+                                    statCallback = function terminal_commands_library_build_osSpecific_distributions_statCallback(certError:node_error):void {
                                         statCount = statCount + 1;
                                         if (certError !== null) {
                                             flags.statError = true;
@@ -1249,6 +1281,8 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                                 }
                                                 if (dist === "darwin") {
                                                     tasks.push(tools.trust[dist]);
+                                                    tasks.push(tools.trust[dist].replace("-root", "-ca"));
+                                                    tasks.push(tools.trust[dist].replace("-root", ""));
                                                 } else {
                                                     // copy certificates to cert store
                                                     tasks.push(`cp ${cert} ${storeList[dist]}`);
@@ -1279,22 +1313,26 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                 modifyLinux();
                             },
                             callbacks:build_posix_distribution = {
-                                arch: function terminal_commands_library_build_osSpecific_callbackArch(statErr:NodeJS.ErrnoException):void {
+                                arch: function terminal_commands_library_build_osSpecific_callbackArch(statErr:node_error):void {
                                     if (statErr === null) {
                                         distributions("arch");
                                     }
                                 },
-                                darwin: function terminal_commands_library_build_osSpecific_callbackDarwin(statErr:NodeJS.ErrnoException):void {
+                                darwin: function terminal_commands_library_build_osSpecific_callbackDarwin(statErr:node_error):void {
                                     if (statErr === null) {
-                                        distributions("darwin");
+                                        if (certFlags.forced === true || certStatError === true) {
+                                            distributions("darwin");
+                                        } else {
+                                            next("No operating system specific tasks to perform.");
+                                        }
                                     }
                                 },
-                                fedora: function terminal_commands_library_build_osSpecific_callbackFedora(statErr:NodeJS.ErrnoException):void {
+                                fedora: function terminal_commands_library_build_osSpecific_callbackFedora(statErr:node_error):void {
                                     if (statErr === null) {
                                         distributions("fedora");
                                     }
                                 },
-                                ubuntu: function terminal_commands_library_build_osSpecific_callbackUbuntu(statErr:NodeJS.ErrnoException):void {
+                                ubuntu: function terminal_commands_library_build_osSpecific_callbackUbuntu(statErr:node_error):void {
                                     if (statErr === null) {
                                         storeList.ubuntu = `${storeList.ubuntu}/extra`;
                                         distributions("ubuntu");
@@ -1321,7 +1359,7 @@ const build = function terminal_commands_library_build(config:config_command_bui
             },
             // same as NPM global install, but without NPM
             shellGlobal: function terminal_commands_library_build_shellGlobal():void {
-                node.child_process.exec("npm root -g", function terminal_commands_library_build_shellGlobal_npm(err:Error, npm:string):void {
+                node.child_process.exec("npm root -g", function terminal_commands_library_build_shellGlobal_npm(err:node_childProcess_ExecException, npm:string):void {
                     if (err === null) {
                         // commandName is attained from package.json
                         const globalPath:string = npm.replace(/\s+$/, "") + vars.path.sep + commandName,
@@ -1334,7 +1372,7 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                     readEntry = function terminal_commands_library_build_shellGlobal_npm_files_readEntry():void {
                                         node.fs.readFile(`${vars.path.js}terminal${vars.path.sep}utilities${vars.path.sep}entry.js`, {
                                             encoding: "utf8"
-                                        }, function terminal_commands_library_build_shellGlobal_npm_files_remove_read(readError:Error, fileData:string):void {
+                                        }, function terminal_commands_library_build_shellGlobal_npm_files_remove_read(readError:node_error, fileData:string):void {
                                             if (readError === null) {
                                                 const varsName:string = (vars.environment.module_type === "module")
                                                         ? "vars"
@@ -1360,7 +1398,7 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                                         `${varsName}.terminal.command_instruction="${commandName} ";`,
                                                         `${varsName}.path.project="${vars.path.project.replace(/\\/g, "\\\\")}";`,
                                                         `${varsName}.path.js="${vars.path.js.replace(/\\/g, "\\\\")}";`,
-                                                        `${varsName}.settings.storage="${vars.settings.storage.replace(/\\/g, "\\\\")}"`
+                                                        `${varsName}.settings.storage="${vars.settings.ui.storage.replace(/\\/g, "\\\\")}"`
                                                     ],
                                                     globalStart:number = fileData.indexOf("// global"),
                                                     globalEnd:number = fileData.indexOf("// end global"),
@@ -1470,11 +1508,11 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                     removeCallback = function terminal_commands_library_build_shellGlobal_npm_files_removeCallback():void {
                                         removeCount = removeCount + 1;
                                         if (removeCount === 2) {
-                                            node.fs.stat(vars.settings.storage, function terminal_commands_library_build_shellGlobal_npm_files_removeCallback_storageStat(storageError:NodeJS.ErrnoException):void {
+                                            node.fs.stat(vars.settings.ui.storage, function terminal_commands_library_build_shellGlobal_npm_files_removeCallback_storageStat(storageError:node_error):void {
                                                 if (storageError === null) {
                                                     readEntry();
                                                 } else {
-                                                    vars.settings.storage = `${vars.path.project}lib${vars.path.sep}storage${vars.path.sep}`;
+                                                    vars.settings.ui.storage = `${vars.path.project}lib${vars.path.sep}storage${vars.path.sep}`;
                                                     readEntry();
                                                 }
                                             });
@@ -1484,7 +1522,7 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                 remove(binName.replace(".mjs", ".js"), [], removeCallback);
                                 remove(binName, [], removeCallback);
                             };
-                        node.fs.stat(bin, function terminal_commands_library_build_shellGlobal_npm_stat(errs:NodeJS.ErrnoException):void {
+                        node.fs.stat(bin, function terminal_commands_library_build_shellGlobal_npm_stat(errs:node_error):void {
                             if (errs === null) {
                                 files();
                             } else {
@@ -1532,26 +1570,26 @@ const build = function terminal_commands_library_build(config:config_command_bui
             version: function terminal_commands_library_build_version():void {
                 const pack:string = `${vars.path.project}package.json`,
                     configPath:string = `${vars.path.project}lib${vars.path.sep}configurations.json`,
-                    packStat = function terminal_commands_library_build_version_packStat(ers:Error, stats:node_fs_Stats):void {
+                    packStat = function terminal_commands_library_build_version_packStat(ers:node_error, stats:node_fs_Stats):void {
                         if (ers !== null) {
                             error(["Error executing stat on package.json file for version task of build."], ers);
                             return;
                         }
-                        const readPack = function terminal_commands_library_build_version_packStat_readPack(err:Error, data:string):void {
+                        const readPack = function terminal_commands_library_build_version_packStat_readPack(err:node_error, data:string):void {
                                 if (err === null) {
                                     const packageData:configuration_packageJSON = JSON.parse(data) as configuration_packageJSON,
-                                        commitHash = function terminal_commands_library_build_version_packStat_readPack_commitHash(hashErr:Error, stdout:string, stderr:string):void {
+                                        commitHash = function terminal_commands_library_build_version_packStat_readPack_commitHash(hashErr:node_childProcess_ExecException, stdout:string, stderr:string):void {
                                             const flag:flagList = {
                                                     config: false,
                                                     package: false
                                                 },
-                                                readConfig = function terminal_commands_library_build_version_packStat_readPack_commitHash_readConfig(err:Error, configFile:string):void {
+                                                readConfig = function terminal_commands_library_build_version_packStat_readPack_commitHash_readConfig(err:node_error, configFile:string):void {
                                                     if (err !== null) {
                                                         error(["Error reading configuration.json file."], err);
                                                         return;
                                                     }
                                                     const config:configuration_application = JSON.parse(configFile) as configuration_application,
-                                                        writeConfig = function terminal_commands_library_build_version_packStat_readPack_commitHash_readConfig_writeConfig(erc:Error):void {
+                                                        writeConfig = function terminal_commands_library_build_version_packStat_readPack_commitHash_readConfig_writeConfig(erc:node_error):void {
                                                             if (erc !== null) {
                                                                 error(["Error writing configuration.json file."], erc);
                                                                 return;
@@ -1561,7 +1599,7 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                                                 next("Version data written");
                                                             }
                                                         },
-                                                        versionWrite = function terminal_commands_library_build_version_packStat_readPack_commitHash_packageWrite(err:Error):void {
+                                                        versionWrite = function terminal_commands_library_build_version_packStat_readPack_commitHash_packageWrite(err:node_error):void {
                                                             if (err === null) {
                                                                 flag.package = true;
                                                                 if (flag.config === true) {
@@ -1588,6 +1626,13 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                                             }
                                                             return false;
                                                         }()),
+                                                        dateFormat = function terminal_commands_library_build_version_packStat_date(input:Date):string {
+                                                            const dayString:string = input.getDate().toString(),
+                                                                dayPadded:string = (dayString.length < 2)
+                                                                    ? `0${dayString}`
+                                                                    : dayString;
+                                                            return `${dayPadded} ${month} ${input.getFullYear().toString()}`;
+                                                        },
                                                         dateRaw:number = (versionCheck === true)
                                                             ? Date.parse(stats.mtime.toDateString())
                                                             : config.versionDate,
@@ -1632,16 +1677,10 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                                             }
                                                         }()),
                                                         date:string = (versionCheck === true)
-                                                            ? (function terminal_commands_library_build_version_packStat_date():string {
-                                                                const dayString:string = dateObj.getDate().toString(),
-                                                                    dayPadded:string = (dayString.length < 2)
-                                                                        ? `0${dayString}`
-                                                                        : dayString;
-                                                                return `${dayPadded} ${month} ${dateObj.getFullYear().toString()}`;
-                                                            }())
-                                                            : vars.environment.date,
+                                                            ? dateFormat(dateObj)
+                                                            : dateFormat(new Date(dateRaw)),
                                                         version:version = {
-                                                            date: vars.environment.date,
+                                                            date: date,
                                                             git_hash: (stdout === "")
                                                                 ? "(git not used)"
                                                                 : stdout.replace(/\s+/g, ""),
@@ -1675,7 +1714,7 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                             node.fs.readFile(configPath, "utf8", readConfig);
                                         };
                                     
-                                    node.fs.stat(`${vars.path.project}.git`, function terminal_commands_library_build_version_packStat_readPack_gitStat(gitError:Error):void {
+                                    node.fs.stat(`${vars.path.project}.git`, function terminal_commands_library_build_version_packStat_readPack_gitStat(gitError:node_error):void {
                                         if (gitError === null) {
                                             node.child_process.exec("git rev-parse HEAD", {
                                                 cwd: vars.path.project

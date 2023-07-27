@@ -211,8 +211,8 @@ const remote:module_remote = {
                                 element.style.height = `${config.coords[1]}em`;
                             } else if (config.event === "setValue") {
                                 config.value = config.value
-                                    .replace(/string-replace-hash-hashDevice/g, browser.data.hashDevice)
-                                    .replace(/string-replace-hash-hashUser/g, browser.data.hashUser);
+                                    .replace(/string-replace-hash-hashDevice/g, browser.identity.hashDevice)
+                                    .replace(/string-replace-hash-hashUser/g, browser.identity.hashUser);
                                 htmlElement = element as HTMLInputElement;
                                 if (config.value.indexOf("replace\u0000") === 0) {
                                     const values:[string, string] = ["", ""],

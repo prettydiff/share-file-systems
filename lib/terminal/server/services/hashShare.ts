@@ -28,7 +28,7 @@ const hashShare = function terminal_server_services_hashShare(socketData:socketD
             id: JSON.stringify(hashData),
             list: false,
             parent: null,
-            source: vars.settings.hashUser + vars.settings.hashDevice + hashData.type + hashData.share,
+            source: vars.identity.hashUser + vars.identity.hashDevice + hashData.type + hashData.share,
             stat: null
         };
     hash(input);

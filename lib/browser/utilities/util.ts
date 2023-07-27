@@ -40,7 +40,7 @@ const util:module_util = {
             bytes:Uint8Array = new Uint8Array(buff),
             byteLength:number = buff.byteLength;
         let a:number = 0;
-        if (browser.data.audio === false) {
+        if (browser.ui.audio === false) {
             return;
         }
         do {
@@ -380,17 +380,17 @@ const util:module_util = {
             modalAddress:string = (address === null || address === undefined)
                 ? box.getElementsByClassName("fileAddress")[0].getElementsByTagName("input")[0].value
                 : address,
-            share:string = browser.data.modals[box.getAttribute("id")].share;
+            share:string = browser.ui.modals[box.getAttribute("id")].share;
         if (box === null || box === document.documentElement) {
             return [null, null, null];
         }
         return [
             // agentRequest
             {
-                device: browser.data.hashDevice,
+                device: browser.identity.hashDevice,
                 modalAddress: "",
                 share: "",
-                user: browser.data.hashUser
+                user: browser.identity.hashUser
             },
             // agentSource
             {
@@ -400,7 +400,7 @@ const util:module_util = {
                 modalAddress: modalAddress,
                 share: share,
                 user: (agency[2] === "device")
-                    ? browser.data.hashUser
+                    ? browser.identity.hashUser
                     : agency[0]
             },
             // agentWrite - used with service_copy but not service_fileSystem
@@ -409,7 +409,7 @@ const util:module_util = {
                 : (function browser_utilities_util_fileAgent_copyElement():fileAgent {
                     const copyBox:HTMLElement = copyElement.getAncestor("box", "class"),
                         copyId:string = copyBox.getAttribute("id"),
-                        copyData:config_modal = browser.data.modals[copyId];
+                        copyData:config_modal = browser.ui.modals[copyId];
                     return {
                         device: (copyData.agentType === "device")
                             ? copyData.agent
@@ -417,7 +417,7 @@ const util:module_util = {
                         modalAddress: copyBox.getElementsByClassName("fileAddress")[0].getElementsByTagName("input")[0].value,
                         share: copyData.share,
                         user: (copyData.agentType === "device")
-                            ? browser.data.hashUser
+                            ? browser.identity.hashUser
                             : copyData.agent
                     };
                 }())
@@ -448,12 +448,12 @@ const util:module_util = {
     getAgent: function browser_utilities_util_getAgent(element:HTMLElement):agentId {
         const box:modal = element.getAncestor("box", "class"),
             id:string = box.getAttribute("id");
-        let agent:string = browser.data.modals[id].agent;
-        if (agent === "" && browser.data.modals[id].type === "shares") {
+        let agent:string = browser.ui.modals[id].agent;
+        if (agent === "" && browser.ui.modals[id].type === "shares") {
             const ancestor:HTMLElement = element.getAncestor("agent", "class");
             agent = ancestor.dataset.hash;
         }
-        return [agent, browser.data.modals[id].read_only, browser.data.modals[id].agentType];
+        return [agent, browser.ui.modals[id].read_only, browser.ui.modals[id].agentType];
     },
 
     /* Executes shortcut key combinations. */
@@ -569,13 +569,13 @@ const util:module_util = {
     },
 
     /* Creates HTML radio button inside a list item. */
-    radioListItem: function browser_content_agentManagement_menu_radio(config:config_radioListItem):HTMLElement {
+    radioListItem: function browser_utilities_util_radioListItem(config:config_radioListItem):HTMLElement {
         let li:HTMLElement = null,
             label:HTMLElement = null,
             input:HTMLInputElement = null,
             index:number = 0;
         const len:number = config.list.length,
-            click = function browser_content_agentManagement_menu_radio(event:MouseEvent):void {
+            click = function browser_utilities_util_radioListItem_click(event:MouseEvent):void {
                 const target:HTMLInputElement = event.target as HTMLInputElement,
                     ul:HTMLElement = target.getAncestor("ul", "tag"),
                     radios:HTMLCollectionOf<HTMLInputElement> = ul.getElementsByTagName("input");
@@ -648,7 +648,7 @@ const util:module_util = {
                 output.push([text, classItem.getAttribute("class").replace(" lastType", "").replace(" selected", "").replace(" cut", "") as fileType, agent]);
             },
             box:modal = element.getAncestor("box", "class"),
-            dataModal:config_modal = browser.data.modals[box.getAttribute("id")],
+            dataModal:config_modal = browser.ui.modals[box.getAttribute("id")],
             itemList:HTMLCollectionOf<Element> = (drag === true)
                 ? parent.getElementsByTagName("p")
                 : box.getElementsByClassName("fileList")[0].getElementsByTagName("p");

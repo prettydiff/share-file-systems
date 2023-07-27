@@ -21,7 +21,7 @@ import service from "../../test/application/service.js";
  *     actions: {
  *         destroy    : (data:service_fileSystem) => void; // Service handler to remove a file system artifact.
  *         directory  : (data:service_fileSystem) => void; // A service handler to read directory information, such as navigating a file system in the browser.
- *         error      : (error:NodeJS.ErrnoException, agentRequest:fileAgent, agentSource:fileAgent) => void; // packages error messaging for transport
+ *         error      : (error:node_error, agentRequest:fileAgent, agentSource:fileAgent) => void; // packages error messaging for transport
  *         execute    : (data:service_fileSystem) => void; // Tells the operating system to execute the given file system artifact using the default application for the resolved file type.
  *         newArtifact: (data:service_fileSystem) => void; // Creates new empty directories or files.
  *         read       : (data:service_fileSystem) => void; // Opens a file and responds with the file contents as a UTF8 string.
@@ -126,7 +126,7 @@ const fileSystem:module_fileSystem = {
                 if (value === "\\" || value === "\\\\") {
                     pathRead();
                 } else {
-                    node.fs.stat(value, function terminal_server_services_fileSystem_directory_pathEach_stat(erp:Error):void {
+                    node.fs.stat(value, function terminal_server_services_fileSystem_directory_pathEach_stat(erp:node_error):void {
                         if (erp === null) {
                             pathRead();
                         } else {
@@ -139,7 +139,7 @@ const fileSystem:module_fileSystem = {
                 }
             });
         },
-        error: function terminal_server_services_fileSystem_routeError(error:NodeJS.ErrnoException, agentRequest:fileAgent, agentSource:fileAgent):void {
+        error: function terminal_server_services_fileSystem_routeError(error:node_error, agentRequest:fileAgent, agentSource:fileAgent):void {
             fileSystem.route({
                 data: Object.assign({
                     agentRequest: agentRequest,
@@ -150,7 +150,7 @@ const fileSystem:module_fileSystem = {
             });
         },
         execute: function terminal_server_services_fileSystem_execute(data:service_fileSystem):void {
-            if (data.agentRequest.user === vars.settings.hashUser && data.agentRequest.device === vars.settings.hashDevice) {
+            if (data.agentRequest.user === vars.identity.hashUser && data.agentRequest.device === vars.identity.hashDevice) {
                 // file on local device - execute without a file copy request
                 let counter:number = 0,
                     index:number = 0;
@@ -202,7 +202,7 @@ const fileSystem:module_fileSystem = {
                     fileSystem.status.generate(data, null);
                 });
             } else if (data.name === "file") {
-                node.fs.writeFile(data.location[0], "", "utf8", function terminal_server_services_fileSystem_newArtifact_file(erNewFile:NodeJS.ErrnoException):void {
+                node.fs.writeFile(data.location[0], "", "utf8", function terminal_server_services_fileSystem_newArtifact_file(erNewFile:node_error):void {
                     if (erNewFile === null) {
                         fileSystem.status.generate(data, null);
                     } else {
@@ -242,7 +242,7 @@ const fileSystem:module_fileSystem = {
                     }
                 },
                 fileReader = function terminal_server_services_fileSystem_read_fileReader(fileInput:config_command_base64):void {
-                    node.fs.readFile(fileInput.source, "utf8", function terminal_server_services_fileSystem_read_fileReader_readFile(readError:NodeJS.ErrnoException, fileData:string) {
+                    node.fs.readFile(fileInput.source, "utf8", function terminal_server_services_fileSystem_read_fileReader_readFile(readError:node_error, fileData:string) {
                         const inputConfig:base64Output = {
                             base64: fileData,
                             id: fileInput.id,
@@ -263,7 +263,7 @@ const fileSystem:module_fileSystem = {
                     source: ""
                 },
                 hashInput:config_command_hash = {
-                    algorithm: vars.settings.hashType,
+                    algorithm: vars.settings.ui.hashType,
                     callback: callback,
                     digest: "hex",
                     directInput: false,
@@ -303,12 +303,12 @@ const fileSystem:module_fileSystem = {
                 tempPath.push(data.name);
                 return tempPath.join(vars.path.sep);
             }());
-            node.fs.stat(newPath, function terminal_server_services_fileSystem_rename_stat(statError:NodeJS.ErrnoException):void {
+            node.fs.stat(newPath, function terminal_server_services_fileSystem_rename_stat(statError:node_error):void {
                 if (statError === null) {
                     data.name = `File <em>${newPath}</em> already exists.`;
                     fileSystem.status.generate(data, null);
                 } else if (statError.code === "ENOENT") {
-                    node.fs.rename(data.location[0], newPath, function terminal_server_services_fileSystem_rename_callback(erRename:NodeJS.ErrnoException):void {
+                    node.fs.rename(data.location[0], newPath, function terminal_server_services_fileSystem_rename_callback(erRename:node_error):void {
                         if (erRename === null) {
                             data.name = `Renamed ${data.name} from ${data.location[0]}`;
                             fileSystem.status.generate(data, null);
@@ -324,7 +324,7 @@ const fileSystem:module_fileSystem = {
             
         },
         write: function terminal_server_services_fileSystem_write(data:service_fileSystem):void {
-            node.fs.writeFile(data.location[0], data.name, "utf8", function terminal_server_services_fileSystem_write_callback(erw:Error):void {
+            node.fs.writeFile(data.location[0], data.name, "utf8", function terminal_server_services_fileSystem_write_callback(erw:node_error):void {
                 const dirs:string[] = data.location[0].split(vars.path.sep);
                 dirs.pop();
                 data.agentSource.modalAddress = dirs.join(vars.path.sep);
@@ -373,41 +373,43 @@ const fileSystem:module_fileSystem = {
             methodName = "write";
         }
 
-        // security, same user
-        if (data.agentRequest.user === vars.settings.hashUser) {
-            if (vars.settings.device[data.agentRequest.device] !== undefined && methodName !== null) {
-                fileSystem.actions[methodName](data);
-                return;
-            }
-        // security, external user
-        } else if (vars.settings.user[data.agentRequest.user] !== undefined && methodName !== null) {
-            const self:agent = vars.settings.device[vars.settings.hashDevice],
-                shares:string[] = Object.keys(self.shares),
-                item:string = data.location[0];
-            let index:number = shares.length,
-                shareIndex:number = null,
-                share:agentShare = null;
+        if (methodName !== null) {
+            // security, same user
+            if (data.agentRequest.user === vars.identity.hashUser) {
+                if (vars.agents.device[data.agentRequest.device] !== undefined) {
+                    fileSystem.actions[methodName](data);
+                    return;
+                }
+            // security, external user
+            } else if (vars.agents.user[data.agentRequest.user] !== undefined) {
+                const self:agent = vars.agents.device[vars.identity.hashDevice],
+                    shares:string[] = Object.keys(self.shares),
+                    item:string = data.location[0];
+                let index:number = shares.length,
+                    shareIndex:number = null,
+                    share:agentShare = null;
 
-            // local device must have shares for the external user to access
-            if (index > 0) {
-                do {
-                    index = index - 1;
-                    share = self.shares[shares[index]];
-                    // item is in most precise share if item begins with share of longest matching share name
-                    if (item.indexOf(share.name) === 0 && (shareIndex === null || share.name.length > self.shares[shares[shareIndex]].name.length)) {
-                        shareIndex = index;
-                    }
-                } while (index > 0);
-                if (shareIndex !== null) {
-                    // share allowing modifications
-                    if (self.shares[shares[shareIndex]].readOnly === false) {
-                        fileSystem.actions[methodName](data);
-                        return;
-                    }
-                    // share restricted to read only operations
-                    if (self.shares[shares[shareIndex]].readOnly === true && (methodName === "read" || methodName === "directory" || methodName === "execute")) {
-                        fileSystem.actions[methodName](data);
-                        return;
+                // local device must have shares for the external user to access
+                if (index > 0) {
+                    do {
+                        index = index - 1;
+                        share = self.shares[shares[index]];
+                        // item is in most precise share if item begins with share of longest matching share name
+                        if (item.indexOf(share.name) === 0 && (shareIndex === null || share.name.length > self.shares[shares[shareIndex]].name.length)) {
+                            shareIndex = index;
+                        }
+                    } while (index > 0);
+                    if (shareIndex !== null) {
+                        // share allowing modifications
+                        if (self.shares[shares[shareIndex]].readOnly === false) {
+                            fileSystem.actions[methodName](data);
+                            return;
+                        }
+                        // share restricted to read only operations
+                        if (self.shares[shares[shareIndex]].readOnly === true && (methodName === "read" || methodName === "directory" || methodName === "execute")) {
+                            fileSystem.actions[methodName](data);
+                            return;
+                        }
                     }
                 }
             }
@@ -526,7 +528,7 @@ const fileSystem:module_fileSystem = {
                     };
                 if (vars.test.type === "service") {
                     service.evaluation(socketData);
-                } else if (data.agentRequest.device === vars.settings.hashDevice && data.agentRequest.user === vars.settings.hashUser) {
+                } else if (data.agentRequest.device === vars.identity.hashDevice && data.agentRequest.user === vars.identity.hashUser) {
                     sender.broadcast(socketData, "browser");
                 } else {
                     fileSystem.route(socketData);

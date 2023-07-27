@@ -14,7 +14,7 @@ const certificate = function terminal_commands_library_certificate(config:config
         crypto = function terminal_commands_library_certificate_crypto():void {
             node.child_process.exec(commands[index], {
                 cwd: config.location
-            }, function terminal_commands_library_certificate_child(erChild:Error):void {
+            }, function terminal_commands_library_certificate_child(erChild:node_childProcess_ExecException):void {
                 if (erChild === null) {
                     index = index + 1;
                     if (index < commands.length) {
@@ -28,7 +28,7 @@ const certificate = function terminal_commands_library_certificate(config:config
             });
         };
 
-    node.fs.stat(config.location, function terminal_commands_library_certificate_createStat(stats:NodeJS.ErrnoException):void {
+    node.fs.stat(config.location, function terminal_commands_library_certificate_createStat(stats:node_error):void {
 
         // OpenSSL features used:
         // * file extensions
@@ -62,43 +62,43 @@ const certificate = function terminal_commands_library_certificate(config:config
                     ? [config.names.server.fileName, config.names.server.domain]
                     : [config.names.root.fileName, config.names.root.domain],
                 org:string = `/O=${config.names.organization}/OU=${config.names.organization}`,
-                // create a certificate signed by another certificate
-                cert = function terminal_commands_library_certificate_createStat_create_cert(type:"intermediate"|"server"):string {
-                    return `openssl req -new -key ${config.names[type].fileName}.key -out ${config.names[type].fileName}.csr -subj "/CN=${config.names[type].domain + org}"`;
-                },
                 // provides the path to the configuration file used for certificate signing
-                confPath = function terminal_commands_library_certificate_createStat_create_confPath(configName:"ca"|"selfSign"):string {
-                    return `"${vars.path.project}lib${vars.path.sep}certificate${vars.path.sep + configName}.cnf" -extensions x509_ext`;
+                pathConf = function terminal_commands_library_certificate_createStat_create_confPath(configName:"ca"|"selfSign"):string {
+                    return `"${vars.path.project}lib${vars.path.sep}certificate${vars.path.sep}extensions.cnf" -extensions ${configName}`;
+                },
+                // create a certificate signed by another certificate
+                actionCert = function terminal_commands_library_certificate_createStat_create_cert(type:"intermediate"|"server"):string {
+                    return `openssl req -new -sha512 -key ${config.names[type].fileName}.key -out ${config.names[type].fileName}.csr -subj "/CN=${config.names[type].domain + org}"`;
                 },
                 // generates the key file associated with a given certificate
-                key = function terminal_commands_library_certificate_createState_create_key(type:"intermediate"|"root"|"server"):string {
-                    return `openssl genpkey -algorithm RSA -out ${config.names[type].fileName}.key`;
+                actionKey = function terminal_commands_library_certificate_createState_create_key(type:"intermediate"|"root"|"server"):string {
+                    return `openssl genrsa -out ${config.names[type].fileName}.key 4096`;
                 },
                 // signs the certificate
-                sign = function terminal_commands_library_certificate_createState_create_sign(cert:string, parent:string, path:"ca"|"selfSign"):string {
-                    return `openssl x509 -req -in ${cert}.csr -days ${config.days} -out ${cert}.crt -CA ${parent}.crt -CAkey ${parent}.key -CAcreateserial -extfile ${confPath(path)}`;
+                actionSign = function terminal_commands_library_certificate_createState_create_sign(cert:string, parent:string, path:"ca"|"selfSign"):string {
+                    return `openssl x509 -req -sha512 -in ${cert}.csr -days ${config.days} -out ${cert}.crt -CA ${parent}.crt -CAkey ${parent}.key -CAcreateserial -extfile ${pathConf(path)}`;
                 },
-                root:string = `openssl req -x509 -key ${mode[0]}.key -days ${config.days} -out ${mode[0]}.crt -subj "/CN=${mode[1] + org}"`;
+                root:string = `openssl req -x509 -new -newkey rsa:4096 -nodes -key ${mode[0]}.key -days ${config.days} -out ${mode[0]}.crt -subj "/CN=${mode[1] + org}"`;
             if (config.selfSign === true) {
-                commands.push(key("root"));
-                commands.push(`${root} -config ${confPath("selfSign")}`);
+                commands.push(actionKey("root"));
+                commands.push(`${root} -config ${pathConf("selfSign")}`);
             } else {
                 // 1. generate a private key for root certificate
-                commands.push(key("root"));
+                commands.push(actionKey("root"));
                 // 2. generate a root certificate
                 commands.push(root);
                 // 3. generate a private key for intermediate certificate
-                commands.push(key("intermediate"));
+                commands.push(actionKey("intermediate"));
                 // 4. generate an intermediate certificate signing request
-                commands.push(cert("intermediate"));
+                commands.push(actionCert("intermediate"));
                 // 5. sign the intermediate certificate with the root certificate
-                commands.push(sign(config.names.intermediate.fileName, config.names.root.fileName, "selfSign"));
+                commands.push(actionSign(config.names.intermediate.fileName, config.names.root.fileName, "selfSign"));
                 // 6. generate a private key for server certificate
-                commands.push(key("server"));
+                commands.push(actionKey("server"));
                 // 7. generate a server certificate signing request
-                commands.push(cert("server"));
+                commands.push(actionCert("server"));
                 // 8. sign the server certificate with the intermediate certificate
-                commands.push(sign(config.names.server.fileName, config.names.intermediate.fileName, "ca"));
+                commands.push(actionSign(config.names.server.fileName, config.names.intermediate.fileName, "ca"));
             }
             crypto();
         };

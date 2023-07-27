@@ -77,41 +77,7 @@ const docFiles:string = "Writing 100.00% complete. 21 files written at size ",
         inviteModal("self"),
         inviteSend("self", "VM1", "device"),
         inviteAccept("self", "VM1", "device"),
-        {
-            delay: {
-                node: [
-                    ["getElementById", "device", null],
-                    ["getElementsByTagName", "li", 3],
-                    ["getElementsByTagName", "button", 0]
-                ],
-                qualifier: "is",
-                target: ["lastChild", "textContent"],
-                type: "property",
-                value: " Primary Device"
-            },
-            interaction: [
-                {
-                    event: "click",
-                    node: [
-                        ["getModalsByModalType", "invite-accept", 0],
-                        ["getElementsByClassName", "confirm", 0]
-                    ]
-                }
-            ],
-            machine: "VM1",
-            name: "On VM1 accept device invitation from self",
-            unit: [
-                {
-                    node: [
-                        ["getModalsByModalType", "invite-accept", 0]
-                    ],
-                    qualifier: "is",
-                    target: [],
-                    type: "element",
-                    value: undefined
-                }
-            ]
-        },
+        inviteConfirm("self", "VM1", "device"),
         {
             delay: {
                 node: [
@@ -144,7 +110,7 @@ const docFiles:string = "Writing 100.00% complete. 21 files written at size ",
         {
             delay: {
                 node: [
-                    ["getModalsByModalType", "invite-accept", 0],
+                    ["getModalsByModalType", "invite-ask", 0],
                     ["getElementsByTagName", "h3", 0]
                 ],
                 qualifier: "begins",
@@ -156,7 +122,7 @@ const docFiles:string = "Writing 100.00% complete. 21 files written at size ",
                 {
                     event: "click",
                     node: [
-                        ["getModalsByModalType", "invite-accept", 0]
+                        ["getModalsByModalType", "invite-ask", 0]
                     ]
                 },
                 {
@@ -170,7 +136,7 @@ const docFiles:string = "Writing 100.00% complete. 21 files written at size ",
             unit: [
                 {
                     node: [
-                        ["getModalsByModalType", "invite-accept", 0],
+                        ["getModalsByModalType", "invite-ask", 0],
                         ["getElementsByTagName", "label", 0]
                     ],
                     qualifier: "begins",
@@ -180,13 +146,13 @@ const docFiles:string = "Writing 100.00% complete. 21 files written at size ",
                 },
                 {
                     node: [
-                        ["getModalsByModalType", "invite-accept", 0],
+                        ["getModalsByModalType", "invite-ask", 0],
                         ["getElementsByTagName", "textarea", 0]
                     ],
                     qualifier: "is",
                     target: ["value"],
                     type: "property",
-                    value: "Hello to VM3 from Primary Device."
+                    value: "Hello to VM3 from self."
                 }
             ]
         },
@@ -276,7 +242,7 @@ const docFiles:string = "Writing 100.00% complete. 21 files written at size ",
                 qualifier: "contains",
                 target: ["innerHTML"],
                 type: "property",
-                value: "temp/configuration"
+                value: "temp/device"
             },
             interaction: [
                 {
@@ -564,7 +530,7 @@ const docFiles:string = "Writing 100.00% complete. 21 files written at size ",
                 qualifier: "contains",
                 target: ["innerHTML"],
                 type: "property",
-                value: "temp/configuration"
+                value: "temp/device"
             },
             interaction: [
                 {
@@ -620,7 +586,7 @@ const docFiles:string = "Writing 100.00% complete. 21 files written at size ",
                 qualifier: "ends",
                 target: ["firstChild", "textContent"],
                 type: "property",
-                value: "configuration.json"
+                value: "device.json"
             },
             interaction: [
                 {
@@ -742,7 +708,7 @@ const docFiles:string = "Writing 100.00% complete. 21 files written at size ",
                 qualifier: "ends",
                 target: ["firstChild", "textContent"],
                 type: "property",
-                value: "temp"
+                value: "application"
             },
             interaction: [
                 {
@@ -756,7 +722,20 @@ const docFiles:string = "Writing 100.00% complete. 21 files written at size ",
                 {
                     event: "wait",
                     node: null,
-                    value: "100"
+                    value: "200"
+                },
+                {
+                    event: "click",
+                    node: [
+                        ["getModalsByModalType", "file-navigate", 0],
+                        ["getElementsByClassName", "header", 0],
+                        ["getElementsByClassName", "parentDirectory", 0]
+                    ]
+                },
+                {
+                    event: "wait",
+                    node: null,
+                    value: "200"
                 },
                 {
                     event: "contextmenu",
@@ -804,7 +783,7 @@ const docFiles:string = "Writing 100.00% complete. 21 files written at size ",
                     qualifier: "ends",
                     target: ["firstChild", "textContent"],
                     type: "property",
-                    value: "temp"
+                    value: "application"
                 },
                 {
                     node: [
@@ -1416,7 +1395,7 @@ const docFiles:string = "Writing 100.00% complete. 21 files written at size ",
                         ["getModalsByModalType", "shares", 0],
                         ["getElementsByClassName", "body", 0],
                         ["getElementsByTagName", "ul", 1],
-                        ["getElementsByTagName", "li", 1],
+                        ["getElementsByClassName", "full-access", 0],
                         ["getElementsByTagName", "strong", 0]
                     ],
                     qualifier: "is",
@@ -1438,7 +1417,7 @@ const docFiles:string = "Writing 100.00% complete. 21 files written at size ",
                 qualifier: "is",
                 target: ["innerHTML"],
                 type: "property",
-                value: "1 directory, 4 files, 0 symbolic links, 0 errors"
+                value: "1 directory, 7 files, 0 symbolic links, 0 errors"
             },
             interaction: [
                 {
@@ -1446,7 +1425,8 @@ const docFiles:string = "Writing 100.00% complete. 21 files written at size ",
                     node: [
                         ["getModalsByModalType", "shares", 0],
                         ["getElementsByClassName", "body", 0],
-                        ["getElementsByClassName", "user-share", 1]
+                        ["getElementsByClassName", "full-access", 0],
+                        ["getElementsByTagName", "button", 0]
                     ]
                 }
             ],
@@ -1581,6 +1561,11 @@ const docFiles:string = "Writing 100.00% complete. 21 files written at size ",
                     ],
                     value: "Control"
                 },
+                {
+                    event: "wait",
+                    node: null,
+                    value: "500"
+                }
             ],
             machine: "self",
             name: "On self copy a directory to full access share of VM3",
@@ -1770,7 +1755,7 @@ const docFiles:string = "Writing 100.00% complete. 21 files written at size ",
                 qualifier: "begins",
                 target: ["innerHTML"],
                 type: "property",
-                value: docFiles
+                value: "Writing 100.00% complete. 14 files written at size "
             },
             interaction: [
                 {
@@ -2159,7 +2144,7 @@ const docFiles:string = "Writing 100.00% complete. 21 files written at size ",
                 qualifier: "is",
                 target: ["innerHTML"],
                 type: "property",
-                value: "1 directory, 4 files, 0 symbolic links, 0 errors"
+                value: "1 directory, 5 files, 0 symbolic links, 0 errors"
             },
             interaction: [
                 {
@@ -2320,7 +2305,7 @@ const docFiles:string = "Writing 100.00% complete. 21 files written at size ",
                 qualifier: "ends",
                 target: ["innerHTML"],
                 type: "property",
-                value: "documentation"
+                value: "browserUtilities"
             },
             interaction: [
                 {

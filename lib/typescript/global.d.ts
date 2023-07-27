@@ -22,6 +22,7 @@ interface agency {
  *     ipSelected: string;
  *     name: string;
  *     ports: ports;
+ *     secret: string;
  *     shares: agentShares;
  *     status: activityStatus;
  * }
@@ -33,6 +34,7 @@ interface agent {
     ipSelected: string;
     name: string;
     ports: ports;
+    secret: string;
     shares: agentShares;
     status: activityStatus;
 }
@@ -55,26 +57,27 @@ interface agentCounts {
  * ```typescript
  * interface agentInvite {
  *     devices: agents;
- *     hashDevice: string;
  *     hashUser: string;
  *     ipAll: transmit_addresses_IP;
  *     ipSelected: string;
- *     nameDevice: string;
+ *     modal: string;
  *     nameUser: string;
  *     ports: ports;
+ *     secret: string;
+ *     session: string;
  *     shares: agentShares;
  * }
  * ``` */
 interface agentInvite {
     devices: agents;
-    hashDevice: string;
     hashUser: string;
     ipAll: transmit_addresses_IP;
     ipSelected: string;
     modal: string;
-    nameDevice: string;
     nameUser: string;
     ports: ports;
+    secret: string;
+    session: string;
     shares: agentShares;
 }
 
@@ -212,6 +215,27 @@ interface deviceData {
  * ``` */
 interface flagList {
     [key:string]: boolean;
+}
+
+/**
+ * Stores artifacts associated with local device and user identification.
+ * ```typescript
+ * {
+ *      hashDevice  : string;
+ *      hashUser    : string;
+ *      nameDevice  : string;
+ *      nameUser    : string;
+ *      secretDevice: string;
+ *      secretUser  : string;
+ * };
+ * ``` */
+interface identity {
+    hashDevice  : string;
+    hashUser    : string;
+    nameDevice  : string;
+    nameUser    : string;
+    secretDevice: string;
+    secretUser  : string;
 }
 
 /**

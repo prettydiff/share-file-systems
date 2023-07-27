@@ -37,6 +37,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                                     http: 9999,
                                     ws: 9999
                                 },
+                                secret: "",
                                 shares: {
                                     "a89e4ac7eec0c4b557aab68ad7499dd136d21d8eb2e5f51a6973dcf5f854b9a1895bec63f3a9d1b5e6243524e6bb8bc29d34c9741c1fc7fc77a7f0e8a934d153": {
                                         execute: false,
@@ -77,6 +78,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                                     http: 9999,
                                     ws: 9999
                                 },
+                                secret: "",
                                 shares: {
                                     "ccd7be8a1603ae4ca8d39f142e538c18fa16b157ce8f315a0f8a66060b3fbe71fa429bc309c964e8b8ce6c7cf699b4802777a99b5c961e8419ae24d6bfaf241b": {
                                         execute: false,
@@ -117,6 +119,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                                     http: 9999,
                                     ws: 9999
                                 },
+                                secret: "",
                                 shares: {
                                     "36b0d1a2ddc81858b0339d3296b4f69513b779a122ec279ea71a1cb50231952e5f5ba9197c6438e91cd3d8bd6b3d5feee78ce4fd0e4386abe3af0487449a02d7": {
                                         execute: false,
@@ -140,32 +143,34 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                                 status: "active"
                             }
                         },
-                        hashDevice: vars.settings.hashDevice,
-                        hashUser: vars.settings.hashUser,
+                        hashUser: vars.identity.hashUser,
                         ipAll: null,
                         ipSelected: "",
                         modal: "test-modal-requestor",
-                        nameDevice: "old desktop computer",
-                        nameUser: "local user name",
+                        nameUser: "test local user",
                         ports: {
                             http: 9999,
                             ws: 9999
                         },
+                        secret: (status === "accepted")
+                            ? vars.identity.secretUser
+                            : "",
+                        session: "",
                         shares: {}
                     },
                     agentSource: {
-                        devices: {},
-                        hashDevice: "",
+                        devices: null,
                         hashUser: "",
                         ipAll: null,
                         ipSelected: "",
                         modal: "test-modal-responder",
-                        nameDevice: "responding device",
                         nameUser: "responding user",
                         ports: {
                             http: 9999,
                             ws: 9999
                         },
+                        secret: "",
+                        session: "",
                         shares: {}
                     },
                     message: message,
@@ -178,10 +183,10 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
         testLocation:string = filePathEncode("absolute", storagePath.slice(0, storagePath.length - 1)),
         self = function terminal_test_samples_self(address:string):fileAgent {
             return {
-                device: vars.settings.hashDevice,
+                device: vars.identity.hashDevice,
                 modalAddress: address,
                 share: "",
-                user: vars.settings.hashUser
+                user: vars.identity.hashUser
             };
         };
 
@@ -223,7 +228,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     device: remoteDevice1,
                     modalAddress: filePathEncode("absolute", ""),
                     share: "",
-                    user: vars.settings.hashUser
+                    user: vars.identity.hashUser
                 },
                 agentWrite: null,
                 depth: 1,
@@ -282,7 +287,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     device: remoteDevice1,
                     modalAddress: filePathEncode("absolute", ""),
                     share: "",
-                    user: vars.settings.hashUser
+                    user: vars.identity.hashUser
                 },
                 agentWrite: null,
                 depth: 1,
@@ -343,7 +348,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     device: remoteDevice1,
                     modalAddress: testLocation,
                     share: "",
-                    user: vars.settings.hashUser
+                    user: vars.identity.hashUser
                 },
                 agentWrite: null,
                 depth: 1,
@@ -361,7 +366,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     device: remoteDevice1,
                     modalAddress: testLocation,
                     share: "",
-                    user: vars.settings.hashUser
+                    user: vars.identity.hashUser
                 },
                 agentWrite: null,
                 fileList: [
@@ -384,7 +389,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     device: remoteDevice1,
                     modalAddress: testLocation,
                     share: "",
-                    user: vars.settings.hashUser
+                    user: vars.identity.hashUser
                 },
                 agentWrite: null,
                 depth: 1,
@@ -402,7 +407,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     device: remoteDevice1,
                     modalAddress: testLocation,
                     share: "",
-                    user: vars.settings.hashUser
+                    user: vars.identity.hashUser
                 },
                 agentWrite: null,
                 fileList: [
@@ -426,7 +431,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     device: remoteDevice1,
                     modalAddress: testLocation,
                     share: "",
-                    user: vars.settings.hashUser
+                    user: vars.identity.hashUser
                 },
                 agentWrite: null,
                 depth: 1,
@@ -444,7 +449,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     device: remoteDevice1,
                     modalAddress: testLocation,
                     share: "",
-                    user: vars.settings.hashUser
+                    user: vars.identity.hashUser
                 },
                 agentWrite: null,
                 fileList: [
@@ -499,7 +504,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     device: remoteDevice1,
                     modalAddress: testLocation,
                     share: "",
-                    user: vars.settings.hashUser
+                    user: vars.identity.hashUser
                 },
                 agentWrite: null,
                 depth: 1,
@@ -564,7 +569,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     device: remoteDevice1,
                     modalAddress: testLocation,
                     share: "",
-                    user: vars.settings.hashUser
+                    user: vars.identity.hashUser
                 },
                 agentWrite: null,
                 depth: 1,
@@ -665,7 +670,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     device: remoteDevice1,
                     modalAddress: testLocation,
                     share: "",
-                    user: vars.settings.hashUser
+                    user: vars.identity.hashUser
                 },
                 agentWrite: null,
                 depth: 1,
@@ -683,7 +688,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     device: remoteDevice1,
                     modalAddress: testLocation,
                     share: "",
-                    user: vars.settings.hashUser
+                    user: vars.identity.hashUser
                 },
                 agentWrite: null,
                 fileList: [
@@ -708,7 +713,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     device: remoteDevice1,
                     modalAddress: testLocation,
                     share: "",
-                    user: vars.settings.hashUser
+                    user: vars.identity.hashUser
                 },
                 agentWrite: null,
                 depth: 1,
@@ -726,7 +731,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     device: remoteDevice1,
                     modalAddress: testLocation,
                     share: "",
-                    user: vars.settings.hashUser
+                    user: vars.identity.hashUser
                 },
                 agentWrite: null,
                 fileList: [
@@ -812,7 +817,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     device: remoteDevice1,
                     modalAddress: testLocation,
                     share: "",
-                    user: vars.settings.hashUser
+                    user: vars.identity.hashUser
                 },
                 agentWrite: null,
                 depth: 2,
@@ -830,7 +835,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     device: remoteDevice1,
                     modalAddress: testLocation,
                     share: "",
-                    user: vars.settings.hashUser
+                    user: vars.identity.hashUser
                 },
                 agentWrite: null,
                 fileList: [
@@ -855,7 +860,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     device: remoteDevice1,
                     modalAddress: testLocation,
                     share: "",
-                    user: vars.settings.hashUser
+                    user: vars.identity.hashUser
                 },
                 agentWrite: null,
                 depth: 2,
@@ -873,7 +878,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     device: remoteDevice1,
                     modalAddress: testLocation,
                     share: "",
-                    user: vars.settings.hashUser
+                    user: vars.identity.hashUser
                 },
                 agentWrite: null,
                 fileList: [
@@ -927,7 +932,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     device: remoteDevice1,
                     modalAddress: testLocation,
                     share: "",
-                    user: vars.settings.hashUser
+                    user: vars.identity.hashUser
                 },
                 agentWrite: null,
                 depth: 0,
@@ -945,7 +950,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     device: remoteDevice1,
                     modalAddress: testLocation,
                     share: "",
-                    user: vars.settings.hashUser
+                    user: vars.identity.hashUser
                 },
                 agentWrite: null,
                 fileList: [
@@ -1029,7 +1034,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     device: remoteDevice1,
                     modalAddress: testLocation,
                     share: "",
-                    user: vars.settings.hashUser
+                    user: vars.identity.hashUser
                 },
                 agentWrite: null,
                 depth: 1,
@@ -1047,7 +1052,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     device: remoteDevice1,
                     modalAddress: testLocation,
                     share: "",
-                    user: vars.settings.hashUser
+                    user: vars.identity.hashUser
                 },
                 agentWrite: null,
                 fileList: [
@@ -1069,7 +1074,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     device: remoteDevice1,
                     modalAddress: testLocation,
                     share: "",
-                    user: vars.settings.hashUser
+                    user: vars.identity.hashUser
                 },
                 agentWrite: null,
                 depth: 1,
@@ -1087,7 +1092,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     device: remoteDevice1,
                     modalAddress: testLocation,
                     share: "",
-                    user: vars.settings.hashUser
+                    user: vars.identity.hashUser
                 },
                 agentWrite: null,
                 fileList: [
@@ -1138,7 +1143,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     device: remoteDevice1,
                     modalAddress: testLocation,
                     share: "",
-                    user: vars.settings.hashUser
+                    user: vars.identity.hashUser
                 },
                 agentWrite: null,
                 depth: 1,
@@ -1185,7 +1190,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
             data: {
                 agentRequest: self(null),
                 agentSource: self(testLocation),
-                agentWrite: null,
+                agentWrite: self(""),
                 fileList: [
                     [testLocation,"directory","",0,2,null,""],
                     [filePathEncode("absolute", `${storagePath}temp.txt`),"file","",0,0,null,""],
@@ -1206,7 +1211,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     device: remoteDevice1,
                     modalAddress: testLocation,
                     share: "",
-                    user: vars.settings.hashUser
+                    user: vars.identity.hashUser
                 },
                 cut: false,
                 execute: false,
@@ -1223,9 +1228,9 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     device: remoteDevice1,
                     modalAddress: testLocation,
                     share:"",
-                    user: vars.settings.hashUser
+                    user: vars.identity.hashUser
                 },
-                agentWrite: null,
+                agentWrite: self(""),
                 fileList: [
                     [testLocation,"directory","",0,3,null,""],
                     [filePathEncode("absolute", `${storagePath}temp.txt`),"file","",0,0,null,""],
@@ -1246,7 +1251,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     device: remoteDevice1,
                     modalAddress: filePathEncode("absolute", ""),
                     share: "",
-                    user: vars.settings.hashUser
+                    user: vars.identity.hashUser
                 },
                 agentWrite: self(testLocation),
                 cut: false,
@@ -1261,7 +1266,12 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
             data: {
                 agentRequest: self(null),
                 agentSource: self(testLocation),
-                agentWrite: null,
+                agentWrite: {
+                    device: remoteDevice1,
+                    modalAddress: filePathEncode("absolute", ""),
+                    share: "",
+                    user: vars.identity.hashUser
+                },
                 fileList: [
                     [testLocation,"directory","",0,4,null,""],
                     [filePathEncode("absolute", `${storagePath}temp.txt`),"file","",0,0,null,""],
@@ -1282,13 +1292,13 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     device: remoteDevice1,
                     modalAddress: filePathEncode("absolute", ""),
                     share: "",
-                    user: vars.settings.hashUser
+                    user: vars.identity.hashUser
                 },
                 agentWrite: {
                     device: remoteDevice2,
                     modalAddress: testLocation,
                     share: "",
-                    user: vars.settings.hashUser
+                    user: vars.identity.hashUser
                 },
                 cut: false,
                 execute: false,
@@ -1305,9 +1315,14 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     device: remoteDevice2,
                     modalAddress: testLocation,
                     share: "",
-                    user: vars.settings.hashUser
+                    user: vars.identity.hashUser
                 },
-                agentWrite: null,
+                agentWrite: {
+                    device: remoteDevice1,
+                    modalAddress: filePathEncode("absolute", ""),
+                    share: "",
+                    user: vars.identity.hashUser
+                },
                 fileList: [
                     [testLocation,"directory","",0,5,null,""],
                     [filePathEncode("absolute", `${storagePath}temp.txt`),"file","",0,0,null,""],
@@ -1330,13 +1345,13 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     device: remoteDevice1,
                     modalAddress: filePathEncode("absolute", ""),
                     share: "",
-                    user: vars.settings.hashUser
+                    user: vars.identity.hashUser
                 },
                 agentWrite: {
                     device: remoteDevice1,
                     modalAddress: testLocation,
                     share: "",
-                    user: vars.settings.hashUser
+                    user: vars.identity.hashUser
                 },
                 cut: false,
                 execute: false,
@@ -1353,9 +1368,14 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     device: remoteDevice1,
                     modalAddress: testLocation,
                     share: "",
-                    user: vars.settings.hashUser
+                    user: vars.identity.hashUser
                 },
-                agentWrite: null,
+                agentWrite: {
+                    device: remoteDevice1,
+                    modalAddress: filePathEncode("absolute", ""),
+                    share: "",
+                    user: vars.identity.hashUser
+                },
                 fileList: [
                     [testLocation,"directory","",0,6,null,""],
                     [filePathEncode("absolute", `${storagePath}temp.txt`),"file","",0,0,null,""],
@@ -1377,7 +1397,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
         command: {
             data: {
                 settings: {
-                    [vars.settings.hashDevice]: {
+                    [vars.identity.hashDevice]: {
                         ipAll: null,
                         ipSelected: "",
                         name: "local device name",
@@ -1386,7 +1406,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                             ws: 0
                         },
                         shares: {
-                            [vars.settings.hashDevice]: {
+                            [vars.identity.hashDevice]: {
                                 execute: false,
                                 name: "C:\\mp3",
                                 readOnly: false,
@@ -1404,7 +1424,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
         test: {
             data: {
                 settings: {
-                    [vars.settings.hashDevice]: {
+                    [vars.identity.hashDevice]: {
                         ipAll: null,
                         ipSelected: "",
                         name: "local device name",
@@ -1413,7 +1433,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                             ws: 9999
                         },
                         shares: {
-                            [vars.settings.hashDevice]: {
+                            [vars.identity.hashDevice]: {
                                 execute: false,
                                 name: "C:\\mp3",
                                 readOnly: false,
@@ -1431,7 +1451,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
         command: {
             data: {
                 settings: [{
-                    agentFrom: vars.settings.hashDevice,
+                    agentFrom: vars.identity.hashDevice,
                     agentTo: remoteDevice1,
                     agentType: "device",
                     date: 1616070795053,
@@ -1446,7 +1466,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
         test: {
             data: {
                 settings: [{
-                    agentFrom: vars.settings.hashDevice,
+                    agentFrom: vars.identity.hashDevice,
                     agentTo: remoteDevice1,
                     agentType: "device",
                     date: 1616070795053,
@@ -1466,18 +1486,18 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     color: "default",
                     colors: {
                         device: {
-                            [vars.settings.hashDevice]: ["fff", "eee"]
+                            [vars.identity.hashDevice]: ["fff", "eee"]
                         },
                         user: {}
                     },
                     fileSort: "file-system-type",
-                    hashDevice: vars.settings.hashDevice,
+                    hashDevice: vars.identity.hashDevice,
                     hashType: "sha3-512",
-                    hashUser: vars.settings.hashUser,
+                    hashUser: vars.identity.hashUser,
                     minimizeAll: false,
                     modals: {
                         "configuration-modal": {
-                            agent: vars.settings.hashDevice,
+                            agent: vars.identity.hashDevice,
                             agentIdentity: false,
                             agentType: "device",
                             content: null,
@@ -1506,7 +1526,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     tutorial: false,
                     zIndex: 6
                 },
-                type: "configuration"
+                type: "ui"
             } as service_settings,
             service: "settings"
         },
@@ -1520,18 +1540,18 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     color: "default",
                     colors: {
                         device: {
-                            [vars.settings.hashDevice]: ["fff", "eee"]
+                            [vars.identity.hashDevice]: ["fff", "eee"]
                         },
                         user: {}
                     },
                     fileSort: "file-system-type",
-                    hashDevice: vars.settings.hashDevice,
+                    hashDevice: vars.identity.hashDevice,
                     hashType: "sha3-512",
-                    hashUser: vars.settings.hashUser,
+                    hashUser: vars.identity.hashUser,
                     minimizeAll: false,
                     modals: {
                         "configuration-modal": {
-                            agent: vars.settings.hashDevice,
+                            agent: vars.identity.hashDevice,
                             agentIdentity: false,
                             agentType: "device",
                             content: null,
@@ -1560,7 +1580,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     tutorial: false,
                     zIndex: 6
                 },
-                type: "configuration"
+                type: "ui"
             } as service_settings,
             service: "settings"
         }
@@ -1569,7 +1589,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
         command: {
             data: {
                 settings: {
-                    [vars.settings.hashDevice]: {
+                    [vars.identity.hashDevice]: {
                         ipAll: null,
                         ipSelected: "",
                         name: "remote user name",
@@ -1578,7 +1598,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                             ws: 0
                         },
                         shares: {
-                            [vars.settings.hashDevice]: {
+                            [vars.identity.hashDevice]: {
                                 execute: false,
                                 name: "C:\\movies",
                                 readOnly: false,
@@ -1596,7 +1616,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
         test: {
             data: {
                 settings: {
-                    [vars.settings.hashDevice]: {
+                    [vars.identity.hashDevice]: {
                         ipAll: null,
                         ipSelected: "",
                         name: "remote user name",
@@ -1605,7 +1625,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                             ws: 9999
                         },
                         shares: {
-                            [vars.settings.hashDevice]: {
+                            [vars.identity.hashDevice]: {
                                 execute: false,
                                 name: "C:\\movies",
                                 readOnly: false,
@@ -1627,32 +1647,31 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
             data: {
                 action: "invite-request",
                 agentRequest: {
-                    devices: vars.settings.device,
-                    hashDevice: vars.settings.hashDevice,
-                    hashUser: vars.settings.hashUser,
+                    devices: null,
+                    hashUser: "",
                     ipAll: null,
                     ipSelected: "",
                     modal: "test-modal-requestor",
-                    nameDevice: "old desktop",
                     nameUser: "local user name",
                     ports: {
                         http: 443,
                         ws: 0
                     },
+                    session: "",
                     shares: {}
                 },
                 agentSource: {
-                    hashDevice: "",
+                    devices: null,
                     hashUser: "",
                     ipAll: null,
                     ipSelected: "",
                     modal: "",
-                    nameDevice: "",
                     nameUser: "",
                     ports: {
                         http: 443,
                         ws: 0
                     },
+                    session: "",
                     shares: null
                 },
                 message: "Hello",
@@ -1665,300 +1684,37 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
         qualifier: "is",
         test: {
             data: {
-                action: "invite-complete",
+                action: "invite-ask",
                 agentRequest: {
-                    devices: {
-                        "7f22346707be198af81ac14d5f718875ba67f67fb94bd2256c226fb8c676301f153bdd972818bc5b00aab7ee38190e9374d8e75e600ed5bbbddf4dbc5d5ca594": {
-                            deviceData: {
-                                cpuCores: 1,
-                                cpuID: "",
-                                memTotal: 0,
-                                osName: "",
-                                osType: "",
-                                osUptime: 0,
-                                osVersion: "",
-                                platform: ""
-                            },
-                            ipAll: null,
-                            ipSelected: "",
-                            name: "test local device",
-                            ports: {
-                                http: 9999,
-                                ws: 9999
-                            },
-                            shares: {
-                                "a89e4ac7eec0c4b557aab68ad7499dd136d21d8eb2e5f51a6973dcf5f854b9a1895bec63f3a9d1b5e6243524e6bb8bc29d34c9741c1fc7fc77a7f0e8a934d153": {
-                                    execute: false,
-                                    name: "C:\\mp3\\deviceLocal",
-                                    readOnly: true,
-                                    type: "directory"
-                                },
-                                "16f07e8ed7225f07912da48e0d51308e8fbf9dafc89d8accaa58abc1da8a2832a046082bfc2534eb4933a00bd673019cb90437c8a94cc0d0adaf9cff40c5083b": {
-                                    execute: false,
-                                    name: "E:\\deviceLocal",
-                                    readOnly: false,
-                                    type: "directory"
-                                },
-                                "2772fe10a1f1efe6a34c01408dc6bf51fa43ba657c72cff9f77c02a96eb61490b995325330a1b954e1e8e6e55d87003840e65c223e1e465d1a30486dfdef1211": {
-                                    execute: false,
-                                    name: "C:\\deviceLocal\\notes.pdf",
-                                    readOnly: true,
-                                    type: "file"
-                                }
-                            },
-                            status: "active"
-                        },
-                        "a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e": {
-                            deviceData: {
-                                cpuCores: 1,
-                                cpuID: "",
-                                memTotal: 0,
-                                osName: "",
-                                osType: "",
-                                osUptime: 0,
-                                osVersion: "",
-                                platform: ""
-                            },
-                            ipAll: null,
-                            ipSelected: "",
-                            name: "test local laptop",
-                            ports: {
-                                http: 9999,
-                                ws: 9999
-                            },
-                            shares: {
-                                "ccd7be8a1603ae4ca8d39f142e538c18fa16b157ce8f315a0f8a66060b3fbe71fa429bc309c964e8b8ce6c7cf699b4802777a99b5c961e8419ae24d6bfaf241b": {
-                                    execute: false,
-                                    name: "C:\\mp3\\deviceLaptop",
-                                    readOnly: true,
-                                    type: "directory"
-                                },
-                                "1a36a5c57a86e6015aff4a2888d1e399d7a8b74d306952f01243822f84812174224feee82760d90883b300cb3848f2ef4c41cc00a703101b47b314c6af5894ee": {
-                                    execute: false,
-                                    name: "E:\\deviceLaptop",
-                                    readOnly: false,
-                                    type: "directory"
-                                },
-                                "0d8e80125088946594d6d80070e833b978a466e9789504e51c67462d09133f33994d0ea06cf9006d4d7fc651a5adceab72b6b80797166288458cfb53d021dbc6": {
-                                    execute: false,
-                                    name: "C:\\deviceLaptop\\notes.pdf",
-                                    readOnly: true,
-                                    type: "file"
-                                }
-                            },
-                            status: "active"
-                        },
-                        "fa042a71aee124b7b667d97fd84c0a309e72aefcae5d95762bc05d39cbeedae88122758f8625910a669271251d5f561a1c2749c6d66664f5d35dcc8c608c1a89": {
-                            deviceData: {
-                                cpuCores: 1,
-                                cpuID: "",
-                                memTotal: 0,
-                                osName: "",
-                                osType: "",
-                                osUptime: 0,
-                                osVersion: "",
-                                platform: ""
-                            },
-                            ipAll: null,
-                            ipSelected: "",
-                            name: "test device device",
-                            ports: {
-                                http: 9999,
-                                ws: 9999
-                            },
-                            shares: {
-                                "36b0d1a2ddc81858b0339d3296b4f69513b779a122ec279ea71a1cb50231952e5f5ba9197c6438e91cd3d8bd6b3d5feee78ce4fd0e4386abe3af0487449a02d7": {
-                                    execute: false,
-                                    name: "C:\\mp3\\deviceDesktop",
-                                    readOnly: true,
-                                    type: "directory"
-                                },
-                                "71f79d5cc211b5fa52f95a33ad9aaa4b6bf3ad3951ac06365ee316e5f4da70811fd3ed8fa585024009683cf83e40fd31211b1a36324dfc79148d12dea16fbcef": {
-                                    execute: false,
-                                    name: "E:\\deviceDesktop",
-                                    readOnly: false,
-                                    type: "directory"
-                                },
-                                "768b031d795208e4adca58a4908161e77d61132c3e6ef5a76960fcd51b05f1e96ada60af01b3a9561f5c061a6e9dabc311e9970853b8b5ce0c1f0966b02315e7": {
-                                    execute: false,
-                                    name: "C:\\deviceDesktop\\notes.pdf",
-                                    readOnly: true,
-                                    type: "file"
-                                }
-                            },
-                            status: "active"
-                        }
-                    },
-                    hashDevice: vars.settings.hashDevice,
-                    hashUser: vars.settings.hashUser,
+                    devices: null,
+                    hashUser: "",
                     ipAll: null,
-                    ipSelected: "",
+                    ipSelected: null,
                     modal: "test-modal-requestor",
-                    nameDevice: "old desktop",
                     nameUser: "local user name",
                     ports: {
                         http: 9999,
                         ws: 9999
                     },
+                    session: "",
                     shares: {}
                 },
                 agentSource: {
-                    devices: {
-                        "7f22346707be198af81ac14d5f718875ba67f67fb94bd2256c226fb8c676301f153bdd972818bc5b00aab7ee38190e9374d8e75e600ed5bbbddf4dbc5d5ca594": {
-                            deviceData: {
-                                cpuCores: 1,
-                                cpuID: "",
-                                memTotal: 0,
-                                osName: "",
-                                osType: "",
-                                osUptime: 0,
-                                osVersion: "",
-                                platform: ""
-                            },
-                            ipAll: null,
-                            ipSelected: "",
-                            name: "test local device",
-                            ports: {
-                                http: 9999,
-                                ws: 9999
-                            },
-                            shares: {
-                                "a89e4ac7eec0c4b557aab68ad7499dd136d21d8eb2e5f51a6973dcf5f854b9a1895bec63f3a9d1b5e6243524e6bb8bc29d34c9741c1fc7fc77a7f0e8a934d153": {
-                                    execute: false,
-                                    name: "C:\\mp3\\deviceLocal",
-                                    readOnly: true,
-                                    type: "directory"
-                                },
-                                "16f07e8ed7225f07912da48e0d51308e8fbf9dafc89d8accaa58abc1da8a2832a046082bfc2534eb4933a00bd673019cb90437c8a94cc0d0adaf9cff40c5083b": {
-                                    execute: false,
-                                    name: "E:\\deviceLocal",
-                                    readOnly: false,
-                                    type: "directory"
-                                },
-                                "2772fe10a1f1efe6a34c01408dc6bf51fa43ba657c72cff9f77c02a96eb61490b995325330a1b954e1e8e6e55d87003840e65c223e1e465d1a30486dfdef1211": {
-                                    execute: false,
-                                    name: "C:\\deviceLocal\\notes.pdf",
-                                    readOnly: true,
-                                    type: "file"
-                                }
-                            },
-                            status: "active"
-                        },
-                        "a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e": {
-                            deviceData: {
-                                cpuCores: 1,
-                                cpuID: "",
-                                memTotal: 0,
-                                osName: "",
-                                osType: "",
-                                osUptime: 0,
-                                osVersion: "",
-                                platform: ""
-                            },
-                            ipAll: null,
-                            ipSelected: "",
-                            name: "test local laptop",
-                            ports: {
-                                http: 9999,
-                                ws: 9999
-                            },
-                            shares: {
-                                "ccd7be8a1603ae4ca8d39f142e538c18fa16b157ce8f315a0f8a66060b3fbe71fa429bc309c964e8b8ce6c7cf699b4802777a99b5c961e8419ae24d6bfaf241b": {
-                                    execute: false,
-                                    name: "C:\\mp3\\deviceLaptop",
-                                    readOnly: true,
-                                    type: "directory"
-                                },
-                                "1a36a5c57a86e6015aff4a2888d1e399d7a8b74d306952f01243822f84812174224feee82760d90883b300cb3848f2ef4c41cc00a703101b47b314c6af5894ee": {
-                                    execute: false,
-                                    name: "E:\\deviceLaptop",
-                                    readOnly: false,
-                                    type: "directory"
-                                },
-                                "0d8e80125088946594d6d80070e833b978a466e9789504e51c67462d09133f33994d0ea06cf9006d4d7fc651a5adceab72b6b80797166288458cfb53d021dbc6": {
-                                    execute: false,
-                                    name: "C:\\deviceLaptop\\notes.pdf",
-                                    readOnly: true,
-                                    type: "file"
-                                }
-                            },
-                            status: "active"
-                        },
-                        "fa042a71aee124b7b667d97fd84c0a309e72aefcae5d95762bc05d39cbeedae88122758f8625910a669271251d5f561a1c2749c6d66664f5d35dcc8c608c1a89": {
-                            deviceData: {
-                                cpuCores: 1,
-                                cpuID: "",
-                                memTotal: 0,
-                                osName: "",
-                                osType: "",
-                                osUptime: 0,
-                                osVersion: "",
-                                platform: ""
-                            },
-                            ipAll: null,
-                            ipSelected: "",
-                            name: "test device device",
-                            ports: {
-                                http: 9999,
-                                ws: 9999
-                            },
-                            shares: {
-                                "36b0d1a2ddc81858b0339d3296b4f69513b779a122ec279ea71a1cb50231952e5f5ba9197c6438e91cd3d8bd6b3d5feee78ce4fd0e4386abe3af0487449a02d7": {
-                                    execute: false,
-                                    name: "C:\\mp3\\deviceDesktop",
-                                    readOnly: true,
-                                    type: "directory"
-                                },
-                                "71f79d5cc211b5fa52f95a33ad9aaa4b6bf3ad3951ac06365ee316e5f4da70811fd3ed8fa585024009683cf83e40fd31211b1a36324dfc79148d12dea16fbcef": {
-                                    execute: false,
-                                    name: "E:\\deviceDesktop",
-                                    readOnly: false,
-                                    type: "directory"
-                                },
-                                "768b031d795208e4adca58a4908161e77d61132c3e6ef5a76960fcd51b05f1e96ada60af01b3a9561f5c061a6e9dabc311e9970853b8b5ce0c1f0966b02315e7": {
-                                    execute: false,
-                                    name: "C:\\deviceDesktop\\notes.pdf",
-                                    readOnly: true,
-                                    type: "file"
-                                }
-                            },
-                            status: "active"
-                        }
-                    },
-                    hashDevice: "7f22346707be198af81ac14d5f718875ba67f67fb94bd2256c226fb8c676301f153bdd972818bc5b00aab7ee38190e9374d8e75e600ed5bbbddf4dbc5d5ca594",
-                    hashUser: vars.settings.hashUser,
+                    devices: null,
+                    hashUser: "",
                     ipAll: null,
                     ipSelected: "",
                     modal: "",
-                    nameDevice: "test local device",
-                    nameUser: "test local user",
+                    nameUser: "",
                     ports: {
                         http: 9999,
                         ws: 9999
                     },
-                    shares: {
-                        "a89e4ac7eec0c4b557aab68ad7499dd136d21d8eb2e5f51a6973dcf5f854b9a1895bec63f3a9d1b5e6243524e6bb8bc29d34c9741c1fc7fc77a7f0e8a934d153": {
-                            "execute": false,
-                            "name": "C:\\mp3\\deviceLocal",
-                            "readOnly": true,
-                            "type": "directory"
-                        },
-                        "16f07e8ed7225f07912da48e0d51308e8fbf9dafc89d8accaa58abc1da8a2832a046082bfc2534eb4933a00bd673019cb90437c8a94cc0d0adaf9cff40c5083b": {
-                            "execute": false,
-                            "name": "E:\\deviceLocal",
-                            "readOnly": false,
-                            "type": "directory"
-                        },
-                        "2772fe10a1f1efe6a34c01408dc6bf51fa43ba657c72cff9f77c02a96eb61490b995325330a1b954e1e8e6e55d87003840e65c223e1e465d1a30486dfdef1211": {
-                            "execute": false,
-                            "name": "C:\\deviceLocal\\notes.pdf",
-                            "readOnly": true,
-                            "type": "file"
-                        }
-                    }
+                    session: "",
+                    shares: null
                 },
-                message: "Accepted invitation. Request processed at responding terminal XXXX for type device.  Agent already present, so auto accepted and returned to requesting terminal.",
-                status: "accepted",
+                message: "Hello",
+                status: "invited",
                 type: "device"
             } as service_invite,
             service: "invite"
@@ -1969,33 +1725,33 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
             data: {
                 action: "invite-response",
                 agentRequest: {
-                    devices: vars.settings.device,
-                    hashDevice: vars.settings.hashDevice,
-                    hashUser: vars.settings.hashUser,
+                    devices: vars.agents.device,
+                    hashUser: vars.identity.hashUser,
                     ipAll: null,
                     ipSelected: "",
                     modal: "test-modal-requestor",
-                    nameDevice: "old desktop computer",
                     nameUser: "local user name",
                     ports: {
                         http: 443,
                         ws: 0
                     },
+                    secret: "",
+                    session: "",
                     shares: {}
                 },
                 agentSource: {
-                    devices: {},
-                    hashDevice: "",
+                    devices: null,
                     hashUser: "",
                     ipAll: null,
                     ipSelected: "",
                     modal: "test-modal-responder",
-                    nameDevice: "responding device",
                     nameUser: "responding user",
                     ports: {
                         http: 443,
                         ws: 0
                     },
+                    secret: "",
+                    session: "",
                     shares: null
                 },
                 message: "Hello",
@@ -2029,6 +1785,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                                 http: 9999,
                                 ws: 9999
                             },
+                            secret: "",
                             shares: {
                                 "a89e4ac7eec0c4b557aab68ad7499dd136d21d8eb2e5f51a6973dcf5f854b9a1895bec63f3a9d1b5e6243524e6bb8bc29d34c9741c1fc7fc77a7f0e8a934d153": {
                                     execute: false,
@@ -2069,6 +1826,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                                 http: 9999,
                                 ws: 9999
                             },
+                            secret: "",
                             shares: {
                                 "ccd7be8a1603ae4ca8d39f142e538c18fa16b157ce8f315a0f8a66060b3fbe71fa429bc309c964e8b8ce6c7cf699b4802777a99b5c961e8419ae24d6bfaf241b": {
                                     execute: false,
@@ -2109,6 +1867,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                                 http: 9999,
                                 ws: 9999
                             },
+                            secret: "",
                             shares: {
                                 "36b0d1a2ddc81858b0339d3296b4f69513b779a122ec279ea71a1cb50231952e5f5ba9197c6438e91cd3d8bd6b3d5feee78ce4fd0e4386abe3af0487449a02d7": {
                                     execute: false,
@@ -2132,35 +1891,35 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                             status: "active"
                         }
                     },
-                    hashDevice: vars.settings.hashDevice,
-                    hashUser: vars.settings.hashUser,
+                    hashUser: vars.identity.hashUser,
                     ipAll: null,
                     ipSelected: "",
                     modal: "test-modal-requestor",
-                    nameDevice: "old desktop computer",
                     nameUser: "local user name",
                     ports: {
                         http: 9999,
                         ws: 9999
                     },
+                    secret: "",
+                    session: "",
                     shares: {}
                 },
                 agentSource: {
-                    devices: {},
-                    hashDevice: "",
+                    devices: null,
                     hashUser: "",
                     ipAll: null,
                     ipSelected: "",
                     modal: "test-modal-responder",
-                    nameDevice: "responding device",
                     nameUser: "responding user",
                     ports: {
                         http: 9999,
                         ws: 9999
                     },
+                    secret: "",
+                    session: "",
                     shares: null
                 },
-                message: "Ignored invitation response processed at responding terminal XXXX and sent to requesting terminal XXXX ",
+                message: "Hello",
                 status: "ignored",
                 type: "device"
             } as service_invite,
@@ -2172,33 +1931,33 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
             data: {
                 action: "invite-response",
                 agentRequest: {
-                    devices: vars.settings.device,
-                    hashDevice: vars.settings.hashDevice,
-                    hashUser: vars.settings.hashUser,
+                    devices: vars.agents.device,
+                    hashUser: vars.identity.hashUser,
                     ipAll: null,
                     ipSelected: "",
                     modal: "test-modal-requestor",
-                    nameDevice: "old desktop computer",
-                    nameUser: "local user name",
+                    nameUser: "test local user",
                     ports: {
                         http: 443,
                         ws: 0
                     },
+                    secret: "",
+                    session: "",
                     shares: {}
                 },
                 agentSource: {
-                    devices: {},
-                    hashDevice: "",
+                    devices: null,
                     hashUser: "",
                     ipAll: null,
                     ipSelected: "",
                     modal: "test-modal-responder",
-                    nameDevice: "responding device",
                     nameUser: "responding user",
                     ports: {
                         http: 443,
                         ws: 0
                     },
+                    secret: "",
+                    session: "",
                     shares: {}
                 },
                 message: "Hello",
@@ -2209,40 +1968,40 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
         },
         name: "invite, invite-response - Local device invite response, accepted",
         qualifier: "is",
-        test: inviteResponse("Accepted invitation response processed at responding terminal XXXX and sent to requesting terminal XXXX ", "accepted", "complete")
+        test: inviteResponse("Hello", "accepted", "identity")
     });
     service.push({
         command: {
             data: {
                 action: "invite-response",
                 agentRequest: {
-                    devices: vars.settings.device,
-                    hashDevice: vars.settings.hashDevice,
-                    hashUser: vars.settings.hashUser,
+                    devices: vars.agents.device,
+                    hashUser: vars.identity.hashUser,
                     ipAll: null,
                     ipSelected: "",
                     modal: "test-modal-requestor",
-                    nameDevice: "old desktop computer",
-                    nameUser: "local user name",
+                    nameUser: "test local user",
                     ports: {
                         http: 443,
                         ws: 0
                     },
+                    secret: "",
+                    session: "",
                     shares: {}
                 },
                 agentSource: {
-                    devices: {},
-                    hashDevice: "",
+                    devices: null,
                     hashUser: "",
                     ipAll: null,
                     ipSelected: "",
                     modal: "test-modal-responder",
-                    nameDevice: "responding device",
                     nameUser: "responding user",
                     ports: {
                         http: 443,
                         ws: 0
                     },
+                    secret: "",
+                    session: "",
                     shares: {}
                 },
                 message: "Ignored invitation",
@@ -2253,40 +2012,40 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
         },
         name: "invite, invite-response - Local device invite response, ignored",
         qualifier: "is",
-        test: inviteResponse("Ignored invitation", "ignored", "response")
+        test: inviteResponse("Ignored invitation", "ignored", "complete")
     });
     service.push({
         command: {
             data: {
                 action: "invite-response",
                 agentRequest: {
-                    devices: vars.settings.device,
-                    hashDevice: vars.settings.hashDevice,
-                    hashUser: vars.settings.hashUser,
+                    devices: vars.agents.device,
+                    hashUser: vars.identity.hashUser,
                     ipAll: null,
                     ipSelected: "",
                     modal: "test-modal-requestor",
-                    nameDevice: "old desktop computer",
-                    nameUser: "local user name",
+                    nameUser: "test local user",
                     ports: {
                         http: 443,
                         ws: 0
                     },
+                    secret: "",
+                    session: "",
                     shares: {}
                 },
                 agentSource: {
-                    devices: {},
-                    hashDevice: "",
+                    devices: null,
                     hashUser: "",
                     ipAll: null,
                     ipSelected: "",
                     modal: "test-modal-responder",
-                    nameDevice: "responding device",
                     nameUser: "responding user",
                     ports: {
                         http: 443,
                         ws: 0
                     },
+                    secret: "",
+                    session: "",
                     shares: {}
                 },
                 message: "Hello",
@@ -2297,95 +2056,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
         },
         name: "invite, invite-response - Local device invite response, declined",
         qualifier: "is",
-        test: inviteResponse("Declined invitation response processed at responding terminal XXXX and sent to requesting terminal XXXX ", "declined", "complete")
-    });
-    service.push({
-        command: {
-            data: {
-                action: "invite-complete",
-                agentRequest: {
-                    devices: vars.settings.device,
-                    hashDevice: vars.settings.hashDevice,
-                    hashUser: vars.settings.hashUser,
-                    ipAll: null,
-                    ipSelected: "",
-                    modal: "test-modal-requestor",
-                    nameDevice: "old desktop computer",
-                    nameUser: "local user name",
-                    ports: {
-                        http: 443,
-                        ws: 0
-                    },
-                    shares: {}
-                },
-                agentSource: {
-                    devices: {},
-                    hashDevice: "",
-                    hashUser: "",
-                    ipAll: null,
-                    ipSelected: "",
-                    modal: "test-modal-responder",
-                    nameDevice: "responding device",
-                    nameUser: "responding user",
-                    ports: {
-                        http: 443,
-                        ws: 0
-                    },
-                    shares: {}
-                },
-                message: "Hello",
-                status: "accepted",
-                type: "device"
-            } as service_invite,
-            service: "invite"
-        },
-        name: "invite, invite-complete - Local user invite complete, accepted",
-        qualifier: "is",
-        test: inviteResponse("Accepted invitation returned from device 'responding device'.", "accepted", "complete")
-    });
-    service.push({
-        command: {
-            data: {
-                action: "invite-complete",
-                agentRequest: {
-                    devices: vars.settings.device,
-                    hashDevice: vars.settings.hashDevice,
-                    hashUser: vars.settings.hashUser,
-                    ipAll: null,
-                    ipSelected: "",
-                    modal: "test-modal-requestor",
-                    nameDevice: "old desktop computer",
-                    nameUser: "local user name",
-                    ports: {
-                        http: 443,
-                        ws: 0
-                    },
-                    shares: {}
-                },
-                agentSource: {
-                    devices: {},
-                    hashDevice: "",
-                    hashUser: "",
-                    ipAll: null,
-                    ipSelected: "",
-                    modal: "test-modal-responder",
-                    nameDevice: "responding device",
-                    nameUser: "responding user",
-                    ports: {
-                        http: 443,
-                        ws: 0
-                    },
-                    shares: {}
-                },
-                message: "Ignored invitation",
-                status: "ignored",
-                type: "device"
-            } as service_invite,
-            service: "invite"
-        },
-        name: "invite, invite-complete - Local user invite complete, ignored",
-        qualifier: "is",
-        test: inviteResponse("Ignored invitation", "ignored", "complete")
+        test: inviteResponse("Hello", "declined", "complete")
     });
     return service;
 };

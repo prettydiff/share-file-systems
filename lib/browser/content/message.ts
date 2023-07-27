@@ -159,11 +159,11 @@ const message:module_message = {
                 const total:number = browser.message.length,
                     agency:agentId = util.getAgent(input),
                     agentFrom:string = (agency[2] === "device")
-                        ? browser.data.hashDevice
-                        : browser.data.hashUser;
-                let step:number = (browser.data.modals[id].historyIndex === undefined)
+                        ? browser.identity.hashDevice
+                        : browser.identity.hashUser;
+                let step:number = (browser.ui.modals[id].historyIndex === undefined)
                     ? total
-                    : browser.data.modals[id].historyIndex;
+                    : browser.ui.modals[id].historyIndex;
                 if (key === "arrowup") {
                     if (step > 0) {
                         do {
@@ -171,7 +171,7 @@ const message:module_message = {
                         } while (step > -1 && (browser.message[step].agentType !== agency[2] || browser.message[step].agentTo !== agency[0] || browser.message[step].agentFrom !== agentFrom));
                         if (step > -1 && browser.message[step].agentType === agency[2] && browser.message[step].agentTo === agency[0] && browser.message[step].agentFrom === agentFrom) {
                             input.value = browser.message[step].message;
-                            browser.data.modals[id].historyIndex = step;
+                            browser.ui.modals[id].historyIndex = step;
                         }
                     }
                 } else {
@@ -180,16 +180,16 @@ const message:module_message = {
                             step = step + 1;
                         } while (step < total && (browser.message[step].agentType !== agency[2] || browser.message[step].agentTo !== agency[0] || browser.message[step].agentFrom !== agentFrom));
                         if (step === total) {
-                            input.value = browser.data.modals[id].text_value;
-                            browser.data.modals[id].historyIndex = total;
+                            input.value = browser.ui.modals[id].text_value;
+                            browser.ui.modals[id].historyIndex = total;
                         } else if (browser.message[step].agentType === agency[2] && browser.message[step].agentTo === agency[0] && browser.message[step].agentFrom === agentFrom) {
                             input.value = browser.message[step].message;
-                            browser.data.modals[id].historyIndex = step;
+                            browser.ui.modals[id].historyIndex = step;
                         }
                     }
                 }
             } else {
-                browser.data.modals[id].text_value = input.value;
+                browser.ui.modals[id].text_value = input.value;
             }
         },
 
@@ -200,8 +200,8 @@ const message:module_message = {
                 id:string = box.getAttribute("id"),
                 textarea:HTMLTextAreaElement = box.getElementsByClassName("footer")[0].getElementsByTagName("textarea")[0],
                 value:messageMode = element.value as messageMode;
-            browser.data.modals[id].text_placeholder = value;
-            browser.data.modals[id].text_value = textarea.value;
+            browser.ui.modals[id].text_placeholder = value;
+            browser.ui.modals[id].text_value = textarea.value;
             configuration.tools.radio(element);
             if (value === "code") {
                 textarea.onkeyup = null;
@@ -225,7 +225,7 @@ const message:module_message = {
                 agentHash:string = (agentAttribute === "")
                     ? (className === "share-tool-message")
                         ? grandParent.dataset.hash
-                        : browser.data.hashDevice
+                        : browser.identity.hashDevice
                     : agentAttribute,
                 agentType:agentType = (agentAttribute === "")
                     ? (className === "share-tool-message")
@@ -257,18 +257,18 @@ const message:module_message = {
                 textArea:HTMLTextAreaElement = footer.getElementsByTagName("textarea")[0],
                 payload:message_item = {
                     agentFrom: (agency[2] === "device")
-                        ? browser.data.hashDevice
-                        : browser.data.hashUser,
+                        ? browser.identity.hashDevice
+                        : browser.identity.hashUser,
                     agentTo: agency[0],
                     agentType: agency[2],
                     date: Date.now(),
                     message: textArea.value,
                     mode: textArea.getAttribute("class") as messageMode
                 };
-            delete browser.data.modals[box.getAttribute("id")].historyIndex;
-            if (agency[2] === "user" && agency[0] === browser.data.hashUser) {
+            delete browser.ui.modals[box.getAttribute("id")].historyIndex;
+            if (agency[2] === "user" && agency[0] === browser.identity.hashUser) {
                 payload.agentTo = "user";
-            } else if (agency[2] === "device" && agency[0] === browser.data.hashDevice) {
+            } else if (agency[2] === "device" && agency[0] === browser.identity.hashDevice) {
                 payload.agentTo = "device";
             } else if (agency[0] === "") {
                 payload.agentTo = "";
@@ -288,13 +288,13 @@ const message:module_message = {
                 let messageIndex:number = 0;
                 do {
                     if (browser.message[messageIndex].agentType === "device") {
-                        if (browser.message[messageIndex].agentTo === browser.data.hashDevice) {
+                        if (browser.message[messageIndex].agentTo === browser.identity.hashDevice) {
                             message.tools.post(browser.message[messageIndex], "agentFrom", modalId);
                         } else {
                             message.tools.post(browser.message[messageIndex], "agentTo", modalId);
                         }
                     } else if (browser.message[messageIndex].agentType === "user") {
-                        if (browser.message[messageIndex].agentTo === browser.data.hashUser) {
+                        if (browser.message[messageIndex].agentTo === browser.identity.hashUser) {
                             message.tools.post(browser.message[messageIndex], "agentFrom", modalId);
                         } else {
                             message.tools.post(browser.message[messageIndex], "agentTo", modalId);
@@ -312,10 +312,10 @@ const message:module_message = {
                 messageCell:HTMLElement = document.createElement("td"),
                 // a simple test to determine if the message is coming from this agent (though not necessarily this device if sent to a user)
                 self = function browser_content_message_post_self(hash:string):boolean {
-                    if (item.agentType === "device" && hash === browser.data.hashDevice) {
+                    if (item.agentType === "device" && hash === browser.identity.hashDevice) {
                         return true;
                     }
-                    if (item.agentType === "user" && hash === browser.data.hashUser) {
+                    if (item.agentType === "user" && hash === browser.identity.hashUser) {
                         return true;
                     }
                     return false;
@@ -415,18 +415,18 @@ const message:module_message = {
             messageCell.innerHTML = messageText;
             messageCell.setAttribute("class", item.mode);
             tr.setAttribute("data-agentFrom", item.agentFrom);
-            if (item.agentType === "user" && item.agentFrom === browser.data.hashUser) {
+            if (item.agentType === "user" && item.agentFrom === browser.identity.hashUser) {
                 const strong:HTMLElement = document.createElement("strong"),
                     em:HTMLElement = document.createElement("em");
-                strong.appendText(browser.data.nameUser);
+                strong.appendText(browser.identity.nameUser);
                 em.appendText(common.dateFormat(date));
                 meta.appendChild(strong);
                 meta.appendText(" ");
                 meta.appendChild(em);
-            } else if (item.agentType === "device" && item.agentFrom === browser.data.hashDevice) {
+            } else if (item.agentType === "device" && item.agentFrom === browser.identity.hashDevice) {
                 const strong:HTMLElement = document.createElement("strong"),
                     em:HTMLElement = document.createElement("em");
-                strong.appendText(browser.data.nameDevice);
+                strong.appendText(browser.identity.nameDevice);
                 em.appendText(common.dateFormat(date));
                 meta.appendChild(strong);
                 meta.appendText(" ");
@@ -436,7 +436,7 @@ const message:module_message = {
                     em:HTMLElement = document.createElement("em"),
                     span:HTMLElement = document.createElement("span");
                 span.appendText(common.capitalize(item.agentType));
-                strong.appendText(browser[item.agentType][item.agentFrom].name);
+                strong.appendText(browser.agents[item.agentType][item.agentFrom].name);
                 em.appendText(common.dateFormat(date));
                 meta.appendChild(span);
                 meta.appendText(" ");
@@ -467,7 +467,7 @@ const message:module_message = {
     
             // creates a new message modal if none matched
             if (writeTest === false) {
-                const identity:boolean = (item.agentFrom !== browser.data.hashDevice),
+                const identity:boolean = (item.agentFrom !== browser.identity.hashDevice),
                     modalItem:modal = modal_configuration.modals.message(null, {
                         agent: item.agentFrom,
                         agentIdentity: identity,
@@ -493,7 +493,7 @@ const message:module_message = {
             const messageData:service_message = socketData.data as service_message,
                 agentFrom:string = messageData[0].agentFrom,
                 agentType:agentType = messageData[0].agentType,
-                target:messageTarget = ((agentType === "user" && agentFrom === browser.data.hashUser) || (agentType === "device" && agentFrom === browser.data.hashDevice))
+                target:messageTarget = ((agentType === "user" && agentFrom === browser.identity.hashUser) || (agentType === "device" && agentFrom === browser.identity.hashDevice))
                     ? "agentTo"
                     : "agentFrom";
             document.getElementById("message-update").appendText(messageData[0].message, true);
@@ -506,7 +506,7 @@ const message:module_message = {
                         ? `${messageBody.slice(0, 100)}\u2026`
                         : messageBody,
                     notifyOptions:NotificationOptions = {
-                        body: `Received new message from ${agentType} ${browser[agentType][agentFrom].name}.\r\n\r\n${messageString}`,
+                        body: `Received new message from ${agentType} ${browser.agents[agentType][agentFrom].name}.\r\n\r\n${messageString}`,
                         vibrate: [200, 100]
                     },
                     notify:Notification = new Notification(`${browser.title} - New Message`, notifyOptions);
