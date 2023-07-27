@@ -228,7 +228,7 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                         if (data.status === "accepted") {
                             const userData:userData = common.userData(vars.agents.device, "user", "");
                             addAgent("agentSource");
-                            data.action = "invite-identity";
+                            data.action = "invite-complete";
                             data.agentRequest = {
                                 devices: (data.type === "device")
                                     ? vars.agents.device
@@ -245,6 +245,14 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                                     ? {}
                                     : userData[0]
                             };
+                            // Update existing other devices of the new relationship
+                            sender.broadcast({
+                                data: data,
+                                service: "invite"
+                            }, "device");
+
+                            // Send identity data to the remote (and their devices)
+                            data.action = "invite-identity";
                             if (vars.test.type === "service") {
                                 service.evaluation({
                                     data: data,
