@@ -202,6 +202,12 @@ Organizations like Google, Microsoft, and Facebook have invested billions of dol
 In the model of Shared File Systems each user owns their own fault tolerance risk where recovery is as fast as swapping physical devices or cloning a hard disk.
 This level of fault tolerance requires a little bit of discipline and almost no money.
 
+Decentralization allows for regulation avoidance.
+Government regulation typically exists for very good reasons, but digital conduct is most frequently regulated by commercial entities acting in a governmental capacity.
+This commercial regulatory conduct can occur for a variety of reasons such as limiting access to competition, reducing publication of violent and hateful communication, limiting access to media for revenue generating interests, prioritizing proprietary technology interests, and so forth.
+Some of these reasons are necessary for the health of online discourse, but many exists primarily for self-serving reasons that are disadvantageous to choice, liberty, and freedom of information access.
+Decentralization eliminates these issues by preventing access to personal messaging and data from unauthorized third parties.
+
 ### Cons
 By far the greatest challenge with decentralization is logical complexity.
 I have been studying the practical application of decentralization for 4 years and its tremendously more challenging to manage than the simplicity of a traditional client/server model.
