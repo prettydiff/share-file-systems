@@ -56,7 +56,7 @@ That external user does not know how many devices represent your user and of tho
 ## Identifiers
 Each device stores 6 pieces of identifying information all created when the user creates a new identity for a given device.
 In the spirit of decentralization there is no centralized regulatory authority preventing a user from creating and/or abandoning new identities as frequently as they wish.
-The code for identity creation is located in project location: `/lib/terminal/server/services/agent_hash.ts`.
+The code for identity creation is located in project location: [/lib/terminal/server/services/agent_hash.ts](/lib/terminal/server/services/agent_hash.ts).
 
 * Device hash - SHA3-512 hash string in hexadecimal format uniquely identifying the current physical device.
 * Device name - A non-unique human friendly label naming the physical device.
@@ -68,7 +68,7 @@ The code for identity creation is located in project location: `/lib/terminal/se
 ### Identity Masking
 Identity masking serves as a form of one-way password by which a SHA3-512 hash is computed from two pieces of information of which only one of those pieces of information is shared.
 If the remote end can compute the same hash sequence from the shared data fragment plus something they already possess then the system achieves a form of pseudo two-factor authentication (something the system has and something the system knows) via an automation sequence.
-The masking and unmasking logic is location in project location: `/lib/terminal/utilities/mask.ts`.
+The masking and unmasking logic is location in project location: [/lib/terminal/utilities/mask.ts](/lib/terminal/utilities/mask.ts).
 
 ## Connectivity
 The application uses HTTP 1.1 for the invitation process because HTTP 1.1 is both session-less and anonymous.
@@ -85,13 +85,13 @@ Also included is a masked identifier representing the respective secret identifi
 Secret identifiers are shared only during the invitation process as a form of pre-shared secret.
 On the server side the socket connection will be dropped if the hash identifier is unknown or if the secret identifier cannot be unmasked according to the server's own secret identifier within 48 hours of clock time from the time of masking.
 
-The code for this custom WebSocket implementation is located in project location `/lib/terminal/server/transmission/transmit_ws.ts`.
+The code for this custom WebSocket implementation is located in project location [/lib/terminal/server/transmission/transmit_ws.ts](/lib/terminal/server/transmission/transmit_ws.ts).
 
 ## Invitation Process
 More important than the identities that comprise the security model are the relationships between those identities.
 An 8 step invitation process exists to establish these relationships.
 The invitation process was recently rewritten to prevent unauthorized instruction injection, unauthorized access, and eliminate sharing of any identifiers until both parties access the invitation.
-The code for the invitation process is located in project location: `/lib/terminal/server/services/invite.ts`.
+The code for the invitation process is located in project location: [/lib/terminal/server/services/invite.ts](/lib/terminal/server/transmission/transmit_ws.ts).
 
 
 ```text
@@ -183,9 +183,9 @@ Since shares point to a location on a device and device identity is never disclo
 In the most complex scenario there exists three users each involving two or more of their devices.
 This scenario occurs when User A wishes to copy file system data from a share of User B to a share of User C.
 The routing logic is defined in these project locations:
-* `/lib/terminal/server/services/fileCopy.ts`
-* `/lib/terminal/server/services/fileSystem.ts`
-* `/lib/terminal/server/transmission/sender.ts`
+* [/lib/terminal/server/services/fileCopy.ts](/lib/terminal/server/services/fileCopy.ts)
+* [/lib/terminal/server/services/fileSystem.ts](/lib/terminal/server/services/fileSystem.ts)
+* [/lib/terminal/server/transmission/sender.ts](/lib/terminal/server/transmission/sender.ts)
 
 ### Socket List
 The routing logic directly relies upon a living socket list.
