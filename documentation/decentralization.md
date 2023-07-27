@@ -65,6 +65,11 @@ The code for identity creation is located in project location: `/lib/terminal/se
 * User name - A non-unique human friendly label naming the user.
 * User secret - A SHA3-512 hash string in hexadecimal format that is only distributed during the invitation process and used to prevent identity spoofing during socket establishment between users.
 
+### Identity Masking
+Identity masking serves as a form of one-way password by which a SHA3-512 hash is computed from two pieces of information of which only one of those pieces of information is shared.
+If the remote end can compute the same hash sequence from the shared data fragment plus something they already possess then the system achieves a form of pseudo two-factor authentication (something the system has and something the system knows) via an automation sequence.
+The masking and unmasking logic is location in project location: `/lib/terminal/utilities/mask.ts`.
+
 ## Connectivity
 The application uses HTTP 1.1 for the invitation process because HTTP 1.1 is both session-less and anonymous.
 HTTP 1.1 is also used to load file assets into the user interface at page load time.
@@ -181,6 +186,15 @@ The routing logic is defined in these project locations:
 * `/lib/terminal/server/services/fileCopy.ts`
 * `/lib/terminal/server/services/fileSystem.ts`
 * `/lib/terminal/server/transmission/sender.ts`
+
+### Socket List
+The routing logic directly relies upon a living socket list.
+Every time a socket is opened from either side or an active socket closes the socket list is updated and broadcasted to all other peer devices.
+This socket list allows each device to immediately know which devices have sockets to which external users.
+
+### Masked Device
+In the scenario where User A wishes to copy data from a shared location of User B to an unshared device of User A they will need to mask their device identity.
+In that scenario User A has restricted access to all their devices but no share identifier to describe the location with which to route that data when it returns from User B.
 
 ## Pros and Cons of Decentralization
 There are challenges, limitations, and superior functional capabilities provided by decentralization that cannot be realized by other prior existing communications methods.
