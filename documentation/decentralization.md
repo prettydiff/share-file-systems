@@ -75,7 +75,7 @@ Physical units are fully distributed within a given user and fully decentralized
 Ownership is limited to users and all users are separately equal peers to achieve complete political decentralization.
 
 The degree of logical centralization is up to a given user in how they manage their own devices thereby potentially achieving complete logical decentralization.
-Each device may can achieve full computational isolation apart from other peer devices or a user may choose to invoke automated replication schemes to create logical redundances of data and transmission.
+Each device may can achieve full computational isolation apart from other peer devices or a user may choose to invoke automated replication schemes to create logical redundancies of data and transmission.
 
 ### Formulation
 All identity types are SHA3-512 hash sequences expressed in 128 character hexadecimal format.
