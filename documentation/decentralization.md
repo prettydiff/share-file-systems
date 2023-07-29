@@ -23,17 +23,17 @@ This project makes no use of block chain, ledgers, or other shared artifacts.
 * Political - Degree of convergence amongst owners and maintainers.
 * Logical - Degree of cooperation or consolidation into a software artifact.
 
-According to Buterin his invention Ethereum was created to achieve some degree of decentralization and yet remains logically centralized where the resulting artifact, a distributed ledger, behaves as if a single software instance.
+According to Buterin, his invention Ethereum was created to achieve some degree of decentralization and yet remains logically centralized where the resulting artifact, a distributed ledger, behaves as if a single software instance.
 Share File Systems achieves complete decentralization through a model of fully separated spheres of influence, its security model.
-By products of decentralization include inherent privacy, regulatory avoidance, freedom from government oversight, improved security, more durable connectivity, and its free.
+By-products of decentralization include inherent privacy, regulatory avoidance, freedom from government oversight, improved security, more durable connectivity, and its free.
 
 ### Decentralization and Historical Precedent
 Examples of decentralization are littered through out history.
 Perhaps the most well known such example features the [Gutenberg Printing Press](https://www.gutenberg.org/cache/epub/51034/pg51034-images.html).
-At that time in late medieval European two converging social conditions were growing in direct collision.
-On one hand international trade unleashed wealth, individual prosperity, and education like European society had never since experienced.
-Simultaneously the publishing, transmission, dissemination of ideas had contracted to the fewest hand-written transcriptions funded by only the most wealthy of institutions.
-The increased demand for literature and the unwillingness of contemporary methods to supply for that demand resulted in new technology.
+At that time in late medieval Europe, two converging social conditions were growing in direct collision.
+On one hand, international trade unleashed wealth, individual prosperity, and education like European society had never experienced.
+Simultaneously the publishing, transmission, and dissemination of ideas had contracted to the fewest hand-written transcriptions funded by only the most wealthy of institutions.
+Both the increased demand for literature and the unwillingness of contemporary methods to supply for that demand resulted in new technology.
 
 Although it took over 15 years to develop commercially reproducible models of the Gutenberg Press and nearly 50 more years for the idea to approach local popularity reaching 270 locations in southern Germany there was no political reaction to the press until it became popular.
 The first reaction of many ruling governments, only after popular reproduction of the press, involved various forms of licensing, permits, and other restrictions.
@@ -41,15 +41,15 @@ These restrictions occurred as a means to generate tax revenue but the purpose w
 Many of these restrictions only served to further popularize the printing press as a form of social rebellion more recently termed the [Streisand Effect](https://en.wikipedia.org/wiki/Streisand_effect).
 
 Another critical example of decentralization is the [US Army Signal Corps](https://en.wikipedia.org/wiki/United_States_Army_Signal_Corps).
-At its creation the Signal Corps existed to route information across a battlefield to speed orders from field command to front line troops and simultaneously inform field commanders of events on the front line.
+At its creation, the Signal Corps existed to route information across a battlefield to speed orders from field command to front line troops and simultaneously inform field commanders of events on the front line.
 The success of indirect field communications was first proven in battle as an enabling factor for tactical superiority by confederate forces during the US Civil War by [Edward Porter Alexander](https://en.wikipedia.org/wiki/Edward_Porter_Alexander) during the [First Battle of Bull Run](https://en.wikipedia.org/wiki/First_Battle_of_Bull_Run).
 Field communications are now the supreme enabling factor of command and control in modern combat both tactically and strategically.
-Like the examples enabling the printing press modern military communications are becoming [more centralized and expensive](https://api.army.mil/e2/c/downloads/2022/10/14/106b220e/army-cloud-plan-2022.pdf) yet simultaneously there exists a [growing need for modular flexibility](https://www.armyupress.army.mil/Journals/Military-Review/English-Edition-Archives/May-June-2023/Graveyard-of-Command-Posts/) in direct opposition to centralized command and control systems.
+Like the examples enabling the printing press, modern military communications are becoming [more centralized and expensive](https://api.army.mil/e2/c/downloads/2022/10/14/106b220e/army-cloud-plan-2022.pdf) yet simultaneously there exists a [growing need for modular flexibility](https://www.armyupress.army.mil/Journals/Military-Review/English-Edition-Archives/May-June-2023/Graveyard-of-Command-Posts/) in direct opposition to centralized command and control systems.
 
 ### Decentralization, Perceptions and Bias
 The primary benefit of decentralization is its near impossibility to regulate and/or restrict.
 The first communications perceived to immediately benefit from such expanded freedoms are social deviations such as obscenities, criminal activity, and persecuted minorities.
-In reality everyone benefits equally immediately upon accepting such expanded freedoms.
+In reality, everyone benefits equally immediately upon accepting such expanded freedoms.
 
 In that regard decentralization directly resembles accessibility.
 When the [Americans with Disabilities Act](https://en.wikipedia.org/wiki/Americans_with_Disabilities_Act_of_1990) first became law one of the most public changes to occur was the mandate of wheelchair ramps to all public entrances of Airports.
@@ -75,13 +75,13 @@ Physical units are fully distributed within a given user and fully decentralized
 Ownership is limited to users and all users are separately equal peers to achieve complete political decentralization.
 
 The degree of logical centralization is up to a given user in how they manage their own devices thereby potentially achieving complete logical decentralization.
-Each device may can achieve full computational isolation apart from other peer devices or a user may choose to invoke automated replication schemes to create logical redundancies of data and transmission.
+Each device can achieve full computational isolation apart from other peer devices or a user may choose to invoke automated replication schemes to create logical redundancies of data and transmission.
 
 ### Formulation
 All identity types are SHA3-512 hash sequences expressed in 128 character hexadecimal format.
 The user identity type is formulated from a combination of hardware criteria of the local device, a user supplied user name, a date time sequence, and some other factors.
-The device identity type is formulated from the user identity and a a device name supplied by the user.
-Share identities are formulated from the respective device identity, share location, and other factors.
+The device identity type is formulated from the user identity and a device name supplied by the user.
+Share type identities are formulated from the respective device identity, shared location, and other factors.
 
 ### Relationship Restrictions
 The user identity, and any future higher identity types, present a privacy barrier as in a [lexical scope](https://en.wikipedia.org/wiki/Scope_(computer_science)#Lexical_scope) model.
@@ -90,8 +90,8 @@ So, device identities present as visible and unrestricted to all other devices a
 That also means any connected artifacts have no visibility to devices associated with user identities other than their own.
 So, the model restricts knowledge of how many devices another user has, where those devices physically reside, or what they are.
 
-The share identity type exists to provide points of access to other users without revealing the identity, location, or composition of a device.
-For example another user might need important legal documents you own, so you can create a directory on one of your devices containing the desired documents, and share that directory.
+The share identity type exists to provide points of access to other users without revealing the identity, location, or composition of the device.
+For example, another user might need important legal documents you own, so you can create a directory on one of your devices containing the desired documents, and share that directory.
 The external user then knows of a share associated with your user and that share contains the documents they need.
 That external user does not know how many devices represent your user and of those which device holds the given share location.
 
@@ -104,7 +104,7 @@ The code for identity creation is located in project location: [/lib/terminal/se
 * Device name - A non-unique human friendly label naming the physical device.
 * Device secret - A SHA3-512 hash string in hexadecimal format that is only distributed during the invitation process and used to prevent identity spoofing during socket establishment between devices of the same user.
 * User hash - SHA3-512 hash string in hexadecimal format uniquely identifying the user owner of the device.
-* User name - A non-unique human friendly label naming the user.
+* User name - A non-unique human-friendly label naming the user.
 * User secret - A SHA3-512 hash string in hexadecimal format that is only distributed during the invitation process and used to prevent identity spoofing during socket establishment between users.
 
 ### Identity Masking
@@ -125,9 +125,9 @@ The device that comes online latest always take the role of client in connection
 Connection establishment requires the client to include their hash identifier (device hash for connections to devices or user hash for connections to other users).
 Also included is a masked identifier representing the respective secret identifier for that remote agent.
 Secret identifiers are shared only during the invitation process as a form of pre-shared secret.
-On the server side the socket connection will be dropped if the hash identifier is unknown or if the secret identifier cannot be unmasked according to the server's own secret identifier within 48 hours of clock time from the time of masking.
+On the server side, the socket connection will be dropped if the hash identifier is unknown or if the secret identifier cannot be unmasked according to the server's own secret identifier within 48 hours of clock time from the time of masking.
 
-The code for this custom WebSocket implementation is located in project location [/lib/terminal/server/transmission/transmit_ws.ts](/lib/terminal/server/transmission/transmit_ws.ts).
+The code for this custom WebSocket implementation is located in project location: [/lib/terminal/server/transmission/transmit_ws.ts](/lib/terminal/server/transmission/transmit_ws.ts).
 
 ## Invitation Process
 More important than the identities that comprise the security model are the relationships between those identities.
@@ -182,19 +182,19 @@ The remote party receives the invitation, changes the action to `ask`, and broad
 The remote user views invitation and either accepts the invitation or rejects it.
 Upon answering the invitation the user interface sends the invitation message to the network processing application instance with action `answer`.
 
-At the network processing application instance the message action changes to `response` 
-If the invitation is accepted a session identifier for the remote is added to the invitation message as well as the remote's user identifiers.
+At the network processing application instance the message action changes to `response`.
+If the invitation is accepted, a session identifier for the remote is added to the invitation message as well as the remote's user identifiers.
 If the invitation is of type device then all device data and device identifiers are added to the message as well.
-Finally a session identifier representing the remote is added to the invitation message before sending it back to the originating device.
+Finally, a session identifier representing the remote is added to the invitation message before sending it back to the originating device.
 
 ### 5 - Response Step
 On the originating device the originating device's session identifier is unmasked and only processed if the session id is valid to the given device.
-if the invitation is declined the user interface instances are informed.
+if the invitation is declined, the user interface instances are informed.
 If the invitation is approved from the remote a few things occur:
 
 1. The action on the message is changed to `complete`.
-2. The invitation message is updated user identifiers representing the originating user.
-3. If the invitation is of type *device* all device data is added to the invitation message, which contains device specific identifiers per each device.
+2. The invitation message is updated with user identifiers representing the originating user.
+3. If the invitation is of type *device*, all device data is added to the invitation message, which contains device specific identifiers per each device.
 4. All devices associated with the originating user are informed as necessary to add the new relationships or a new user or new device(s).
 5. All user interface instances of the current device are informed of the invitation.
 6. The action on the message is changed to `identity` and the message is sent back to the remote with the originator's data attached.
@@ -204,11 +204,11 @@ This step represents the processing that occurs on other prior existing devices 
 
 ### 7 - Identity Step
 When the remote device receives the invitation message it immediately unmasks its session identifier to determine the validity of the message.
-If the invitation is of type *device* all devices associated with the remote user much change to the originator's user identifiers.
+If the invitation is of type *device*, all devices associated with the remote user must change to the originator's user identifiers.
 Relationships are added to each of the remote's devices for each of the originator's devices.
 Once all relationships are established all remote devices will open socket connections to each of the originator's devices using the now shared identifiers to create a single user mesh connectivity.
 
-If the invitation is of type user then the originator user identifiers is added to all remote devices as a user relationship.
+If the invitation is of type *user*, then the originator user identifiers is added to all remote devices as a user relationship.
 
 ### 8 - Complete Step (Remote Side)
 This step represents the processing that occurs on other prior existing devices of the remote user and the user interface instances of all these devices when they receive an invitation message of action `complete`.
@@ -247,15 +247,15 @@ To defeat the cloud or access to any web server an adversary must only eliminate
 A decentralized system has no central point of failure.
 Consider a decentralized network like a swarm, where killing the network means independently finding and killing each individual unit comprising that swarm.
 Furthermore decentralization occurs both horizontally, as in the swarm example, and also vertically through redundant relationships between users and their redundant relationships to their users.
-In battle if an enemy destroys one tactical operations center all data associated with that hardware is lost only if they were not transferring that data to peer devices/users in alternate locations.
+In battle, if an enemy destroys one tactical operations center, all data associated with that hardware is lost only if they were not transferring that data to peer devices/users in alternate locations.
 
 Decentralization allows online privacy by default, which makes it the opposite of the web.
 From a technological perspective everything on the web is public by default and it requires great effort to impose even the smallest of privacy enhancements.
-In the scenario of Share File Systems it takes great effort to give privacy away, and unlike the web privacy can be easily reclaimed by instantly creating new device identifiers.
+In the scenario of Share File Systems it takes great effort to give privacy away, and unlike the web privacy, can be easily reclaimed by instantly creating new device identifiers.
 
 Decentralization allows for cheap fault tolerance.
 Organizations like Google, Microsoft, and Facebook have invested billions of dollars into large data centers with sophisticated fault tolerant schemes.
-In the model of Shared File Systems each user owns their own fault tolerance risk where recovery is as fast as swapping physical devices or cloning a hard disk.
+In the model of Shared File Systems, each user owns their own fault tolerance risk where recovery is as fast as swapping physical devices or cloning a hard disk.
 This level of fault tolerance requires a little bit of discipline and almost no money.
 
 Decentralization allows for regulation avoidance.
