@@ -1,15 +1,17 @@
 <!-- documentation/decentralization - A brief write up explaining how this application invents full decentralization. -->
 
 # Decentralization and Share File Systems
+Decentralization simply means to transmit without an intermediary.
+An intermediary is any party not specified as a terminal point of a transmission operating at the same topological level of technology as the given transmission message.
+This project is written to achieve decentralization and exceed full [Zero Trust Conformance](https://en.wikipedia.org/wiki/Zero_trust_security_model) for OSI layers 5, 6, and 7 according to both US Army and Microsoft zero trust definitions.
+
+## Project Status
 This document is written on 26 July 2023 at version 0.3.0 of Share File Systems.
 At this time Share File System is tested for identical functionality on Windows 10, MacOS 10.15 Catalina, Fedora Linux, Debian Linux (Ubuntu), and Arch Linux.
 The required local certificates fully install as trusted as a part of the installation script on Windows and Linux provided necessary local permissions.
 MacOS will install the certificates properly, but this certificates require a manual trust action.
 
-Decentralization simply means to transmit without an intermediary.
-An intermediary is any party not specified as a terminal point of a transmission operating at the same topological level of technology as the given transmission message.
-This project is written to achieve full [Zero Trust Conformance](https://en.wikipedia.org/wiki/Zero_trust_security_model) for OSI layers 5, 6, and 7.
-
+## Introduction
 [Vitalik Buterin](https://en.wikipedia.org/wiki/Vitalik_Buterin), inventor of the Ethereum blockchain, defines decentralization as a [matrix of three dimensions](https://medium.com/@VitalikButerin/the-meaning-of-decentralization-a0c92b76a274):
 * Architectural - Degree of convergence of physical and topological assets.
 * Political - Degree of convergence amongst owners and maintainers.
@@ -17,6 +19,7 @@ This project is written to achieve full [Zero Trust Conformance](https://en.wiki
 
 According to Buterin his invention Ethereum was created to achieve some degree of decentralization and yet remains logically centralized where the resulting artifact, a distributed ledger, behaves as if a single software instance.
 Share File Systems achieves complete decentralization through a model of fully separated spheres of influence, its security model.
+By products of decentralization include inherent privacy, regulatory avoidance, freedom from government oversight, improved security, more durable connectivity, and its free.
 
 ## Security Model
 The security model exists to define relationships between types of identity.
