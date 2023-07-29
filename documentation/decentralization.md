@@ -4,14 +4,20 @@
 Decentralization simply means to transmit without an intermediary.
 An intermediary is any party not specified as a terminal point of a transmission operating at the same topological level of technology as the given transmission message.
 This project is written to achieve decentralization and exceed full [Zero Trust Conformance](https://en.wikipedia.org/wiki/Zero_trust_security_model) for OSI layers 5, 6, and 7 according to both US Army and Microsoft zero trust definitions.
+This project makes no use of block chain, ledgers, or other shared artifacts.
 
 ## Project Status
-This document is written on 26 July 2023 at version 0.3.0 of Share File Systems.
-At this time Share File System is tested for identical functionality on Windows 10, MacOS 10.15 Catalina, Fedora Linux, Debian Linux (Ubuntu), and Arch Linux.
-The required local certificates fully install as trusted as a part of the installation script on Windows and Linux provided necessary local permissions.
-MacOS will install the certificates properly, but this certificates require a manual trust action.
+* Document Dated: 26 July 2023.
+* Application Version: 0.3.0
+* Platform: Node.js / TypeScript
+* OS Support
+   - Windows 10
+   - Fedora Linux
+   - Debian Linux (Ubuntu)
+   - Arch Linux
+   - Mac OS 10.15 (Catalina) - requires manual certificate trust
 
-## Introduction
+## Introduction to Decentralization
 [Vitalik Buterin](https://en.wikipedia.org/wiki/Vitalik_Buterin), inventor of the Ethereum blockchain, defines decentralization as a [matrix of three dimensions](https://medium.com/@VitalikButerin/the-meaning-of-decentralization-a0c92b76a274):
 * Architectural - Degree of convergence of physical and topological assets.
 * Political - Degree of convergence amongst owners and maintainers.
@@ -20,6 +26,39 @@ MacOS will install the certificates properly, but this certificates require a ma
 According to Buterin his invention Ethereum was created to achieve some degree of decentralization and yet remains logically centralized where the resulting artifact, a distributed ledger, behaves as if a single software instance.
 Share File Systems achieves complete decentralization through a model of fully separated spheres of influence, its security model.
 By products of decentralization include inherent privacy, regulatory avoidance, freedom from government oversight, improved security, more durable connectivity, and its free.
+
+### Decentralization and Historical Precedent
+Examples of decentralization are littered through out history.
+Perhaps the most well known such example features the Gutenberg Printing Press.
+At that time in late medieval European two converging social conditions were growing in direct collision.
+On one hand international trade unleashed wealth, individual prosperity, and education like European society had never since experienced.
+Simultaneously the publishing, transmission, dissemination of ideas had contracted to the fewest hand-written transcriptions funded by only the most wealthy of institutions.
+The increased demand for literature and the unwillingness of contemporary methods to supply for that demand resulted in new technology.
+
+Although it took over 15 years to develop commercially reproducible models of the Gutenberg Press and nearly 50 more years for the idea to approach local popularity reaching 270 locations in southern Germany there was no political reaction to the press until it became popular.
+The first reaction of many ruling governments, only after popular reproduction of the press, involved various forms of licensing, permits, and other restrictions.
+These restrictions occurred as a means to generate tax revenue but the purpose was to limit the free exercise of speech by commoners in opposition to the ruling elite.
+Many of these restrictions only served to further popularize the printing press as a form of social rebellion more recently termed the [Streisand Effect](https://en.wikipedia.org/wiki/Streisand_effect).
+
+Another critical example of decentralization is the [US Army Signal Corps](https://en.wikipedia.org/wiki/United_States_Army_Signal_Corps).
+At its creation the Signal Corps existed to route information across a battlefield to speed orders from field command to front line troops and simultaneously inform field commanders of events on the front line.
+The success of indirect field communications was first proven in battle as an enabling factor for tactical superiority by confederate forces during the US Civil War by [Edward Porter Alexander](https://en.wikipedia.org/wiki/Edward_Porter_Alexander) during the [First Battle of Bull Run](https://en.wikipedia.org/wiki/First_Battle_of_Bull_Run).
+Field communications is now the supreme enabling factor of command and control in modern combat both tactically and strategically.
+Like the examples enabling the printing press modern military communications are being more centralized and expensive yet simultaneously there exists a growing need for modular flexibility in direct opposition to centralized command and control systems.
+
+### Decentralization, Perceptions and Bias
+The primary benefit of decentralization is its near impossibility to regulate and/or restrict.
+The first communications perceived to immediately benefit from such expanded freedoms are social deviations such as obscenities, criminal activity, and persecuted minorities.
+In reality everyone benefits equally immediately upon accepting such expanded freedoms.
+
+In that regard decentralization directly resembles accessibility.
+When the [Americans with Disabilities Act](https://en.wikipedia.org/wiki/Americans_with_Disabilities_Act_of_1990) first became law one of the most public changes to occur was the mandate of wheelchair ramps to all public entrances of Airports.
+At first the common opinion was disapproval that the government mandated such great expense to unnecessarily refactor various entry ways for such a small minority group.
+In practice everybody benefitted equally, for example: people with rolling luggage, child strollers, and many people just preferred ramps to stairs even if not disabled.
+This same bias continues to falsely apply to various forms of digital communications and yet various studies continue to demonstrate that accessible digital communications benefit everybody equally.
+
+Decentralization seeks to liberate people from various forms of regulation and restriction.
+Information wants to be freely expressed as much as people are willing to express it without it being used as a weapon against those people for such acts of expression.
 
 ## Security Model
 The security model exists to define relationships between types of identity.
@@ -36,7 +75,7 @@ Physical units are fully distributed within a given user and fully decentralized
 Ownership is limited to users and all users are separately equal peers to achieve complete political decentralization.
 
 The degree of logical centralization is up to a given user in how they manage their own devices thereby potentially achieving complete logical decentralization.
-Each device may can achieve full computational isolation apart from other peer devices or a user may choose to invoke automated replication schemes to create logical redundances of data and transmission.
+Each device may can achieve full computational isolation apart from other peer devices or a user may choose to invoke automated replication schemes to create logical redundancies of data and transmission.
 
 ### Formulation
 All identity types are SHA3-512 hash sequences expressed in 128 character hexadecimal format.
