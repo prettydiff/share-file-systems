@@ -3,7 +3,7 @@
 # Decentralization and Share File Systems
 Decentralization simply means to transmit without an intermediary.
 An intermediary is any party not specified as a terminal point of a transmission operating at the same topological level of technology as the given transmission message.
-This project is written to achieve decentralization and exceed full [Zero Trust Conformance](https://en.wikipedia.org/wiki/Zero_trust_security_model) for OSI layers 5, 6, and 7 according to both US Army and Microsoft zero trust definitions.
+This project is written to achieve decentralization and exceed full [Zero Trust Conformance](https://en.wikipedia.org/wiki/Zero_trust_security_model) for [OSI layers](https://en.wikipedia.org/wiki/OSI_model) [5](https://en.wikipedia.org/wiki/Session_layer), [6](https://en.wikipedia.org/wiki/Presentation_layer), and [7](https://en.wikipedia.org/wiki/Application_layer) according to both US Army and Microsoft zero trust definitions.
 This project makes no use of block chain, ledgers, or other shared artifacts.
 
 ## Project Status
@@ -29,7 +29,7 @@ By products of decentralization include inherent privacy, regulatory avoidance, 
 
 ### Decentralization and Historical Precedent
 Examples of decentralization are littered through out history.
-Perhaps the most well known such example features the Gutenberg Printing Press.
+Perhaps the most well known such example features the [Gutenberg Printing Press](https://www.gutenberg.org/cache/epub/51034/pg51034-images.html).
 At that time in late medieval European two converging social conditions were growing in direct collision.
 On one hand international trade unleashed wealth, individual prosperity, and education like European society had never since experienced.
 Simultaneously the publishing, transmission, dissemination of ideas had contracted to the fewest hand-written transcriptions funded by only the most wealthy of institutions.
@@ -43,8 +43,8 @@ Many of these restrictions only served to further popularize the printing press 
 Another critical example of decentralization is the [US Army Signal Corps](https://en.wikipedia.org/wiki/United_States_Army_Signal_Corps).
 At its creation the Signal Corps existed to route information across a battlefield to speed orders from field command to front line troops and simultaneously inform field commanders of events on the front line.
 The success of indirect field communications was first proven in battle as an enabling factor for tactical superiority by confederate forces during the US Civil War by [Edward Porter Alexander](https://en.wikipedia.org/wiki/Edward_Porter_Alexander) during the [First Battle of Bull Run](https://en.wikipedia.org/wiki/First_Battle_of_Bull_Run).
-Field communications is now the supreme enabling factor of command and control in modern combat both tactically and strategically.
-Like the examples enabling the printing press modern military communications are being more centralized and expensive yet simultaneously there exists a growing need for modular flexibility in direct opposition to centralized command and control systems.
+Field communications are now the supreme enabling factor of command and control in modern combat both tactically and strategically.
+Like the examples enabling the printing press modern military communications are becoming [more centralized and expensive](https://api.army.mil/e2/c/downloads/2022/10/14/106b220e/army-cloud-plan-2022.pdf) yet simultaneously there exists a [growing need for modular flexibility](https://www.armyupress.army.mil/Journals/Military-Review/English-Edition-Archives/May-June-2023/Graveyard-of-Command-Posts/) in direct opposition to centralized command and control systems.
 
 ### Decentralization, Perceptions and Bias
 The primary benefit of decentralization is its near impossibility to regulate and/or restrict.
