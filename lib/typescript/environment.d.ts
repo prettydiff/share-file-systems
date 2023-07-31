@@ -12,6 +12,7 @@
  *     loadQueue: socketData[];
  *     message: service_message;
  *     pageBody: HTMLElement;
+ *     scrollbar: number;
  *     socket: WebSocket;
  *     style: HTMLStyleElement;
  *     testBrowser: service_testBrowser;
@@ -29,6 +30,7 @@ interface browser {
     message: service_message;
     network: localNetwork;
     pageBody: HTMLElement;
+    scrollbar: number;
     socket: WebSocket;
     style: HTMLStyleElement;
     testBrowser: service_testBrowser;

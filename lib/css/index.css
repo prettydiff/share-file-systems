@@ -162,14 +162,14 @@ body.login #spaces{bottom:0;padding:2.5em 0 0;position:fixed;top:0}
 #spaces .box .socket-list tbody th{font-weight:normal}
 
 /* minimize tray at bottom */
-#spaces #tray{border-style:solid;border-width:0.1em 0.1em 0.1em 0;bottom:0;display:block;min-height:6em;margin:0 0 1.6em 0;padding:0;position:fixed;z-index:1}
+#spaces #tray{border-style:solid;border-width:0.1em 0.1em 0.1em 0;bottom:0;display:block;min-height:6em;padding:0;position:fixed;z-index:1}
 #spaces #tray li{display:inline-block;margin:0 1.5em}
 #spaces #tray li h2 button{border-width:0.05em}
 #spaces #tray .box{box-shadow:none;position:static}
 #spaces #tray .box h2.heading{border-style:solid}
 #spaces #tray .border{border-style:none;padding:0}
 #spaces #tray h2 button{border-style:none}
-#spaces #minimize-all{float:right;height:2.5em;margin:-0.05em 0 0 -0.05em;width:2.5em}
+#spaces #minimize-all{float:right;height:2.5em;width:2.5em}
 
 /* modal */
 #spaces .box{border-style:none;left:auto;margin:0;padding:0;position:absolute;z-index:10}
@@ -452,13 +452,9 @@ body.login #spaces{bottom:0;padding:2.5em 0 0;position:fixed;top:0}
 /* scrollbar - blink, webkit */
 #spaces *::-webkit-scrollbar-thumb{border-style:solid;border-width:0.1em}
 #spaces *::-webkit-scrollbar:vertical{border-width:0 0 0 0.1em;width:1.6em}
-#spaces textarea::-webkit-scrollbar:vertical{width:1.2em}
-#spaces textarea.code::-webkit-scrollbar:vertical,
-#spaces textarea.text::-webkit-scrollbar:vertical{width:0.89em}
+#spaces textarea::-webkit-scrollbar:vertical{width:0.89em}
 #spaces *::-webkit-scrollbar:horizontal{border-width:0.1em 0 0 0;display:block;height:1.6em}
-#spaces textarea::-webkit-scrollbar:horizontal{height:1.2em}
-#spaces textarea.code::-webkit-scrollbar:horizontal,
-#spaces textarea.text::-webkit-scrollbar:horizontal{height:0.89em}
+#spaces textarea::-webkit-scrollbar:horizontal{height:0.89em}
 #spaces *::-webkit-scrollbar-button{display:none}
 
 /* scrollbar - gecko, trident */

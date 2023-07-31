@@ -18,18 +18,18 @@ import webSocket from "./webSocket.js";
  * interface module_modal {
  *     content: (options:config_modal) => modal; // Creates a new modal.
  *     events: {
- *         close         : (event:MouseEvent) => void;                  // Closes a modal by removing it from the DOM, removing it from state, and killing any associated media.
- *         closeEnduring : (event:MouseEvent) => void;                  // Modal types that are enduring are hidden, not destroyed, when closed.
- *         confirm       : (event:MouseEvent) => void;                  // Handling for an optional confirmation button.
- *         footerResize  : (event:MouseEvent) => void;                  // If a resizable textarea element is present in the modal outside the body this ensures the body is the correct size.
- *         importSettings: (event:MouseEvent) => void;                  // Handler for import/export modals that modify saved settings from an imported JSON string then reloads the page.
+ *         close         : (event:MouseEvent) => void;                               // Closes a modal by removing it from the DOM, removing it from state, and killing any associated media.
+ *         closeEnduring : (event:MouseEvent) => void;                               // Modal types that are enduring are hidden, not destroyed, when closed.
+ *         confirm       : (event:MouseEvent) => void;                               // Handling for an optional confirmation button.
+ *         footerResize  : (event:MouseEvent) => void;                               // If a resizable textarea element is present in the modal outside the body this ensures the body is the correct size.
+ *         importSettings: (event:MouseEvent) => void;                               // Handler for import/export modals that modify saved settings from an imported JSON string then reloads the page.
  *         maximize      : (event:MouseEvent, callback?:() => void, target?:HTMLElement) => void; // Maximizes a modal to fill the view port.
  *         minimize      : (event:MouseEvent, callback?:() => void, target?:HTMLElement) => void; // Minimizes a modal to the tray at the bottom of the page.
- *         move          : (event:MouseEvent|TouchEvent) => void;       // Allows dragging a modal around the screen.
- *         resize        : (event:MouseEvent|TouchEvent) => void;       // Resizes a modal respective to the event target, which could be any of 4 corners or 4 sides.
- *         textSave      : (event:Event) => void;                       // Handler to push the text content of a text-pad modal into settings so that it is saved.
- *         textTimer     : (event:KeyboardEvent) => void;               // A timing event so that contents of a text-pad modal are automatically save after a brief duration of focus blur.
- *         unMinimize    : (event:MouseEvent) => void;                  // Restores a minimized modal to its prior size and location.
+ *         move          : (event:MouseEvent|TouchEvent) => void;                    // Allows dragging a modal around the screen.
+ *         resize        : (event:MouseEvent|TouchEvent, boxElement?:modal) => void; // Resizes a modal respective to the event target, which could be any of 4 corners or 4 sides.
+ *         textSave      : (event:Event) => void;                                    // Handler to push the text content of a text-pad modal into settings so that it is saved.
+ *         textTimer     : (event:KeyboardEvent) => void;                            // A timing event so that contents of a text-pad modal are automatically save after a brief duration of focus blur.
+ *         unMinimize    : (event:MouseEvent) => void;                               // Restores a minimized modal to its prior size and location.
  *         zTop          : (event:KeyboardEvent|MouseEvent, elementInput?:HTMLElement) => void; // Processes visual overlapping or depth of modals.
  *     };
  *     tools: {
@@ -41,7 +41,7 @@ import webSocket from "./webSocket.js";
 const modal:module_modal = {
 
     /* Modal creation factory */
-    content: function browser_utilities_modal_content(options:config_modal):HTMLElement {
+    content: function browser_utilities_modal_content(options:config_modal):modal {
         let buttonCount:number = 0,
             section:HTMLElement = document.createElement("h2"),
             input:HTMLInputElement,
@@ -430,6 +430,10 @@ const modal:module_modal = {
             if (options.callback !== undefined) {
                 options.callback();
             }
+        }
+
+        if (options.footer !== undefined && options.footer !== null && options.footer.getElementsByTagName("textarea").length > 0) {
+            modal.events.resize(null, box);
         }
 
         // return modal
@@ -825,11 +829,15 @@ const modal:module_modal = {
         },
     
         /* Allows resizing of modals in 1 of 8 directions */
-        resize: function browser_utilities_modal_resize(event:MouseEvent|TouchEvent):void {
+        resize: function browser_utilities_modal_resize(event:MouseEvent|TouchEvent, boxElement?:modal):void {
             let clientWidth:number  = 0,
                 clientHeight:number = 0;
-            const node:HTMLElement = event.target,
-                box:modal = node.getAncestor("box", "class"),
+            const node:HTMLElement = (boxElement === null || boxElement === undefined)
+                    ? event.target
+                    : boxElement.getElementsByClassName("side-r")[0] as HTMLElement,
+                box:modal = (boxElement === null || boxElement === undefined)
+                    ? node.getAncestor("box", "class")
+                    : boxElement,
                 top:number = box.offsetTop,
                 left:number = box.offsetLeft,
                 body:HTMLElement = box.getElementsByClassName("body")[0] as HTMLElement,
@@ -864,12 +872,16 @@ const modal:module_modal = {
                 sideTop:HTMLElement = box.getElementsByClassName("side-t")[0] as HTMLElement,
                 mouseEvent:MouseEvent = event as MouseEvent,
                 touchEvent:TouchEvent = event as TouchEvent,
-                offX:number = (touch === true)
-                    ? touchEvent.touches[0].clientX
-                    : mouseEvent.clientX,
-                offY:number = (touch === true)
-                    ? touchEvent.touches[0].clientY
-                    : mouseEvent.clientY,
+                offX:number = (event === null)
+                    ? node.offsetLeft
+                    : (touch === true)
+                        ? touchEvent.touches[0].clientX
+                        : mouseEvent.clientX,
+                offY:number = (event === null)
+                    ? node.offsetTop
+                    : (touch === true)
+                        ? touchEvent.touches[0].clientY
+                        : mouseEvent.clientY,
                 mac:boolean = (navigator.userAgent.indexOf("macintosh") > 0),
                 direction:resizeDirection = node.getAttribute("class").split("-")[1] as resizeDirection,
                 offsetWidth:number = (mac === true)
@@ -899,31 +911,28 @@ const modal:module_modal = {
                     network.configuration();
                 },
                 compute = function browser_utilities_modal_resize_compute(leftTest:boolean, topTest:boolean, values:[number, number]):void {
-                    const minWidth:number = 55.7;
-                    let bodyWidth:number,
-                        bodyHeight:number,
-                        computedWidth:number,
-                        computedHeight:number,
-                        widths:[number, number] = null;
                     if (values[0] > -10) {
-                        computedWidth = (leftTest === true)
-                            ? left + (values[0] - offX)
-                            : (clientWidth + ((values[0] - offsetWidth) - offX)) / 10;
-                        bodyWidth = (leftTest === true)
-                            ? ((clientWidth - offsetWidth) + (left - computedWidth)) / 10
-                            : 0;
-                        widths = modal.tools.dynamicWidth(box, null, null);
-                        if (leftTest === true && bodyWidth > minWidth) {
+                        const minWidth:number = 55.7,
+                            computedWidth:number = (leftTest === true)
+                                ? left + (values[0] - offX)
+                                : (clientWidth + ((values[0] - offsetWidth) - offX)) / 10,
+                            bodyWidth = (leftTest === true)
+                                ? ((clientWidth - offsetWidth) + (left - computedWidth)) / 10
+                                : 0,
+                            bodyLong:boolean = (leftTest === true && bodyWidth > minWidth),
+                            principle:number = (bodyLong === true)
+                                ? bodyWidth
+                                : computedWidth,
+                            widths:[number, number] = modal.tools.dynamicWidth(box, null, null);
+                        if (bodyLong === true) {
                             box.style.left = `${computedWidth / 10}em`;
-                            body.style.width = `${bodyWidth}em`;
-                            sideBottom.style.width = `${bodyWidth}em`;
-                            sideTop.style.width = `${bodyWidth}em`;
-                            heading.style.width = `${bodyWidth + 0.2}em`;
-                        } else if (leftTest === false && computedWidth > minWidth) {
-                            body.style.width = `${computedWidth}em`;
-                            sideBottom.style.width = `${computedWidth}em`;
-                            sideTop.style.width = `${computedWidth}em`;
-                            heading.style.width = `${computedWidth + 0.2}em`;
+                        }
+                        if (bodyLong === true || (leftTest === false && computedWidth > minWidth)) {
+                            body.style.width = `${principle}em`;
+                            footer.style.width = `${principle - 2 - ((browser.scrollbar + 3) / 10)}em`;
+                            sideBottom.style.width = `${principle}em`;
+                            sideTop.style.width = `${principle}em`;
+                            heading.style.width = `${principle + 0.2}em`;
                         }
                         headingButton.style.width = `${widths[0]}em`;
                         if (statusBar !== undefined) {
@@ -932,12 +941,12 @@ const modal:module_modal = {
                         }
                     }
                     if (values[1] > -10) {
-                        computedHeight = (topTest === true)
-                            ? top + (values[1] - offY)
-                            : (clientHeight + ((values[1] - offsetHeight) - offY)) / 10;
-                        bodyHeight = (topTest === true)
-                            ? ((clientHeight - offsetHeight) + (top - computedHeight)) / 10
-                            : 0;
+                        const computedHeight = (topTest === true)
+                                ? top + (values[1] - offY)
+                                : (clientHeight + ((values[1] - offsetHeight) - offY)) / 10,
+                            bodyHeight = (topTest === true)
+                                ? ((clientHeight - offsetHeight) + (top - computedHeight)) / 10
+                                : 0;
                         if (topTest === true && ((clientHeight - offsetHeight) + (top - computedHeight)) / 10 > 10) {
                             box.style.top = `${computedHeight / 10}em`;
                             body.style.height  = `${bodyHeight}em`;
@@ -950,82 +959,49 @@ const modal:module_modal = {
                         }
                     }
                 },
+                nullCheck = function browser_utilities_modal_resize_nullCheck(moveEvent:MouseEvent|TouchEvent, xCheck:boolean, yCheck:boolean):[number, number] {
+                    const mouseMove:MouseEvent = moveEvent as MouseEvent,
+                        touchMove:TouchEvent = moveEvent as TouchEvent,
+                        x:number = (moveEvent === null)
+                            ? offX - 8
+                            : (xCheck === true)
+                                ? (touch === true)
+                                    ? touchMove.touches[0].clientX
+                                    : mouseMove.clientX
+                                : -10,
+                        y:number = (moveEvent === null)
+                            ? offY - 8
+                            : (yCheck === true)
+                                ? (touch === true)
+                                    ? touchMove.touches[0].clientY
+                                    : mouseMove.clientY
+                                : -10;
+                    return [x, y];
+                },
                 side:modal_borderMethods    = {
                     b: function browser_utilities_modal_resize_sizeB(moveEvent:MouseEvent|TouchEvent):void {
-                        const mouseMove:MouseEvent = moveEvent as MouseEvent,
-                            touchMove:TouchEvent = moveEvent as TouchEvent,
-                            y:number = (touch === true)
-                                ? touchMove.touches[0].clientY
-                                : mouseMove.clientY;
-                        compute(false, false, [-10, y]);
+                        compute(false, false, nullCheck(moveEvent, false, true));
                     },
                     bl: function browser_utilities_modal_resize_sizeBL(moveEvent:MouseEvent|TouchEvent):void {
-                        const mouseMove:MouseEvent = moveEvent as MouseEvent,
-                            touchMove:TouchEvent = moveEvent as TouchEvent,
-                            x:number = (touch === true)
-                                ? touchMove.touches[0].clientX
-                                : mouseMove.clientX,
-                            y:number = (touch === true)
-                                ? touchMove.touches[0].clientY
-                                : mouseMove.clientY;
-                        compute(true, false, [x, y]);
+                        compute(true, false, nullCheck(moveEvent, true, true));
                     },
                     br: function browser_utilities_modal_resize_sizeBR(moveEvent:MouseEvent|TouchEvent):void {
-                        const mouseMove:MouseEvent = moveEvent as MouseEvent,
-                            touchMove:TouchEvent = moveEvent as TouchEvent,
-                            x:number = (touch === true)
-                                ? touchMove.touches[0].clientX
-                                : mouseMove.clientX,
-                            y:number = (touch === true)
-                                ? touchMove.touches[0].clientY
-                                : mouseMove.clientY;
-                        compute(false, false, [x, y]);
+                        compute(false, false, nullCheck(moveEvent, true, true));
                     },
                     l: function browser_utilities_modal_resize_sizeL(moveEvent:MouseEvent|TouchEvent):void {
-                        const mouseMove:MouseEvent = moveEvent as MouseEvent,
-                            touchMove:TouchEvent = moveEvent as TouchEvent,
-                            x:number = (touch === true)
-                                ? touchMove.touches[0].clientX
-                                : mouseMove.clientX;
-                        compute(true, false, [x, -10]);
+                        compute(true, false, nullCheck(moveEvent, true, false));
                     },
                     r: function browser_utilities_modal_resize_sizeR(moveEvent:MouseEvent|TouchEvent):void {
-                        const mouseMove:MouseEvent = moveEvent as MouseEvent,
-                            touchMove:TouchEvent = moveEvent as TouchEvent,
-                            x:number = (touch === true)
-                                ? touchMove.touches[0].clientX
-                                : mouseMove.clientX;
-                        compute(false, false, [x, -10]);
+                        compute(false, false, nullCheck(moveEvent, true, false));
                     },
                     t: function browser_utilities_modal_resize_sizeT(moveEvent:MouseEvent|TouchEvent):void {
-                        const mouseMove:MouseEvent = moveEvent as MouseEvent,
-                            touchMove:TouchEvent = moveEvent as TouchEvent,
-                            y:number = (touch === true)
-                                ? touchMove.touches[0].clientY
-                                : mouseMove.clientY;
-                        compute(false, true, [-10, y]);
+                        compute(false, true, nullCheck(moveEvent, false, true));
                     },
                     tl: function browser_utilities_modal_resize_sizeTL(moveEvent:MouseEvent|TouchEvent):void {
-                        const mouseMove:MouseEvent = moveEvent as MouseEvent,
-                            touchMove:TouchEvent = moveEvent as TouchEvent,
-                            x:number = (touch === true)
-                                ? touchMove.touches[0].clientX
-                                : mouseMove.clientX,
-                            y:number = (touch === true)
-                                ? touchMove.touches[0].clientY
-                                : mouseMove.clientY;
-                        compute(true, true, [x, y]);
+                        compute(true, true, nullCheck(moveEvent, true, true));
                     },
                     tr: function browser_utilities_modal_resize_sizeTR(moveEvent:MouseEvent|TouchEvent):void {
-                        const mouseMove:MouseEvent = moveEvent as MouseEvent,
-                            touchMove:TouchEvent = moveEvent as TouchEvent,
-                            x:number = (touch === true)
-                                ? touchMove.touches[0].clientX
-                                : mouseMove.clientX,
-                            y:number = (touch === true)
-                                ? touchMove.touches[0].clientY
-                                : mouseMove.clientY;
-                        compute(false, true, [x, y]);
+                        compute(false, true, nullCheck(moveEvent, true, true));
                     }
                 };
             if (boxStatus === "maximized" || boxStatus === "minimized") {
@@ -1033,14 +1009,18 @@ const modal:module_modal = {
             }
             clientWidth  = body.clientWidth;
             clientHeight = body.clientHeight;
-            if (touch === true) {
-                document.ontouchmove  = side[direction];
-                document.ontouchstart = null;
-                document.ontouchend   = drop;
+            if (event === null) {
+                side[direction](null);
             } else {
-                document.onmousemove = side[direction];
-                document.onmousedown = null;
-                document.onmouseup   = drop;
+                if (touch === true) {
+                    document.ontouchmove  = side[direction];
+                    document.ontouchstart = null;
+                    document.ontouchend   = drop;
+                } else {
+                    document.onmousemove = side[direction];
+                    document.onmousedown = null;
+                    document.onmouseup   = drop;
+                }
             }
         },
     

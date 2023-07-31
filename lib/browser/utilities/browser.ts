@@ -19,6 +19,7 @@ const browser:browser = {
     network: null,
     message: [],
     pageBody: document.getElementsByTagName("body")[0],
+    scrollbar: 0,
     socket: null,
     style: document.createElement("style"),
     testBrowser: null,

@@ -442,18 +442,18 @@ interface module_message {
  * interface module_modal {
  *     content: (options:config_modal) => modal; // Creates a new modal.
  *     events: {
- *         close         : (event:MouseEvent) => void;                  // Closes a modal by removing it from the DOM, removing it from state, and killing any associated media.
- *         closeEnduring : (event:MouseEvent) => void;                  // Modal types that are enduring are hidden, not destroyed, when closed.
- *         confirm       : (event:MouseEvent) => void;                  // Handling for an optional confirmation button.
- *         footerResize  : (event:MouseEvent) => void;                  // If a resizable textarea element is present in the modal outside the body this ensures the body is the correct size.
- *         importSettings: (event:MouseEvent) => void;                  // Handler for import/export modals that modify saved settings from an imported JSON string then reloads the page.
+ *         close         : (event:MouseEvent) => void;                               // Closes a modal by removing it from the DOM, removing it from state, and killing any associated media.
+ *         closeEnduring : (event:MouseEvent) => void;                               // Modal types that are enduring are hidden, not destroyed, when closed.
+ *         confirm       : (event:MouseEvent) => void;                               // Handling for an optional confirmation button.
+ *         footerResize  : (event:MouseEvent) => void;                               // If a resizable textarea element is present in the modal outside the body this ensures the body is the correct size.
+ *         importSettings: (event:MouseEvent) => void;                               // Handler for import/export modals that modify saved settings from an imported JSON string then reloads the page.
  *         maximize      : (event:MouseEvent, callback?:() => void, target?:HTMLElement) => void; // Maximizes a modal to fill the view port.
  *         minimize      : (event:MouseEvent, callback?:() => void, target?:HTMLElement) => void; // Minimizes a modal to the tray at the bottom of the page.
- *         move          : (event:MouseEvent|TouchEvent) => void;       // Allows dragging a modal around the screen.
- *         resize        : (event:MouseEvent|TouchEvent) => void;       // Resizes a modal respective to the event target, which could be any of 4 corners or 4 sides.
- *         textSave      : (event:Event) => void;                       // Handler to push the text content of a text-pad modal into settings so that it is saved.
- *         textTimer     : (event:KeyboardEvent) => void;               // A timing event so that contents of a text-pad modal are automatically save after a brief duration of focus blur.
- *         unMinimize    : (event:MouseEvent) => void;                  // Restores a minimized modal to its prior size and location.
+ *         move          : (event:MouseEvent|TouchEvent) => void;                    // Allows dragging a modal around the screen.
+ *         resize        : (event:MouseEvent|TouchEvent, boxElement?:modal) => void; // Resizes a modal respective to the event target, which could be any of 4 corners or 4 sides.
+ *         textSave      : (event:Event) => void;                                    // Handler to push the text content of a text-pad modal into settings so that it is saved.
+ *         textTimer     : (event:KeyboardEvent) => void;                            // A timing event so that contents of a text-pad modal are automatically save after a brief duration of focus blur.
+ *         unMinimize    : (event:MouseEvent) => void;                               // Restores a minimized modal to its prior size and location.
  *         zTop          : (event:KeyboardEvent|MouseEvent, elementInput?:HTMLElement) => void; // Processes visual overlapping or depth of modals.
  *     };
  *     tools: {
@@ -473,7 +473,7 @@ interface module_modal {
         maximize: (event:MouseEvent, callback?:() => void, target?:HTMLElement) => void;
         minimize: (event:MouseEvent, callback?:() => void, target?:HTMLElement) => void;
         move: (event:MouseEvent|TouchEvent) => void;
-        resize: (event:MouseEvent|TouchEvent) => void;
+        resize: (event:MouseEvent|TouchEvent, boxElement?:modal) => void;
         textSave: (event:Event) => void;
         textTimer: (event:KeyboardEvent) => void;
         unMinimize: (event:MouseEvent) => void;

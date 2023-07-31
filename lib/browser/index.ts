@@ -345,13 +345,12 @@ import disallowed from "../common/disallowed.js";
                 const height:number   = window.innerHeight || document.getElementsByTagName("body")[0].clientHeight;
                 browser.content.style.height = `${(height - 51) / 10}em`;
                 document.getElementById("agentList").style.height = `${(window.innerHeight - 80) / 10}em`;
-                document.getElementById("tray").style.width = `${(window.innerWidth - 17.5) / 10}em`;
+                document.getElementById("tray").style.width = `${(window.innerWidth - browser.scrollbar - 1) / 10}em`;
             };
 
         // readjusting the visual appearance of artifacts in the DOM to fit the screen before they are visible to eliminate load drag from page repaint
         window.onresize = fixHeight;
         document.getElementsByTagName("head")[0].appendChild(browser.style);
-        fixHeight();
         agentList.style.right = (function browser_init_scrollBar():string {
             // agent list is position:fixed, which is outside of parent layout, so I need to ensure it does not overlap the parent scrollbar
             let width:number = 0;
@@ -363,8 +362,11 @@ import disallowed from "../common/disallowed.js";
             browser.pageBody.appendChild(div);
             width = (div.offsetWidth - inner.offsetWidth);
             browser.pageBody.removeChild(div);
+            browser.scrollbar = width;
+            document.getElementById("tray").style.margin = `0 0 ${width / 10}em 0`;
             return `${(width / 10)}em`;
         }());
+        fixHeight();
 
         // set state from artifacts supplied to the page
         if (stateItem.getAttribute("type") === "hidden") {
