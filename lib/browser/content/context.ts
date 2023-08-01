@@ -7,6 +7,7 @@ import modal_configuration from "../utilities/modal_configurations.js";
 import network from "../utilities/network.js";
 import share from "./share.js";
 import util from "../utilities/util.js";
+import webSocket from "../utilities/webSocket.js";
 
 // cspell:words agenttype
 
@@ -316,6 +317,9 @@ const context:module_context = {
             const menu:HTMLElement = document.getElementById("contextMenu");
             if (menu !== null) {
                 menu.parentNode.removeChild(menu);
+            }
+            if (browser.socket === null) {
+                webSocket.start(null, browser.identity.hashDevice);
             }
         },
 

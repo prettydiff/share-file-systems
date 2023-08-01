@@ -22,10 +22,7 @@ const agent_status:module_agentStatus = {
             const socket = function browser_utilities_agentStatus_active_socket():void {
                     agent_status.idleDelay = setTimeout(agent_status.idle, browser.ui.statusTime);
                     if (active === false) {
-                        // this delay prevents write collisions on interactions that result in network activity
-                        setTimeout(function browser_utilities_agentStatus_active_socket_setTimeout():void {
-                            network.send(agent_status.selfStatus, "agent-status");
-                        }, 50);
+                        network.send(agent_status.selfStatus, "agent-status");
                     }
                 },
                 active:boolean = (agent_status.selfStatus.status === "active"),
@@ -38,11 +35,7 @@ const agent_status:module_agentStatus = {
                 event.stopPropagation();
             }
             clearTimeout(agent_status.idleDelay);
-            if (browser.socket !== null) {
-                socket();
-            } else if (browser.loading === false) {
-                webSocket.start(socket, browser.identity.hashDevice);
-            }
+            socket();
             if (Notification.permission === "default") {
                 void Notification.requestPermission();
             }

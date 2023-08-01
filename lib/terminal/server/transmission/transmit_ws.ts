@@ -912,38 +912,45 @@ const transmit_ws:module_transmit_ws = {
             transmit_ws.socketList[config.type as agentType | "browser"][config.identifier] === undefined
         ) {
             const ping = function terminal_server_transmission_transmitWs_socketExtension_ping(ttl:number, callback:(err:node_error, roundtrip:bigint) => void):void {
-                const errorObject = function terminal_server_transmission_transmitWs_socketExtension_ping_errorObject(code:string, message:string):node_error {
-                        const err:node_error = new Error(),
-                            agent:agent = (config.socket.type === "browser")
-                                ? null
-                                : vars.agents[config.socket.type as agentType][config.socket.hash],
-                            name:string = (config.socket.type === "browser")
-                                ? config.socket.hash
-                                : (agent === null || agent === undefined)
-                                    ? "unknown socket"
-                                    : agent.name;
-                        err.code = code;
-                        err.message = `${message} Socket type ${config.socket.type} and name ${name}.`;
-                        return err;
-                    };
-                if (config.socket.status !== "open") {
-                    callback(errorObject("ECONNABORTED", "Ping error on websocket without 'open' status."), null);
-                } else {
-                    const nameSlice:string = config.socket.hash.slice(0, 125);
-                    // send ping
-                    transmit_ws.queue(Buffer.from(nameSlice), config.socket, 9);
-                    config.socket.pong[nameSlice] = {
-                        callback: callback,
-                        start: process.hrtime.bigint(),
-                        timeOut: setTimeout(function terminal_server_transmission_transmitWs_socketExtension_ping_delay():void {
-                            callback(config.socket.pong[nameSlice].timeOutMessage, null);
-                            delete config.socket.pong[nameSlice];
-                        }, ttl),
-                        timeOutMessage: errorObject("ETIMEDOUT", "Ping timeout on websocket."),
-                        ttl: BigInt(ttl * 1e6)
-                    };
-                }
-            };
+                    const errorObject = function terminal_server_transmission_transmitWs_socketExtension_ping_errorObject(code:string, message:string):node_error {
+                            const err:node_error = new Error(),
+                                agent:agent = (config.socket.type === "browser")
+                                    ? null
+                                    : vars.agents[config.socket.type as agentType][config.socket.hash],
+                                name:string = (config.socket.type === "browser")
+                                    ? config.socket.hash
+                                    : (agent === null || agent === undefined)
+                                        ? "unknown socket"
+                                        : agent.name;
+                            err.code = code;
+                            err.message = `${message} Socket type ${config.socket.type} and name ${name}.`;
+                            return err;
+                        };
+                    if (config.socket.status !== "open") {
+                        callback(errorObject("ECONNABORTED", "Ping error on websocket without 'open' status."), null);
+                    } else {
+                        const nameSlice:string = config.socket.hash.slice(0, 125);
+                        // send ping
+                        transmit_ws.queue(Buffer.from(nameSlice), config.socket, 9);
+                        config.socket.pong[nameSlice] = {
+                            callback: callback,
+                            start: process.hrtime.bigint(),
+                            timeOut: setTimeout(function terminal_server_transmission_transmitWs_socketExtension_ping_delay():void {
+                                callback(config.socket.pong[nameSlice].timeOutMessage, null);
+                                delete config.socket.pong[nameSlice];
+                            }, ttl),
+                            timeOutMessage: errorObject("ETIMEDOUT", "Ping timeout on websocket."),
+                            ttl: BigInt(ttl * 1e6)
+                        };
+                    }
+                },
+                socketEnd = function terminal_server_transmission_transmitWs_socketExtension_socketEnd():void {
+                    if (config.socket.type === "device" || config.socket.type === "user") {
+                        transmit_ws.agentClose(config.socket);
+                    }
+                    config.socket.status = "end";
+                    transmit_ws.list();
+                };
             config.socket.fragment = Buffer.from([]); // storehouse of complete data frames, which will comprise a frame header and payload body that may be fragmented
             config.socket.frame = Buffer.from([]);  // stores pieces of frames, which can be divided due to TLS decoding or header separation from some browsers
             config.socket.frameExtended = 0;        // stores the payload size of a given message payload as derived from the extended size bytes of a frame header
@@ -994,13 +1001,8 @@ const transmit_ws:module_transmit_ws = {
                     }
                 }
             }
-            config.socket.on("end", function terminal_server_transmission_transmitWs_socketExtension_socketEnd():void {
-                if (config.socket.type === "device" || config.socket.type === "user") {
-                    transmit_ws.agentClose(config.socket);
-                }
-                config.socket.status = "end";
-                transmit_ws.list();
-            });
+            config.socket.on("end", socketEnd);
+            config.socket.on("close", socketEnd);
             config.socket.on("error", function terminal_server_transmission_transmitWs_socketExtension_socketError(errorMessage:node_error):void {
                 if (vars.settings.verbose === true || vars.test.type === "browser_device" || vars.test.type === "browser_user") {
                     error([

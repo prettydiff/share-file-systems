@@ -75,7 +75,6 @@ const modal:module_modal = {
             socket:WebSocket = (options.socket === true)
                 ? new webSocket.sock(`${scheme}://localhost:${browser.network.ports.ws}/`, [`${options.type}-${browser.identity.hashDevice}`])
                 : null;
-
         // Uniqueness constraints
         if (browser.ui.modalTypes.indexOf(options.type) > -1) {
             if (options.single === true) {
@@ -469,6 +468,10 @@ const modal:module_modal = {
                 network.send(invitation, "invite");
             } else if (type === "media") {
                 media.tools.kill(browser.ui.modals[id]);
+            }
+
+            if (box.socket !== null && box.socket !== undefined) {
+                box.socket.close();
             }
     
             // remove the box
@@ -929,7 +932,9 @@ const modal:module_modal = {
                         }
                         if (bodyLong === true || (leftTest === false && computedWidth > minWidth)) {
                             body.style.width = `${principle}em`;
-                            footer.style.width = `${principle - 2 - ((browser.scrollbar + 3) / 10)}em`;
+                            if (footer !== undefined && footer !== null) {
+                                footer.style.width = `${principle - 2 - ((browser.scrollbar + 3) / 10)}em`;
+                            }
                             sideBottom.style.width = `${principle}em`;
                             sideTop.style.width = `${principle}em`;
                             heading.style.width = `${principle + 0.2}em`;

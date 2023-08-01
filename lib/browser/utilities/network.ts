@@ -122,9 +122,10 @@ const network:module_network = {
             browser.loadQueue.push(socketData);
         } else {
             if (webSocket.send === null) {
-                return;
+                browser.loadQueue.push(socketData);
+            } else {
+                webSocket.send(socketData);
             }
-            webSocket.send(socketData);
         }
     }
 };

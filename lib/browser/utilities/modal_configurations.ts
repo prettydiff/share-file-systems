@@ -611,7 +611,7 @@ const modal_configuration:module_modalConfiguration = {
                             : config.id,
                         inputs: ["close", "maximize", "minimize"],
                         read_only: false,
-                        socket: false,
+                        socket: true,
                         string_store: [],
                         text_value: "",
                         type: "terminal",
