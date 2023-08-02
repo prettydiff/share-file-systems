@@ -47,6 +47,7 @@ body.blush {
     --dragBox-border:#69c;
     --focus:#39f;
     --offline:#f66;
+    --opacity-background:rgba(255,255,255,0.5);
     --parent-background:#fdc;
     --parent-text:#604;
     --selected-hover:#cde;
@@ -170,8 +171,8 @@ body.blush {
 .blush #spaces .box .buttons button.maximize{background:var(--blue-button-background);border-color:var(--blue-button-text);color:var(--blue-button-text)}
 .blush #spaces .box .buttons button.close{background:var(--pink);border-color:var(--red-text);color:var(--red-text)}
 .blush #spaces .box h2.heading{background:var(--background);border-color:var(--border)}
-.blush #spaces .box .body{background:var(--white);border-color:var(--border)}
-.blush #spaces .box .border{background:var(--shadow-bright);border-color:var(--border)}
+.blush #spaces .box .body{background:var(--opacity-background);border-color:var(--border)}
+.blush #spaces .box .border button{background:var(--shadow-bright);border-color:var(--border)}
 .blush #spaces .box .corner-tl,
 .blush #spaces .box .corner-tr,
 .blush #spaces .box .corner-bl,
@@ -218,7 +219,7 @@ body.blush {
 .blush #spaces .delete-agents .checked{background:var(--pink-background);border-color:var(--red-text);color:var(--red-text)}
 
 /* file navigator modal content */
-.blush #spaces .fileList li p{border-color:var(--background-dark)}
+.blush #spaces .fileList li p{border-color:var(--scroll-border)}
 .blush #spaces .fileList li p.cut:hover{background:var(--cut-hover)}
 .blush #spaces .fileList li p.selected:hover{background:var(--selected-hover)}
 .blush #spaces .fileList li p.selected.cut:hover{background:var(--cut-selected-hover)}

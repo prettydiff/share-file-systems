@@ -955,12 +955,12 @@ const modal:module_modal = {
                         if (topTest === true && ((clientHeight - offsetHeight) + (top - computedHeight)) / 10 > 10) {
                             box.style.top = `${computedHeight / 10}em`;
                             body.style.height  = `${bodyHeight}em`;
-                            sideLeft.style.height = `${computedHeight + sideHeight}em`;
-                            sideRight.style.height = `${computedHeight + sideHeight}em`;
+                            sideLeft.style.height = `${computedHeight}em`;
+                            sideRight.style.height = `${computedHeight}em`;
                         } else if (topTest === false && computedHeight > 10) {
                             body.style.height  = `${computedHeight}em`;
-                            sideLeft.style.height = `${computedHeight + sideHeight}em`;
-                            sideRight.style.height = `${computedHeight + sideHeight}em`;
+                            sideLeft.style.height = `${computedHeight}em`;
+                            sideRight.style.height = `${computedHeight}em`;
                         }
                     }
                 },
