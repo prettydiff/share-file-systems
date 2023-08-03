@@ -228,24 +228,6 @@ const transmit_ws:module_transmit_ws = {
                         type: keysPrimary[indexPrimary]
                     });
                 } while (indexChild > 0);
-            },
-
-            // populate data from sockets that are not children of a group
-            direct = function terminal_server_transmission_transmitWs_list_direct():void {
-                // @ts-ignore
-                const client:websocket_client = transmit_ws.socketList[keysPrimary[indexPrimary]] as websocket_client,
-                    address:transmit_addresses_socket = getAddress({socket: client, type: "ws"});
-                if (client !== null) {
-                    list.push({
-                        localAddress: address.local.address,
-                        localPort: address.local.port,
-                        name: "",
-                        remoteAddress: address.remote.address,
-                        remotePort: address.remote.port,
-                        status: client.status,
-                        type: keysPrimary[indexPrimary]
-                    });
-                }
             };
 
         // loop through the socket groups
@@ -255,11 +237,7 @@ const transmit_ws:module_transmit_ws = {
         }
         do {
             indexPrimary = indexPrimary - 1;
-            if (keysPrimary[indexPrimary] === "browser" || keysPrimary[indexPrimary] === "device" || keysPrimary[indexPrimary] === "testRemote" || keysPrimary[indexPrimary] === "user") {
-                child();
-            } else {
-                direct();
-            }
+            child();
         } while (indexPrimary > 0);
 
         // sort the raw data by group name
@@ -980,19 +958,23 @@ const transmit_ws:module_transmit_ws = {
                     transmit_ws.list();
                 };
             config.socket.fragment = Buffer.from([]); // storehouse of complete data frames, which will comprise a frame header and payload body that may be fragmented
-            config.socket.frame = Buffer.from([]);  // stores pieces of frames, which can be divided due to TLS decoding or header separation from some browsers
-            config.socket.frameExtended = 0;        // stores the payload size of a given message payload as derived from the extended size bytes of a frame header
-            config.socket.hash = config.identifier; // assigns a unique identifier to the socket based upon the socket's credentials
-            config.socket.handler = config.handler; // assigns an event handler to process incoming messages
-            config.socket.ping = ping;              // provides a means to insert a ping control frame and measure the round trip time of the returned pong frame
-            config.socket.pong = {};                // stores termination times and callbacks for pong handling
-            config.socket.queue = [];               // stores messages for transmit, because websocket protocol cannot intermix messages
-            config.socket.role = config.role;       // assigns socket creation location
-            config.socket.setKeepAlive(true, 0);    // standard method to retain socket against timeouts from inactivity until a close frame comes in
-            config.socket.status = "open";          // sets the status flag for the socket
-            config.socket.type = config.type;       // assigns the type name on the socket
+            config.socket.frame = Buffer.from([]);    // stores pieces of frames, which can be divided due to TLS decoding or header separation from some browsers
+            config.socket.frameExtended = 0;          // stores the payload size of a given message payload as derived from the extended size bytes of a frame header
+            config.socket.hash = config.identifier;   // assigns a unique identifier to the socket based upon the socket's credentials
+            config.socket.handler = config.handler;   //  assigns an event handler to process incoming messages
+            config.socket.ping = ping;                // provides a means to insert a ping control frame and measure the round trip time of the returned pong frame
+            config.socket.pong = {};                  // stores termination times and callbacks for pong handling
+            config.socket.queue = [];                 // stores messages for transmit, because websocket protocol cannot intermix messages
+            config.socket.role = config.role;         // assigns socket creation location
+            config.socket.setKeepAlive(true, 0);      // standard method to retain socket against timeouts from inactivity until a close frame comes in
+            config.socket.status = "open";            // sets the status flag for the socket
+            config.socket.type = config.type;         // assigns the type name on the socket
             if (config.type === "browser" || config.type === "device" || config.type === "testRemote" || config.type === "user") {
-                transmit_ws.socketList[config.type][config.identifier] = config.socket;
+                if (config.type !== "browser" || (config.type === "browser" && config.identifier.indexOf("-primary-") > 0)) {
+                    transmit_ws.socketList[config.type][config.identifier] = config.socket;
+                } else {
+                    transmit_ws.socketList.browserOther[config.identifier] = config.socket;
+                }
                 if (config.type === "device" || config.type === "user") {
                     vars.agents[config.type][config.identifier].ipSelected = getAddress({
                         socket: config.socket,
@@ -1057,6 +1039,7 @@ const transmit_ws:module_transmit_ws = {
     // a list of local sockets
     socketList: {
         browser: {},
+        browserOther: {},
         device: {},
         testRemote: {},
         user: {}

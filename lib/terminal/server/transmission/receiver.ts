@@ -19,8 +19,7 @@ import transmit_ws from "./transmit_ws.js";
 import vars from "../../utilities/vars.js";
 
 const receiver = function terminal_server_transmission_receiver(socketData:socketData, transmit:transmit_type):void {
-    const data:socketData = socketData,
-        services:service_type = data.service,
+    const services:service_type = socketData.service,
         actions:transmit_receiver = {
             "agent-hash": agent_hash,
             "agent-management": agent_management,
@@ -56,7 +55,7 @@ const receiver = function terminal_server_transmission_receiver(socketData:socke
         }
     }
     if (actions[services] !== undefined) {
-        actions[services](data, transmit);
+        actions[services](socketData, transmit);
     }
 };
 
