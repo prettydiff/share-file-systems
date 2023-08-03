@@ -742,14 +742,16 @@ const transmit_ws:module_transmit_ws = {
                         let hashName:string = null,
                             type:socketType = null,
                             hashKey:string = null,
-                            nonceHeader:string = null;
+                            nonceHeader:string = null,
+                            userAgent:string = null;
                         const dataString:string = data.toString(),
                             testNonce:RegExp = (/^Sec-WebSocket-Protocol:\s*((browser)|(media)|(terminal))-/),
                             headerList:string[] = dataString.split("\r\n"),
                             flags:flagList = {
                                 hash: false,
                                 key: false,
-                                type: false
+                                type: false,
+                                userAgent: false
                             },
                             headers = function terminal_server_transmission_transmitWs_server_connection_handshake_headers():void {
                                 const clientRespond = function terminal_server_transmission_transmitWs_server_connection_handshake_headers_clientRespond():void {
@@ -788,14 +790,14 @@ const transmit_ws:module_transmit_ws = {
                                         browser.methods.reset();
                                     };
                                 // some complexity is present because browsers will not have a "hash" heading
-                                if (flags.type === true && flags.key === true && (type === "browser" || flags.hash === true)) {
+                                if (flags.type === true && flags.key === true && ((type === "browser" && flags.userAgent === true) || flags.hash === true)) {
                                     const headerComplete = function terminal_serveR_transmission_transmitWs_server_connection_handshake_headers_headerComplete(test:boolean):void {
                                         if (test === false) {
                                             socket.destroy();
                                             return;
                                         }
                                         const identifier:string = (type === "browser")
-                                            ? hashKey
+                                            ? `${userAgent}-${hashKey}`
                                             : (type === "testRemote" && vars.test.type === "browser_remote")
                                                 ? "self"
                                                 : hashName;
@@ -851,6 +853,29 @@ const transmit_ws:module_transmit_ws = {
                                         source: key,
                                         stat: null
                                     });
+                                } else if (header.indexOf("User-Agent:") === 0) {
+                                    const subDec:RegExp = (/\s\w+\/\d+\.\d+\.\d+/g),
+                                        browserName = function terminal_server_transmission_transmitWs_server_connection_handshake_headerEach_browserName(input:string):string {
+                                            userAgent = input.slice(0, input.indexOf(".")).replace(/^\s+/, "");
+                                            return "";
+                                        },
+                                        ua:string = (function terminal_server_transmission_transmitWs_server_connection_handshake_headerEach_ua():string {
+                                            let matches:string[] = null;
+                                            header = header.replace(/User-Agent:\s+/, "");
+                                            header = header.slice(header.lastIndexOf(")"));
+                                            matches = header.match(subDec);
+                                            if (matches === null) {
+                                                return null;
+                                            }
+                                            return matches[matches.length - 1];
+                                        }());
+                                    if (ua === null) {
+                                        header.replace(/\s\w+\/\d+\.\d+/, browserName);
+                                    } else {
+                                        ua.replace(ua, browserName);
+                                    }
+                                    flags.userAgent = true;
+                                    headers();
                                 } else if (header.indexOf("hash:") === 0) {
                                     hashName = header.replace(/hash:\s+/, "");
                                     flags.hash = true;

@@ -94,6 +94,7 @@ const terminal:module_browserTerminal = {
                 box.setAttribute("data-tab", "true");
                 return;
             }
+            box.setAttribute("data-tab", "false");
             if (key === "c" && event.ctrlKey === true) {
                 terminal.tools.send(box, "close-modal", false);
                 terminal.tools.populate(box, [""], false);

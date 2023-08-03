@@ -35,7 +35,11 @@ const agent_status:module_agentStatus = {
                 event.stopPropagation();
             }
             clearTimeout(agent_status.idleDelay);
-            socket();
+            if (browser.socket !== null) {
+                socket();
+            } else if (browser.loading === false) {
+                webSocket.start(socket, browser.identity.hashDevice);
+            }
             if (Notification.permission === "default") {
                 void Notification.requestPermission();
             }

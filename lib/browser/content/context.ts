@@ -318,9 +318,6 @@ const context:module_context = {
             if (menu !== null) {
                 menu.parentNode.removeChild(menu);
             }
-            if (browser.socket === null) {
-                webSocket.start(null, browser.identity.hashDevice);
-            }
         },
 
         /* Handler for file system artifact copy */

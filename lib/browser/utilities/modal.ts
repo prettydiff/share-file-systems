@@ -395,6 +395,7 @@ const modal:module_modal = {
                 span.appendText(text);
                 buttonElement.setAttribute("class", className);
                 buttonElement.setAttribute("type", "button");
+                buttonElement.setAttribute("aria-hidden", "true");
                 buttonElement.onmousedown = modal.events.resize;
                 buttonElement.appendChild(span);
                 border.appendChild(buttonElement);
