@@ -267,7 +267,8 @@ import disallowed from "../common/disallowed.js";
                 if (socket === true) {
                     webSocket.start(messageDelay, (state.test !== null && testBrowser === true)
                         ? "test-browser"
-                        : hashDevice
+                        : hashDevice,
+                        "primary"
                     );
                 }
             },
@@ -394,9 +395,12 @@ import disallowed from "../common/disallowed.js";
             browser.testBrowser = state.test;
         }
         if (hashUser === "") {
-            webSocket.start(applyLogin, (state.test !== null && testBrowser === true)
-                ? "test-browser"
-                : hashDevice
+            webSocket.start(
+                applyLogin,
+                (state.test !== null && testBrowser === true)
+                    ? "test-browser"
+                    : hashDevice,
+                "primary"
             );
             loadComplete(false);
         } else {

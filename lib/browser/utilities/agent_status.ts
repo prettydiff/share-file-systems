@@ -38,7 +38,7 @@ const agent_status:module_agentStatus = {
             if (browser.socket !== null) {
                 socket();
             } else if (browser.loading === false) {
-                webSocket.start(socket, browser.identity.hashDevice);
+                webSocket.start(socket, browser.identity.hashDevice, "primary");
             }
             if (Notification.permission === "default") {
                 void Notification.requestPermission();

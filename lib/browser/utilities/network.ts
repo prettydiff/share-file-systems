@@ -46,7 +46,7 @@ const network:module_network = {
                     if (xhr.status === 200 || xhr.status === 0) {
                         const offline:HTMLCollectionOf<Element> = document.getElementsByClassName("offline");
                         if (xhr.status === 200 && offline.length > 0 && offline[0].getAttribute("class") === "title offline") {
-                            webSocket.start(null, browser.identity.hashDevice);
+                            webSocket.start(null, browser.identity.hashDevice, "primary");
                         }
                     } else {
                         const error:Error = {

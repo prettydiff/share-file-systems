@@ -739,13 +739,14 @@ const transmit_ws:module_transmit_ws = {
         const connection = function terminal_server_transmission_transmitWs_server_connection(TLS_socket:node_tls_TLSSocket):void {
                 const socket:websocket_client = TLS_socket as websocket_client,
                     handshake = function terminal_server_transmission_transmitWs_server_connection_handshake(data:Buffer):void {
-                        let hashName:string = null,
-                            type:socketType = null,
+                        let browserType:string = null,
                             hashKey:string = null,
+                            hashName:string = null,
                             nonceHeader:string = null,
+                            type:socketType = null,
                             userAgent:string = null;
                         const dataString:string = data.toString(),
-                            testNonce:RegExp = (/^Sec-WebSocket-Protocol:\s*((browser)|(media)|(terminal))-/),
+                            testNonce:RegExp = (/^Sec-WebSocket-Protocol:\s*\w+-/),
                             headerList:string[] = dataString.split("\r\n"),
                             flags:flagList = {
                                 hash: false,
@@ -797,7 +798,7 @@ const transmit_ws:module_transmit_ws = {
                                             return;
                                         }
                                         const identifier:string = (type === "browser")
-                                            ? `${userAgent}-${hashKey}`
+                                            ? `${userAgent}-${browserType}-${hashKey}`
                                             : (type === "testRemote" && vars.test.type === "browser_remote")
                                                 ? "self"
                                                 : hashName;
@@ -890,9 +891,11 @@ const transmit_ws:module_transmit_ws = {
                                 } else if (testNonce.test(header) === true) {
                                     const noSpace:string = header.replace(/\s+/g, "").replace(testNonce, "");
                                     if (noSpace === vars.identity.hashDevice || (noSpace === "test-browser" && vars.test.type.indexOf("browser_") === 0)) {
-                                        type = "browser";
                                         flags.type = true;
                                         nonceHeader = header;
+                                        type = "browser";
+                                        header = header.slice(header.indexOf(":")).replace(/^:\s+/, "");
+                                        browserType = header.slice(0, header.indexOf("-"));
                                         headers();
                                     } else {
                                         socket.destroy();

@@ -6,7 +6,7 @@ import network from "./network.js";
 const webSocket:module_browserSocket = {
     error: function browser_utilities_socketError():void {
         setTimeout(function browser_utilities_socketError_delay():void {
-            webSocket.start(null, webSocket.hash);
+            webSocket.start(null, webSocket.hash, webSocket.type);
         }, browser.ui.statusTime);
     },
     hash: "",
@@ -18,12 +18,12 @@ const webSocket:module_browserSocket = {
         WebSocket = null;
         return socket;
     }()),
-    start: function browser_utilities_webSocket(callback:() => void, hashDevice:string):void {
+    start: function browser_utilities_webSocket(callback:() => void, hashDevice:string, type:string):WebSocket {
         const title:HTMLElement = document.getElementById("title-bar"),
             scheme:string = (location.protocol.toLowerCase() === "http:")
                 ? "ws"
                 : "wss",
-            socket:WebSocket = new webSocket.sock(`${scheme}://localhost:${browser.network.ports.ws}/`, [`browser-${hashDevice}`]),
+            socket:WebSocket = new webSocket.sock(`${scheme}://localhost:${browser.network.ports.ws}/`, [`${type}-${hashDevice}`]),
             open = function browser_utilities_webSocket_socketOpen():void {
                 if (title.getAttribute("class") === "title offline") {
                     location.reload();
@@ -56,19 +56,22 @@ const webSocket:module_browserSocket = {
                     }
                 }
             },
-            message = function browser_utilities_socketMessage(event:websocket_event):void {
+            message = function browser_utilities_webSocket_message(event:websocket_event):void {
                 if (typeof event.data !== "string") {
                     return;
                 }
                 network.receive(event.data);
             };
         webSocket.hash = hashDevice;
+        webSocket.type = type;
 
         /* Handle Web Socket responses */
         socket.onopen = open;
         socket.onmessage = message;
         socket.onclose = close;
-        socket.onerror = webSocket.error;
+        socket.onerror = function browser_utilities_webSocket_error():void {
+            webSocket.error();
+        };
 
         // do not put a console.log in this function without first removing the log service from /lib/browser/index.ts
         // otherwise this will produce a race condition with feedback loop
@@ -84,7 +87,9 @@ const webSocket:module_browserSocket = {
                 socket.send(JSON.stringify(data));
             }
         };
-    }
+        return socket;
+    },
+    type: ""
 };
 
 export default webSocket;

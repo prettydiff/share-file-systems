@@ -73,7 +73,7 @@ const modal:module_modal = {
                 ? "ws"
                 : "wss",
             socket:WebSocket = (options.socket === true)
-                ? new webSocket.sock(`${scheme}://localhost:${browser.network.ports.ws}/`, [`${options.type}-${browser.identity.hashDevice}`])
+                ? webSocket.start(null, browser.identity.hashDevice, options.type)
                 : null;
         // Uniqueness constraints
         if (browser.ui.modalTypes.indexOf(options.type) > -1) {

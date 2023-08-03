@@ -148,11 +148,12 @@ interface module_agentStatus {
  * Module definition for browser-side websocket handling.
  * ```typescript
  * interface module_browserSocket {
- *     error: () => void;                     // An error handling method.
- *     hash : string;                         // Stores a hash value used to authenticate a client hash tunnel at the server.
- *     send : (data:socketData) => void;      // Packages micro-service data for transmission in the application's micro-service format.
- *     sock : websocket_local;                // Provides a web socket object in a way that allows for explicit type declarations, reuse, and without angering the TypeScript gods.
- *     start: (callback: () => void) => void; // Initiates a web socket client from the browser.
+ *     error: () => void;                                                          // An error handling method.
+ *     hash : string;                                                              // Stores a hash value used to authenticate a client hash tunnel at the server.
+ *     send : (data:socketData) => void;                                           // Packages micro-service data for transmission in the application's micro-service format.
+ *     sock : websocket_local;                                                     // Provides a web socket object in a way that allows for explicit type declarations, reuse, and without angering the TypeScript gods.
+ *     start: (callback: () => void, hashDevice:string, type:string) => WebSocket; // Initiates a web socket client from the browser.
+ *     type : string;                                                              // Stores the submitted type value.
  * }
  * ``` */
  interface module_browserSocket {
@@ -160,7 +161,8 @@ interface module_agentStatus {
     hash: string;
     send: (data:socketData) => void;
     sock: websocket_local;
-    start: (callback: () => void, hashDevice:string) => void;
+    start: (callback: () => void, hashDevice:string, type:string) => WebSocket;
+    type: string;
 }
 
 /**
