@@ -1,17 +1,17 @@
 /* lib/typescript/node.d - TypeScript types specific to Node items used in the project. */
 
 // cspell: words RSAPSS
-import { ChildProcess, ExecException, ExecOptions } from "child_process";
-import { ECDH, Hash, KeyObject, RSAKeyPairOptions } from "crypto";
-import { ReadStream, Stats, WriteStream } from "fs";
-import { ClientRequest, IncomingMessage, OutgoingHttpHeaders, Server as httpServer, ServerResponse } from "http";
-import { RequestOptions } from "https";
-import { AddressInfo, Server, Socket } from "net";
-import { NetworkInterfaceInfo, NetworkInterfaceInfoIPv4, NetworkInterfaceInfoIPv6 } from "os";
-import { Readable } from "stream";
-import { StringDecoder } from "string_decoder";
-import { TLSSocket } from "tls";
-import { BrotliCompress, BrotliDecompress } from "zlib";
+import { ChildProcess, ExecException, ExecOptions } from "node:child_process";
+import { ECDH, Hash, KeyObject, RSAKeyPairOptions } from "node:crypto";
+import { ReadStream, Stats, WriteStream } from "node:fs";
+import { ClientRequest, IncomingMessage, OutgoingHttpHeaders, Server as httpServer, ServerResponse } from "node:http";
+import { RequestOptions } from "node:https";
+import { AddressInfo, Server, Socket } from "node:net";
+import { NetworkInterfaceInfo, NetworkInterfaceInfoIPv4, NetworkInterfaceInfoIPv6 } from "node:os";
+import { Readable } from "node:stream";
+import { StringDecoder } from "node:string_decoder";
+import { TLSSocket } from "node:tls";
+import { BrotliCompress, BrotliDecompress } from "node:zlib";
 
 declare global {
     type node_childProcess_ChildProcess = ChildProcess;

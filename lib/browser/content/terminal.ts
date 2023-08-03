@@ -75,7 +75,25 @@ const terminal:module_browserTerminal = {
                     browser.ui.modals[id].historyIndex = browser.ui.modals[id].history.length;
                     target.value = "";
                     network.configuration();
-                };
+                },
+                tab:boolean = (box.dataset.tab === "true")
+                    ? true
+                    : false;
+            if (key === "tab") {
+                if (event.shiftKey === true) {
+                    return;
+                }
+                if (tab === true) {
+                    box.setAttribute("data-tab", "false");
+                    return;
+                }
+                event.preventDefault();
+                target.focus();
+                terminal.tools.send(box, target.value.replace(/^\s+/, "").replace(/\s+$/, ""), true);
+                modal.events.textTimer(event);
+                box.setAttribute("data-tab", "true");
+                return;
+            }
             if (key === "c" && event.ctrlKey === true) {
                 terminal.tools.send(box, "close-modal", false);
                 terminal.tools.populate(box, [""], false);
@@ -107,7 +125,6 @@ const terminal:module_browserTerminal = {
         keyInput: function browser_content_terminal_keyInput(event:KeyboardEvent):void {
             const key:string = event.key.toLowerCase(),
                 target:HTMLTextAreaElement = event.target as HTMLTextAreaElement,
-                value:string = target.value.replace(/^\s+/, "").replace(/\s+$/, ""),
                 box:modal = target.getAncestor("box", "class"),
                 list:HTMLElement = box.getElementsByClassName("terminal-list")[0] as HTMLElement,
                 id:string = box.getAttribute("id"),
@@ -136,11 +153,6 @@ const terminal:module_browserTerminal = {
                     browser.ui.modals[id].historyIndex = index;
                     network.configuration();
                 }
-                return;
-            }
-            if (key === "insert") {
-                terminal.tools.send(box, value, true);
-                modal.events.textTimer(event);
                 return;
             }
             if (key === "end" || key === "home" || key === "pagedown" || key === "pageup") {

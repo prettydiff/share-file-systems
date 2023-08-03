@@ -44,7 +44,7 @@ body.default {
     --dragBox-border:#69c;
     --focus:#39f;
     --offline:#f66;
-    --opacity-background:rgba(255, 255, 255, 0.6);
+    --opacity-background:rgba(255, 255, 255, 0.5);
     --parent-background:#fdf;
     --parent-text:#606;
     --selected-hover:#cde;

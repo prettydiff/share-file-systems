@@ -195,7 +195,6 @@ body.login #spaces{bottom:0;padding:2.5em 0 0;position:fixed;top:0}
 #spaces .box h2.heading{border-radius:0;border-style:solid solid none;border-width:0.1em;box-sizing:border-box;float:left;font-size:1em;height:3.35em;margin:0;padding:0;position:relative;width:100%;z-index:6}
 #spaces .box .border h2.heading button{background:transparent;border-style:none;box-shadow:none;cursor:move;display:block;font-size:1.8em;height:100%;margin:0;overflow:hidden;padding:0.25em 0 0 0.5em;text-align:left;text-overflow:ellipsis;white-space:nowrap;width:100%}
 #spaces .box .body{backdrop-filter:blur(2em);border-style:solid;border-width:0.1em;clear:both;display:block;height:20em;overflow:scroll;margin:0;padding:0;position:relative;right:0;top:0;width:75em;z-index:5}
-#spaces .box .body .box-body-background{display:block;min-height:100%;min-width:100%;opacity:0.5;position:absolute;top:0;z-index:-1}
 #spaces .box .border{border-style:solid;border-width:0.1em;padding:0.75em;position:relative}
 #spaces .box .corner-tl,
 #spaces .box .corner-tr,
@@ -443,7 +442,7 @@ body.login #spaces{bottom:0;padding:2.5em 0 0;position:fixed;top:0}
 #tutorial-screen{height:100%;left:0;opacity:0.7;position:absolute;top:0;width:100%;z-index:9999}
 
 /* terminal */
-#spaces .terminal-list{min-height:100%;margin:0;padding:0;width:100%}
+#spaces .terminal-list{min-height:100%;margin:0.5em;padding:0;width:100%}
 #spaces .terminal-list li{display:block;font-family:var(--fontMonospace);font-size:var(--textSize);letter-spacing:0.1em;line-height:1.2em;list-style:none;min-height:1em;white-space:pre}
 #spaces .terminal-list .underline{text-decoration:underline}
 #spaces .terminal-list .bold{font-weight:bold;letter-spacing:0.1em}

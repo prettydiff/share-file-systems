@@ -628,7 +628,7 @@ const modal_configuration:module_modalConfiguration = {
                 }
             }
             document.getElementById("menu").style.display = "none";
-            textArea.placeholder = "Type a command here. Press 'ins' key for file system auto-completion.";
+            textArea.placeholder = "Type a command here. Press 'tab' key for file system auto-completion. Press 'shift + tab' or 'tab, tab' to shift focus.";
             box = modal.content(payloadModal);
             if (config === undefined) {
                 terminal.tools.send(box, "", false);
