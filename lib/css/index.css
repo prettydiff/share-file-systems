@@ -406,7 +406,7 @@ body.login #spaces{bottom:0;padding:2.5em 0 0;position:fixed;top:0}
 #spaces .fileList li p.cut{opacity:0.5;outline-style:solid;outline-width:0.2em}
 #spaces .fileList li li{font-size:1em}
 #spaces .fileList li span{display:block;float:right;margin:0 0 0 1em;white-space:normal;width:14em}
-#spaces .fileList li .selection{clear:both;position:absolute;top:var(--offscreen)}
+#spaces .fileList li .selection{clear:both;left:var(--offscreen);position:absolute}
 #spaces .fileList .expansion{font-size:2em;font-weight:normal;height:0.75em;line-height:0.775;margin:0.15em 1.2em 0 -1.95em;padding:0 0 0 0.1em;vertical-align:top;width:0.75em}
 #spaces .fileList .empty-list{border-style:none;height:0;text-indent:var(--offscreen)}
 #spaces #newFileItem{display:inline-block;margin:-0.2em 0 0}

@@ -430,7 +430,6 @@ const file_browser:module_fileBrowser = {
                 li.appendChild(p);
                 output.appendChild(li);
             }
-            output.tabIndex = 0;
             output.oncontextmenu = context.events.menu;
             output.onkeydown = util.keys;
             output.onclick = file_browser.events.listFocus;
@@ -882,16 +881,10 @@ const file_browser:module_fileBrowser = {
         /* When clicking on a file list give focus to an input field so that the list can receive focus */
         listFocus: function browser_content_fileBrowser_listFocus(event:MouseEvent):void {
             const element:HTMLElement = event.target,
-                listItems:HTMLCollectionOf<HTMLElement> = element.getElementsByTagName("li"),
-                inputs:HTMLCollectionOf<HTMLElement> = (listItems.length > 0)
-                    ? listItems[listItems.length - 1].getElementsByTagName("input")
-                    : null,
-                lastInput:HTMLElement = (inputs === null)
-                    ? null
-                    : inputs[inputs.length - 1];
-            if (lastInput !== null) {
-                lastInput.focus();
-            }
+                li:HTMLElement = element.getAncestor("li", "tag"),
+                inputs:HTMLCollectionOf<HTMLElement> = li.getElementsByTagName("input"),
+                input:HTMLElement = inputs[inputs.length - 1];
+            input.focus();
         },
 
         /* Request file system information of the parent directory */
