@@ -52,7 +52,9 @@ const modal:module_modal = {
                 : (options.id || `${options.type}-${Math.random().toString() + String(browser.ui.zIndex + 1)}`),
             titleButton:HTMLButtonElement = document.createElement("button"),
             box:modal = document.createElement("article"),
-            body:HTMLElement = document.createElement("div"),
+            body:HTMLElement = (options.type === "text-pad")
+                ? options.content
+                : document.createElement("div"),
             border:HTMLElement = document.createElement("div"),
             modalCount:number = Object.keys(browser.ui.modals).length,
             button = function browser_utilities_modal_content_fileNavigateButtons(config:config_modal_button):void {
@@ -69,9 +71,6 @@ const modal:module_modal = {
                 el.onclick = config.event;
                 config.parent.appendChild(el);
             },
-            scheme:string = (location.protocol.toLowerCase() === "http:")
-                ? "ws"
-                : "wss",
             socket:WebSocket = (options.socket === true)
                 ? webSocket.start(null, browser.identity.hashDevice, options.type)
                 : null;
@@ -176,7 +175,6 @@ const modal:module_modal = {
         box.setAttribute("data-agent", options.agent);
         box.setAttribute("data-agenttype", options.agentType);
         border.setAttribute("class", "border");
-        body.setAttribute("class", "body");
         box.style.zIndex = browser.ui.zIndex.toString();
         box.style.left = `${options.left / 10}em`;
         box.style.top = `${options.top / 10}em`;
@@ -325,7 +323,12 @@ const modal:module_modal = {
 
         // Append body content after top areas and before bottom areas
         if (options.content !== null && options.content !== undefined) {
-            body.appendChild(options.content);
+            if (options.type === "text-pad") {
+                body.setAttribute("class", "body text-pad");
+            } else {
+                body.setAttribute("class", "body");
+                body.appendChild(options.content);
+            }
         }
         border.appendChild(body);
 
@@ -849,27 +852,11 @@ const modal:module_modal = {
                 headingButton:HTMLElement = heading.getElementsByTagName("button")[0],
                 touch:boolean = (event !== null && event.type === "touchstart"),
                 boxStatus:string = browser.ui.modals[box.getAttribute("id")].status,
-                header:HTMLElement = box.getElementsByClassName("header")[0] as HTMLElement,
-                headerHeight:number = (header === undefined)
-                    ? 0
-                    : (header.clientHeight / 10),
                 footer:HTMLElement = box.getElementsByClassName("footer")[0] as HTMLElement,
-                footerButtons:HTMLElement = (footer === undefined)
-                    ? undefined
-                    : footer.getElementsByClassName("footer-buttons")[0] as HTMLElement,
-                footerOffset:number = (footerButtons === undefined)
-                    ? 0
-                    : footerButtons.clientWidth / 10,
-                footerHeight:number = (footerOffset > 0)
-                    ? footer.clientHeight
-                    : 0,
                 status:HTMLElement = box.getElementsByClassName("status-bar")[0] as HTMLElement,
                 statusBar:HTMLElement = (status === undefined)
                     ? undefined
                     : status.getElementsByTagName("p")[0],
-                statusHeight:number = (status === undefined)
-                    ? 0
-                    : (status.clientHeight / 10),
                 sideBottom:HTMLElement =  box.getElementsByClassName("side-b")[0] as HTMLElement,
                 sideLeft:HTMLElement =  box.getElementsByClassName("side-l")[0] as HTMLElement,
                 sideRight:HTMLElement = box.getElementsByClassName("side-r")[0] as HTMLElement,
@@ -894,7 +881,6 @@ const modal:module_modal = {
                 offsetHeight:number = (mac === true)
                     ? 18
                     : -20,
-                sideHeight:number = headerHeight + statusHeight + footerHeight + 1,
                 drop  = function browser_utilities_modal_resize_drop():void {
                     const settings:config_modal = browser.ui.modals[box.getAttribute("id")];
                     if (touch === true) {
@@ -920,7 +906,7 @@ const modal:module_modal = {
                             computedWidth:number = (leftTest === true)
                                 ? left + (values[0] - offX)
                                 : (clientWidth + ((values[0] - offsetWidth) - offX)) / 10,
-                            bodyWidth = (leftTest === true)
+                            bodyWidth:number = (leftTest === true)
                                 ? ((clientWidth - offsetWidth) + (left - computedWidth)) / 10
                                 : 0,
                             bodyLong:boolean = (leftTest === true && bodyWidth > minWidth),
@@ -947,10 +933,10 @@ const modal:module_modal = {
                         }
                     }
                     if (values[1] > -10) {
-                        const computedHeight = (topTest === true)
+                        const computedHeight:number = (topTest === true)
                                 ? top + (values[1] - offY)
                                 : (clientHeight + ((values[1] - offsetHeight) - offY)) / 10,
-                            bodyHeight = (topTest === true)
+                            bodyHeight:number = (topTest === true)
                                 ? ((clientHeight - offsetHeight) + (top - computedHeight)) / 10
                                 : 0;
                         if (topTest === true && ((clientHeight - offsetHeight) + (top - computedHeight)) / 10 > 10) {

@@ -45,6 +45,7 @@ body.default {
     --focus:#39f;
     --offline:#f66;
     --opacity-background:rgba(255, 255, 255, 0.5);
+    --opacity-background-dark:rgba(216,216,216,0.75);
     --parent-background:#fdf;
     --parent-text:#606;
     --selected-hover:#cde;
@@ -169,7 +170,7 @@ body.default {
 .default #spaces .box .buttons button.maximize{background:var(--blue-button-background);border-color:var(--blue-button-text);color:var(--blue-button-text)}
 .default #spaces .box .buttons button.close{background:var(--pink);border-color:var(--red-text);color:var(--red-text)}
 .default #spaces .box h2.heading{background:var(--background);border-color:var(--border)}
-.default #spaces .box .body{background:var(--opacity-background);border-color:var(--border)}
+.default #spaces .box div.body{background:var(--opacity-background);border-color:var(--border)}
 .default #spaces .box .border button{background:var(--shadow-bright);border-color:var(--border)}
 .default #spaces .box .corner-tl,
 .default #spaces .box .corner-tr,
@@ -190,7 +191,9 @@ body.default {
 .default #spaces .box button.confirm{background:var(--green-button-background);border-color:var(--green-button-text);color:var(--green-button-text)}
 .default #spaces .box button.save{background:var(--yellow-bright);border-color:var(--yellow-border);color:var(--yellow-text)}
 .default #spaces .box .delay svg{stroke:var(--delay)}
-.default #spaces .box .body > textarea{background:var(--white);color:var(--black)}
+.default #spaces .box input,
+.default #spaces .box textarea{background:var(--opacity-background-dark);border-color:var(--border);color:var(--black)}
+.default #spaces .box .fileAddress input{background:var(--white)}
 .default #spaces .box .delete{background:var(--pink);border-color:var(--red-text);box-shadow:0.075em 0.075em 0.25em var(--shadow-bright);color:var(--red-text)}
 .default #spaces #dragBox{background:var(--dragBox-background);border-color:var(--dragBox-border)}
 

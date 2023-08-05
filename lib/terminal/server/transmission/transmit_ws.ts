@@ -206,7 +206,7 @@ const transmit_ws:module_transmit_ws = {
             // populate data from sockets that are children of a group
             child = function terminal_server_transmission_transmitWs_list_child():void {
                 // @ts-ignore
-                const socketList:websocket_list = transmit_ws.socketList[keysPrimary[indexPrimary]] as websocket_list,
+                const socketList:websocket_list = transmit_ws.socketList[keysPrimary[indexPrimary]],
                     keysChild:string[] = Object.keys(socketList);
                 let indexChild:number = keysChild.length,
                     socketItem:websocket_client,
