@@ -23,20 +23,33 @@ const webSocket:module_browserSocket = {
             scheme:string = (location.protocol.toLowerCase() === "http:")
                 ? "ws"
                 : "wss",
-            socket:WebSocket = new webSocket.sock(`${scheme}://localhost:${browser.network.ports.ws}/`, [`${type}-${hashDevice}`]),
+            socket:websocket_browser = new webSocket.sock(`${scheme}://localhost:${browser.network.ports.ws}/`, [`${type}-${hashDevice}`]) as websocket_browser,
             open = function browser_utilities_webSocket_socketOpen():void {
                 if (title.getAttribute("class") === "title offline") {
                     location.reload();
                 } else {
                     title.setAttribute("class", "title");
-                    browser.socket = socket;
+                    if (type === "primary") {
+                        const messageDelay = function browser_init_complete_messageDelay():void {
+                            if (browser.loadQueue.length > 0) {
+                                network.send(browser.loadQueue[0].data, browser.loadQueue[0].service);
+                                browser.loadQueue.splice(0, 1);
+                                if (browser.loadQueue.length > 0) {
+                                    setTimeout(browser_init_complete_messageDelay, 5);
+                                }
+                            }
+                        };
+                        browser.socket = socket;
+                        messageDelay();
+                    }
+                    socket.type = type;
                     if (callback !== null) {
                         callback();
                     }
                 }
             },
             close = function browser_utilities_webSocket_socketClose():void {
-                if (browser.identity.hashDevice !== "") {
+                if (browser.identity.hashDevice !== "" && socket.type === "primary") {
                     const device:HTMLElement = document.getElementById(browser.identity.hashDevice),
                         agentList:HTMLElement = document.getElementById("agentList"),
                         active:HTMLCollectionOf<Element> = agentList.getElementsByClassName("status-active");
@@ -77,17 +90,17 @@ const webSocket:module_browserSocket = {
         // otherwise this will produce a race condition with feedback loop
         webSocket.send = function browser_utilities_webSocket_sendWrapper(data:socketData):void {
             // connecting
-            if (socket.readyState === 0) {
+            if (browser.socket.readyState === 0) {
                 setTimeout(function browser_utilities_webSocket_sendWrapper_delay():void {
                     browser_utilities_webSocket_sendWrapper(data);
                 }, 10);
             }
             // open
-            if (socket.readyState === 1) {
-                socket.send(JSON.stringify(data));
+            if (browser.socket.readyState === 1) {
+                browser.socket.send(JSON.stringify(data));
             }
         };
-        return socket;
+        return browser.socket;
     },
     type: ""
 };

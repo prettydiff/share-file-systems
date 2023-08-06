@@ -104,6 +104,7 @@ This is a dynamically compiled list of supporting code files that comprise this 
    - **[../lib/terminal/server/services/fileExecute.ts](../lib/terminal/server/services/fileExecute.ts)**                                               - A common file execution library used by both fileCopy and fileSystem.
    - **[../lib/terminal/server/services/fileSystem.ts](../lib/terminal/server/services/fileSystem.ts)**                                                 - Manages various file system services.
    - **[../lib/terminal/server/services/hashShare.ts](../lib/terminal/server/services/hashShare.ts)**                                                   - Creates a unique identifier for a new share object.
+   - **[../lib/terminal/server/services/importSettings.ts](../lib/terminal/server/services/importSettings.ts)**                                         - Allows importing of settings data in base64 format.
    - **[../lib/terminal/server/services/invite.ts](../lib/terminal/server/services/invite.ts)**                                                         - Manages the order of invitation related processes for traffic across the internet.
    - **[../lib/terminal/server/services/message.ts](../lib/terminal/server/services/message.ts)**                                                       - Process and send text messages.
    - **[../lib/terminal/server/services/settings.ts](../lib/terminal/server/services/settings.ts)**                                                     - A library for writing data to settings.

@@ -29,7 +29,6 @@ import webSocket from "./webSocket.js";
  *         resize        : (event:MouseEvent|TouchEvent, boxElement?:modal) => void; // Resizes a modal respective to the event target, which could be any of 4 corners or 4 sides.
  *         textSave      : (event:Event) => void;                                    // Handler to push the text content of a text-pad modal into settings so that it is saved.
  *         textTimer     : (event:KeyboardEvent) => void;                            // A timing event so that contents of a text-pad modal are automatically save after a brief duration of focus blur.
- *         unMinimize    : (event:MouseEvent) => void;                               // Restores a minimized modal to its prior size and location.
  *         zTop          : (event:KeyboardEvent|MouseEvent, elementInput?:HTMLElement) => void; // Processes visual overlapping or depth of modals.
  *     };
  *     tools: {
@@ -52,7 +51,7 @@ const modal:module_modal = {
                 : (options.id || `${options.type}-${Math.random().toString() + String(browser.ui.zIndex + 1)}`),
             titleButton:HTMLButtonElement = document.createElement("button"),
             box:modal = document.createElement("article"),
-            body:HTMLElement = (options.type === "text-pad")
+            body:HTMLElement = (options.type === "export" || options.type === "text-pad")
                 ? options.content
                 : document.createElement("div"),
             border:HTMLElement = document.createElement("div"),
@@ -158,7 +157,6 @@ const modal:module_modal = {
         titleButton.onmousedown = modal.events.move;
         titleButton.ontouchstart = modal.events.move;
         titleButton.setAttribute("type", "button");
-        titleButton.onclick = modal.events.unMinimize;
         titleButton.onblur  = function browser_utilities_modal_content_blur():void {
             titleButton.onclick = null;
         };
@@ -323,7 +321,7 @@ const modal:module_modal = {
 
         // Append body content after top areas and before bottom areas
         if (options.content !== null && options.content !== undefined) {
-            if (options.type === "text-pad") {
+            if (options.type === "export" || options.type === "text-pad") {
                 body.setAttribute("class", "body text-pad");
             } else {
                 body.setAttribute("class", "body");
@@ -422,6 +420,12 @@ const modal:module_modal = {
             const minimize:HTMLElement = box.getElementsByClassName("minimize")[0] as HTMLElement;
             browser.ui.modals[options.id].status = "normal";
             modal.events.minimize(null, options.callback, minimize);
+        } else if (options.status === "minimized") {
+            browser.ui.modals[options.id].status = "normal";
+            modal.tools.forceMinimize(options.id);
+            if (options.callback !== undefined) {
+                options.callback();
+            }
         } else {
             if (options.status === "hidden") {
                 browser.ui.modals[options.id].status = "hidden";
@@ -560,21 +564,11 @@ const modal:module_modal = {
         /* Modifies saved settings from an imported JSON string then reloads the page */
         importSettings: function browser_utilities_modal_importSettings(event:MouseEvent):void {
             const element:HTMLElement = event.target,
-                dataString:string = JSON.stringify(browser.ui),
                 box:modal = element.getAncestor("box", "class"),
                 button:HTMLButtonElement = document.getElementsByClassName("cancel")[0] as HTMLButtonElement,
                 textArea:HTMLTextAreaElement = box.getElementsByTagName("textarea")[0];
-            if (textArea.value !== dataString) {
-                browser.ui = JSON.parse(textArea.value) as ui_data;
-            }
             button.click();
-            if (textArea.value !== dataString) {
-                network.send({
-                    settings: browser.ui,
-                    type: "ui"
-                }, "settings");
-                location.reload();
-            }
+            network.send(textArea.value, "import");
         },
     
         /* The given modal consumes the entire view port of the content area */
@@ -671,10 +665,9 @@ const modal:module_modal = {
                 borders:number,
                 child:HTMLElement,
                 a:number = 1;
-            if (border === document.documentElement) {
+            if (border === document.documentElement || (event !== null && event.target.lowName() === "textarea")) {
                 return;
             }
-            title.onmousedown = modal.events.move;
             if (browser.ui.modals[id].status === "minimized") {
                 const li:HTMLElement = box.parentNode,
                     body:HTMLElement = border.getElementsByClassName("body")[0] as HTMLElement;
@@ -702,6 +695,7 @@ const modal:module_modal = {
                     : 0;
                 titleButton.style.width = `${(browser.ui.modals[id].width - buttons.clientWidth - borders) / 18}em`;
                 titleButton.lastChild.textContent = titleButton.lastChild.textContent.replace(" - Minimized", "");
+                titleButton.onclick = null;
             } else {
                 const li:HTMLLIElement = document.createElement("li");
                 do {
@@ -710,10 +704,11 @@ const modal:module_modal = {
                     a = a + 1;
                 } while (a < children.length);
                 box.style.zIndex = "0";
-                box.parentNode.removeChild(box);
+                browser.content.removeChild(box);
                 titleButton.style.width = "11.5em";
                 titleButton.style.cursor = "pointer";
                 titleButton.lastChild.textContent = `${titleButton.lastChild.textContent} - Minimized`;
+                titleButton.onclick = browser_utilities_modal_minimize;
                 title.style.width = "";
                 li.appendChild(box);
                 document.getElementById("tray").getElementsByTagName("ul")[0].appendChild(li);
@@ -1044,17 +1039,7 @@ const modal:module_modal = {
                 }
             }, browser.ui.statusTime);
         },
-    
-        /* Restore a minimized modal to its prior size and location */
-        unMinimize: function browser_utilities_modal_unMinimize(event:MouseEvent):void {
-            const element:HTMLElement = event.target,
-                box:modal = element.getAncestor("box", "class"),
-                boxParent:HTMLElement = box.parentNode;
-            if (boxParent.lowName() === "li") {
-                modal.tools.forceMinimize(box.getAttribute("id"));
-            }
-        },
-    
+
         /* Manages z-index of modals and moves a modal to the top on interaction */
         zTop: function browser_utilities_modal_zTop(event:KeyboardEvent|MouseEvent, elementInput?:HTMLElement):void {
             const element:HTMLElement = (event !== null && elementInput === undefined)

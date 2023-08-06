@@ -455,7 +455,6 @@ interface module_message {
  *         resize        : (event:MouseEvent|TouchEvent, boxElement?:modal) => void; // Resizes a modal respective to the event target, which could be any of 4 corners or 4 sides.
  *         textSave      : (event:Event) => void;                                    // Handler to push the text content of a text-pad modal into settings so that it is saved.
  *         textTimer     : (event:KeyboardEvent) => void;                            // A timing event so that contents of a text-pad modal are automatically save after a brief duration of focus blur.
- *         unMinimize    : (event:MouseEvent) => void;                               // Restores a minimized modal to its prior size and location.
  *         zTop          : (event:KeyboardEvent|MouseEvent, elementInput?:HTMLElement) => void; // Processes visual overlapping or depth of modals.
  *     };
  *     tools: {
@@ -478,7 +477,6 @@ interface module_modal {
         resize: (event:MouseEvent|TouchEvent, boxElement?:modal) => void;
         textSave: (event:Event) => void;
         textTimer: (event:KeyboardEvent) => void;
-        unMinimize: (event:MouseEvent) => void;
         zTop: (event:KeyboardEvent|MouseEvent, elementInput?:HTMLElement) => void;
     };
     tools: {

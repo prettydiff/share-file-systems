@@ -10,6 +10,7 @@ import browserLog from "../services/browserLog.js";
 import fileCopy from "../services/fileCopy.js";
 import fileSystem from "../services/fileSystem.js";
 import hashShare from "../services/hashShare.js";
+import importSettings from "../services/importSettings.js";
 import invite from "../services/invite.js";
 import message from "../services/message.js";
 import perf from "../../commands/library/perf.js";
@@ -35,6 +36,7 @@ const receiver = function terminal_server_transmission_receiver(socketData:socke
             "file-system-status": fileSystem.route,
             "file-system-string": fileSystem.route,
             "hash-share": hashShare,
+            "import": importSettings,
             "invite": invite,
             "log": browserLog,
             "message": message,

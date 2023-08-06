@@ -118,14 +118,10 @@ const network:module_network = {
             data: data,
             service: service
         };
-        if (browser.loading === true) {
+        if (browser.loading === true || browser.socket === null) {
             browser.loadQueue.push(socketData);
         } else {
-            if (webSocket.send === null) {
-                browser.loadQueue.push(socketData);
-            } else {
-                webSocket.send(socketData);
-            }
+            webSocket.send(socketData);
         }
     }
 };

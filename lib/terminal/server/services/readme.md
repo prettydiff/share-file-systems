@@ -13,6 +13,7 @@ These files are libraries that comprise */lib/terminal/server.ts* **which in tur
 * **[fileExecute.ts](fileExecute.ts)**           - A common file execution library used by both fileCopy and fileSystem.
 * **[fileSystem.ts](fileSystem.ts)**             - Manages various file system services.
 * **[hashShare.ts](hashShare.ts)**               - Creates a unique identifier for a new share object.
+* **[importSettings.ts](importSettings.ts)**     - Allows importing of settings data in base64 format.
 * **[invite.ts](invite.ts)**                     - Manages the order of invitation related processes for traffic across the internet.
 * **[message.ts](message.ts)**                   - Process and send text messages.
 * **[settings.ts](settings.ts)**                 - A library for writing data to settings.

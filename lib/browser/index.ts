@@ -171,15 +171,6 @@ import disallowed from "../common/disallowed.js";
                         browser.ui.minimizeAll = false;
                         network.configuration();
                     },
-                    messageDelay = function browser_init_complete_messageDelay():void {
-                        if (browser.loadQueue.length > 0) {
-                            network.send(browser.loadQueue[0].data, browser.loadQueue[0].service);
-                            browser.loadQueue.splice(0, 1);
-                            if (browser.loadQueue.length > 0) {
-                                setTimeout(browser_init_complete_messageDelay, 5);
-                            }
-                        }
-                    },
                     visibility = function browser_init_complete_visibility():void {
                         if (document.visibilityState === "visible") {
                             browser.visible = true;
@@ -265,7 +256,7 @@ import disallowed from "../common/disallowed.js";
                 // loading data and modals is complete
                 browser.loading = false;
                 if (socket === true) {
-                    webSocket.start(messageDelay, (state.test !== null && testBrowser === true)
+                    webSocket.start(null, (state.test !== null && testBrowser === true)
                         ? "test-browser"
                         : hashDevice,
                         "primary"
