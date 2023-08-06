@@ -657,7 +657,7 @@ const modal_configuration:module_modalConfiguration = {
                     ? null
                     : event.target as HTMLElement,
                 titleText:string = (element === null)
-                    ? ""
+                    ? "Text Pad"
                     : element.innerHTML,
                 payload:config_modal = (config === undefined)
                     ? {
