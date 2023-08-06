@@ -171,11 +171,14 @@ body.default {
 .default #spaces .box .buttons button.close{background:var(--pink);border-color:var(--red-text);color:var(--red-text)}
 .default #spaces .box h2.heading{background:var(--background);border-color:var(--border)}
 .default #spaces .box div.body{background:var(--opacity-background);border-color:var(--border)}
-.default #spaces .box .border button{background:var(--shadow-bright);border-color:var(--border)}
 .default #spaces .box .corner-tl,
 .default #spaces .box .corner-tr,
 .default #spaces .box .corner-bl,
-.default #spaces .box .corner-br{border-color:var(--border)}
+.default #spaces .box .corner-br,
+.default #spaces .box .side-b,
+.default #spaces .box .side-l,
+.default #spaces .box .side-r,
+.default #spaces .box .side-t{background:var(--shadow-bright);border-color:var(--border)}
 .default #spaces .box .footer{background:var(--background);border-color:var(--border)}
 .default #spaces .box .status-bar{border-color:var(--border);background:var(--background)}
 .default #spaces .box .header{background:var(--white);border-color:var(--border)}

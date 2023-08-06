@@ -33,7 +33,8 @@ import webSocket from "./webSocket.js";
  *     };
  *     tools: {
  *         dynamicWidth : (box:modal, width:number, buttonCount:number) => [number, number]; // uniformly calculates widths for modal headings and status bars.
- *         forceMinimize: (id:string) => void; // Modals that do not have a minimize button still need to conform to minimize from other interactions.
+ *         forceMinimize: (id:string) => void;                                               // Modals that do not have a minimize button still need to conform to minimize from other interactions.
+ *         textModal    : (title:string, value:string) => HTMLElement;                       // Defines the content of a textarea modal in a uniform way.
  *     };
  * }
  * ``` */
@@ -49,9 +50,10 @@ const modal:module_modal = {
         const id:string = (options.type === "configuration")
                 ? "configuration-modal"
                 : (options.id || `${options.type}-${Math.random().toString() + String(browser.ui.zIndex + 1)}`),
+            textType:boolean = (options.type === "export" || options.type === "file-edit" || options.type === "text-pad"),
             titleButton:HTMLButtonElement = document.createElement("button"),
             box:modal = document.createElement("article"),
-            body:HTMLElement = (options.type === "export" || options.type === "text-pad")
+            body:HTMLElement = (textType === true)
                 ? options.content
                 : document.createElement("div"),
             border:HTMLElement = document.createElement("div"),
@@ -178,7 +180,7 @@ const modal:module_modal = {
         box.style.top = `${options.top / 10}em`;
         body.style.height = `${options.height / 10}em`;
         body.style.width = `${options.width / 10}em`;
-        if (options.scroll === false || options.type === "export" || options.type === "text-pad") {
+        if (options.scroll === false || textType === true) {
             body.style.overflow = "hidden";
         }
 
@@ -321,7 +323,7 @@ const modal:module_modal = {
 
         // Append body content after top areas and before bottom areas
         if (options.content !== null && options.content !== undefined) {
-            if (options.type === "export" || options.type === "text-pad") {
+            if (textType === true) {
                 body.setAttribute("class", "body text-pad");
             } else {
                 body.setAttribute("class", "body");
@@ -1081,6 +1083,19 @@ const modal:module_modal = {
             modalItem.onclick = modal.events.minimize;
             modalItem.click();
             modalItem.onclick = handler;
+        },
+
+        /* Defines text area modal bodies in a uniform way. */
+        textModal: function browser_utilities_modal_textModal(title:string, value:string):HTMLElement {
+            const textArea:HTMLTextAreaElement = document.createElement("textarea"),
+                span:HTMLElement = document.createElement("span"),
+                label:HTMLElement = document.createElement("label");
+            textArea.value = value;
+            textArea.onblur = modal.events.textSave;
+            span.appendText(title);
+            label.appendChild(span);
+            label.appendChild(textArea);
+            return label;
         }
     }
 

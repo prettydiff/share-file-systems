@@ -459,7 +459,8 @@ interface module_message {
  *     };
  *     tools: {
  *         dynamicWidth : (box:modal, width:number, buttonCount:number) => [number, number]; // uniformly calculates widths for modal headings and status bars.
- *         forceMinimize: (id:string) => void; // Modals that do not have a minimize button still need to conform to minimize from other interactions.
+ *         forceMinimize: (id:string) => void;                                               // Modals that do not have a minimize button still need to conform to minimize from other interactions.
+ *         textModal    : (title:string, value:string) => HTMLElement;                       // Defines the content of a textarea modal in a uniform way.
  *     };
  * }
  * ``` */
@@ -482,6 +483,7 @@ interface module_modal {
     tools: {
         dynamicWidth: (box:modal, width:number, buttonCount:number) => [number, number];
         forceMinimize: (id:string) => void;
+        textModal: (title:string, value:string) => HTMLElement;
     };
 }
 

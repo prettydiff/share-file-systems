@@ -53,7 +53,6 @@ const file_browser:module_fileBrowser = {
                 length:number = data.files.length;
             let a:number = 0,
                 textArea:HTMLTextAreaElement,
-                label:HTMLElement,
                 span:HTMLElement,
                 modalResult:HTMLElement,
                 body:HTMLElement,
@@ -62,28 +61,15 @@ const file_browser:module_fileBrowser = {
                 return;
             }
             do {
-                textArea = document.createElement("textarea");
-                label = document.createElement("label");
-                span = document.createElement("span");
-                span.appendText("Text Pad");
-                label.setAttribute("class", "text-pad");
-                label.appendChild(span);
-                label.appendChild(textArea);
                 modalResult = document.getElementById(data.files[a].id);
                 body = modalResult.getElementsByClassName("body")[0] as HTMLElement;
-                textArea.onblur = modal.events.textSave;
+                textArea = body.getElementsByTagName("textarea")[0];
                 heading = modalResult.getElementsByTagName("h2")[0].getElementsByTagName("button")[0];
-                if (data.type === "base64") {
-                    textArea.style.whiteSpace = "normal";
-                }
                 if (data.type === "hash") {
                     textArea.style.minHeight = "5em";
                     body.style.height = "auto";
                 }
                 textArea.value = data.files[a].content;
-                body.appendText("", true);
-                body.appendChild(label);
-                body.style.overflow = "hidden";
                 heading.style.width = `${(body.clientWidth - 50) / 18}em`;
                 a = a + 1;
             } while (a < length);

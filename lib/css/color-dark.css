@@ -154,7 +154,14 @@ body.dark{
 .dark #spaces .box h3,
 .dark #spaces .agentList{color:var(--text-heading)}
 .dark #spaces .box div.body{background:var(--opacity-background);border-color:var(--border);color:var(--text);scrollbar-color:var(--button-hover) var(--background-dark)}
-.dark #spaces .box .border button{background:var(--background-dark);border-color:var(--border)}
+.dark #spaces .box .corner-tl,
+.dark #spaces .box .corner-tr,
+.dark #spaces .box .corner-bl,
+.dark #spaces .box .corner-br,
+.dark #spaces .box .side-b,
+.dark #spaces .box .side-l,
+.dark #spaces .box .side-r,
+.dark #spaces .box .side-t{background:var(--background-dark);border-color:var(--border)}
 .dark #spaces .box .corner-tl,
 .dark #spaces .box .corner-tr,
 .dark #spaces .box .corner-bl,
