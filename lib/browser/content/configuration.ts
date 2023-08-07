@@ -157,7 +157,7 @@ const configuration:module_configuration = {
             }()),
             textLabel: null,
             textPara: null,
-            title: "▣ Color Theme",
+            title: "🖌 Color Theme",
             type: "radio",
             value: (configuration.colorDefaults[browser.ui.color] === undefined)
                 ? "default"

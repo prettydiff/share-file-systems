@@ -174,7 +174,6 @@ const modal:module_modal = {
         box.setAttribute("class", "box");
         box.setAttribute("data-agent", options.agent);
         box.setAttribute("data-agenttype", options.agentType);
-        border.setAttribute("class", "border");
         box.style.zIndex = browser.ui.zIndex.toString();
         box.style.left = `${options.left / 10}em`;
         box.style.top = `${options.top / 10}em`;
@@ -403,6 +402,7 @@ const modal:module_modal = {
                 buttonElement.appendChild(span);
                 border.appendChild(buttonElement);
             };
+            border.setAttribute("class", "border");
             borderButton("corner-tl", "resize both width and height");
             borderButton("corner-tr", "resize both width and height");
             borderButton("corner-bl", "resize both width and height");

@@ -138,12 +138,12 @@ import disallowed from "../common/disallowed.js";
                             ? "\u26f6"
                             : "\u26cb";
                     },
-                    menu = function browser_init_complete_menu():void {
+                    menuAction = function browser_init_complete_menuAction():void {
                         const menu:HTMLElement = document.getElementById("menu");
                         if (menu.style.display !== "block") {
                             menu.style.display = "block";
                             if (browser.testBrowser === null) {
-                                const move = function browser_init_complete_menu_move(event:MouseEvent):void {
+                                const move = function browser_init_complete_menuAction_move(event:MouseEvent):void {
                                     if (event.clientX > menu.clientWidth || event.clientY > menu.clientHeight + 51) {
                                         menu.style.display = "none";
                                         document.onmousemove = null;
@@ -217,7 +217,7 @@ import disallowed from "../common/disallowed.js";
 
                 // assign key default events
                 browser.content.onclick                             = context.events.contextMenuRemove;
-                document.getElementById("menuToggle").onclick       = menu;
+                document.getElementById("menuToggle").onclick       = menuAction;
                 allShares.onclick                                   = modal_configuration.modals.shares;
                 allDevice.onclick                                   = modal_configuration.modals.shares;
                 allUser.onclick                                     = modal_configuration.modals.shares;
@@ -334,7 +334,7 @@ import disallowed from "../common/disallowed.js";
 
             // Resizes the interactive area to fit the browser viewport.
             fixHeight = function browser_init_fixHeight():void {
-                const height:number   = window.innerHeight || document.getElementsByTagName("body")[0].clientHeight;
+                const height:number = window.innerHeight || browser.pageBody.clientHeight;
                 browser.content.style.height = `${(height - 51) / 10}em`;
                 document.getElementById("agentList").style.height = `${(window.innerHeight - 80) / 10}em`;
                 document.getElementById("tray").style.width = `${(window.innerWidth - browser.scrollbar - 1) / 10}em`;

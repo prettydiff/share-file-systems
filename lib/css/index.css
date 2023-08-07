@@ -187,13 +187,14 @@ body.login #spaces{bottom:0;padding:2.5em 0 0;position:fixed;top:0}
 #spaces .box .header button,
 #spaces .box .expansion,
 #spaces .box .footer button{border-radius:0;border-style:solid;display:inline-block;font-size:2em}
-#spaces .box .buttons{font-weight:bold;margin:0;padding:0;position:absolute;right:0.5em;top:1.5em;z-index:7}
+#spaces .box .buttons{font-weight:bold;margin:0;padding:0;position:absolute;right:0.5em;top:0.65em;z-index:7}
+#spaces .box .border .buttons{top:1.5em}
 #spaces .box .header button,
 #spaces .box .expansion,
 #spaces .box .buttons button{border-width:0.05em;cursor:pointer;font-size:1.5em;font-weight:bold;height:1.5em;line-height:1;margin:0 1.5em 0 0;padding:0;width:1.5em}
 #spaces .box .buttons button.maximize{font-weight:normal}
 #spaces .box h2.heading{border-radius:0;border-style:solid solid none;border-width:0.1em;box-sizing:border-box;float:left;font-size:1em;height:3.35em;margin:0;padding:0;position:relative;width:100%;z-index:6}
-#spaces .box .border h2.heading button{background:transparent;border-style:none;box-shadow:none;cursor:move;display:block;font-size:1.8em;height:100%;margin:0;overflow:hidden;padding:0.25em 0 0 0.5em;text-align:left;text-overflow:ellipsis;white-space:nowrap;width:100%}
+#spaces .box h2.heading button{background:transparent;border-style:none;box-shadow:none;cursor:move;display:block;font-size:1.8em;height:100%;margin:0;overflow:hidden;padding:0.25em 0 0 0.5em;text-align:left;text-overflow:ellipsis;white-space:nowrap;width:100%}
 #spaces .box .body{backdrop-filter:blur(2em);border-style:solid;border-width:0.1em;clear:both;display:block;height:20em;overflow:scroll;margin:0;padding:0;position:relative;right:0;top:0;width:75em;z-index:5}
 #spaces .box .border{border-style:solid;border-width:0.1em;padding:0.75em;position:relative}
 #spaces .box .corner-tl,
