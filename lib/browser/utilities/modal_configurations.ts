@@ -226,7 +226,7 @@ const modal_configuration:module_modalConfiguration = {
                 payload_modal.callback = config.callback;
             }
             document.getElementById("menu").style.display = "none";
-            payload_modal.content = modal.tools.textModal("Import/Export Settings", "");
+            payload_modal.content = modal.tools.textModal("Import/Export Settings", "", "export");
             modalItem =  modal.content(payload_modal);
             id = modalItem.getAttribute("id");
             payloadNetwork.location.push(`${id}:export-settings`);
@@ -290,7 +290,7 @@ const modal_configuration:module_modalConfiguration = {
                 payloadNetwork.agentSource = agents[1];
                 do {
                     if (addresses[a][1].indexOf("file") === 0) {
-                        config.content = modal.tools.textModal("File Edit", "");
+                        config.content = modal.tools.textModal("File Edit", "", "file-edit");
                         config.left = mouseEvent.clientX + (a * 10);
                         config.top = (mouseEvent.clientY - 60) + (a * 10);
                         config.text_value = addresses[a][0];
@@ -307,7 +307,7 @@ const modal_configuration:module_modalConfiguration = {
                 }
                 return modalInstance;
             }
-            config.content = modal.tools.textModal("File Edit", "");
+            config.content = modal.tools.textModal("File Edit", "", "file-edit");
             modalInstance = modal.content(config);
             agents = util.fileAgent(modalInstance, null, config.text_value);
             payloadNetwork.action = payloadNetwork.action = (config.title_supplement === "Edit")
@@ -677,7 +677,7 @@ const modal_configuration:module_modalConfiguration = {
             let box:modal = null;
             payload.content = modal.tools.textModal(titleText, (config !== undefined && config.text_value !== undefined)
                 ? config.text_value
-                : "");
+                : "", "text-pad");
             if (titleText.indexOf("Base64 - ") === 0) {
                 payload.content.getElementsByTagName("textarea")[0].style.whiteSpace = "normal";
             }

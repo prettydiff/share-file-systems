@@ -34,7 +34,7 @@ import webSocket from "./webSocket.js";
  *     tools: {
  *         dynamicWidth : (box:modal, width:number, buttonCount:number) => [number, number]; // uniformly calculates widths for modal headings and status bars.
  *         forceMinimize: (id:string) => void;                                               // Modals that do not have a minimize button still need to conform to minimize from other interactions.
- *         textModal    : (title:string, value:string) => HTMLElement;                       // Defines the content of a textarea modal in a uniform way.
+ *         textModal    : (title:string, value:string, type:modalType) => HTMLElement;       // Defines the content of a textarea modal in a uniform way.
  *     };
  * }
  * ``` */
@@ -850,6 +850,7 @@ const modal:module_modal = {
                 touch:boolean = (event !== null && event.type === "touchstart"),
                 boxStatus:string = browser.ui.modals[box.getAttribute("id")].status,
                 footer:HTMLElement = box.getElementsByClassName("footer")[0] as HTMLElement,
+                footerButton:boolean = (footer !== undefined && footer.getElementsByTagName("button").length > 0),
                 status:HTMLElement = box.getElementsByClassName("status-bar")[0] as HTMLElement,
                 statusBar:HTMLElement = (status === undefined)
                     ? undefined
@@ -874,10 +875,14 @@ const modal:module_modal = {
                 direction:resizeDirection = node.getAttribute("class").split("-")[1] as resizeDirection,
                 offsetWidth:number = (mac === true)
                     ? 20
-                    : -20,
+                    : (footerButton === false)
+                        ? (browser.scrollbar * -1)
+                        : 0,
                 offsetHeight:number = (mac === true)
                     ? 18
-                    : -20,
+                    : (footerButton === false)
+                        ? (browser.scrollbar * -1)
+                        : 0,
                 drop  = function browser_utilities_modal_resize_drop():void {
                     const settings:config_modal = browser.ui.modals[box.getAttribute("id")];
                     if (touch === true) {
@@ -1086,12 +1091,14 @@ const modal:module_modal = {
         },
 
         /* Defines text area modal bodies in a uniform way. */
-        textModal: function browser_utilities_modal_textModal(title:string, value:string):HTMLElement {
+        textModal: function browser_utilities_modal_textModal(title:string, value:string, type:modalType):HTMLElement {
             const textArea:HTMLTextAreaElement = document.createElement("textarea"),
                 span:HTMLElement = document.createElement("span"),
                 label:HTMLElement = document.createElement("label");
             textArea.value = value;
-            textArea.onblur = modal.events.textSave;
+            if (type !== "file-edit") {
+                textArea.onblur = modal.events.textSave;
+            }
             span.appendText(title);
             label.appendChild(span);
             label.appendChild(textArea);
