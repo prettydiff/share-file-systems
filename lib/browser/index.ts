@@ -67,6 +67,7 @@ import disallowed from "../common/disallowed.js";
         const testBrowser:boolean = (location.href.indexOf("?test_browser") > 0),
             agentList:HTMLElement = document.getElementById("agentList"),
             stateItem:HTMLInputElement = document.getElementsByTagName("input")[0],
+            tray:HTMLElement = document.getElementById("tray"),
 
             // execute test automation following a page reload
             testBrowserLoad = function browser_init_testBrowserLoad(delay:number):void {
@@ -185,7 +186,7 @@ import disallowed from "../common/disallowed.js";
                         buttonLength:number = buttons.length,
                         menu:HTMLElement = document.getElementById("menu"),
                         menuBlur = function browser_init_complete_menuBlur():void {
-                            menu.style.display = "none"; 
+                            menu.style.display = "none";
                         };
                     let index:number = 0,
                         button:HTMLButtonElement = null,
@@ -337,7 +338,7 @@ import disallowed from "../common/disallowed.js";
                 const height:number = window.innerHeight || browser.pageBody.clientHeight;
                 browser.content.style.height = `${(height - 51) / 10}em`;
                 document.getElementById("agentList").style.height = `${(window.innerHeight - 80) / 10}em`;
-                document.getElementById("tray").style.width = `${(window.innerWidth - browser.scrollbar - 1) / 10}em`;
+                tray.style.width = `${(window.innerWidth - browser.scrollbar - 1) / 10}em`;
             };
 
         // readjusting the visual appearance of artifacts in the DOM to fit the screen before they are visible to eliminate load drag from page repaint
@@ -355,7 +356,7 @@ import disallowed from "../common/disallowed.js";
             width = (div.offsetWidth - inner.offsetWidth);
             browser.pageBody.removeChild(div);
             browser.scrollbar = width;
-            document.getElementById("tray").style.margin = `0 0 ${width / 10}em 0`;
+            tray.style.margin = `0 0 ${width / 10}em 0`;
             return `${(width / 10)}em`;
         }());
         fixHeight();
