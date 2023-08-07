@@ -4299,7 +4299,7 @@ const buildExport = function terminal_test_samples_browserSelf_buildExport():str
                     qualifier: "is",
                     target: ["textContent"],
                     type: "property",
-                    value: "▣ Color Theme"
+                    value: "🖌 Color Theme"
                 },
                 {
                     node: [
