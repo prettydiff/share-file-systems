@@ -14,6 +14,7 @@ import modal from "./utilities/modal.js";
 import network from "./utilities/network.js";
 import remote from "./utilities/remote.js";
 import tutorial from "./content/tutorial.js";
+import uiDefault from "../common/uiDefault.js";
 import webSocket from "./utilities/webSocket.js";
 
 import disallowed from "../common/disallowed.js";
@@ -324,6 +325,20 @@ import disallowed from "../common/disallowed.js";
                 browser.agents = state.settings.agents;
                 browser.identity = state.settings.identity;
                 browser.ui = state.settings.ui;
+                if (browser.ui.colorBackgrounds === undefined) {
+                    browser.ui.colorBackgrounds = uiDefault.colorBackgrounds;
+                }
+                {
+                    const colors:string[] = Object.keys(browser.ui.colorBackgrounds),
+                        text:string[] = ["/*window css start*/"];
+                    colors.forEach(function browser_init_colorsEach(color:string):void {
+                        text.push(`.${color} #spaces .box div.body{background:${browser.ui.colorBackgrounds[color][0]}}`);
+                        text.push(`.${color} #spaces .box input, .${color} #spaces .box textarea{background:${browser.ui.colorBackgrounds[color][1]}}`);
+                        text.push(`.${color} #spaces .box .body, .${color} #spaces .box textarea{backdrop-filter:${browser.ui.colorBackgrounds[color][2]}}`);
+                    });
+                    text.push("/*window css end*/");
+                    browser.style.appendText(text.join("\n"));
+                }
                 modalKeys.forEach(function browser_init_restoreState_modalKeys(value:string) {
                     modalItem = state.settings.ui.modals[value];
                     modalItem.callback = function browser_init_restoreState_modalKeys_callback():void {

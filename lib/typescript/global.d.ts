@@ -161,6 +161,17 @@ interface agentSummary {
 }
 
 /**
+ * Storages customizable CSS properties stored on the browser environmental object.
+ * ```typescript
+ * interface colorBackgrounds {
+ *     [key:string]: [string, string, string];
+ * }
+ * ``` */
+interface colorBackgrounds {
+    [key:string]: [string, string, string];
+}
+
+/**
  * A store of sort methods for file lists.
  * ```typescript
  * interface common_fileSorts {

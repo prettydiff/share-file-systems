@@ -1,5 +1,8 @@
 
 /* lib/browser/utilities/browser - A list of declared variables globally available to the browser instance of the application. */
+
+import uiDefault from "../../common/uiDefault.js";
+
 const browser:browser = {
     agents: {
         device: {},
@@ -24,24 +27,7 @@ const browser:browser = {
     style: document.createElement("style"),
     testBrowser: null,
     title: "",
-    ui: {
-        audio: true,
-        brotli: 7,
-        color: "default",
-        colors: {
-            device: {},
-            user: {}
-        },
-        fileSort: "file-system-type",
-        hashType: "sha3-512",
-        minimizeAll: false,
-        modals: {},
-        modalTypes: [],
-        statusTime: 15000,
-        storage: "",
-        tutorial: true,
-        zIndex: 0
-    },
+    ui: uiDefault,
     visible: true
 };
 

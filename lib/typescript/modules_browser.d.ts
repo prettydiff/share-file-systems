@@ -232,12 +232,13 @@ interface module_common {
  *     colorDefaults: browser_colorList; // An object associating color information to color scheme names.
  *     content      : () => HTMLElement; // Generates the configuration modal content to populate into the configuration modal.
  *     events: {
- *         agentColor       : (event:Event) => void;      // Specify custom agent color configurations.
- *         audio            : (event:MouseEvent) => void; // Assign changes to the audio option to settings.
- *         colorScheme      : (event:MouseEvent) => void; // Changes the color scheme of the page by user interaction.
- *         configurationText: (event:Event) => void;      // Processes settings changes from either text input or select lists.
- *         detailsToggle    : (event:MouseEvent) => void; // Shows and hides text explaining compression.
- *         modal            : (event:MouseEvent) => void; // Generates the configuration modal and fills it with content.
+ *         agentColor       : (event:Event) => void;         // Specify custom agent color configurations.
+ *         audio            : (event:MouseEvent) => void;    // Assign changes to the audio option to settings.
+ *         backgroundWindow : (event:KeyboardEvent) => void; // Blur event from the Window Background Display text fields.
+ *         colorScheme      : (event:MouseEvent) => void;    // Changes the color scheme of the page by user interaction.
+ *         configurationText: (event:Event) => void;         // Processes settings changes from either text input or select lists.
+ *         detailsToggle    : (event:MouseEvent) => void;    // Shows and hides text explaining compression.
+ *         modal            : (event:MouseEvent) => void;    // Generates the configuration modal and fills it with content.
  *     };
  *     tools: {
  *         addUserColor    : (agent:string, type:agentType, configElement?:HTMLElement)) => void; // Add agent color options to the configuration modal content.
@@ -254,6 +255,7 @@ interface module_configuration {
     events: {
         agentColor: (event:Event) => void;
         audio: (event:MouseEvent) => void;
+        backgroundWindow: (event:KeyboardEvent) => void;
         colorScheme: (event:MouseEvent) => void;
         configurationText: (event:Event) => void;
         detailsToggle: (event:MouseEvent) => void;

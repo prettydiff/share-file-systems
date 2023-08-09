@@ -285,7 +285,8 @@ const build = function terminal_commands_library_build(config:config_command_bui
             bundleJS: function terminal_commands_library_build_bundleJS():void {
                 let fileCount:number = 0,
                     fileLength:number = 0,
-                    dirIndex:number = 0;
+                    dirIndex:number = 0,
+                    uiDefault:[string, string] = null;
                 const files:[string, string][] = [],
                     filePath:string = `${vars.path.js}browser${vars.path.sep}`,
                     dirs:string[] = [
@@ -306,6 +307,7 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                         fileListString:string = (function terminal_commands_library_build_bundleJS_index_read_storageCallback_join():string {
                                             const output:string[] = [];
                                             files.sort();
+                                            files.splice(0, 0, uiDefault);
                                             files.forEach(function terminal_commands_library_build_bundleJS_index_read_storageCallback_join_each(value:[string, string]):void {
                                                 output.push(value[1]);
                                             });
@@ -373,7 +375,11 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                             } while (file.slice(a, a + 6) !== "const ");
                                             file = file.slice(a, file.indexOf("exports.default"));
                                         }
-                                        files.push([commentPath, file]);
+                                        if (commentPath.indexOf("uiDefault") > 0) {
+                                            uiDefault = [commentPath, file];
+                                        } else {
+                                            files.push([commentPath, file]);
+                                        }
                                         fileCount = fileCount + 1;
                                         if (fileCount === fileLength) {
                                             index();

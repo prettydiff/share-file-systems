@@ -33,8 +33,6 @@ body.dark{
     --maximize-background:#024;
     --minimize-background:#421;
     --minimize-text:#db0;
-    --opacity-background:rgba(32,32,32,0.75);
-    --opacity-background-dark:rgba(16,16,16,0.75);
     --outline:#9ef;
     --parent-background:#303;
     --parent-text:#939;
@@ -153,7 +151,7 @@ body.dark{
 .dark #spaces .box h2.heading button{border-color:var(--border);color:var(--text)}
 .dark #spaces .box h3,
 .dark #spaces .agentList{color:var(--text-heading)}
-.dark #spaces .box div.body{background:var(--opacity-background);border-color:var(--border);color:var(--text);scrollbar-color:var(--button-hover) var(--background-dark)}
+.dark #spaces .box div.body{border-color:var(--border);color:var(--text);scrollbar-color:var(--button-hover) var(--background-dark)}
 .dark #spaces .box .corner-tl,
 .dark #spaces .box .corner-tr,
 .dark #spaces .box .corner-bl,
@@ -181,7 +179,7 @@ body.dark{
 .dark #spaces .box button.save{background:var(--minimize-background);border-color:var(--minimize-text);color:var(--minimize-text)}
 .dark #spaces .box .delay svg{stroke:var(--blue-primary)}
 .dark #spaces .box input,
-.dark #spaces .box textarea{background:var(--opacity-background-dark);border-color:var(--border);color:var(--text)}
+.dark #spaces .box textarea{border-color:var(--border);color:var(--text)}
 .dark #spaces .share button.grant-full-access,
 .dark #spaces .agentList .agent button.grant-full-access,
 .dark #spaces .box button.cancel,

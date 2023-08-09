@@ -2,6 +2,7 @@
 /* lib/terminal/utilities/vars - Globally available variables for the terminal utility. */
 
 import node from "./node.js";
+import uiDefault from "../../common/uiDefault.js";
 
 // cspell:words brotli, prettydiff, sharefile
 
@@ -181,24 +182,7 @@ const vars:module_terminalVariables = {
         },
         secure: true,
         status: "idle",
-        ui: {
-            audio: true,
-            brotli: 7,
-            color: "default",
-            colors: {
-                device: {},
-                user: {}
-            },
-            fileSort: "file-system-type",
-            hashType: "sha3-512",
-            minimizeAll: false,
-            modals: {},
-            modalTypes: [],
-            statusTime: 15000,
-            storage: "",
-            tutorial: true,
-            zIndex: 0
-        },
+        ui: uiDefault,
         verbose: false
     },
     terminal: {

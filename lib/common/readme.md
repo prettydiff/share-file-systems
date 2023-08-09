@@ -6,3 +6,4 @@ These files are generic libraries that environment agnostic and will work both i
 
 * **[common.ts](common.ts)**         - A collection of tools available to any environment.
 * **[disallowed.ts](disallowed.ts)** - Reassignments from default conventions that either dated or most frequently misused.
+* **[uiDefault.ts](uiDefault.ts)**   - A storage of an object with default values globally reused.

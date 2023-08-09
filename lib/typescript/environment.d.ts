@@ -125,6 +125,7 @@ interface terminalVariables_settings {
  *     audio: boolean;
  *     brotli: brotli;
  *     color: string;
+ *     colorBackgrounds: colorBackgrounds;
  *     colors: browser_colors;
  *     fileSort: fileSort;
  *     hashType: hash;
@@ -143,6 +144,7 @@ interface ui_data {
     audio: boolean;
     brotli: brotli;
     color: string;
+    colorBackgrounds: colorBackgrounds;
     colors: browser_colors;
     fileSort: fileSort;
     hashType: hash;
