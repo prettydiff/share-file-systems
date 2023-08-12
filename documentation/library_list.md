@@ -49,6 +49,7 @@ This is a dynamically compiled list of supporting code files that comprise this 
 * Directory *[../lib/common](../lib/common)*
    - **[../lib/common/common.ts](../lib/common/common.ts)**                                                                                             - A collection of tools available to any environment.
    - **[../lib/common/disallowed.ts](../lib/common/disallowed.ts)**                                                                                     - Reassignments from default conventions that either dated or most frequently misused.
+   - **[../lib/common/uiDefault.ts](../lib/common/uiDefault.ts)**                                                                                       - A storage of an object with default values globally reused.
 * Directory *[../lib/terminal/commands/interface](../lib/terminal/commands/interface)*
    - **[../lib/terminal/commands/interface/agent_data.ts](../lib/terminal/commands/interface/agent_data.ts)**                                           - Shell interface for agent_data which forms a report of agent data points.
    - **[../lib/terminal/commands/interface/agent_online.ts](../lib/terminal/commands/interface/agent_online.ts)**                                       - Shell interface for agent_online which is a connectivity tester to remote agents.
