@@ -189,10 +189,9 @@ const modal_configuration:module_modalConfiguration = {
         },
 
         "export": function browser_utilities_modalConfiguration_export(event:Event, config?:config_modal):modal {
-            const textArea:HTMLTextAreaElement = document.createElement("textarea"),
-                label:HTMLElement = document.createElement("label"),
-                span:HTMLElement = document.createElement("span"),
-                payload:config_modal = (config === null || config === undefined)
+            let modalItem:modal = null,
+                id:string = "";
+            const payload_modal:config_modal = (config === null || config === undefined)
                     ? {
                         agent: browser.identity.hashDevice,
                         agentIdentity: false,
@@ -203,19 +202,36 @@ const modal_configuration:module_modalConfiguration = {
                         single: true,
                         type: "export"
                     }
-                    : config;
+                    : config,
+                payloadNetwork:service_fileSystem = {
+                    action: "fs-base64",
+                    agentRequest: {
+                        device: browser.identity.hashDevice,
+                        modalAddress: "",
+                        share: "",
+                        user: browser.identity.hashUser
+                    },
+                    agentSource: {
+                        device: browser.identity.hashDevice,
+                        modalAddress: "",
+                        share: "",
+                        user: browser.identity.hashUser
+                    },
+                    agentWrite: null,
+                    depth: 1,
+                    location: [],
+                    name: ""
+                };
             if (config !== null && config !== undefined) {
-                payload.callback = config.callback;
+                payload_modal.callback = config.callback;
             }
-            payload.content = label;
             document.getElementById("menu").style.display = "none";
-            textArea.onblur = modal.events.textSave;
-            textArea.value = JSON.stringify(browser.ui);
-            span.appendText("Import/Export Settings");
-            label.appendChild(span);
-            label.appendChild(textArea);
-            label.setAttribute("class", "text-pad");
-            return modal.content(payload);
+            payload_modal.content = modal.tools.textModal("Import/Export Settings", "", "export");
+            modalItem =  modal.content(payload_modal);
+            id = modalItem.getAttribute("id");
+            payloadNetwork.location.push(`${id}:export-settings`);
+            network.send(payloadNetwork, "file-system");
+            return modalItem;
         },
 
         "file-edit": function browser_utilities_modalConfiguration_fileEdit(event:Event, config?:config_modal):modal {
@@ -248,8 +264,7 @@ const modal_configuration:module_modalConfiguration = {
                     box:modal = element.getAncestor("box", "class"),
                     length:number = addresses.length,
                     agency:agentId = util.getAgent(box);
-                let a:number = 0,
-                    delay:HTMLElement;
+                let a:number = 0;
                 agents = util.fileAgent(box, null);
                 config = {
                     agent: agency[0],
@@ -275,8 +290,7 @@ const modal_configuration:module_modalConfiguration = {
                 payloadNetwork.agentSource = agents[1];
                 do {
                     if (addresses[a][1].indexOf("file") === 0) {
-                        delay = util.delay();
-                        config.content = delay;
+                        config.content = modal.tools.textModal("File Edit", "", "file-edit");
                         config.left = mouseEvent.clientX + (a * 10);
                         config.top = (mouseEvent.clientY - 60) + (a * 10);
                         config.text_value = addresses[a][0];
@@ -293,7 +307,7 @@ const modal_configuration:module_modalConfiguration = {
                 }
                 return modalInstance;
             }
-            config.content = util.delay();
+            config.content = modal.tools.textModal("File Edit", "", "file-edit");
             modalInstance = modal.content(config);
             agents = util.fileAgent(modalInstance, null, config.text_value);
             payloadNetwork.action = payloadNetwork.action = (config.title_supplement === "Edit")
@@ -611,7 +625,7 @@ const modal_configuration:module_modalConfiguration = {
                             : config.id,
                         inputs: ["close", "maximize", "minimize"],
                         read_only: false,
-                        socket: false,
+                        socket: true,
                         string_store: [],
                         text_value: "",
                         type: "terminal",
@@ -628,7 +642,7 @@ const modal_configuration:module_modalConfiguration = {
                 }
             }
             document.getElementById("menu").style.display = "none";
-            textArea.placeholder = "Type a command here. Press 'ins' key for file system auto-completion.";
+            textArea.placeholder = "Type a command here. Press 'tab' key for file system auto-completion. Press 'shift + tab' or 'tab, tab' to shift focus.";
             box = modal.content(payloadModal);
             if (config === undefined) {
                 terminal.tools.send(box, "", false);
@@ -643,17 +657,14 @@ const modal_configuration:module_modalConfiguration = {
                     ? null
                     : event.target as HTMLElement,
                 titleText:string = (element === null)
-                    ? ""
+                    ? "Text Pad"
                     : element.innerHTML,
-                textArea:HTMLTextAreaElement = document.createElement("textarea"),
-                label:HTMLElement = document.createElement("label"),
-                span:HTMLElement = document.createElement("span"),
                 payload:config_modal = (config === undefined)
                     ? {
                         agent: browser.identity.hashDevice,
                         agentIdentity: false,
                         agentType: "device",
-                        content: label,
+                        content: null,
                         id: (config === undefined)
                             ? null
                             : config.id,
@@ -664,19 +675,11 @@ const modal_configuration:module_modalConfiguration = {
                     }
                     : config;
             let box:modal = null;
-            span.appendText("Text Pad");
-            label.setAttribute("class", "text-pad");
-            label.appendChild(span);
-            label.appendChild(textArea);
-            if (config !== undefined) {
-                if (config.text_value !== undefined) {
-                    textArea.value = config.text_value;
-                }
-                payload.content = label;
-            }
-            textArea.onblur = modal.events.textSave;
+            payload.content = modal.tools.textModal(titleText, (config !== undefined && config.text_value !== undefined)
+                ? config.text_value
+                : "", "text-pad");
             if (titleText.indexOf("Base64 - ") === 0) {
-                textArea.style.whiteSpace = "normal";
+                payload.content.getElementsByTagName("textarea")[0].style.whiteSpace = "normal";
             }
             document.getElementById("menu").style.display = "none";
             box = modal.content(payload);

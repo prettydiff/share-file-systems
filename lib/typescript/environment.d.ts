@@ -12,6 +12,7 @@
  *     loadQueue: socketData[];
  *     message: service_message;
  *     pageBody: HTMLElement;
+ *     scrollbar: number;
  *     socket: WebSocket;
  *     style: HTMLStyleElement;
  *     testBrowser: service_testBrowser;
@@ -29,6 +30,7 @@ interface browser {
     message: service_message;
     network: localNetwork;
     pageBody: HTMLElement;
+    scrollbar: number;
     socket: WebSocket;
     style: HTMLStyleElement;
     testBrowser: service_testBrowser;
@@ -123,6 +125,7 @@ interface terminalVariables_settings {
  *     audio: boolean;
  *     brotli: brotli;
  *     color: string;
+ *     colorBackgrounds: colorBackgrounds;
  *     colors: browser_colors;
  *     fileSort: fileSort;
  *     hashType: hash;
@@ -141,6 +144,7 @@ interface ui_data {
     audio: boolean;
     brotli: brotli;
     color: string;
+    colorBackgrounds: colorBackgrounds;
     colors: browser_colors;
     fileSort: fileSort;
     hashType: hash;

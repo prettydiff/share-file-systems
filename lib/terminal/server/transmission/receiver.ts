@@ -10,6 +10,7 @@ import browserLog from "../services/browserLog.js";
 import fileCopy from "../services/fileCopy.js";
 import fileSystem from "../services/fileSystem.js";
 import hashShare from "../services/hashShare.js";
+import importSettings from "../services/importSettings.js";
 import invite from "../services/invite.js";
 import message from "../services/message.js";
 import perf from "../../commands/library/perf.js";
@@ -19,8 +20,7 @@ import transmit_ws from "./transmit_ws.js";
 import vars from "../../utilities/vars.js";
 
 const receiver = function terminal_server_transmission_receiver(socketData:socketData, transmit:transmit_type):void {
-    const data:socketData = socketData,
-        services:service_type = data.service,
+    const services:service_type = socketData.service,
         actions:transmit_receiver = {
             "agent-hash": agent_hash,
             "agent-management": agent_management,
@@ -36,6 +36,7 @@ const receiver = function terminal_server_transmission_receiver(socketData:socke
             "file-system-status": fileSystem.route,
             "file-system-string": fileSystem.route,
             "hash-share": hashShare,
+            "import": importSettings,
             "invite": invite,
             "log": browserLog,
             "message": message,
@@ -56,7 +57,7 @@ const receiver = function terminal_server_transmission_receiver(socketData:socke
         }
     }
     if (actions[services] !== undefined) {
-        actions[services](data, transmit);
+        actions[services](socketData, transmit);
     }
 };
 

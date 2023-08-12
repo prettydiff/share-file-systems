@@ -58,7 +58,7 @@ const methodGET = function terminal_server_transmission_methodGET(request:node_h
     <head>
         <meta charset="utf-8"/>
         <title>${vars.environment.name}</title>
-        <meta content="text/html;charset=UTF-8" http-equiv="Content-Type"/>
+        <meta content="text/html" http-equiv="Content-Type"/>
         <meta content="width=device-width, initial-scale=1" name="viewport"/>
         <meta content="noindex, nofollow" name="robots"/>
         <meta content="${vars.environment.name}" name="DC.title"/>

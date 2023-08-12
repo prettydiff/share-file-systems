@@ -14,12 +14,13 @@ import util from "../utilities/util.js";
  *     colorDefaults: browser_colorList; // An object associating color information to color scheme names.
  *     content      : () => HTMLElement; // Generates the configuration modal content to populate into the configuration modal.
  *     events: {
- *         agentColor       : (event:Event) => void;      // Specify custom agent color configurations.
- *         audio            : (event:MouseEvent) => void; // Assign changes to the audio option to settings.
- *         colorScheme      : (event:MouseEvent) => void; // Changes the color scheme of the page by user interaction.
- *         configurationText: (event:Event) => void;      // Processes settings changes from either text input or select lists.
- *         detailsToggle    : (event:MouseEvent) => void; // Shows and hides text explaining compression.
- *         modal            : (event:MouseEvent) => void; // Generates the configuration modal and fills it with content.
+ *         agentColor       : (event:Event) => void;         // Specify custom agent color configurations.
+ *         audio            : (event:MouseEvent) => void;    // Assign changes to the audio option to settings.
+ *         backgroundWindow : (event:KeyboardEvent) => void; // Blur event from the Window Background Display text fields.
+ *         colorScheme      : (event:MouseEvent) => void;    // Changes the color scheme of the page by user interaction.
+ *         configurationText: (event:Event) => void;         // Processes settings changes from either text input or select lists.
+ *         detailsToggle    : (event:MouseEvent) => void;    // Shows and hides text explaining compression.
+ *         modal            : (event:MouseEvent) => void;    // Generates the configuration modal and fills it with content.
  *     };
  *     tools: {
  *         addUserColor    : (agent:string, type:agentType, configElement?:HTMLElement)) => void; // Add agent color options to the configuration modal content.
@@ -42,6 +43,7 @@ const configuration:module_configuration = {
     content: function browser_content_configuration_content():HTMLElement {
         const configurationBody:HTMLElement = document.createElement("div"),
             random:string = Math.random().toString(),
+            keys:string[] = Object.keys(configuration.colorDefaults),
             createSection = function browser_content_configuration_content_createSection(title:string):HTMLElement {
                 const container:HTMLElement = document.createElement("div"),
                     h3:HTMLElement = document.createElement("h3");
@@ -120,6 +122,11 @@ const configuration:module_configuration = {
                     section.appendChild(p);
                 }
                 configurationBody.appendChild(section);
+            },
+            defaultBackground:colorBackgrounds = {
+                "blush":   ["rgba(255,255,255,0.5)",    "rgba(224,200,200,0.75)", "blur(2em)"],
+                "dark":    ["rgba(32,32,32,0.75)",      "rgba(16,16,16,0.75)",    "blur(2em)"],
+                "default": ["rgba(255, 255, 255, 0.5)", "rgba(216,216,216,0.75)", "blur(2em)"]
             };
         let section:HTMLElement,
             p:HTMLElement,
@@ -149,7 +156,6 @@ const configuration:module_configuration = {
             button: false,
             name: "colorScheme",
             options: (function browser_content_configuration_content_colorNames():string[] {
-                const keys:string[] = Object.keys(configuration.colorDefaults);
                 keys.forEach(function browser_content_configuration_content_colorNames_each(value:string, index:number, arr:string[]):void {
                     arr[index] = common.capitalize(value);
                 });
@@ -157,7 +163,7 @@ const configuration:module_configuration = {
             }()),
             textLabel: null,
             textPara: null,
-            title: "▣ Color Theme",
+            title: "🖌 Color Theme",
             type: "radio",
             value: (configuration.colorDefaults[browser.ui.color] === undefined)
                 ? "default"
@@ -212,8 +218,43 @@ const configuration:module_configuration = {
             value: browser.ui.hashType
         });
 
+        // per agent colors
         perAgentType("device");
         perAgentType("user");
+
+        // window backgrounds
+        section = createSection("☐ Window Background Display");
+        p = document.createElement("p");
+        p.appendText("Press 'enter' key on focused input field to execute changes.");
+        section.appendChild(p);
+        keys.forEach(function browser_content_configuration_content_sectionBackgroundDisplay(key:string):void {
+            const fields = function browser_content_configuration_content_sectionBackgroundDisplay_fields(index:number, title:string):void {
+                    const em:HTMLElement = document.createElement("em");
+                    em.appendText(defaultBackground[key][index]);
+                    label = document.createElement("label");
+                    input = document.createElement("input");
+                    input.setAttribute("type", "text");
+                    input.setAttribute("name", `${key}-${index}`);
+                    input.value = browser.ui.colorBackgrounds[key][index];
+                    input.onkeyup = configuration.events.backgroundWindow;
+                    label.appendChild(input);
+                    label.appendText(title);
+                    label.appendChild(em);
+                    p.appendChild(label);
+                },
+
+                strong:HTMLElement = document.createElement("strong");
+            p = document.createElement("p");
+            p.setAttribute("class", "configuration-background");
+            strong.appendText(`Color Scheme ${key}`);
+            p.appendChild(strong);
+            fields(0, "Window Background - CSS background property on windows - ");
+            fields(1, "Textarea Background - CSS background property on input and textarea elements - ");
+            fields(2, "Window Blur - CSS backdrop-filter on windows - ");
+            section.appendChild(p);
+        });
+        configurationBody.appendChild(section);
+
         return configurationBody;
     },
 
@@ -259,6 +300,36 @@ const configuration:module_configuration = {
             configuration.tools.radio(element);
             if (browser.loading === false) {
                 network.configuration();
+            }
+        },
+
+        /* Blur event from the Window Background Display text fields */
+        backgroundWindow: function browser_content_configuration_backgroundWindow(event:KeyboardEvent):void {
+            const key:string = event.key.toLowerCase();
+            if (key === "enter") {
+                const target:HTMLInputElement = event.target as HTMLInputElement,
+                    name:string = target.getAttribute("name"),
+                    value:string = target.value,
+                    color:string = name.split("-")[0],
+                    index:number = Number(name.split("-")[1]),
+                    indexMap:string[] = [
+                        `.${color} #spaces .box div.body{background:`,
+                        `.${color} #spaces .box input, .${color} #spaces .box textarea{background:`,
+                        `.${color} #spaces .box .body, .${color} #spaces .box textarea{backdrop-filter:`
+                    ],
+                    existingCSS:string[] = browser.style.firstChild.textContent.split("\n"),
+                    newProperty:string = `${indexMap[index] + value}}`;
+                let css:number = existingCSS.length;
+                do {
+                    css = css - 1;
+                    if (existingCSS[css].indexOf(indexMap[index]) === 0) {
+                        existingCSS[css] = newProperty;
+                        browser.ui.colorBackgrounds[color][index] = value;
+                        network.configuration();
+                        browser.style.appendText(existingCSS.join("\n"), true);
+                        return;
+                    }
+                } while (css > 0);
             }
         },
 

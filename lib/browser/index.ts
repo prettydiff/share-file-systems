@@ -14,6 +14,7 @@ import modal from "./utilities/modal.js";
 import network from "./utilities/network.js";
 import remote from "./utilities/remote.js";
 import tutorial from "./content/tutorial.js";
+import uiDefault from "../common/uiDefault.js";
 import webSocket from "./utilities/webSocket.js";
 
 import disallowed from "../common/disallowed.js";
@@ -67,6 +68,7 @@ import disallowed from "../common/disallowed.js";
         const testBrowser:boolean = (location.href.indexOf("?test_browser") > 0),
             agentList:HTMLElement = document.getElementById("agentList"),
             stateItem:HTMLInputElement = document.getElementsByTagName("input")[0],
+            tray:HTMLElement = document.getElementById("tray"),
 
             // execute test automation following a page reload
             testBrowserLoad = function browser_init_testBrowserLoad(delay:number):void {
@@ -138,12 +140,12 @@ import disallowed from "../common/disallowed.js";
                             ? "\u26f6"
                             : "\u26cb";
                     },
-                    menu = function browser_init_complete_menu():void {
+                    menuAction = function browser_init_complete_menuAction():void {
                         const menu:HTMLElement = document.getElementById("menu");
                         if (menu.style.display !== "block") {
                             menu.style.display = "block";
                             if (browser.testBrowser === null) {
-                                const move = function browser_init_complete_menu_move(event:MouseEvent):void {
+                                const move = function browser_init_complete_menuAction_move(event:MouseEvent):void {
                                     if (event.clientX > menu.clientWidth || event.clientY > menu.clientHeight + 51) {
                                         menu.style.display = "none";
                                         document.onmousemove = null;
@@ -171,15 +173,6 @@ import disallowed from "../common/disallowed.js";
                         browser.ui.minimizeAll = false;
                         network.configuration();
                     },
-                    messageDelay = function browser_init_complete_messageDelay():void {
-                        if (browser.loadQueue.length > 0) {
-                            network.send(browser.loadQueue[0].data, browser.loadQueue[0].service);
-                            browser.loadQueue.splice(0, 1);
-                            if (browser.loadQueue.length > 0) {
-                                setTimeout(browser_init_complete_messageDelay, 5);
-                            }
-                        }
-                    },
                     visibility = function browser_init_complete_visibility():void {
                         if (document.visibilityState === "visible") {
                             browser.visible = true;
@@ -194,7 +187,7 @@ import disallowed from "../common/disallowed.js";
                         buttonLength:number = buttons.length,
                         menu:HTMLElement = document.getElementById("menu"),
                         menuBlur = function browser_init_complete_menuBlur():void {
-                            menu.style.display = "none"; 
+                            menu.style.display = "none";
                         };
                     let index:number = 0,
                         button:HTMLButtonElement = null,
@@ -226,7 +219,7 @@ import disallowed from "../common/disallowed.js";
 
                 // assign key default events
                 browser.content.onclick                             = context.events.contextMenuRemove;
-                document.getElementById("menuToggle").onclick       = menu;
+                document.getElementById("menuToggle").onclick       = menuAction;
                 allShares.onclick                                   = modal_configuration.modals.shares;
                 allDevice.onclick                                   = modal_configuration.modals.shares;
                 allUser.onclick                                     = modal_configuration.modals.shares;
@@ -265,9 +258,10 @@ import disallowed from "../common/disallowed.js";
                 // loading data and modals is complete
                 browser.loading = false;
                 if (socket === true) {
-                    webSocket.start(messageDelay, (state.test !== null && testBrowser === true)
+                    webSocket.start(null, (state.test !== null && testBrowser === true)
                         ? "test-browser"
-                        : hashDevice
+                        : hashDevice,
+                        "primary"
                     );
                 }
             },
@@ -331,6 +325,20 @@ import disallowed from "../common/disallowed.js";
                 browser.agents = state.settings.agents;
                 browser.identity = state.settings.identity;
                 browser.ui = state.settings.ui;
+                if (browser.ui.colorBackgrounds === undefined) {
+                    browser.ui.colorBackgrounds = uiDefault.colorBackgrounds;
+                }
+                {
+                    const colors:string[] = Object.keys(browser.ui.colorBackgrounds),
+                        text:string[] = ["/*window css start*/"];
+                    colors.forEach(function browser_init_colorsEach(color:string):void {
+                        text.push(`.${color} #spaces .box div.body{background:${browser.ui.colorBackgrounds[color][0]}}`);
+                        text.push(`.${color} #spaces .box input, .${color} #spaces .box textarea{background:${browser.ui.colorBackgrounds[color][1]}}`);
+                        text.push(`.${color} #spaces .box .body, .${color} #spaces .box textarea{backdrop-filter:${browser.ui.colorBackgrounds[color][2]}}`);
+                    });
+                    text.push("/*window css end*/");
+                    browser.style.appendText(text.join("\n"));
+                }
                 modalKeys.forEach(function browser_init_restoreState_modalKeys(value:string) {
                     modalItem = state.settings.ui.modals[value];
                     modalItem.callback = function browser_init_restoreState_modalKeys_callback():void {
@@ -342,16 +350,15 @@ import disallowed from "../common/disallowed.js";
 
             // Resizes the interactive area to fit the browser viewport.
             fixHeight = function browser_init_fixHeight():void {
-                const height:number   = window.innerHeight || document.getElementsByTagName("body")[0].clientHeight;
+                const height:number = window.innerHeight || browser.pageBody.clientHeight;
                 browser.content.style.height = `${(height - 51) / 10}em`;
                 document.getElementById("agentList").style.height = `${(window.innerHeight - 80) / 10}em`;
-                document.getElementById("tray").style.width = `${(window.innerWidth - 17.5) / 10}em`;
+                tray.style.width = `${(window.innerWidth - browser.scrollbar - 1) / 10}em`;
             };
 
         // readjusting the visual appearance of artifacts in the DOM to fit the screen before they are visible to eliminate load drag from page repaint
         window.onresize = fixHeight;
         document.getElementsByTagName("head")[0].appendChild(browser.style);
-        fixHeight();
         agentList.style.right = (function browser_init_scrollBar():string {
             // agent list is position:fixed, which is outside of parent layout, so I need to ensure it does not overlap the parent scrollbar
             let width:number = 0;
@@ -363,8 +370,11 @@ import disallowed from "../common/disallowed.js";
             browser.pageBody.appendChild(div);
             width = (div.offsetWidth - inner.offsetWidth);
             browser.pageBody.removeChild(div);
+            browser.scrollbar = width;
+            tray.style.margin = `0 0 ${width / 10}em 0`;
             return `${(width / 10)}em`;
         }());
+        fixHeight();
 
         // set state from artifacts supplied to the page
         if (stateItem.getAttribute("type") === "hidden") {
@@ -392,9 +402,12 @@ import disallowed from "../common/disallowed.js";
             browser.testBrowser = state.test;
         }
         if (hashUser === "") {
-            webSocket.start(applyLogin, (state.test !== null && testBrowser === true)
-                ? "test-browser"
-                : hashDevice
+            webSocket.start(
+                applyLogin,
+                (state.test !== null && testBrowser === true)
+                    ? "test-browser"
+                    : hashDevice,
+                "primary"
             );
             loadComplete(false);
         } else {

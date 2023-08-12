@@ -162,14 +162,14 @@ body.login #spaces{bottom:0;padding:2.5em 0 0;position:fixed;top:0}
 #spaces .box .socket-list tbody th{font-weight:normal}
 
 /* minimize tray at bottom */
-#spaces #tray{border-style:solid;border-width:0.1em 0.1em 0.1em 0;bottom:0;display:block;min-height:6em;margin:0 0 1.6em 0;padding:0;position:fixed;z-index:1}
+#spaces #tray{border-style:solid;border-width:0.1em 0.1em 0.1em 0;bottom:0;display:block;min-height:6em;padding:0;position:fixed;z-index:1}
 #spaces #tray li{display:inline-block;margin:0 1.5em}
 #spaces #tray li h2 button{border-width:0.05em}
 #spaces #tray .box{box-shadow:none;position:static}
 #spaces #tray .box h2.heading{border-style:solid}
 #spaces #tray .border{border-style:none;padding:0}
 #spaces #tray h2 button{border-style:none}
-#spaces #minimize-all{float:right;height:2.5em;margin:-0.05em 0 0 -0.05em;width:2.5em}
+#spaces #minimize-all{float:right;height:2.5em;width:2.5em}
 
 /* modal */
 #spaces .box{border-style:none;left:auto;margin:0;padding:0;position:absolute;z-index:10}
@@ -187,7 +187,8 @@ body.login #spaces{bottom:0;padding:2.5em 0 0;position:fixed;top:0}
 #spaces .box .header button,
 #spaces .box .expansion,
 #spaces .box .footer button{border-radius:0;border-style:solid;display:inline-block;font-size:2em}
-#spaces .box .buttons{font-weight:bold;margin:0;padding:0;position:absolute;right:0.5em;top:1.5em;z-index:7}
+#spaces .box .buttons{font-weight:bold;margin:0;padding:0;position:absolute;right:0.5em;top:0.65em;z-index:7}
+#spaces .box .border .buttons{top:1.5em}
 #spaces .box .header button,
 #spaces .box .expansion,
 #spaces .box .buttons button{border-width:0.05em;cursor:pointer;font-size:1.5em;font-weight:bold;height:1.5em;line-height:1;margin:0 1.5em 0 0;padding:0;width:1.5em}
@@ -216,10 +217,10 @@ body.login #spaces{bottom:0;padding:2.5em 0 0;position:fixed;top:0}
 #spaces .box .corner-tr{border-width:0 0 0.1em 0.1em;cursor:ne-resize;right:0;top:0}
 #spaces .box .corner-bl{border-width:0.1em 0.1em 0 0;bottom:0;cursor:sw-resize;left:0}
 #spaces .box .corner-br{border-width:0.1em 0 0 0.1em;bottom:0;cursor:se-resize;right:0}
-#spaces .box .side-t{cursor:n-resize;left:2em;height:1em;top:0;width:100%}
-#spaces .box .side-r{cursor:e-resize;right:0;min-height:100%;top:2em;width:1em}
-#spaces .box .side-b{bottom:0;cursor:s-resize;left:2em;height:1em;width:100%}
-#spaces .box .side-l{cursor:w-resize;left:0;min-height:100%;top:2em;width:1em}
+#spaces .box .side-t{cursor:n-resize;left:0;height:1em;top:0;width:100%}
+#spaces .box .side-r{cursor:e-resize;right:0;min-height:100%;top:0;width:1em}
+#spaces .box .side-b{bottom:0;cursor:s-resize;left:0;height:1em;width:100%}
+#spaces .box .side-l{cursor:w-resize;left:0;min-height:100%;top:0;width:1em}
 #spaces .box .corner-tl span,
 #spaces .box .corner-tr span,
 #spaces .box .corner-bl span,
@@ -240,6 +241,8 @@ body.login #spaces{bottom:0;padding:2.5em 0 0;position:fixed;top:0}
 #spaces .box .header .backDirectory{margin:0.25em 1.5em 0.5em -9em}
 #spaces .box .header .parentDirectory{margin:0.25em 1.5em 0.5em 0}
 #spaces .box .header .reloadDirectory{margin:0.25em 1.5em 0.5em 0}
+#spaces .box .body input[type="text"],
+#spaces .box .body input[type="password"]{border-style:solid;border-width:0.08em}
 #spaces .box .header input{border-style:none;display:inline-block;font-size:1.8em;height:1.9em;margin:-0.125em 0 0 0;padding:0;vertical-align:middle;width:100%}
 #spaces .box .header .fileAddress{width:87.5%}
 #spaces .box .header .fileSearch{width:12.5%}
@@ -292,6 +295,7 @@ body.login #spaces{bottom:0;padding:2.5em 0 0;position:fixed;top:0}
 #spaces .modify-agent-list label,
 #spaces .modify-agent-list input,
 #spaces .modify-agent-list textarea,
+#spaces .configuration-background input,
 #spaces .configuration input[name="storage"]{box-sizing:border-box;display:block;width:100%}
 #spaces .modify-agent-list textarea{height:5em}
 
@@ -299,6 +303,7 @@ body.login #spaces{bottom:0;padding:2.5em 0 0;position:fixed;top:0}
 #spaces .configuration {padding:1em}
 #spaces .configuration h3{margin:0}
 #spaces .section{border-style:none none solid;border-width:0.1em;margin:0 0 2em;padding:0 0 1em}
+#spaces .section:last-child{border-style:none;margin:0 0 1em;padding:0}
 #spaces .configuration .configuration-details,
 #spaces .configuration .device-color-list p,
 #spaces .configuration .user-color-list p,
@@ -326,6 +331,11 @@ body.login #spaces{bottom:0;padding:2.5em 0 0;position:fixed;top:0}
 #spaces .configuration .device-color-list li,
 #spaces .configuration .user-color-list li{display:block;list-style:none}
 #spaces .configuration .swatch{border-style:solid;border-width:0.1em;display:inline-block;height:1em;vertical-align:middle;width:1em}
+#spaces .configuration-background{border-style:none none solid;border-width:0.1em;margin:1em 1em 2em;padding:0 0 2em}
+#spaces .configuration-background:last-child{border-style:none;margin:1em 1em 0;padding:0}
+#spaces .configuration .configuration-background strong{color:inherit;font-size:var(--textSize)}
+#spaces .configuration-background label{display:block;margin:1em 0 0}
+#spaces .configuration-background em{font-size:0.8em}
 
 /* share list */
 #spaces .no-shares{font-size:1.5em;padding:0}
@@ -406,7 +416,7 @@ body.login #spaces{bottom:0;padding:2.5em 0 0;position:fixed;top:0}
 #spaces .fileList li p.cut{opacity:0.5;outline-style:solid;outline-width:0.2em}
 #spaces .fileList li li{font-size:1em}
 #spaces .fileList li span{display:block;float:right;margin:0 0 0 1em;white-space:normal;width:14em}
-#spaces .fileList li .selection{clear:both;position:absolute;top:var(--offscreen)}
+#spaces .fileList li .selection{clear:both;left:var(--offscreen);position:absolute}
 #spaces .fileList .expansion{font-size:2em;font-weight:normal;height:0.75em;line-height:0.775;margin:0.15em 1.2em 0 -1.95em;padding:0 0 0 0.1em;vertical-align:top;width:0.75em}
 #spaces .fileList .empty-list{border-style:none;height:0;text-indent:var(--offscreen)}
 #spaces #newFileItem{display:inline-block;margin:-0.2em 0 0}
@@ -442,7 +452,7 @@ body.login #spaces{bottom:0;padding:2.5em 0 0;position:fixed;top:0}
 #tutorial-screen{height:100%;left:0;opacity:0.7;position:absolute;top:0;width:100%;z-index:9999}
 
 /* terminal */
-#spaces .terminal-list{min-height:100%;margin:0;padding:0;width:100%}
+#spaces .terminal-list{min-height:100%;margin:0.5em;padding:0;width:100%}
 #spaces .terminal-list li{display:block;font-family:var(--fontMonospace);font-size:var(--textSize);letter-spacing:0.1em;line-height:1.2em;list-style:none;min-height:1em;white-space:pre}
 #spaces .terminal-list .underline{text-decoration:underline}
 #spaces .terminal-list .bold{font-weight:bold;letter-spacing:0.1em}
@@ -452,13 +462,9 @@ body.login #spaces{bottom:0;padding:2.5em 0 0;position:fixed;top:0}
 /* scrollbar - blink, webkit */
 #spaces *::-webkit-scrollbar-thumb{border-style:solid;border-width:0.1em}
 #spaces *::-webkit-scrollbar:vertical{border-width:0 0 0 0.1em;width:1.6em}
-#spaces textarea::-webkit-scrollbar:vertical{width:1.2em}
-#spaces textarea.code::-webkit-scrollbar:vertical,
-#spaces textarea.text::-webkit-scrollbar:vertical{width:0.89em}
+#spaces textarea::-webkit-scrollbar:vertical{width:0.89em}
 #spaces *::-webkit-scrollbar:horizontal{border-width:0.1em 0 0 0;display:block;height:1.6em}
-#spaces textarea::-webkit-scrollbar:horizontal{height:1.2em}
-#spaces textarea.code::-webkit-scrollbar:horizontal,
-#spaces textarea.text::-webkit-scrollbar:horizontal{height:0.89em}
+#spaces textarea::-webkit-scrollbar:horizontal{height:0.89em}
 #spaces *::-webkit-scrollbar-button{display:none}
 
 /* scrollbar - gecko, trident */

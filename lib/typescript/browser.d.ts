@@ -266,6 +266,17 @@ interface websocket_event extends Event {
 }
 
 /**
+ * Extends the browser web socket data type to support a type property.
+ * ```typescript
+ * interface websocket_browser extends WebSocket {
+ *     type: string;
+ * }
+ * ``` */
+interface websocket_browser extends WebSocket {
+    type: string;
+}
+
+/**
  * Defines an empty function used to bypass some constraints between TypeScript types and socket client definitions.
  * ```typescript
  * interface websocket_local extends WebSocket {

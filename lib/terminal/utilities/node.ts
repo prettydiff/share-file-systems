@@ -1,18 +1,18 @@
 /* lib/terminal/utilities/node - All the Node APIs used in the project stored in a single location. */
 
-import { exec, spawn } from "child_process";
-import { constants as constantsCrypto, createHash, createPrivateKey, createPublicKey, generateKeyPair, Hash, privateDecrypt, publicEncrypt } from "crypto";
-import { createReadStream, createWriteStream, lstat, mkdir, open, read, readdir, readFile, readlink, realpath, rename, rm, rmdir, stat, Stats, symlink, unlink, utimes, writeFile } from "fs";
-import { createServer as httpServer, get as httpGet, request as httpRequest, STATUS_CODES } from "http";
-import { createServer as httpsServer, get as httpsGet, request as httpsRequest } from "https";
-import { connect as netConnect, createServer as netCreateServer } from "net";
-import { arch, cpus, EOL, freemem, hostname, networkInterfaces, platform, release, totalmem, type } from "os";
-import { isAbsolute, resolve, sep } from "path";
-import { clearScreenDown, cursorTo } from "readline";
-import { Readable } from "stream";
-import { StringDecoder } from "string_decoder";
-import { connect as tlsConnect, createServer as tlsCreateServer } from "tls";
-import { constants as constantsZlib, createBrotliCompress, createBrotliDecompress } from "zlib";
+import { exec, spawn } from "node:child_process";
+import { constants as constantsCrypto, createHash, createPrivateKey, createPublicKey, generateKeyPair, Hash, privateDecrypt, publicEncrypt } from "node:crypto";
+import { createReadStream, createWriteStream, lstat, mkdir, open, read, readdir, readFile, readlink, realpath, rename, rm, rmdir, stat, Stats, symlink, unlink, utimes, writeFile } from "node:fs";
+import { createServer as httpServer, get as httpGet, request as httpRequest, STATUS_CODES } from "node:http";
+import { createServer as httpsServer, get as httpsGet, request as httpsRequest } from "node:https";
+import { connect as netConnect, createServer as netCreateServer } from "node:net";
+import { arch, cpus, EOL, freemem, hostname, networkInterfaces, platform, release, totalmem, type } from "node:os";
+import { isAbsolute, resolve, sep } from "node:path";
+import { clearScreenDown, cursorTo } from "node:readline";
+import { Readable } from "node:stream";
+import { StringDecoder } from "node:string_decoder";
+import { connect as tlsConnect, createServer as tlsCreateServer } from "node:tls";
+import { constants as constantsZlib, createBrotliCompress, createBrotliDecompress } from "node:zlib";
 
 // eslint-disable-next-line
 const node = {

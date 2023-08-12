@@ -148,11 +148,12 @@ interface module_agentStatus {
  * Module definition for browser-side websocket handling.
  * ```typescript
  * interface module_browserSocket {
- *     error: () => void;                     // An error handling method.
- *     hash : string;                         // Stores a hash value used to authenticate a client hash tunnel at the server.
- *     send : (data:socketData) => void;      // Packages micro-service data for transmission in the application's micro-service format.
- *     sock : websocket_local;                // Provides a web socket object in a way that allows for explicit type declarations, reuse, and without angering the TypeScript gods.
- *     start: (callback: () => void) => void; // Initiates a web socket client from the browser.
+ *     error: () => void;                                                          // An error handling method.
+ *     hash : string;                                                              // Stores a hash value used to authenticate a client hash tunnel at the server.
+ *     send : (data:socketData) => void;                                           // Packages micro-service data for transmission in the application's micro-service format.
+ *     sock : websocket_local;                                                     // Provides a web socket object in a way that allows for explicit type declarations, reuse, and without angering the TypeScript gods.
+ *     start: (callback: () => void, hashDevice:string, type:string) => WebSocket; // Initiates a web socket client from the browser.
+ *     type : string;                                                              // Stores the submitted type value.
  * }
  * ``` */
  interface module_browserSocket {
@@ -160,7 +161,8 @@ interface module_agentStatus {
     hash: string;
     send: (data:socketData) => void;
     sock: websocket_local;
-    start: (callback: () => void, hashDevice:string) => void;
+    start: (callback: () => void, hashDevice:string, type:string) => WebSocket;
+    type: string;
 }
 
 /**
@@ -230,12 +232,13 @@ interface module_common {
  *     colorDefaults: browser_colorList; // An object associating color information to color scheme names.
  *     content      : () => HTMLElement; // Generates the configuration modal content to populate into the configuration modal.
  *     events: {
- *         agentColor       : (event:Event) => void;      // Specify custom agent color configurations.
- *         audio            : (event:MouseEvent) => void; // Assign changes to the audio option to settings.
- *         colorScheme      : (event:MouseEvent) => void; // Changes the color scheme of the page by user interaction.
- *         configurationText: (event:Event) => void;      // Processes settings changes from either text input or select lists.
- *         detailsToggle    : (event:MouseEvent) => void; // Shows and hides text explaining compression.
- *         modal            : (event:MouseEvent) => void; // Generates the configuration modal and fills it with content.
+ *         agentColor       : (event:Event) => void;         // Specify custom agent color configurations.
+ *         audio            : (event:MouseEvent) => void;    // Assign changes to the audio option to settings.
+ *         backgroundWindow : (event:KeyboardEvent) => void; // Blur event from the Window Background Display text fields.
+ *         colorScheme      : (event:MouseEvent) => void;    // Changes the color scheme of the page by user interaction.
+ *         configurationText: (event:Event) => void;         // Processes settings changes from either text input or select lists.
+ *         detailsToggle    : (event:MouseEvent) => void;    // Shows and hides text explaining compression.
+ *         modal            : (event:MouseEvent) => void;    // Generates the configuration modal and fills it with content.
  *     };
  *     tools: {
  *         addUserColor    : (agent:string, type:agentType, configElement?:HTMLElement)) => void; // Add agent color options to the configuration modal content.
@@ -252,6 +255,7 @@ interface module_configuration {
     events: {
         agentColor: (event:Event) => void;
         audio: (event:MouseEvent) => void;
+        backgroundWindow: (event:KeyboardEvent) => void;
         colorScheme: (event:MouseEvent) => void;
         configurationText: (event:Event) => void;
         detailsToggle: (event:MouseEvent) => void;
@@ -442,23 +446,23 @@ interface module_message {
  * interface module_modal {
  *     content: (options:config_modal) => modal; // Creates a new modal.
  *     events: {
- *         close         : (event:MouseEvent) => void;                  // Closes a modal by removing it from the DOM, removing it from state, and killing any associated media.
- *         closeEnduring : (event:MouseEvent) => void;                  // Modal types that are enduring are hidden, not destroyed, when closed.
- *         confirm       : (event:MouseEvent) => void;                  // Handling for an optional confirmation button.
- *         footerResize  : (event:MouseEvent) => void;                  // If a resizable textarea element is present in the modal outside the body this ensures the body is the correct size.
- *         importSettings: (event:MouseEvent) => void;                  // Handler for import/export modals that modify saved settings from an imported JSON string then reloads the page.
+ *         close         : (event:MouseEvent) => void;                               // Closes a modal by removing it from the DOM, removing it from state, and killing any associated media.
+ *         closeEnduring : (event:MouseEvent) => void;                               // Modal types that are enduring are hidden, not destroyed, when closed.
+ *         confirm       : (event:MouseEvent) => void;                               // Handling for an optional confirmation button.
+ *         footerResize  : (event:MouseEvent) => void;                               // If a resizable textarea element is present in the modal outside the body this ensures the body is the correct size.
+ *         importSettings: (event:MouseEvent) => void;                               // Handler for import/export modals that modify saved settings from an imported JSON string then reloads the page.
  *         maximize      : (event:MouseEvent, callback?:() => void, target?:HTMLElement) => void; // Maximizes a modal to fill the view port.
  *         minimize      : (event:MouseEvent, callback?:() => void, target?:HTMLElement) => void; // Minimizes a modal to the tray at the bottom of the page.
- *         move          : (event:MouseEvent|TouchEvent) => void;       // Allows dragging a modal around the screen.
- *         resize        : (event:MouseEvent|TouchEvent) => void;       // Resizes a modal respective to the event target, which could be any of 4 corners or 4 sides.
- *         textSave      : (event:Event) => void;                       // Handler to push the text content of a text-pad modal into settings so that it is saved.
- *         textTimer     : (event:KeyboardEvent) => void;               // A timing event so that contents of a text-pad modal are automatically save after a brief duration of focus blur.
- *         unMinimize    : (event:MouseEvent) => void;                  // Restores a minimized modal to its prior size and location.
+ *         move          : (event:MouseEvent|TouchEvent) => void;                    // Allows dragging a modal around the screen.
+ *         resize        : (event:MouseEvent|TouchEvent, boxElement?:modal) => void; // Resizes a modal respective to the event target, which could be any of 4 corners or 4 sides.
+ *         textSave      : (event:Event) => void;                                    // Handler to push the text content of a text-pad modal into settings so that it is saved.
+ *         textTimer     : (event:KeyboardEvent) => void;                            // A timing event so that contents of a text-pad modal are automatically save after a brief duration of focus blur.
  *         zTop          : (event:KeyboardEvent|MouseEvent, elementInput?:HTMLElement) => void; // Processes visual overlapping or depth of modals.
  *     };
  *     tools: {
  *         dynamicWidth : (box:modal, width:number, buttonCount:number) => [number, number]; // uniformly calculates widths for modal headings and status bars.
- *         forceMinimize: (id:string) => void; // Modals that do not have a minimize button still need to conform to minimize from other interactions.
+ *         forceMinimize: (id:string) => void;                                               // Modals that do not have a minimize button still need to conform to minimize from other interactions.
+ *         textModal    : (title:string, value:string, type:modalType) => HTMLElement;       // Defines the content of a textarea modal in a uniform way.
  *     };
  * }
  * ``` */
@@ -473,15 +477,15 @@ interface module_modal {
         maximize: (event:MouseEvent, callback?:() => void, target?:HTMLElement) => void;
         minimize: (event:MouseEvent, callback?:() => void, target?:HTMLElement) => void;
         move: (event:MouseEvent|TouchEvent) => void;
-        resize: (event:MouseEvent|TouchEvent) => void;
+        resize: (event:MouseEvent|TouchEvent, boxElement?:modal) => void;
         textSave: (event:Event) => void;
         textTimer: (event:KeyboardEvent) => void;
-        unMinimize: (event:MouseEvent) => void;
         zTop: (event:KeyboardEvent|MouseEvent, elementInput?:HTMLElement) => void;
     };
     tools: {
         dynamicWidth: (box:modal, width:number, buttonCount:number) => [number, number];
         forceMinimize: (id:string) => void;
+        textModal: (title:string, value:string, type:modalType) => HTMLElement;
     };
 }
 

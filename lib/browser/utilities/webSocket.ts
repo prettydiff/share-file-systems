@@ -6,7 +6,7 @@ import network from "./network.js";
 const webSocket:module_browserSocket = {
     error: function browser_utilities_socketError():void {
         setTimeout(function browser_utilities_socketError_delay():void {
-            webSocket.start(null, webSocket.hash);
+            webSocket.start(null, webSocket.hash, webSocket.type);
         }, browser.ui.statusTime);
     },
     hash: "",
@@ -18,25 +18,38 @@ const webSocket:module_browserSocket = {
         WebSocket = null;
         return socket;
     }()),
-    start: function browser_utilities_webSocket(callback:() => void, hashDevice:string):void {
+    start: function browser_utilities_webSocket(callback:() => void, hashDevice:string, type:string):WebSocket {
         const title:HTMLElement = document.getElementById("title-bar"),
             scheme:string = (location.protocol.toLowerCase() === "http:")
                 ? "ws"
                 : "wss",
-            socket:WebSocket = new webSocket.sock(`${scheme}://localhost:${browser.network.ports.ws}/`, [`browser-${hashDevice}`]),
+            socket:websocket_browser = new webSocket.sock(`${scheme}://localhost:${browser.network.ports.ws}/`, [`${type}-${hashDevice}`]) as websocket_browser,
             open = function browser_utilities_webSocket_socketOpen():void {
                 if (title.getAttribute("class") === "title offline") {
                     location.reload();
                 } else {
                     title.setAttribute("class", "title");
-                    browser.socket = socket;
+                    if (type === "primary") {
+                        const messageDelay = function browser_init_complete_messageDelay():void {
+                            if (browser.loadQueue.length > 0) {
+                                network.send(browser.loadQueue[0].data, browser.loadQueue[0].service);
+                                browser.loadQueue.splice(0, 1);
+                                if (browser.loadQueue.length > 0) {
+                                    setTimeout(browser_init_complete_messageDelay, 5);
+                                }
+                            }
+                        };
+                        browser.socket = socket;
+                        messageDelay();
+                    }
+                    socket.type = type;
                     if (callback !== null) {
                         callback();
                     }
                 }
             },
             close = function browser_utilities_webSocket_socketClose():void {
-                if (browser.identity.hashDevice !== "") {
+                if (browser.identity.hashDevice !== "" && socket.type === "primary") {
                     const device:HTMLElement = document.getElementById(browser.identity.hashDevice),
                         agentList:HTMLElement = document.getElementById("agentList"),
                         active:HTMLCollectionOf<Element> = agentList.getElementsByClassName("status-active");
@@ -56,35 +69,40 @@ const webSocket:module_browserSocket = {
                     }
                 }
             },
-            message = function browser_utilities_socketMessage(event:websocket_event):void {
+            message = function browser_utilities_webSocket_message(event:websocket_event):void {
                 if (typeof event.data !== "string") {
                     return;
                 }
                 network.receive(event.data);
             };
         webSocket.hash = hashDevice;
+        webSocket.type = type;
 
         /* Handle Web Socket responses */
         socket.onopen = open;
         socket.onmessage = message;
         socket.onclose = close;
-        socket.onerror = webSocket.error;
+        socket.onerror = function browser_utilities_webSocket_error():void {
+            webSocket.error();
+        };
 
         // do not put a console.log in this function without first removing the log service from /lib/browser/index.ts
         // otherwise this will produce a race condition with feedback loop
         webSocket.send = function browser_utilities_webSocket_sendWrapper(data:socketData):void {
             // connecting
-            if (socket.readyState === 0) {
+            if (browser.socket.readyState === 0) {
                 setTimeout(function browser_utilities_webSocket_sendWrapper_delay():void {
                     browser_utilities_webSocket_sendWrapper(data);
                 }, 10);
             }
             // open
-            if (socket.readyState === 1) {
-                socket.send(JSON.stringify(data));
+            if (browser.socket.readyState === 1) {
+                browser.socket.send(JSON.stringify(data));
             }
         };
-    }
+        return browser.socket;
+    },
+    type: ""
 };
 
 export default webSocket;

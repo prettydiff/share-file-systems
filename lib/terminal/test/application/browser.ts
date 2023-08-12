@@ -12,6 +12,7 @@ import sender from "../../server/transmission/sender.js";
 import time from "../../utilities/time.js";
 import transmit_http from "../../server/transmission/transmit_http.js";
 import transmit_ws from "../../server/transmission/transmit_ws.js";
+import uiDefault from "../../../common/uiDefault.js";
 import vars from "../../utilities/vars.js";
 
 import filePathDecode from "./browserUtilities/file_path_decode.js";
@@ -457,24 +458,7 @@ const defaultCommand:commands = vars.environment.command,
                         } while (typeIndex > 0);
                     }
                     if (browser.args.mode === "remote" || browser.args.mode === "all") {
-                        const ui:ui_data = {
-                            audio: false,
-                            brotli: 0,
-                            color: "default",
-                            colors: {
-                                device: {},
-                                user: {}
-                            },
-                            fileSort: "file-system-type",
-                            hashType: "sha3-512",
-                            minimizeAll: false,
-                            modals: {},
-                            modalTypes: [],
-                            statusTime: 15000,
-                            storage: vars.settings.ui.storage,
-                            tutorial: false,
-                            zIndex: 0
-                        };
+                        const ui:ui_data = uiDefault;
                         vars.agents = {
                             device: {},
                             user: {}

@@ -276,25 +276,44 @@ const fileSystem:module_fileSystem = {
             let a:number = 0,
                 b:number = 0,
                 index:number;
-            do {
-                if (data.action === "fs-base64") {
-                    index = data.location[a].indexOf(":");
-                    input.id = data.location[a].slice(0, index);
-                    input.source = data.location[a].slice(index + 1);
-                    base64(input);
-                } else if (data.action === "fs-hash") {
-                    index = data.location[a].indexOf(":");
-                    hashInput.id = data.location[a].slice(0, index);
-                    hashInput.source = data.location[a].slice(index + 1);
-                    hash(hashInput);
-                } else if (data.action === "fs-read") {
-                    index = data.location[a].indexOf(":");
-                    input.id = data.location[a].slice(0, index);
-                    input.source = data.location[a].slice(index + 1);
-                    fileReader(input);
-                }
-                a = a + 1;
-            } while (a < length);
+            if (data.location.length === 1 && data.location[0].indexOf(":export-settings") === data.location[0].length - ":export-settings".length) {
+                const settingsItem:terminalVariables_settings = {
+                        message: vars.settings.message,
+                        queue: vars.settings.queue,
+                        secure: null,
+                        status: null,
+                        ui: vars.settings.ui,
+                        verbose: null
+                    },
+                    exportData:exportData = {
+                        agents: vars.agents,
+                        identity: vars.identity,
+                        settings: settingsItem
+                    };
+                input.id = data.location[0].slice(0, data.location[0].indexOf(":"));
+                input.source = `string:${JSON.stringify(exportData)}`;
+                base64(input);
+            } else {
+                do {
+                    if (data.action === "fs-base64") {
+                        index = data.location[a].indexOf(":");
+                        input.id = data.location[a].slice(0, index);
+                        input.source = data.location[a].slice(index + 1);
+                        base64(input);
+                    } else if (data.action === "fs-hash") {
+                        index = data.location[a].indexOf(":");
+                        hashInput.id = data.location[a].slice(0, index);
+                        hashInput.source = data.location[a].slice(index + 1);
+                        hash(hashInput);
+                    } else if (data.action === "fs-read") {
+                        index = data.location[a].indexOf(":");
+                        input.id = data.location[a].slice(0, index);
+                        input.source = data.location[a].slice(index + 1);
+                        fileReader(input);
+                    }
+                    a = a + 1;
+                } while (a < length);
+            }
         },
         rename: function terminal_server_services_fileSystem_rename(data:service_fileSystem):void {
             const newPath:string = (function terminal_server_services_fileSystem_rename_newPath():string {

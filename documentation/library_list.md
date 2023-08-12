@@ -49,6 +49,7 @@ This is a dynamically compiled list of supporting code files that comprise this 
 * Directory *[../lib/common](../lib/common)*
    - **[../lib/common/common.ts](../lib/common/common.ts)**                                                                                             - A collection of tools available to any environment.
    - **[../lib/common/disallowed.ts](../lib/common/disallowed.ts)**                                                                                     - Reassignments from default conventions that either dated or most frequently misused.
+   - **[../lib/common/uiDefault.ts](../lib/common/uiDefault.ts)**                                                                                       - A storage of an object with default values globally reused.
 * Directory *[../lib/terminal/commands/interface](../lib/terminal/commands/interface)*
    - **[../lib/terminal/commands/interface/agent_data.ts](../lib/terminal/commands/interface/agent_data.ts)**                                           - Shell interface for agent_data which forms a report of agent data points.
    - **[../lib/terminal/commands/interface/agent_online.ts](../lib/terminal/commands/interface/agent_online.ts)**                                       - Shell interface for agent_online which is a connectivity tester to remote agents.
@@ -104,6 +105,7 @@ This is a dynamically compiled list of supporting code files that comprise this 
    - **[../lib/terminal/server/services/fileExecute.ts](../lib/terminal/server/services/fileExecute.ts)**                                               - A common file execution library used by both fileCopy and fileSystem.
    - **[../lib/terminal/server/services/fileSystem.ts](../lib/terminal/server/services/fileSystem.ts)**                                                 - Manages various file system services.
    - **[../lib/terminal/server/services/hashShare.ts](../lib/terminal/server/services/hashShare.ts)**                                                   - Creates a unique identifier for a new share object.
+   - **[../lib/terminal/server/services/importSettings.ts](../lib/terminal/server/services/importSettings.ts)**                                         - Allows importing of settings data in base64 format.
    - **[../lib/terminal/server/services/invite.ts](../lib/terminal/server/services/invite.ts)**                                                         - Manages the order of invitation related processes for traffic across the internet.
    - **[../lib/terminal/server/services/message.ts](../lib/terminal/server/services/message.ts)**                                                       - Process and send text messages.
    - **[../lib/terminal/server/services/settings.ts](../lib/terminal/server/services/settings.ts)**                                                     - A library for writing data to settings.

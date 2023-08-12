@@ -404,6 +404,21 @@ interface documentation_file_item {
 }
 
 /**
+ * Describes data for export/import.
+ * ```typescript
+ * interface exportData {
+ *     agents: agentData;
+ *     identity: identity;
+ *     settings: terminalVariables_settings;
+ * }
+ * ``` */
+interface exportData {
+    agents: agentData;
+    identity: identity;
+    settings: terminalVariables_settings;
+}
+
+/**
  * The output structure of the *hash* command.
  * ```typescript
  * interface hash_output {
