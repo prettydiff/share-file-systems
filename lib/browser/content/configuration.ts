@@ -156,10 +156,11 @@ const configuration:module_configuration = {
             button: false,
             name: "colorScheme",
             options: (function browser_content_configuration_content_colorNames():string[] {
+                const keysProper:string[] = [];
                 keys.forEach(function browser_content_configuration_content_colorNames_each(value:string, index:number, arr:string[]):void {
-                    arr[index] = common.capitalize(value);
+                    keysProper.push(common.capitalize(value));
                 });
-                return keys.sort();
+                return keysProper.sort();
             }()),
             textLabel: null,
             textPara: null,

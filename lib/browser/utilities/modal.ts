@@ -97,11 +97,11 @@ const modal:module_modal = {
         if (options.zIndex === undefined) {
             options.zIndex = browser.ui.zIndex;
         }
-        if (options.left === undefined) {
-            options.left = 200 + (modalCount * 10) - modalCount;
+        if (options.left === undefined || options.left < 10) {
+            options.left = 10 + (modalCount * 10) - modalCount;
         }
-        if (options.top === undefined || options.top < 20) {
-            options.top = 200 + (modalCount * 10) - modalCount;
+        if (options.top === undefined || options.top < 10) {
+            options.top = 10 + (modalCount * 10) - modalCount;
         }
         if (options.width === undefined) {
             options.width = 565;
@@ -944,12 +944,8 @@ const modal:module_modal = {
                         if (topTest === true && ((clientHeight - offsetHeight) + (top - computedHeight)) / 10 > 10) {
                             box.style.top = `${computedHeight / 10}em`;
                             body.style.height  = `${bodyHeight}em`;
-                            sideLeft.style.height = `${computedHeight}em`;
-                            sideRight.style.height = `${computedHeight}em`;
                         } else if (topTest === false && computedHeight > 10) {
                             body.style.height  = `${computedHeight}em`;
-                            sideLeft.style.height = `${computedHeight}em`;
-                            sideRight.style.height = `${computedHeight}em`;
                         }
                     }
                 },
