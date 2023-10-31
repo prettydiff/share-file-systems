@@ -125,7 +125,7 @@ const modal_configuration:module_modalConfiguration = {
                     div:HTMLElement = util.delay(),
                     box:modal = element.getAncestor("box", "class"),
                     agency:agentId = util.getAgent(box),
-                    addresses:[string, fileType, string][] = util.selectedAddresses(element, "details"),
+                    addresses:[string, fileType, string][] = file_browser.tools.selectedAddresses(element, "details"),
                     plural:string = (addresses.length === 1)
                         ? ""
                         : "s",
@@ -260,7 +260,7 @@ const modal_configuration:module_modalConfiguration = {
                             : (contextElement.innerHTML.indexOf("File as Text") > 0)
                                 ? "Edit"
                                 : "Hash",
-                    addresses:[string, fileType, string][] = util.selectedAddresses(element, "file-edit"),
+                    addresses:[string, fileType, string][] = file_browser.tools.selectedAddresses(element, "file-edit"),
                     box:modal = element.getAncestor("box", "class"),
                     length:number = addresses.length,
                     agency:agentId = util.getAgent(box);

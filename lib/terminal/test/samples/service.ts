@@ -1490,6 +1490,11 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                         },
                         user: {}
                     },
+                    colorBackgrounds: {
+                        "blush":   ["rgba(255,255,255,0.5)",    "rgba(224,200,200,0.75)", "blur(2em)"],
+                        "dark":    ["rgba(32,32,32,0.75)",      "rgba(16,16,16,0.75)",    "blur(2em)"],
+                        "default": ["rgba(255, 255, 255, 0.5)", "rgba(216,216,216,0.75)", "blur(2em)"]
+                    },
                     fileSort: "file-system-type",
                     hashDevice: vars.identity.hashDevice,
                     hashType: "sha3-512",
@@ -1543,6 +1548,11 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                             [vars.identity.hashDevice]: ["fff", "eee"]
                         },
                         user: {}
+                    },
+                    colorBackgrounds: {
+                        "blush":   ["rgba(255,255,255,0.5)",    "rgba(224,200,200,0.75)", "blur(2em)"],
+                        "dark":    ["rgba(32,32,32,0.75)",      "rgba(16,16,16,0.75)",    "blur(2em)"],
+                        "default": ["rgba(255, 255, 255, 0.5)", "rgba(216,216,216,0.75)", "blur(2em)"]
                     },
                     fileSort: "file-system-type",
                     hashDevice: vars.identity.hashDevice,

@@ -856,8 +856,6 @@ const modal:module_modal = {
                     ? undefined
                     : status.getElementsByTagName("p")[0],
                 sideBottom:HTMLElement =  box.getElementsByClassName("side-b")[0] as HTMLElement,
-                sideLeft:HTMLElement =  box.getElementsByClassName("side-l")[0] as HTMLElement,
-                sideRight:HTMLElement = box.getElementsByClassName("side-r")[0] as HTMLElement,
                 sideTop:HTMLElement = box.getElementsByClassName("side-t")[0] as HTMLElement,
                 mouseEvent:MouseEvent = event as MouseEvent,
                 touchEvent:TouchEvent = event as TouchEvent,

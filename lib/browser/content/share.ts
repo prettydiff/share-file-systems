@@ -6,10 +6,10 @@ import common from "../../common/common.js";
 import agent_management from "./agent_management.js";
 import browser from "../utilities/browser.js";
 import context from "./context.js";
+import file_browser from "./file_browser.js";
 import message from "./message.js";
 import modal_configuration from "../utilities/modal_configurations.js";
 import network from "../utilities/network.js";
-import util from "../utilities/util.js";
 
 /**
  * Populates the various agent modals, device details, and share data lists.
@@ -352,7 +352,7 @@ const share:module_share = {
         /* Share utility for the "adding a share" context menu list */
         context: function browser_content_share_context():void {
             const element:HTMLElement = context.element,
-                addresses:[string, fileType, string][] = util.selectedAddresses(element, "share"),
+                addresses:[string, fileType, string][] = file_browser.tools.selectedAddresses(element, "share"),
                 deviceData:agentShares = browser.agents.device[addresses[0][2]].shares,
                 shares:string[] = Object.keys(deviceData),
                 shareLength:number = shares.length,
@@ -392,7 +392,7 @@ const share:module_share = {
                     a = a + 1;
                 } while (a < addressesLength);
             }
-            util.selectNone(element);
+            file_browser.tools.selectNone(element);
             if (menu !== null) {
                 menu.parentNode.removeChild(menu);
             }

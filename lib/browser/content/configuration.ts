@@ -157,7 +157,7 @@ const configuration:module_configuration = {
             name: "colorScheme",
             options: (function browser_content_configuration_content_colorNames():string[] {
                 const keysProper:string[] = [];
-                keys.forEach(function browser_content_configuration_content_colorNames_each(value:string, index:number, arr:string[]):void {
+                keys.forEach(function browser_content_configuration_content_colorNames_each(value:string):void {
                     keysProper.push(common.capitalize(value));
                 });
                 return keysProper.sort();

@@ -333,9 +333,11 @@ interface module_context {
  *         text       : (event:FocusEvent|KeyboardEvent|MouseEvent) => void; // Allows changing file system location by changing the text address of the current location.
  *     };
  *     tools: {
- *         listFail    : (count:number, box:modal) => void; // Display status information when the Operating system locks files from access.
- *         listItem    : (item:directory_item, extraClass:string) => HTMLElement; // Generates the HTML content for a single file system artifacts that populates a file system list.
- *         modalAddress: (event:FocusEvent|KeyboardEvent|MouseEvent, config:config_modal_history) => void; // Updates the file system address of the current file navigate modal in response to navigating to different locations.
+ *         listFail         : (count:number, box:modal) => void; // Display status information when the Operating system locks files from access.
+ *         listItem         : (item:directory_item, extraClass:string) => HTMLElement; // Generates the HTML content for a single file system artifacts that populates a file system list.
+ *         modalAddress     : (event:FocusEvent|KeyboardEvent|MouseEvent, config:config_modal_history) => void; // Updates the file system address of the current file navigate modal in response to navigating to different locations.
+ *         selectedAddresses: (element:HTMLElement, type:string) => [string, fileType, string][]; // Gather the selected addresses and types of file system artifacts in a fileNavigator modal.
+ *         selectNone       : (element:HTMLElement) => void;                     // Remove selections of file system artifacts in a given fileNavigator modal.
  *     };
  * }
  * type dragFlag = "" | "control" | "shift";
@@ -368,8 +370,10 @@ interface module_fileBrowser {
     };
     tools: {
         listFail: (count:number, box:modal) => void;
-        listItem: (item:directory_item, extraClass:string) => HTMLElement;
+        listItem: (item:directory_item, location:string, extraClass:string) => HTMLElement;
         modalAddress: (event:FocusEvent|KeyboardEvent|MouseEvent, config:config_modal_history) => void;
+        selectedAddresses: (element:HTMLElement, type:string) => [string, fileType, string][];
+        selectNone: (element:HTMLElement) => void;
     };
 }
 
@@ -646,8 +650,6 @@ interface module_share {
  *     radioListItem    : (config:config_radioListItem) => void) => Element; // Creates a radio button inside a list item element.
  *     sanitizeHTML     : (input:string) => string;                          // Make a string safe to inject via innerHTML.
  *     screenPosition   : (node:HTMLElement) => DOMRect;                     // Gathers the view port position of an element.
- *     selectedAddresses: (element:HTMLElement, type:string) => [string, fileType, string][]; // Gather the selected addresses and types of file system artifacts in a fileNavigator modal.
- *     selectNone       : (element:HTMLElement) => void;                     // Remove selections of file system artifacts in a given fileNavigator modal.
  * }
  * type agency = [string, boolean, agentType];
  * type fileType = "directory" | "file" | "link";
@@ -664,6 +666,4 @@ interface module_util {
     radioListItem: (config:config_radioListItem) => HTMLElement;
     sanitizeHTML: (input:string) => string;
     screenPosition: (node:HTMLElement) => DOMRect;
-    selectedAddresses: (element:HTMLElement, type:string) => [string, fileType, string][];
-    selectNone: (element:HTMLElement) => void;
 }
