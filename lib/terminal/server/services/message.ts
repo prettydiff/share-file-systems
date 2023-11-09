@@ -26,7 +26,7 @@ const message = function terminal_server_services_message(socketData:socketData)
                     }, {
                         device: (data[0].agentType === "device")
                             ? data[0].agentTo
-                            : "",
+                            : vars.identity.hashUser,
                         user: (data[0].agentType === "device")
                             ? vars.identity.hashUser
                             : data[0].agentTo
@@ -123,7 +123,7 @@ const message = function terminal_server_services_message(socketData:socketData)
             }, {
                 device: (data[0].agentType === "device")
                     ? data[0].agentTo
-                    : "",
+                    : vars.identity.hashUser,
                 user: (data[0].agentType === "device")
                     ? vars.identity.hashUser
                     : data[0].agentTo

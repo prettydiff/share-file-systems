@@ -37,9 +37,11 @@ import util from "../utilities/util.js";
  *         text       : (event:FocusEvent|KeyboardEvent|MouseEvent) => void; // Allows changing file system location by changing the text address of the current location.
  *     };
  *     tools: {
- *         listFail    : (count:number, box:modal) => void; // Display status information when the Operating system locks files from access.
- *         listItem    : (item:directory_item, extraClass:string) => HTMLElement; // Generates the HTML content for a single file system artifacts that populates a file system list.
- *         modalAddress: (event:FocusEvent|KeyboardEvent|MouseEvent, config:config_modal_history) => void; // Updates the file system address of the current file navigate modal in response to navigating to different locations.
+ *         listFail         : (count:number, box:modal) => void; // Display status information when the Operating system locks files from access.
+ *         listItem         : (item:directory_item, extraClass:string) => HTMLElement; // Generates the HTML content for a single file system artifacts that populates a file system list.
+ *         modalAddress     : (event:FocusEvent|KeyboardEvent|MouseEvent, config:config_modal_history) => void; // Updates the file system address of the current file navigate modal in response to navigating to different locations.
+ *         selectedAddresses: (element:HTMLElement, type:string) => [string, fileType, string][]; // Gather the selected addresses and types of file system artifacts in a fileNavigator modal.
+ *         selectNone       : (element:HTMLElement) => void;                     // Remove selections of file system artifacts in a given fileNavigator modal.
  *     };
  * }
  * type dragFlag = "" | "control" | "shift";
@@ -864,7 +866,10 @@ const file_browser:module_fileBrowser = {
         /* When clicking on a file list give focus to an input field so that the list can receive focus */
         listFocus: function browser_content_fileBrowser_listFocus(event:MouseEvent):void {
             const element:HTMLElement = event.target,
-                li:HTMLElement = element.getAncestor("li", "tag"),
+                name:string = element.lowName(),
+                li:HTMLElement = (name === "ul" || name === "li")
+                    ? element
+                    : element.getAncestor("li", "tag"),
                 inputs:HTMLCollectionOf<HTMLElement> = li.getElementsByTagName("input"),
                 input:HTMLElement = inputs[inputs.length - 1];
             input.focus();
@@ -1395,7 +1400,7 @@ const file_browser:module_fileBrowser = {
                         ? undefined
                         : fileList.getElementsByTagName("li")[0];
                 if (listItem === undefined || listItem.getAttribute("class") === "empty-list") {
-                    config.address = "/";
+                    config.address = modalData.text_value;
                 } else {
                     const file:string = listItem.getElementsByTagName("p")[0].getElementsByTagName("label")[0].innerHTML;
                     if (file.charAt(0) === "/") {

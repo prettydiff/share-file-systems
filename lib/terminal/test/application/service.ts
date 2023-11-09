@@ -3,7 +3,7 @@
 
 import common from "../../../common/common.js";
 import readStorage from "../../utilities/readStorage.js";
-import receiver from "../../server/transmission/receiver.js";
+import tools from "../../server/transmission/tools.js";
 import transmit_http from "../../server/transmission/transmit_http.js";
 import vars from "../../utilities/vars.js";
 
@@ -166,7 +166,7 @@ const loopback:string = "127.0.0.1",
             test.data = JSON.parse(filePathDecode(null, JSON.stringify(test.data)) as string);
             service.index = config.index;
             service.fail = config.fail;
-            receiver(test, {
+            tools.receiver(test, {
                 socket: transmit_ws.socketList.device[vars.identity.hashDevice],
                 type: "ws"
             });

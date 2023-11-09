@@ -84,7 +84,7 @@ interface module_agentHash {
  *         confirmDelete: (box:modal) => void;
  *         deleteAgent: (agent:string, agentType:agentType) => void;
  *         inviteAccept: (box:modal) => void;
- *         inviteComplete: (invitation:service_invite) => void;
+ *         inviteComplete: (invitation:service_invite, modal:HTMLElement) => void;
  *         inviteReceive: (invitation:service_invite) => void;
  *         inviteTransmissionReceipt: (socketData:socketData) => void;
  *         modifyReceive: (socketData:socketData) => void;
@@ -116,7 +116,7 @@ interface module_agentManagement {
         confirmDelete: (box:modal) => void;
         deleteAgent: (agent:string, agentType:agentType) => void;
         inviteAccept: (box:modal) => void;
-        inviteComplete: (invitation:service_invite) => void;
+        inviteComplete: (invitation:service_invite, modal:HTMLElement) => void;
         inviteReceive: (invitation:service_invite) => void;
         inviteTransmissionReceipt: (socketData:socketData) => void;
         modifyReceive: (socketData:socketData) => void;

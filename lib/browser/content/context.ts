@@ -211,7 +211,10 @@ const context:module_context = {
                 }
             },
             box:modal = element.getAncestor("box", "class"),
-            readOnly:boolean = browser.ui.modals[box.getAttribute("id")].read_only,
+            agentType:agentType = (box.dataset === undefined)
+                ? null
+                : box.dataset.agenttype as agentType,
+            readOnly:boolean = (browser.ui.modals[box.getAttribute("id")].read_only && agentType !== "device"),
             clientHeight:number = browser.content.clientHeight;
         let clientX:number,
             clientY:number,
@@ -226,14 +229,14 @@ const context:module_context = {
         menu.onclick = context.events.contextMenuRemove;
         if (nodeName === "ul") {
             functions.details();
-            if (readOnly === false) {
+            if (agentType === "device" || readOnly === false) {
                 functions.newDirectory();
                 functions.newFile();
                 functions.paste();
             }
         } else if (nodeName === "li") {
             functions.details();
-            if (box.dataset !== undefined && box.dataset.agenttype === "device") {
+            if (agentType === "device") {
                 functions.share();
             }
             if (element.getAttribute("class").indexOf("file") === 0) {

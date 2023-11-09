@@ -18,7 +18,7 @@ const agent_management = function terminal_server_services_agentManagement(socke
                 let a:number = 0,
                     count:number = 0;
                 do {
-                    if (vars.agents[type][keys[a]] === undefined) {
+                    if (vars.agents[type][keys[a]] === undefined && (type !== "user" || (type === "user" && keys[a] !== vars.identity.hashUser))) {
                         vars.agents[type][keys[a]] = data.agents[type][keys[a]];
                         count = count + 1;
                     }
@@ -46,10 +46,7 @@ const agent_management = function terminal_server_services_agentManagement(socke
                             service: "settings"
                         });
                     }
-                    sender.broadcast({
-                        data: data,
-                        service: "agent-management"
-                    }, "device");
+                    sender.broadcast(socketData, "device");
                     sender.broadcast(socketData, "browser");
                 }
             }
