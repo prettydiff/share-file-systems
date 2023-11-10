@@ -69,8 +69,8 @@ type ui_input = "cancel" | "close" | "confirm" | "maximize" | "minimize" | "save
 type userData = [agentShares, transmit_addresses_IP];
 
 // typed functions
-type directory_sort = (a:directory_item, b:directory_item) => -1 | 1;
-type receiver = (socketData:socketData, transmit:transmit_type) => void;
 type commandCallback = (title:string, text:string[], fail:boolean) => void;
+type directory_sort = (a:directory_item, b:directory_item) => -1 | 1;
 type modal_open = (event:Event, config?:config_modal) => modal;
+type receiver = (socketData:socketData, transmit:transmit_type) => void;
 type websocket_messageHandler = (resultBuffer:Buffer) => void;

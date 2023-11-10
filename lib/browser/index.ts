@@ -266,6 +266,22 @@ import disallowed from "../common/disallowed.js";
                 }
             },
 
+            // apply background CSS
+            restoreBackgrounds = function browser_init_restoreBackgrounds():void {
+                if (browser.ui.colorBackgrounds === undefined) {
+                    browser.ui.colorBackgrounds = uiDefault.colorBackgrounds;
+                }
+                const colors:string[] = Object.keys(browser.ui.colorBackgrounds),
+                    text:string[] = ["/*window css start*/"];
+                colors.forEach(function browser_init_colorsEach(color:string):void {
+                    text.push(`.${color} #spaces .box div.body{background:${browser.ui.colorBackgrounds[color][0]}}`);
+                    text.push(`.${color} #spaces .box input, .${color} #spaces .box textarea{background:${browser.ui.colorBackgrounds[color][1]}}`);
+                    text.push(`.${color} #spaces .box .body, .${color} #spaces .box textarea{backdrop-filter:${browser.ui.colorBackgrounds[color][2]}}`);
+                });
+                text.push("/*window css end*/");
+                browser.style.appendText(text.join("\n"));
+            },
+
             // on page load restore the application to exactly the way it was
             restoreState = function browser_init_restoreState():void {
                 // state data
@@ -325,20 +341,7 @@ import disallowed from "../common/disallowed.js";
                 browser.agents = state.settings.agents;
                 browser.identity = state.settings.identity;
                 browser.ui = state.settings.ui;
-                if (browser.ui.colorBackgrounds === undefined) {
-                    browser.ui.colorBackgrounds = uiDefault.colorBackgrounds;
-                }
-                {
-                    const colors:string[] = Object.keys(browser.ui.colorBackgrounds),
-                        text:string[] = ["/*window css start*/"];
-                    colors.forEach(function browser_init_colorsEach(color:string):void {
-                        text.push(`.${color} #spaces .box div.body{background:${browser.ui.colorBackgrounds[color][0]}}`);
-                        text.push(`.${color} #spaces .box input, .${color} #spaces .box textarea{background:${browser.ui.colorBackgrounds[color][1]}}`);
-                        text.push(`.${color} #spaces .box .body, .${color} #spaces .box textarea{backdrop-filter:${browser.ui.colorBackgrounds[color][2]}}`);
-                    });
-                    text.push("/*window css end*/");
-                    browser.style.appendText(text.join("\n"));
-                }
+                restoreBackgrounds();
                 modalKeys.forEach(function browser_init_restoreState_modalKeys(value:string) {
                     modalItem = state.settings.ui.modals[value];
                     modalItem.callback = function browser_init_restoreState_modalKeys_callback():void {
@@ -351,29 +354,29 @@ import disallowed from "../common/disallowed.js";
             // Resizes the interactive area to fit the browser viewport.
             fixHeight = function browser_init_fixHeight():void {
                 const height:number = window.innerHeight || browser.pageBody.clientHeight;
+                browser.scrollbar = (function browser_init_scrollBar():number {
+                    let width:number = 0;
+                    const div:HTMLElement = document.createElement("div"),
+                        inner:HTMLElement = document.createElement("div");
+                    div.style.visibility = "hidden";
+                    div.style.overflow = "scroll";
+                    div.appendChild(inner);
+                    browser.pageBody.appendChild(div);
+                    width = (div.offsetWidth - inner.offsetWidth);
+                    browser.pageBody.removeChild(div);
+                    return width;
+                }());
                 browser.content.style.height = `${(height - 51) / 10}em`;
                 document.getElementById("agentList").style.height = `${(window.innerHeight - 80) / 10}em`;
                 tray.style.width = `${(window.innerWidth - browser.scrollbar - 1) / 10}em`;
+                tray.style.margin = `0 0 ${browser.scrollbar / 10}em 0`;
+                agentList.style.right = `${(browser.scrollbar / 10)}em`;
             };
 
         // readjusting the visual appearance of artifacts in the DOM to fit the screen before they are visible to eliminate load drag from page repaint
         window.onresize = fixHeight;
+        browser.style.setAttribute("type", "text/css");
         document.getElementsByTagName("head")[0].appendChild(browser.style);
-        agentList.style.right = (function browser_init_scrollBar():string {
-            // agent list is position:fixed, which is outside of parent layout, so I need to ensure it does not overlap the parent scrollbar
-            let width:number = 0;
-            const div:HTMLElement = document.createElement("div"),
-                inner:HTMLElement = document.createElement("div");
-            div.style.visibility = "hidden";
-            div.style.overflow = "scroll";
-            div.appendChild(inner);
-            browser.pageBody.appendChild(div);
-            width = (div.offsetWidth - inner.offsetWidth);
-            browser.pageBody.removeChild(div);
-            browser.scrollbar = width;
-            tray.style.margin = `0 0 ${width / 10}em 0`;
-            return `${(width / 10)}em`;
-        }());
         fixHeight();
 
         // set state from artifacts supplied to the page
@@ -409,6 +412,7 @@ import disallowed from "../common/disallowed.js";
                     : hashDevice,
                 "primary"
             );
+            restoreBackgrounds();
             loadComplete(false);
         } else {
             restoreState();

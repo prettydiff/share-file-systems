@@ -124,9 +124,9 @@ const configuration:module_configuration = {
                 configurationBody.appendChild(section);
             },
             defaultBackground:colorBackgrounds = {
-                "blush":   ["rgba(255,255,255,0.5)",    "rgba(224,200,200,0.75)", "blur(2em)"],
-                "dark":    ["rgba(32,32,32,0.75)",      "rgba(16,16,16,0.75)",    "blur(2em)"],
-                "default": ["rgba(255, 255, 255, 0.5)", "rgba(216,216,216,0.75)", "blur(2em)"]
+                "blush":   ["rgba(255,255,255,0.5)", "rgba(224,200,200,0.75)", "blur(2em)"],
+                "dark":    ["rgba(32,32,32,0.75)",   "rgba(16,16,16,0.75)",    "blur(2em)"],
+                "default": ["rgba(255,255,255,0.5)", "rgba(216,216,216,0.75)", "blur(2em)"]
             };
         let section:HTMLElement,
             p:HTMLElement,
@@ -156,10 +156,11 @@ const configuration:module_configuration = {
             button: false,
             name: "colorScheme",
             options: (function browser_content_configuration_content_colorNames():string[] {
-                keys.forEach(function browser_content_configuration_content_colorNames_each(value:string, index:number, arr:string[]):void {
-                    arr[index] = common.capitalize(value);
+                const keysProper:string[] = [];
+                keys.forEach(function browser_content_configuration_content_colorNames_each(value:string):void {
+                    keysProper.push(common.capitalize(value));
                 });
-                return keys.sort();
+                return keysProper.sort();
             }()),
             textLabel: null,
             textPara: null,

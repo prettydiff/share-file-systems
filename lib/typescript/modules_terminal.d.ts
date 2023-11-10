@@ -527,14 +527,16 @@ interface module_test_simulationApplication {
  * The HTTP library.
  * ```typescript
  * interface transmit_http {
+ *     get         : (request:node_http_IncomingMessage, serverResponse:httpSocket_response) => void;      // Respond to HTTP GET requests.
  *     receive     : (request:node_http_IncomingMessage, serverResponse:node_http_ServerResponse) => void; // Processes incoming HTTP requests.
  *     request     : (config:config_http_request) => void;                                                 // Send an arbitrary HTTP request.
  *     respond     : (config:config_http_respond, get:boolean, url:string) => void;                        // Formats and sends HTTP response messages.
- *     respondEmpty: (transmit:transmit_type)                                                              // Responds to a request with an empty payload.
+ *     respondEmpty: (transmit:transmit_type)                                                              // Responds to a request with an empty response payload.
  *     server      : (serverOptions:config_http_server, serverCallback:http_server_callback) => void;      // Creates an HTTP server.
  * }
  * ``` */
 interface module_transmit_http {
+    get: (request:node_http_IncomingMessage, serverResponse:httpSocket_response) => void;
     receive: (request:node_http_IncomingMessage, serverResponse:node_http_ServerResponse) => void;
     request: (config:config_http_request) => void;
     respond: (config:config_http_respond, get:boolean, url:string) => void;
@@ -560,6 +562,21 @@ interface module_transmit_http {
 }
 
 /**
+ * A collection of transmission tools for use with either HTTP or WS.
+ * ```typescript
+ * interface module_transmit_tools {
+ *     logger: (config:config_transmit_logger) => void;
+ *     receiver: (socketData:socketData, transmit:transmit_type) => void;
+ *     responder: (socketData:socketData, transmit:transmit_type) => void;
+ * }
+ * ``` */
+interface module_transmit_tools {
+    logger: (config:config_transmit_logger) => void;
+    receiver: (socketData:socketData, transmit:transmit_type) => void;
+    responder: (socketData:socketData, transmit:transmit_type) => void;
+}
+
+/**
  * The websocket library
  * ```typescript
  * interface transmit_ws {
@@ -574,7 +591,6 @@ interface module_transmit_http {
  *             [key:string]: string[];
  *         };
  *     };                                                                                       // stores connection attempts as a list of ip addresses by agent hash
- *     list            : () => void;                                                            // Updates local device socket list for storage on transmit_ws.status.
  *     listener        : (socket:websocket_client) => void;                                     // A handler attached to each socket to listen for incoming messages.
  *     open: {
  *         agent:   (config:config_websocket_openAgent) => void;   // Opens a long-term socket tunnel between known agents.
@@ -603,7 +619,6 @@ interface module_transmit_ws {
             [key:string]: string[];
         };
     };
-    list: () => void;
     listener: (socket:websocket_client) => void;
     open: {
         agent: (config:config_websocket_openAgent) => void;

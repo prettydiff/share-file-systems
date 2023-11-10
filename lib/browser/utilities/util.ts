@@ -23,8 +23,6 @@ import share from "../content/share.js";
  *     radioListItem    : (config:config_radioListItem) => void) => Element; // Creates a radio button inside a list item element.
  *     sanitizeHTML     : (input:string) => string;                          // Make a string safe to inject via innerHTML.
  *     screenPosition   : (node:HTMLElement) => DOMRect;                     // Gathers the view port position of an element.
- *     selectedAddresses: (element:HTMLElement, type:string) => [string, fileType, string][]; // Gather the selected addresses and types of file system artifacts in a fileNavigator modal.
- *     selectNone       : (element:HTMLElement) => void;                     // Remove selections of file system artifacts in a given fileNavigator modal.
  * }
  * type agency = [string, boolean, agentType];
  * type fileType = "directory" | "file" | "link";
@@ -478,7 +476,7 @@ const util:module_util = {
         if ((target.lowName() === "input" && input.type === "text") || element.parentNode === null || document.activeElement === document.getElementById("newFileItem")) {
             return;
         }
-        if (key === "enter" && elementName === "li" && (element.getAttribute("class") === "directory" || element.getAttribute("class") === "directory lastType" || element.getAttribute("class") === "directory selected") && p.getAttribute("class") === "selected" && util.selectedAddresses(element, "directory").length === 1) {
+        if (key === "enter" && elementName === "li" && (element.getAttribute("class") === "directory" || element.getAttribute("class") === "directory lastType" || element.getAttribute("class") === "directory selected") && p.getAttribute("class") === "selected" && file_browser.tools.selectedAddresses(element, "directory").length === 1) {
             file_browser.events.directory(event);
             return;
         }
@@ -633,103 +631,6 @@ const util:module_util = {
             // eslint-disable-next-line
             toJSON: output.toJSON
         };
-    },
-
-    /* Gather the selected addresses and types of file system artifacts in a fileNavigator modal. */
-    selectedAddresses: function browser_utilities_util_selectedAddresses(element:HTMLElement, type:string):[string, fileType, string][] {
-        const output:[string, fileType, string][] = [],
-            parent:HTMLElement = element.parentNode,
-            agent:string = util.getAgent(element)[0],
-            drag:boolean = (parent.getAttribute("id") === "file-list-drag"),
-            sanitize = function browser_utilities_util_selectedAddresses_sanitize(item:HTMLElement, classItem:HTMLElement):void {
-                const text:string = (item.lowName() === "label")
-                    ? item.innerHTML
-                    : item.getElementsByTagName("label")[0].innerHTML;
-                output.push([text, classItem.getAttribute("class").replace(" lastType", "").replace(" selected", "").replace(" cut", "") as fileType, agent]);
-            },
-            box:modal = element.getAncestor("box", "class"),
-            dataModal:config_modal = browser.ui.modals[box.getAttribute("id")],
-            itemList:HTMLCollectionOf<Element> = (drag === true)
-                ? parent.getElementsByTagName("p")
-                : box.getElementsByClassName("fileList")[0].getElementsByTagName("p");
-        let a:number = 0,
-            length:number = 0,
-            itemParent:HTMLElement,
-            classy:string,
-            addressItem:HTMLElement;
-        if (element.lowName() !== "li") {
-            element = element.parentNode;
-        }
-        length = itemList.length;
-        do {
-            itemParent = itemList[a].parentNode;
-            classy = itemList[a].getAttribute("class");
-            if (itemParent.getElementsByTagName("input")[0].checked === true) {
-                addressItem = itemList[a].firstChild as HTMLElement;
-                sanitize(addressItem, itemParent);
-                if (type === "cut") {
-                    if (classy !== null && classy.indexOf("selected") > -1) {
-                        itemList[a].setAttribute("class", "selected cut");
-                    } else {
-                        itemList[a].setAttribute("class", "cut");
-                    }
-                    dataModal.selection[itemList[a].getElementsByTagName("label")[0].innerHTML] = itemList[a].getAttribute("class");
-                }
-            } else {
-                itemList[a].removeAttribute("class");
-                if (dataModal.selection === undefined) {
-                    dataModal.selection = {};
-                } else {
-                    delete dataModal.selection[itemList[a].getElementsByTagName("label")[0].innerHTML];
-                }
-            }
-            a = a + 1;
-        } while (a < length);
-        if (output.length > 0) {
-            return output;
-        }
-        sanitize(element.getElementsByTagName("label")[0], element);
-        if (itemList[a] !== undefined && type === "cut") {
-            classy = element.getAttribute("class");
-            if (classy !== null && classy.indexOf("selected") > -1) {
-                element.setAttribute("class", "selected cut");
-            } else {
-                element.setAttribute("class", "cut");
-            }
-            dataModal.selection[itemList[a].getElementsByTagName("label")[0].innerHTML] = itemList[a].getAttribute("class");
-        }
-        return output;
-    },
-
-    /* Remove selections of file system artifacts in a given fileNavigator modal. */
-    selectNone: function browser_utilities_util_selectNone(element:HTMLElement):void {
-        const box:modal = element.getAncestor("box", "class"),
-            fileList:HTMLElement = box.getElementsByClassName("fileList")[0] as HTMLElement,
-            child:HTMLElement = (fileList === undefined)
-                ? null
-                : fileList.firstChild as HTMLElement,
-            inputs:HTMLCollectionOf<HTMLInputElement> = (fileList === undefined)
-                ? null
-                : fileList.getElementsByTagName("input"),
-            inputLength:number = (fileList === undefined)
-                ? 0
-                : inputs.length,
-            p:HTMLCollectionOf<Element> = (fileList === undefined)
-                ? null
-                : fileList.getElementsByTagName("p");
-        let a:number = 0;
-        if (fileList === undefined || document.getElementById("newFileItem") !== null || child.getAttribute("class") === "empty-list") {
-            return;
-        }
-        if (inputLength > 0) {
-            do {
-                if (inputs[a].type === "checkbox") {
-                    inputs[a].checked = false;
-                    p[a].removeAttribute("class");
-                }
-                a = a + 1;
-            } while (a < inputLength);
-        }
     }
 
 };

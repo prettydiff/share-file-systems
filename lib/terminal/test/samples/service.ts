@@ -8,8 +8,8 @@ import vars from "../../utilities/vars.js";
 
 const serviceTests = function terminal_test_samples_services():test_service[] {
     const service:test_service[] = [],
-        base64:string = "ewogICAgImNvbXBpbGVyT3B0aW9ucyI6IHsKICAgICAgICAiYWx3YXlzU3RyaWN0IjogdHJ1ZSwKICAgICAgICAibW9kdWxlIjogIkVTMjAyMCIsCiAgICAgICAgIm1vZHVsZVJlc29sdXRpb24iOiAibm9kZSIsCiAgICAgICAgIm91dERpciI6ICIuL2pzL2xpYiIsCiAgICAgICAgIm5vRW1pdCI6IHRydWUsCiAgICAgICAgIm5vSW1wbGljaXRBbnkiOiB0cnVlLAogICAgICAgICJwcmV0dHkiOiB0cnVlLAogICAgICAgICJzdHJpY3RGdW5jdGlvblR5cGVzIjogdHJ1ZSwKICAgICAgICAidGFyZ2V0IjogIkVTMjAyMCIsCiAgICAgICAgInR5cGVzIjogWyJub2RlIl0sCiAgICAgICAgInR5cGVSb290cyI6IFsiLi9ub2RlX21vZHVsZXMvQHR5cGVzIl0KICAgIH0sCiAgICAiZXhjbHVkZSI6IFsKICAgICAgICAianMiLAogICAgICAgICJsaWIvdGVybWluYWwvdGVzdC9zdG9yYWdlVGVzdC90ZW1wIiwKICAgICAgICAiKiovbm9kZV9tb2R1bGVzIiwKICAgICAgICAiKiovLiovIgogICAgXSwKICAgICJpbmNsdWRlIjogWwogICAgICAgICIqKi8qLnRzIgogICAgXQp9",
-        hash:string = "7afd87e5c2ba29c3b437413d16e239fd4757881ffae55e347bbe2b4f1ab41bc97f1434523e06bc51101029a029f2eb13388117481321137af7bee17b452014e9",
+        base64:string = "ewogICAgImNvbXBpbGVyT3B0aW9ucyI6IHsKICAgICAgICAiYWx3YXlzU3RyaWN0IjogdHJ1ZSwKICAgICAgICAibW9kdWxlIjogIkVTMjAyMCIsCiAgICAgICAgIm1vZHVsZVJlc29sdXRpb24iOiAibm9kZSIsCiAgICAgICAgIm91dERpciI6ICIuL2pzL2xpYiIsCiAgICAgICAgIm5vRW1pdCI6IHRydWUsCiAgICAgICAgIm5vSW1wbGljaXRBbnkiOiB0cnVlLAogICAgICAgICJwcmV0dHkiOiBmYWxzZSwKICAgICAgICAic3RyaWN0RnVuY3Rpb25UeXBlcyI6IHRydWUsCiAgICAgICAgInRhcmdldCI6ICJFUzIwMjAiLAogICAgICAgICJ0eXBlcyI6IFsibm9kZSJdLAogICAgICAgICJ0eXBlUm9vdHMiOiBbIi4vbm9kZV9tb2R1bGVzL0B0eXBlcyJdCiAgICB9LAogICAgImV4Y2x1ZGUiOiBbCiAgICAgICAgImpzIiwKICAgICAgICAibGliL3Rlcm1pbmFsL3Rlc3Qvc3RvcmFnZVRlc3QvdGVtcCIsCiAgICAgICAgIioqL25vZGVfbW9kdWxlcyIsCiAgICAgICAgIioqLy4qLyIKICAgIF0sCiAgICAiaW5jbHVkZSI6IFsKICAgICAgICAiKiovKi50cyIKICAgIF0KfQ==",
+        hash:string = "2b519f2492fb40713285995d4cf688d4d24ee1c905b19f8bb39f4ea916f2f760b50f8d176d2a0a18ef3eb2ae2e481806d523d7faac251de23113ae9fb9b26bb0",
         remoteDevice1:string = "a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e",
         remoteDevice2:string = "fa042a71aee124b7b667d97fd84c0a309e72aefcae5d95762bc05d39cbeedae88122758f8625910a669271251d5f561a1c2749c6d66664f5d35dcc8c608c1a89",
         storagePath:string = "lib/terminal/test/storageTest/temp/",
@@ -1490,6 +1490,11 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                         },
                         user: {}
                     },
+                    colorBackgrounds: {
+                        "blush":   ["rgba(255,255,255,0.5)", "rgba(224,200,200,0.75)", "blur(2em)"],
+                        "dark":    ["rgba(32,32,32,0.75)",   "rgba(16,16,16,0.75)",    "blur(2em)"],
+                        "default": ["rgba(255,255,255,0.5)", "rgba(216,216,216,0.75)", "blur(2em)"]
+                    },
                     fileSort: "file-system-type",
                     hashDevice: vars.identity.hashDevice,
                     hashType: "sha3-512",
@@ -1543,6 +1548,11 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                             [vars.identity.hashDevice]: ["fff", "eee"]
                         },
                         user: {}
+                    },
+                    colorBackgrounds: {
+                        "blush":   ["rgba(255,255,255,0.5)", "rgba(224,200,200,0.75)", "blur(2em)"],
+                        "dark":    ["rgba(32,32,32,0.75)",   "rgba(16,16,16,0.75)",    "blur(2em)"],
+                        "default": ["rgba(255,255,255,0.5)", "rgba(216,216,216,0.75)", "blur(2em)"]
                     },
                     fileSort: "file-system-type",
                     hashDevice: vars.identity.hashDevice,

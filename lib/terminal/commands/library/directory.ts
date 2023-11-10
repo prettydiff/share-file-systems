@@ -439,6 +439,9 @@ const directory = function terminal_commands_library_directory(args:config_comma
                     }
                 });
             };
+        if (args.path === null) {
+            return;
+        }
         args.path = (args.path.length > 2)
             ? args.path.replace(/(\/|\\)$/, "")
             : args.path;

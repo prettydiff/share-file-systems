@@ -21,7 +21,7 @@ const agent_status = function terminal_server_services_agentStatus(socketData:so
         if (data.respond === true) {
             const device:string = (data.agentType === "device")
                 ? data.agent
-                : "";
+                : vars.identity.hashUser;
             sender.send({
                 data: {
                     agent: (data.agentType === "device")

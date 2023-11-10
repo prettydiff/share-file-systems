@@ -40,7 +40,7 @@ import util from "../utilities/util.js";
  *         confirmDelete: (box:modal) => void;
  *         deleteAgent: (agent:string, agentType:agentType) => void;
  *         inviteAccept: (box:modal) => void;
- *         inviteComplete: (invitation:service_invite) => void;
+ *         inviteComplete: (invitation:service_invite, modal:HTMLElement) => void;
  *         inviteReceive: (invitation:service_invite) => void;
  *         inviteTransmissionReceipt: (socketData:socketData) => void;
  *         modifyReceive: (socketData:socketData) => void;
@@ -939,8 +939,7 @@ const agent_management:module_agentManagement = {
         },
 
         /* Handles final status of an invitation completion */
-        inviteComplete: function browser_content_agentManagement_inviteComplete(invitation:service_invite):void {
-            const modal:HTMLElement = document.getElementById(invitation.agentRequest.modal);
+        inviteComplete: function browser_content_agentManagement_inviteComplete(invitation:service_invite, modal:HTMLElement):void {
             if (modal !== null) {
                 const error:HTMLElement = modal.getElementsByClassName("error")[0] as HTMLElement,
                     delay:HTMLElement = modal.getElementsByClassName("delay")[0] as HTMLElement,
@@ -1003,14 +1002,15 @@ const agent_management:module_agentManagement = {
 
         /* Routes invitation messaging from the network to the appropriate method. */
         inviteTransmissionReceipt: function browser_content_agentManagement_inviteTransmissionReceipt(socketData:socketData):void {
-            const invitation:service_invite = socketData.data as service_invite;
-            if (document.getElementById(invitation.agentRequest.modal) !== null) {
-                // there should only be one invitation at a time from a given agent otherwise there is spam
-                return;
-            }
+            const invitation:service_invite = socketData.data as service_invite,
+                modal:HTMLElement = document.getElementById(invitation.agentRequest.modal);
             if (invitation.action === "invite-complete") {
-                agent_management.tools.inviteComplete(invitation);
+                agent_management.tools.inviteComplete(invitation, modal);
             } else {
+                if (modal !== null) {
+                    // there should only be one invitation at a time from a given agent otherwise there is spam
+                    return;
+                }
                 agent_management.tools.inviteReceive(invitation);
             }
         },

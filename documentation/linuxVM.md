@@ -1,6 +1,6 @@
 <!-- documentation/linuxVM - Notes about configuring Linux virtual machines in support of project development. -->
 
-<!-- cspell:words bcdedit, Bodhi, DHCP, hypervisorlaunchtype, Moksha, sharefs, updatefs, vimrc -->
+<!-- cspell:words bcdedit, Bodhi, DHCP, ethernets, hypervisorlaunchtype, Moksha, netcfg, netplan, networkd, sharefs, updatefs, vimrc -->
 
 # Share File Systems - Running a Linux VM on Windows
 It is necessary to run Linux and without additional hardware.  At the time of this writing I am running it as a VM in Virtual Box on Windows.  There are a couple import steps to enable this capability.
@@ -164,10 +164,44 @@ Device:
 1. `vim ./lib/settings/device.json`
 2. Change the `name` property to anything else
 
-### IP Address
+### IP Address Permanent (next boot)
 The IP address shouldn't need to be changed, because the host assigns the address from a DHCP pool to the guest machine via the host-based adapter interface, but should the IP address be the same as another VM here are the steps to change it:
-1. First, remove the old address: `sudo ip address del oldIP/mask dev interface`
-2. Second, add the new address: `sudo ip address add newIP/mask dev interface`
+1. First, modify the IP address: `sudo vim /etc/netplan/01-netcfg.yaml`
+2. Second, restart the machine
+
+A correct net plan should look something like the following example:
+```yaml
+  version: 2
+  renderer: networkd
+  ethernets:
+    enp0s3:
+      dhcp4: yes
+    enp0s8:
+      dhcp4: no
+      dhcp6: yes
+      addresses: [192.168.56.103/24]
+      gateway4: 192.168.56.1
+```
+
+In the above example:
+* Interface enp0s3 is for the host based interface that provides internet access.
+* Interface enp0s8 is for the NAT interface for local network connectivity between the host machine and other VMs.
+* Virtual Box 7 now supports IPv6 routing on its virtual LANs, but I have not experimented with this yet.
+
+### IP Address Temporary (current boot)
+1. Delete the current IP address: `sudo ip address del 192.168.56.102/24 dev enp0s8`
+2. Add the desired IP address: `sudo ip address add 192.168.56.103/24 dev enp0s8`
 
 In those instructions supply the correct IP addresses, and the correct CIDR mask (probably 24), and finally the correct interface name.
-Example: `sudo ip address del 192.168.56.101/24 enp0s3`
+Example:
+```
+sudo ip address del 192.168.56.101/24 dev enp0s3
+sudo ip link set dev enp0s3 up
+```
+
+### Troubleshooting VirtualBox
+* If the OS or disk fails to clone verify there is not already a disk registered with that name.  If so it will clone the machine and complete the operation with a new empty disk.
+* If Virtual Box complains that an network interface is missing or misconfigured the machine will abort at load.  The fix could be as simple as opening the settings of the given machine looking at the network tab and clicking the "OK" button without making changes.
+* If there are connection failures between the host and all VMs the first thing to check is the host firewall.  To test just disable the firewall and try again to see if it works.  Then reenable the firewall and add the proper configurations.
+  - Also bear in mind with the firewall that ICMP (ping) might be blocked while TCP is allowed, or the opposite.
+* If partial connectivity between systems is achieved in the application run the install script on all systems: `node install`

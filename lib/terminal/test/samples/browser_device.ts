@@ -567,10 +567,10 @@ const browserDevice:test_browserItem[] = [
                 ["getElementsByClassName", "body", 0],
                 ["getElementsByTagName", "textarea", 0]
             ],
-            qualifier: "greater",
-            target: ["clientHeight"],
+            qualifier: "begins",
+            target: ["value"],
             type: "property",
-            value: 200
+            value: "<!-- documentation/code_style - Describes rules for code conformance. -->"
         },
         interaction: [
             {
@@ -584,19 +584,7 @@ const browserDevice:test_browserItem[] = [
         ],
         machine: "self",
         name: "On self open a file from VM1",
-        unit: [
-            {
-                node: [
-                    ["getModalsByModalType", "file-edit", 0],
-                    ["getElementsByClassName", "body", 0],
-                    ["getElementsByTagName", "textarea", 0]
-                ],
-                qualifier: "begins",
-                target: ["value"],
-                type: "property",
-                value: "<!-- documentation/code_style - Describes rules for code conformance. -->"
-            }
-        ]
+        unit: []
     },
 
     // open file navigate context menu at self
@@ -2042,12 +2030,13 @@ const browserDevice:test_browserItem[] = [
         delay: {
             node: [
                 ["getModalsByModalType", "socket-list", 0],
-                ["getElementsByClassName", "body", 0]
+                ["getElementsByTagName", "tbody", 0],
+                ["getElementsByTagName", "tr", null]
             ],
-            qualifier: "greater",
-            target: ["clientHeight"],
+            qualifier: "is",
+            target: ["length"],
             type: "property",
-            value: 10
+            value: 19
         },
         interaction: [
             {
@@ -2072,17 +2061,6 @@ const browserDevice:test_browserItem[] = [
                 target: ["length"],
                 type: "property",
                 value: 3
-            },
-            {
-                node: [
-                    ["getModalsByModalType", "socket-list", 0],
-                    ["getElementsByTagName", "tbody", 0],
-                    ["getElementsByTagName", "tr", null]
-                ],
-                qualifier: "is",
-                target: ["length"],
-                type: "property",
-                value: 19
             }
         ]
     },

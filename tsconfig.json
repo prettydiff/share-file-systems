@@ -6,7 +6,7 @@
         "outDir": "./js/lib",
         "noEmit": true,
         "noImplicitAny": true,
-        "pretty": true,
+        "pretty": false,
         "strictFunctionTypes": true,
         "target": "ES2020",
         "types": ["node"],
