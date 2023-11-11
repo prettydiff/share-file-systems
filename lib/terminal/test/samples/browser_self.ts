@@ -4415,6 +4415,147 @@ const buildExport = function terminal_test_samples_browserSelf_buildExport():str
             ]
         },
 
+        // test for file execution of expanded list
+        {
+            interaction: [
+                {
+                    event: "click",
+                    node: [
+                        ["getModalsByModalType", "file-navigate", 0],
+                        ["getElementsByClassName", "body", 0],
+                        ["getElementsByText", "lib", 0],
+                        ["parentNode", null, null],
+                        ["parentNode", null, null],
+                        ["getElementsByTagName", "button", 0]
+                    ]
+                },
+                {
+                    event: "wait",
+                    node: [],
+                    value: "400"
+                },
+                {
+                    event: "click",
+                    node: [
+                        ["getModalsByModalType", "file-navigate", 0],
+                        ["getElementsByClassName", "body", 0],
+                        ["getElementsByText", "lib", 0],
+                        ["parentNode", null, null],
+                        ["parentNode", null, null],
+                        ["getElementsByTagName", "li", 0],
+                        ["getElementsByTagName", "button", 0]
+                    ]
+                },
+                {
+                    event: "wait",
+                    node: [],
+                    value: "400"
+                },
+                {
+                    event: "dblclick",
+                    node: [
+                        ["getModalsByModalType", "file-navigate", 0],
+                        ["getElementsByClassName", "body", 0],
+                        ["getElementsByText", "lib", 0],
+                        ["parentNode", null, null],
+                        ["parentNode", null, null],
+                        ["getElementsByTagName", "li", 0],
+                        ["getElementsByTagName", "li", 3]
+                    ]
+                }
+            ],
+            machine: "self",
+            name: "Execute file from expanded list",
+            unit: [
+                {
+                    node: [
+                        ["getModalsByModalType", "file-navigate", 0],
+                        ["getElementsByTagName", "input", 0]
+                    ],
+                    qualifier: "ends",
+                    target: ["value"],
+                    type: "property",
+                    value: "share-file-systems"
+                },
+                {
+                    node: [
+                        ["getModalsByModalType", "file-navigate", 0],
+                        ["getElementsByClassName", "body", 0],
+                        ["getElementsByText", "lib", 0],
+                        ["parentNode", null, null],
+                        ["parentNode", null, null],
+                        ["getElementsByTagName", "li", 0],
+                        ["getElementsByTagName", "li", 3],
+                        ["getElementsByTagName", "p", 0]
+                    ],
+                    qualifier: "is",
+                    target: ["class"],
+                    type: "attribute",
+                    value: "selected"
+                }
+            ]
+        },
+
+        // test for file execution of less expanded list
+        {
+            interaction: [
+                {
+                    event: "click",
+                    node: [
+                        ["getModalsByModalType", "file-navigate", 0],
+                        ["getElementsByClassName", "body", 0],
+                        ["getElementsByText", "lib", 0],
+                        ["parentNode", null, null],
+                        ["parentNode", null, null],
+                        ["getElementsByTagName", "li", 0],
+                        ["getElementsByTagName", "button", 0]
+                    ]
+                },
+                {
+                    event: "dblclick",
+                    node: [
+                        ["getModalsByModalType", "file-navigate", 0],
+                        ["getElementsByClassName", "body", 0],
+                        ["getElementsByText", "lib", 0],
+                        ["parentNode", null, null],
+                        ["parentNode", null, null],
+                        ["getElementsByText", "readme.md", 0],
+                        ["parentNode", null, null],
+                        ["parentNode", null, null]
+                    ]
+                }
+            ],
+            machine: "self",
+            name: "Execute file from alternate expanded list",
+            unit: [
+                {
+                    node: [
+                        ["getModalsByModalType", "file-navigate", 0],
+                        ["getElementsByTagName", "input", 0]
+                    ],
+                    qualifier: "ends",
+                    target: ["value"],
+                    type: "property",
+                    value: "share-file-systems"
+                },
+                {
+                    node: [
+                        ["getModalsByModalType", "file-navigate", 0],
+                        ["getElementsByClassName", "body", 0],
+                        ["getElementsByText", "lib", 0],
+                        ["parentNode", null, null],
+                        ["parentNode", null, null],
+                        ["getElementsByText", "readme.md", 0],
+                        ["parentNode", null, null]
+                    ],
+                    qualifier: "is",
+                    target: ["class"],
+                    type: "attribute",
+                    value: "selected"
+                }
+            ]
+        },
+
         // test for idle state
         {
             interaction: [

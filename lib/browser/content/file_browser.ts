@@ -814,6 +814,7 @@ const file_browser:module_fileBrowser = {
             file_browser.tools.selectNone(box);
             network.send(payload, "file-system");
             file_browser.events.select(event);
+            event.stopPropagation();
         },
     
         /* Shows child elements of a directory */

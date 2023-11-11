@@ -161,7 +161,7 @@ const fileSystem:module_fileSystem = {
                             dirList.push([dirs[0][0], dirs[0][1]]);
                         }
                         counter = counter + 1;
-                        if (counter === data.location.length) {
+                        if (counter === data.location.length && vars.test.type === "") {
                             fileExecution(dirList, data.agentRequest, data.agentSource);
                         }
                     },
