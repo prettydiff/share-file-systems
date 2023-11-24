@@ -1417,7 +1417,7 @@ const docFiles:string = "Writing 100.00% complete. 22 files written at size ",
                 qualifier: "is",
                 target: ["innerHTML"],
                 type: "property",
-                value: "2 directories, 7 files, 0 symbolic links, 0 errors"
+                value: "3 directories, 7 files, 0 symbolic links, 0 errors"
             },
             interaction: [
                 {
@@ -1438,7 +1438,7 @@ const docFiles:string = "Writing 100.00% complete. 22 files written at size ",
                         ["getModalsByModalType", "file-navigate", 2],
                         ["getElementsByClassName", "body", 0],
                         ["getElementsByClassName", "fileList", 0],
-                        ["getElementsByTagName", "li", 1]
+                        ["getElementsByTagName", "li", 2]
                     ],
                     qualifier: "is",
                     target: ["class"],
@@ -2144,7 +2144,7 @@ const docFiles:string = "Writing 100.00% complete. 22 files written at size ",
                 qualifier: "is",
                 target: ["innerHTML"],
                 type: "property",
-                value: "3 directories, 7 files, 0 symbolic links, 0 errors"
+                value: "4 directories, 7 files, 0 symbolic links, 0 errors"
             },
             interaction: [
                 {
@@ -2164,7 +2164,7 @@ const docFiles:string = "Writing 100.00% complete. 22 files written at size ",
                         ["getModalsByModalType", "file-navigate", 3],
                         ["getElementsByClassName", "body", 0],
                         ["getElementsByClassName", "fileList", 0],
-                        ["getElementsByTagName", "li", 2]
+                        ["getElementsByTagName", "li", 3]
                     ],
                     qualifier: "is",
                     target: ["class"],

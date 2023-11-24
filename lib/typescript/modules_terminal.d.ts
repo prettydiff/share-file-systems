@@ -143,7 +143,7 @@ interface module_fileCopy {
  *         write      : (data:service_fileSystem) => void; // Writes a string to a file.
  *     };
  *     menu: (data:service_fileSystem) => void; // Resolves actions from *service_fileSystem* to methods in this object's action property.
- *     route: (socketData:socketData) => void;  // Sends the data and destination to sender.route method.
+ *     route: (socketData:socketData) => void;  // Sends the data and destination to sender.routeFile method.
  *     status: {
  *         generate : (data:service_fileSystem, dirs:directory_response) => void;              // Formulates a status message to display in the modal status bar of a File Navigate type modal for distribution using the *statusBroadcast* method.
  *         specified: (message:string, agentRequest:fileAgent, agentSource:fileAgent) => void; // Specifies an exact string to send to the File Navigate modal status bar.
@@ -550,14 +550,14 @@ interface module_transmit_http {
  * interface module_transmit_sender {
  *     agentQueue: (type:socketType, agent:string, payload:socketData) => void;  // If the agent is offline the message will be queued.
  *     broadcast : (payload:socketData, listType:agentType | "browser") => void; // Send a specified ata package to all agents of a given agent type.
- *     route     : (destination:agentCopy, socketData:socketData, callback:(socketData:socketData) => void) => void; // Automation to redirect data packages to a specific agent examination of a service identifier and agent data.
+ *     routeFile : (destination:agentCopy, socketData:socketData, callback:(socketData:socketData) => void) => void; // Automation to redirect data packages to a specific agent examination of a service identifier and agent data.
  *     send      : (data:socketData, agents:transmit_agents) => void;            // Send a specified data package to a specified agent
  * }
  * ``` */
  interface module_transmit_sender {
     agentQueue: (type:socketType, agent:string, payload:socketData) => void;
     broadcast: (payload:socketData, listType:agentType | "browser") => void;
-    route: (config:config_senderRoute) => void;
+    routeFile: (config:config_senderRoute) => void;
     send: (data:socketData, agents:transmit_agents) => void;
 }
 
@@ -580,9 +580,11 @@ interface module_transmit_tools {
  * The websocket library
  * ```typescript
  * interface transmit_ws {
- *     agentClose      : (socket:websocket_client) => void;                                     // A uniform way to notify browsers when a remote agent goes offline
- *     clientReceiver  : websocket_messageHandler;                                              // Processes data from regular agent websocket tunnels into JSON for processing by receiver library.
- *     createSocket    : (config:config_websocket_create) => void;                              // Creates a new socket for use by openAgent and openService methods.
+ *     agentClose      : (socket:websocket_client) => void;                                    // A uniform way to notify browsers when a remote agent goes offline
+ *     clientReceiver  : websocket_messageHandler;                                             // Processes data from regular agent websocket tunnels into JSON for processing by receiver library.
+ *     createSocket    : (config:config_websocket_create) => void;                             // Creates a new socket for use by openAgent and openService methods.
+ *     getSocket       : (type:string, name:string) => websocket_client;                       // Safely returns a socket from the socket list.
+ *     getSocketKeys   : (type:string) => string[];                                            // Returns a list of socket names for a given socket type.
  *     ipAttempts      : {
  *         device: {
  *             [key:string]: string[];
@@ -611,6 +613,8 @@ interface module_transmit_ws {
     agentClose: (socket:websocket_client) => void;
     clientReceiver: websocket_messageHandler;
     createSocket: (config:config_websocket_create) => void;
+    getSocket: (type:string, name:string) => websocket_client;
+    getSocketKeys: (type:string) => string[];
     ipAttempts: {
         device: {
             [key:string]: string[];

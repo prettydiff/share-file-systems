@@ -102,6 +102,26 @@ const browserDevice:test_browserItem[] = [
     inviteAccept("self", "VM3", "user"),
     inviteConfirm("self", "VM3", "user"),
 
+    // verify no delay elements in agent management
+    {
+        interaction: [],
+        machine: "self",
+        name: "On self verify no delay elements within agent management modal",
+        unit: [
+            {
+                node: [
+                    ["getModalsByModalType", "agent-management", 0],
+                    ["getElementsByClassName", "body", 0],
+                    ["getElementsByClassName", "delay", null]
+                ],
+                qualifier: "is",
+                target: ["length"],
+                type: "property",
+                value: 0
+            }
+        ]
+    },
+
     //open shares on self
     {
         delay: {
@@ -1984,6 +2004,11 @@ const browserDevice:test_browserItem[] = [
                     ["getElementsByClassName", "fileList", 0]
                 ],
                 value: "Control"
+            },
+            {
+                event: "wait",
+                node: [],
+                value: "100"
             }
         ],
         machine: "self",
@@ -2113,7 +2138,413 @@ const browserDevice:test_browserItem[] = [
                 value: 19
             }
         ]
+    },
+
+    // on self open message modal to VM1
+    {
+        interaction: [
+            {
+                event: "click",
+                node: [
+                    ["getModalsByModalType", "shares", 0],
+                    ["getElementsByClassName", "body", 0]
+                ]
+            },
+            {
+                event: "click",
+                node: [
+                    ["getModalsByModalType", "shares", 0],
+                    ["getElementsByClassName", "device", 1],
+                    ["getElementsByClassName", "tools", 0],
+                    ["getElementsByText", "Text ", 0],
+                    ["parentNode", null, null]
+                ]
+            }
+        ],
+        machine: "self",
+        name: "On self open message modal to VM1",
+        unit: [
+            {
+                node: [
+                    ["getModalsByModalType", "message", 0]
+                ],
+                qualifier: "greater",
+                target: ["clientHeight"],
+                type: "property",
+                value: 200
+            }
+        ]
+    },
+
+    // on self send message modal to VM1
+    {
+        interaction: [
+            {
+                event: "click",
+                node: [
+                    ["getModalsByModalType", "message", 0],
+                    ["getElementsByTagName", "textarea", 0]
+                ]
+            },
+            {
+                event: "setValue",
+                node: [
+                    ["getModalsByModalType", "message", 0],
+                    ["getElementsByTagName", "textarea", 0]
+                ],
+                value: "Hello from self."
+            },
+            {
+                event: "click",
+                node: [
+                    ["getModalsByModalType", "message", 0],
+                    ["getElementsByClassName", "footer-buttons", 0],
+                    ["getElementsByTagName", "button", 0]
+                ]
+            }
+        ],
+        machine: "self",
+        name: "On self send message to VM1",
+        unit: [
+            {
+                node: [
+                    ["getModalsByModalType", "message", 0],
+                    ["getElementsByClassName", "message-content", 0],
+                    ["getElementsByTagName", "td", 0]
+                ],
+                qualifier: "is",
+                target: ["innerHTML"],
+                type: "property",
+                value: "<p>Hello from self.</p>"
+            },
+            {
+                node: [
+                    ["getModalsByModalType", "message", 0],
+                    ["getElementsByClassName", "message-content", 0],
+                    ["getElementsByTagName", "th", 0]
+                ],
+                qualifier: "contains",
+                target: ["innerHTML"],
+                type: "property",
+                value: "<strong>Primary Device</strong>"
+            }
+        ]
+    },
+
+    // on vm1 verify message from self
+    {
+        interaction: [],
+        machine: "VM1",
+        name: "On VM1 verify message from self",
+        unit: [
+            {
+                node: [
+                    ["getModalsByModalType", "message", 0],
+                    ["getElementsByClassName", "message-content", 0],
+                    ["getElementsByTagName", "td", 0]
+                ],
+                qualifier: "is",
+                target: ["innerHTML"],
+                type: "property",
+                value: "<p>Hello from self.</p>"
+            },
+            {
+                node: [
+                    ["getModalsByModalType", "message", 0],
+                    ["getElementsByClassName", "message-content", 0],
+                    ["getElementsByTagName", "th", 0]
+                ],
+                qualifier: "contains",
+                target: ["innerHTML"],
+                type: "property",
+                value: "<span>Device</span>"
+            },
+            {
+                node: [
+                    ["getModalsByModalType", "message", 0],
+                    ["getElementsByClassName", "message-content", 0],
+                    ["getElementsByTagName", "th", 0]
+                ],
+                qualifier: "contains",
+                target: ["innerHTML"],
+                type: "property",
+                value: "<strong>Primary Device</strong>"
+            }
+        ]
+    },
+
+    // on vm1 send message to self
+    {
+        interaction: [
+            {
+                event: "click",
+                node: [
+                    ["getModalsByModalType", "message", 0],
+                    ["getElementsByTagName", "textarea", 0]
+                ]
+            },
+            {
+                event: "setValue",
+                node: [
+                    ["getModalsByModalType", "message", 0],
+                    ["getElementsByTagName", "textarea", 0]
+                ],
+                value: "Response from VM1."
+            },
+            {
+                event: "click",
+                node: [
+                    ["getModalsByModalType", "message", 0],
+                    ["getElementsByClassName", "footer-buttons", 0],
+                    ["getElementsByTagName", "button", 0]
+                ]
+            }
+        ],
+        machine: "VM1",
+        name: "On VM1 send message to self",
+        unit: [
+            {
+                node: [
+                    ["getModalsByModalType", "message", 0],
+                    ["getElementsByClassName", "message-content", 0],
+                    ["getElementsByTagName", "td", 0]
+                ],
+                qualifier: "is",
+                target: ["innerHTML"],
+                type: "property",
+                value: "<p>Response from VM1.</p>"
+            },
+            {
+                node: [
+                    ["getModalsByModalType", "message", 0],
+                    ["getElementsByClassName", "message-content", 0],
+                    ["getElementsByTagName", "th", 0]
+                ],
+                qualifier: "contains",
+                target: ["innerHTML"],
+                type: "property",
+                value: "<strong>VM1</strong>"
+            }
+        ]
+    },
+
+    // on self verify message from VM1
+    {
+        interaction: [],
+        machine: "self",
+        name: "On self verify message from VM1",
+        unit: [
+            {
+                node: [
+                    ["getModalsByModalType", "message", 0],
+                    ["getElementsByClassName", "message-content", 0],
+                    ["getElementsByTagName", "td", 0]
+                ],
+                qualifier: "is",
+                target: ["innerHTML"],
+                type: "property",
+                value: "<p>Response from VM1.</p>"
+            },
+            {
+                node: [
+                    ["getModalsByModalType", "message", 0],
+                    ["getElementsByClassName", "message-content", 0],
+                    ["getElementsByTagName", "th", 0]
+                ],
+                qualifier: "contains",
+                target: ["innerHTML"],
+                type: "property",
+                value: "<span>Device</span>"
+            },
+            {
+                node: [
+                    ["getModalsByModalType", "message", 0],
+                    ["getElementsByClassName", "message-content", 0],
+                    ["getElementsByTagName", "th", 0]
+                ],
+                qualifier: "contains",
+                target: ["innerHTML"],
+                type: "property",
+                value: "<strong>VM1</strong>"
+            }
+        ]
+    },
+
+    // on vm2 open message modal to vm3
+    {
+        interaction: [
+            {
+                event: "click",
+                node: [
+                    ["getModalsByModalType", "shares", 0],
+                    ["getElementsByClassName", "body", 0]
+                ]
+            },
+            {
+                event: "click",
+                node: [
+                    ["getModalsByModalType", "shares", 0],
+                    ["getElementsByClassName", "user", 0],
+                    ["getElementsByClassName", "tools", 0],
+                    ["getElementsByText", "Text ", 0],
+                    ["parentNode", null, null]
+                ]
+            }
+        ],
+        machine: "VM2",
+        name: "On VM2 open message modal to VM3",
+        unit: [
+            {
+                node: [
+                    ["getModalsByModalType", "message", 0]
+                ],
+                qualifier: "greater",
+                target: ["clientHeight"],
+                type: "property",
+                value: 200
+            }
+        ]
+    },
+
+    // on vm2 send message modal to VM3
+    {
+        interaction: [
+            {
+                event: "click",
+                node: [
+                    ["getModalsByModalType", "message", 0],
+                    ["getElementsByTagName", "textarea", 0]
+                ]
+            },
+            {
+                event: "setValue",
+                node: [
+                    ["getModalsByModalType", "message", 0],
+                    ["getElementsByTagName", "textarea", 0]
+                ],
+                value: "Hello from VM2."
+            },
+            {
+                event: "click",
+                node: [
+                    ["getModalsByModalType", "message", 0],
+                    ["getElementsByClassName", "footer-buttons", 0],
+                    ["getElementsByTagName", "button", 0]
+                ]
+            }
+        ],
+        machine: "VM2",
+        name: "On VM2 send message to VM3",
+        unit: [
+            {
+                node: [
+                    ["getModalsByModalType", "message", 0],
+                    ["getElementsByClassName", "message-content", 0],
+                    ["getElementsByTagName", "td", 0]
+                ],
+                qualifier: "is",
+                target: ["innerHTML"],
+                type: "property",
+                value: "<p>Hello from VM2.</p>"
+            },
+            {
+                node: [
+                    ["getModalsByModalType", "message", 0],
+                    ["getElementsByClassName", "message-content", 0],
+                    ["getElementsByTagName", "th", 0]
+                ],
+                qualifier: "contains",
+                target: ["innerHTML"],
+                type: "property",
+                value: "<strong>User-self</strong>"
+            }
+        ]
+    },
+
+    // on vm3 verify message from VM2
+    {
+        interaction: [],
+        machine: "VM3",
+        name: "On VM3 verify message from VM2",
+        unit: [
+            {
+                node: [
+                    ["getModalsByModalType", "message", 0],
+                    ["getElementsByClassName", "message-content", 0],
+                    ["getElementsByTagName", "td", 0]
+                ],
+                qualifier: "is",
+                target: ["innerHTML"],
+                type: "property",
+                value: "<p>Response from VM1.</p>"
+            },
+            {
+                node: [
+                    ["getModalsByModalType", "message", 0],
+                    ["getElementsByClassName", "message-content", 0],
+                    ["getElementsByTagName", "th", 0]
+                ],
+                qualifier: "contains",
+                target: ["innerHTML"],
+                type: "property",
+                value: "<span>User</span>"
+            },
+            {
+                node: [
+                    ["getModalsByModalType", "message", 0],
+                    ["getElementsByClassName", "message-content", 0],
+                    ["getElementsByTagName", "th", 0]
+                ],
+                qualifier: "contains",
+                target: ["innerHTML"],
+                type: "property",
+                value: "<strong>User-self</strong>"
+            }
+        ]
+    },
+
+    // on vm4 verify message from VM2
+    {
+        interaction: [],
+        machine: "VM4",
+        name: "On VM4 verify message from VM2",
+        unit: [
+            {
+                node: [
+                    ["getModalsByModalType", "message", 0],
+                    ["getElementsByClassName", "message-content", 0],
+                    ["getElementsByTagName", "td", 0]
+                ],
+                qualifier: "is",
+                target: ["innerHTML"],
+                type: "property",
+                value: "<p>Response from VM1.</p>"
+            },
+            {
+                node: [
+                    ["getModalsByModalType", "message", 0],
+                    ["getElementsByClassName", "message-content", 0],
+                    ["getElementsByTagName", "th", 0]
+                ],
+                qualifier: "contains",
+                target: ["innerHTML"],
+                type: "property",
+                value: "<span>User</span>"
+            },
+            {
+                node: [
+                    ["getModalsByModalType", "message", 0],
+                    ["getElementsByClassName", "message-content", 0],
+                    ["getElementsByTagName", "th", 0]
+                ],
+                qualifier: "contains",
+                target: ["innerHTML"],
+                type: "property",
+                value: "<strong>User-self</strong>"
+            }
+        ]
     }
+
 ];
 
 export default browserDevice;

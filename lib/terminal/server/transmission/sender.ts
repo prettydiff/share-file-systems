@@ -17,8 +17,8 @@ import vars from "../../utilities/vars.js";
  * ``` */
 const sender:module_transmit_sender = {
     agentQueue: function terminal_server_transmission_sender_agentQueue(type:socketType, agent:string, payload:socketData) {
-        const socket:websocket_client = transmit_ws.socketList[type as agentType][agent];
-        if (socket !== undefined && socket !== null && (socket.status === "open" || socket.status === "pending")) {
+        const socket:websocket_client = transmit_ws.getSocket(type, agent);
+        if (socket !== null && (socket.status === "open" || socket.status === "pending")) {
             transmit_ws.queue(payload, socket, 1);
         } else if (vars.test.type === "" && (type === "device" || type === "user") && vars.agents[type][agent] !== undefined) {
             const service_exclusions: service_type[] = [
@@ -61,7 +61,7 @@ const sender:module_transmit_sender = {
     // send to all agents of a given type
     broadcast: function terminal_server_transmission_sender_broadcast(payload:socketData, listType:agentType | "browser"):void {
         if (listType === "browser") {
-            const list:string[] = Object.keys(transmit_ws.socketList.browser);
+            const list:string[] = transmit_ws.getSocketKeys("browser");
             list.forEach(function terminal_server_transmission_transmitWs_broadcast_each(agent:string):void {
                 transmit_ws.queue(payload, transmit_ws.socketList.browser[agent], 1);
             });
@@ -80,13 +80,18 @@ const sender:module_transmit_sender = {
     },
 
     // direct a data payload to a specific agent as determined by the service name and the agent details in the data payload
-    route: function terminal_server_transmission_sender_route(config:config_senderRoute):void {
-        const data:service_copy = config.socketData.data as service_copy,
-            sendSelf = function terminal_server_transmission_sender_route_sendSelf(device:string):void {
+    routeFile: function terminal_server_transmission_sender_routeFile(config:config_senderRoute):void {
+        const sendSelf = function terminal_server_transmission_sender_route_sendSelf(device:string):void {
                 if (device === vars.identity.hashDevice) {
-                    config.callback(config.socketData);
+                    config.callback({
+                        data: config.data,
+                        service: config.service
+                    });
                 } else {
-                    sender.send(config.socketData, {
+                    sender.send({
+                        data: config.data,
+                        service: config.service
+                    }, {
                         device: device,
                         user: vars.identity.hashUser
                     });
@@ -105,7 +110,7 @@ const sender:module_transmit_sender = {
                     callback(mask.resolve(destination));
                 }
             };
-        let destination:fileAgent = data[config.destination];
+        let destination:fileAgent = config.data[config.destination];
         if (destination.user === vars.identity.hashUser) {
             // same user, send to device
             unmask(destination.device, sendSelf);
@@ -133,9 +138,12 @@ const sender:module_transmit_sender = {
                 sendUser = function terminal_server_transmission_sender_route_sendUser(device:string):void {
                     if (device === vars.identity.hashDevice) {
                         // if current device holds socket to destination user, send data to user with masked device identity
-                        mask.fileAgent(data[config.origination], function terminal_server_transmission_sender_route_sendUser_mask(device:string):void {
-                            data[config.origination].device = device;
-                            sender.send(config.socketData, {
+                        mask.fileAgent(config.data[config.origination], function terminal_server_transmission_sender_route_sendUser_mask(device:string):void {
+                            config.data[config.origination].device = device;
+                            sender.send({
+                                data: config.data,
+                                service: config.service
+                            }, {
                                 device: "",
                                 user: destination.user
                             });
@@ -143,7 +151,10 @@ const sender:module_transmit_sender = {
                     } else {
                         // send to device containing socket to destination user
                         unmask(device, function terminal_server_transmission_sender_route_sendUser_callback(unmasked:string):void {
-                            sender.send(config.socketData, {
+                            sender.send({
+                                data: config.data,
+                                service: config.service
+                            }, {
                                 device: unmasked,
                                 user: vars.identity.hashUser
                             });
@@ -156,14 +167,14 @@ const sender:module_transmit_sender = {
                 // if no device contains a socket to the user send to agentRequest only if
                 // * destination is not agent request
                 // * operation requires more than two agents
-                if (config.destination !== "agentRequest" && data.agentWrite !== null && data.agentWrite !== undefined) {
-                    destination = data.agentRequest;
+                if (config.destination !== "agentRequest" && config.data.agentWrite !== null && config.data.agentWrite !== undefined) {
+                    destination = config.data.agentRequest;
                     if (destination.user === vars.identity.hashUser) {
                         // if agentRequest is the same user, send to device
                         unmask(destination.device, sendSelf);
                     } else {
                         // resolve device containing socket to agentRequest
-                        const requestor:string = resolveUser(data.agentRequest.user);
+                        const requestor:string = resolveUser(config.data.agentRequest.user);
                         if (requestor !== "") {
                             sendUser(requestor);
                         }

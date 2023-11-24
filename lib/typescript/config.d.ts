@@ -480,17 +480,19 @@ interface config_rename {
  * For sender.route of terminal/server/transmission/sender
  * ```typescript
  * interface config_senderRoute {
- *     callback:(socketData:socketData) => void;
- *     destination:agentCopy;
- *     origination:agentCopy;
- *     socketData:socketData;
+ *     callback: (socketData:socketData) => void;
+ *     data: service_copy | service_fileSystem | service_fileSystem_status;
+ *     destination: agentCopy;
+ *     origination: agentCopy;
+ *     service: service_type;
  * }
  * ``` */
 interface config_senderRoute {
-    callback:(socketData:socketData) => void;
-    destination:agentCopy;
-    origination:agentCopy;
-    socketData:socketData;
+    callback: (socketData:socketData) => void;
+    data: service_copy | service_fileSystem | service_fileSystem_status;
+    destination: agentCopy;
+    origination: agentCopy;
+    service: service_type;
 }
 
 /**
