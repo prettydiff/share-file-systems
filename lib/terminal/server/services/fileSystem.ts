@@ -29,7 +29,7 @@ import service from "../../test/application/service.js";
  *         write      : (data:service_fileSystem) => void; // Writes a string to a file.
  *     };
  *     menu: (data:service_fileSystem) => void; // Resolves actions from *service_fileSystem* to methods in this object's action property.
- *     route: (socketData:socketData) => void;  // Sends the data and destination to sender.route method.
+ *     route: (socketData:socketData) => void;  // Sends the data and destination to sender.routeFile method.
  *     status: {
  *         generate : (data:service_fileSystem, dirs:directory_response) => void;              // Formulates a status message to display in the modal status bar of a File Navigate type modal for distribution using the *statusBroadcast* method.
  *         specified: (message:string, agentRequest:fileAgent, agentSource:fileAgent) => void; // Specifies an exact string to send to the File Navigate modal status bar.
@@ -161,7 +161,7 @@ const fileSystem:module_fileSystem = {
                             dirList.push([dirs[0][0], dirs[0][1]]);
                         }
                         counter = counter + 1;
-                        if (counter === data.location.length) {
+                        if (counter === data.location.length && vars.test.type === "") {
                             fileExecution(dirList, data.agentRequest, data.agentSource);
                         }
                     },
@@ -433,16 +433,14 @@ const fileSystem:module_fileSystem = {
                 }
             }
         }
-        sender.route({
+        sender.routeFile({
             callback: function terminal_server_services_fileSystem_menu_securityStatus(socketData:socketData):void {
                 sender.broadcast(socketData, "browser");
             },
+            data: data,
             destination: "agentRequest",
             origination: "agentRequest",
-            socketData: {
-                data: status,
-                service: "file-system-status"
-            }
+            service: "file-system-status"
         });
     },
     route: function terminal_server_services_fileSystem_route(socketData:socketData):void {
@@ -451,14 +449,15 @@ const fileSystem:module_fileSystem = {
             if (vars.test.type === "service") {
                 fileSystem.menu(data);
             } else {
-                sender.route({
+                sender.routeFile({
                     callback: function terminal_server_services_fileSystem_route_fileSystem(routeData:socketData):void {
                         const fileData:service_fileSystem = routeData.data as service_fileSystem;
                         fileSystem.menu(fileData);
                     },
+                    data: data,
                     destination: "agentSource",
                     origination: "agentRequest",
-                    socketData: socketData
+                    service: "file-system"
                 });
             }
         } else {
@@ -468,11 +467,12 @@ const fileSystem:module_fileSystem = {
             if (vars.test.type === "service") {
                 service.evaluation(socketData);
             } else {
-                sender.route({
+                sender.routeFile({
                     callback: broadcast,
+                    data: data,
                     destination: "agentRequest",
                     origination: "agentSource",
-                    socketData: socketData
+                    service: socketData.service
                 });
             }
         }

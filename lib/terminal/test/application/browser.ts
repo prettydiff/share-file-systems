@@ -274,7 +274,7 @@ const defaultCommand:commands = vars.environment.command,
                             };
                     summary.push("\u0007");
                     if (browser.args.mode !== "self") {
-                        const agents:string[] = Object.keys(transmit_ws.socketList.testRemote);
+                        const agents:string[] = transmit_ws.getSocketKeys("testRemote");
                         agents.forEach(function terminal_test_application_browser_exit_agents(name:string):void {
                             const action:"close"|"exit" = (browser.args.noClose === true)
                                 ? "exit"
@@ -445,14 +445,14 @@ const defaultCommand:commands = vars.environment.command,
                         do {
                             typeIndex = typeIndex - 1;
                             if (types[typeIndex] !== "testRemote") {
-                                sockets = Object.keys(transmit_ws.socketList[types[typeIndex]]);
+                                sockets = transmit_ws.getSocketKeys(types[typeIndex]);
                                 socketIndex = sockets.length;
                                 if (socketIndex > 0) {
                                     do {
                                         socketIndex = socketIndex - 1;
                                         transmit_ws.socketList[types[typeIndex]][sockets[socketIndex]].destroy();
                                     } while (socketIndex > 0);
-                                    transmit_ws.socketList[types[typeIndex]] = {};
+                                    delete transmit_ws.socketList[types[typeIndex]];
                                 }
                             }
                         } while (typeIndex > 0);
@@ -845,7 +845,7 @@ const defaultCommand:commands = vars.environment.command,
             send: function terminal_test_application_browser_send(testItem:service_testBrowser):void {
                 if (testItem.test.machine === browser.name) {
                     // self
-                    const keys:string[] = Object.keys(transmit_ws.socketList.browser),
+                    const keys:string[] = transmit_ws.getSocketKeys("browser"),
                         keyLength:number = keys.length;
                     if (keyLength > 0) {
                         testItem.test = filePathDecode(testItem.test, "") as test_browserItem;
@@ -862,12 +862,17 @@ const defaultCommand:commands = vars.environment.command,
                     transmit_ws.queue({
                         data: testItem,
                         service: "test-browser"
-                    }, transmit_ws.socketList.testRemote[testItem.test.machine], 1);
+                    }, transmit_ws.getSocket("testRemote", testItem.test.machine), 1);
                 }
 
                 // Once a reset test is sent it is necessary to eliminate the event portion of the test.
                 // This ensures the test available to the page upon page refresh for test unit evaluation without further executing the refresh event.
-                if (testItem.test !== null && testItem.test.interaction !== null && testItem.test.interaction[0].event === "refresh") {
+                if (
+                    testItem.test !== null &&
+                    testItem.test.interaction !== null &&
+                    testItem.test.interaction.length > 0 &&
+                    testItem.test.interaction[0].event === "refresh"
+                ) {
                     vars.test.browser.test.interaction = null;
                 }
             },

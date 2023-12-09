@@ -28,7 +28,7 @@ const buildExport = function terminal_test_samples_browserSelf_buildExport():str
                     queue: null,
                     secure: null,
                     status: null,
-                    ui: JSON.parse(uiImport),
+                    ui: JSON.parse(uiImport) as ui_data,
                     verbose: null
                 }
             },
@@ -494,7 +494,7 @@ const buildExport = function terminal_test_samples_browserSelf_buildExport():str
                     node: [
                         ["getModalsByModalType", "file-navigate", 0],
                         ["getElementsByClassName", "body", 0],
-                        ["getElementsByText", filePathEncode("absolute", "documentation"), 0],
+                        ["getElementsByText", "documentation", 0],
                         ["parentNode", null, null],
                         ["parentNode", null, null]
                     ]
@@ -878,7 +878,7 @@ const buildExport = function terminal_test_samples_browserSelf_buildExport():str
                 qualifier: "is",
                 target: ["style", "top"],
                 type: "property",
-                value: "22.7em"
+                value: "3.7em"
             },
             interaction: [
                 {
@@ -901,7 +901,7 @@ const buildExport = function terminal_test_samples_browserSelf_buildExport():str
                     qualifier: "is",
                     target: ["style", "left"],
                     type: "property",
-                    value: "22.7em"
+                    value: "3.7em"
                 },
                 {
                     // the file navigator modal is a different size
@@ -930,7 +930,7 @@ const buildExport = function terminal_test_samples_browserSelf_buildExport():str
             ["getModalsByModalType", "file-navigate", 0],
             ["getElementsByClassName", "body", 0],
             ["getElementsByTagName", "ul", 0],
-            ["getElementsByText", filePathEncode("absolute", "lib"), 0],
+            ["getElementsByText", "lib", 0],
             ["parentNode", null, null]
         ], [
             {
@@ -1916,13 +1916,15 @@ const buildExport = function terminal_test_samples_browserSelf_buildExport():str
                     ["getModalsByModalType", "file-navigate", 1],
                     ["getElementsByClassName", "body", 0],
                     ["getElementsByClassName", "fileList", 0],
-                    ["getElementsByTagName", "li", 1]
+                    ["getElementsByTagName", "li", 1],
+                    ["getElementsByTagName", "p", 0],
+                    ["getElementsByTagName", "label", 0]
 
                 ],
-                qualifier: "contains",
-                target: ["innerHTML"],
+                qualifier: "is",
+                target: ["firstChild", "textContent"],
                 type: "property",
-                value: filePathEncode("relative", "/_newDirectory-2")
+                value: "_newDirectory-2"
             },
             interaction: [
                 {
@@ -2214,12 +2216,15 @@ const buildExport = function terminal_test_samples_browserSelf_buildExport():str
                     ["getModalsByModalType", "file-navigate", 1],
                     ["getElementsByClassName", "body", 0],
                     ["getElementsByClassName", "fileList", 0],
-                    ["getElementsByTagName", "li", 2]
+                    ["getElementsByTagName", "li", 2],
+                    ["getElementsByTagName", "p", 0],
+                    ["getElementsByTagName", "label", 0]
+
                 ],
-                qualifier: "contains",
-                target: ["innerHTML"],
+                qualifier: "is",
+                target: ["firstChild", "textContent"],
                 type: "property",
-                value: filePathEncode("relative", "/_newFile-1")
+                value: "_newFile-1"
             },
             interaction: [
                 {
@@ -2324,12 +2329,15 @@ const buildExport = function terminal_test_samples_browserSelf_buildExport():str
                     ["getModalsByModalType", "file-navigate", 1],
                     ["getElementsByClassName", "body", 0],
                     ["getElementsByClassName", "fileList", 0],
-                    ["getElementsByTagName", "li", 3]
+                    ["getElementsByTagName", "li", 3],
+                    ["getElementsByTagName", "p", 0],
+                    ["getElementsByTagName", "label", 0]
+
                 ],
-                qualifier: "contains",
-                target: ["innerHTML"],
+                qualifier: "is",
+                target: ["firstChild", "textContent"],
                 type: "property",
-                value: filePathEncode("relative", "/_newFile-2")
+                value: "_newFile-2"
             },
             interaction: [
                 {
@@ -2782,7 +2790,7 @@ const buildExport = function terminal_test_samples_browserSelf_buildExport():str
         showContextMenu([
             ["getModalsByModalType", "file-navigate", 0],
             ["getElementsByClassName", "fileList", 0],
-            ["getElementsByText", filePathEncode("absolute", "js"), 0],
+            ["getElementsByText", "js", 0],
             ["parentNode", null, null]
         ], [], "self"),
 
@@ -4403,6 +4411,147 @@ const buildExport = function terminal_test_samples_browserSelf_buildExport():str
                     target: ["value"],
                     type: "property",
                     value: "222"
+                }
+            ]
+        },
+
+        // test for file execution of expanded list
+        {
+            interaction: [
+                {
+                    event: "click",
+                    node: [
+                        ["getModalsByModalType", "file-navigate", 0],
+                        ["getElementsByClassName", "body", 0],
+                        ["getElementsByText", "lib", 0],
+                        ["parentNode", null, null],
+                        ["parentNode", null, null],
+                        ["getElementsByTagName", "button", 0]
+                    ]
+                },
+                {
+                    event: "wait",
+                    node: [],
+                    value: "400"
+                },
+                {
+                    event: "click",
+                    node: [
+                        ["getModalsByModalType", "file-navigate", 0],
+                        ["getElementsByClassName", "body", 0],
+                        ["getElementsByText", "lib", 0],
+                        ["parentNode", null, null],
+                        ["parentNode", null, null],
+                        ["getElementsByTagName", "li", 0],
+                        ["getElementsByTagName", "button", 0]
+                    ]
+                },
+                {
+                    event: "wait",
+                    node: [],
+                    value: "400"
+                },
+                {
+                    event: "dblclick",
+                    node: [
+                        ["getModalsByModalType", "file-navigate", 0],
+                        ["getElementsByClassName", "body", 0],
+                        ["getElementsByText", "lib", 0],
+                        ["parentNode", null, null],
+                        ["parentNode", null, null],
+                        ["getElementsByTagName", "li", 0],
+                        ["getElementsByTagName", "li", 3]
+                    ]
+                }
+            ],
+            machine: "self",
+            name: "Execute file from expanded list",
+            unit: [
+                {
+                    node: [
+                        ["getModalsByModalType", "file-navigate", 0],
+                        ["getElementsByTagName", "input", 0]
+                    ],
+                    qualifier: "ends",
+                    target: ["value"],
+                    type: "property",
+                    value: "share-file-systems"
+                },
+                {
+                    node: [
+                        ["getModalsByModalType", "file-navigate", 0],
+                        ["getElementsByClassName", "body", 0],
+                        ["getElementsByText", "lib", 0],
+                        ["parentNode", null, null],
+                        ["parentNode", null, null],
+                        ["getElementsByTagName", "li", 0],
+                        ["getElementsByTagName", "li", 3],
+                        ["getElementsByTagName", "p", 0]
+                    ],
+                    qualifier: "is",
+                    target: ["class"],
+                    type: "attribute",
+                    value: "selected"
+                }
+            ]
+        },
+
+        // test for file execution of less expanded list
+        {
+            interaction: [
+                {
+                    event: "click",
+                    node: [
+                        ["getModalsByModalType", "file-navigate", 0],
+                        ["getElementsByClassName", "body", 0],
+                        ["getElementsByText", "lib", 0],
+                        ["parentNode", null, null],
+                        ["parentNode", null, null],
+                        ["getElementsByTagName", "li", 0],
+                        ["getElementsByTagName", "button", 0]
+                    ]
+                },
+                {
+                    event: "dblclick",
+                    node: [
+                        ["getModalsByModalType", "file-navigate", 0],
+                        ["getElementsByClassName", "body", 0],
+                        ["getElementsByText", "lib", 0],
+                        ["parentNode", null, null],
+                        ["parentNode", null, null],
+                        ["getElementsByText", "readme.md", 0],
+                        ["parentNode", null, null],
+                        ["parentNode", null, null]
+                    ]
+                }
+            ],
+            machine: "self",
+            name: "Execute file from alternate expanded list",
+            unit: [
+                {
+                    node: [
+                        ["getModalsByModalType", "file-navigate", 0],
+                        ["getElementsByTagName", "input", 0]
+                    ],
+                    qualifier: "ends",
+                    target: ["value"],
+                    type: "property",
+                    value: "share-file-systems"
+                },
+                {
+                    node: [
+                        ["getModalsByModalType", "file-navigate", 0],
+                        ["getElementsByClassName", "body", 0],
+                        ["getElementsByText", "lib", 0],
+                        ["parentNode", null, null],
+                        ["parentNode", null, null],
+                        ["getElementsByText", "readme.md", 0],
+                        ["parentNode", null, null]
+                    ],
+                    qualifier: "is",
+                    target: ["class"],
+                    type: "attribute",
+                    value: "selected"
                 }
             ]
         },

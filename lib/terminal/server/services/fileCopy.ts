@@ -616,9 +616,9 @@ const fileCopy:module_fileCopy = {
         }
     },
     route: function terminal_server_services_fileCopy_route(socketData:socketData):void {
+        const data:service_copy = socketData.data as service_copy;
         if (socketData.service === "copy" || socketData.service === "cut") {
             const agentSource = function terminal_server_services_fileCopy_route_agentSource(socketData:socketData):void {
-                const data:service_copy = socketData.data as service_copy;
                 if (data.agentSource.user === data.agentWrite.user && data.agentSource.device === data.agentWrite.device) {
                     fileCopy.actions.copySelf(data);
                 } else if (socketData.service === "cut") {
@@ -632,11 +632,12 @@ const fileCopy:module_fileCopy = {
                 const data:service_copy = socketData.data as service_copy;
                 fileCopy.actions.copySelf(data);
             } else {
-                sender.route({
+                sender.routeFile({
                     callback: agentSource,
+                    data: data,
                     destination: "agentSource",
                     origination: "agentRequest",
-                    socketData: socketData
+                    service: socketData.service
                 });
             }
         } else if (socketData.service === "copy-list" || socketData.service === "copy-send-file") {
@@ -648,11 +649,12 @@ const fileCopy:module_fileCopy = {
                     fileCopy.actions.write(copyData);
                 }
             };
-            sender.route({
+            sender.routeFile({
                 callback: copyList,
+                data: data,
                 destination: "agentWrite",
                 origination: "agentSource",
-                socketData: socketData
+                service: socketData.service
             });
         }
     },
@@ -725,16 +727,14 @@ const fileCopy:module_fileCopy = {
                         }
                     }
                 }
-                sender.route({
+                sender.routeFile({
                     callback: function terminal_server_services_fileCopy_security_securityStatus(socketData:socketData):void {
                         sender.broadcast(socketData, "browser");
                     },
+                    data: status,
                     destination: "agentRequest",
                     origination: config.self,
-                    socketData: {
-                        data: status,
-                        service: "file-system-status"
-                    }
+                    service: "file-system-status"
                 });
             },
             complete = function terminal_server_services_fileCopy_security_complete():void {
@@ -804,17 +804,19 @@ const fileCopy:module_fileCopy = {
                 if (vars.test.type === "service") {
                     service.evaluation(statusMessage);
                 } else {
-                    sender.route({
+                    sender.routeFile({
                         callback: broadcast,
+                        data: copyStatus,
                         destination: "agentSource",
                         origination: "agentWrite",
-                        socketData: statusMessage
+                        service: "file-system-status"
                     });
-                    sender.route({
+                    sender.routeFile({
                         callback: broadcast,
+                        data: copyStatus,
                         destination: "agentRequest",
                         origination: "agentWrite",
-                        socketData: statusMessage
+                        service: "file-system-status"
                     });
                 }
             },

@@ -199,7 +199,7 @@ body.dark{
 .dark #spaces .text-button-user{background:var(--maximize-background);border-color:var(--blue-primary);color:var(--blue-primary)}
 .dark #spaces .agentList .share-tool-file-navigate,
 .dark #spaces .agentList .share-tool-terminal{background:var(--minimize-background);border-color:var(--minimize-text);color:var(--minimize-text)}
-.dark #spaces .agentList h4{background:var(--button)}
+.dark #spaces .agentList h4{background:var(--button);border-color:var(--border)}
 .dark #spaces .agentList .device,
 .dark #spaces .agentList .user{border-color:var(--border)}
 

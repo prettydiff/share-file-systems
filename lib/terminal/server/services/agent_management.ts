@@ -18,7 +18,7 @@ const agent_management = function terminal_server_services_agentManagement(socke
                 let a:number = 0,
                     count:number = 0;
                 do {
-                    if (vars.agents[type][keys[a]] === undefined) {
+                    if (vars.agents[type][keys[a]] === undefined && (type !== "user" || (type === "user" && keys[a] !== vars.identity.hashUser))) {
                         vars.agents[type][keys[a]] = data.agents[type][keys[a]];
                         count = count + 1;
                     }
@@ -46,10 +46,7 @@ const agent_management = function terminal_server_services_agentManagement(socke
                             service: "settings"
                         });
                     }
-                    sender.broadcast({
-                        data: data,
-                        service: "agent-management"
-                    }, "device");
+                    sender.broadcast(socketData, "device");
                     sender.broadcast(socketData, "browser");
                 }
             }
@@ -68,20 +65,20 @@ const agent_management = function terminal_server_services_agentManagement(socke
                         socket:websocket_client = null;
                     do {
                         if (keys[a] === vars.identity.hashUser && type === "user") {
-                            socket = transmit_ws.socketList[type][data.agentFrom];
-                            if (socket !== null && socket !== undefined) {
+                            socket = transmit_ws.getSocket("user", data.agentFrom);
+                            if (socket !== null) {
                                 socket.destroy();
+                                delete transmit_ws.socketList.user[data.agentFrom];
                             }
                             delete vars.agents.user[data.agentFrom];
-                            delete transmit_ws.socketList.user[data.agentFrom];
                             delete transmit_ws.status[data.agentFrom];
                         } else {
-                            socket = transmit_ws.socketList[type][keys[a]];
-                            if (socket !== null && socket !== undefined) {
+                            socket = transmit_ws.getSocket(type, keys[a]);
+                            if (socket !== null) {
                                 socket.destroy();
+                                delete transmit_ws.socketList[type][keys[a]];
                             }
                             delete vars.agents[type][keys[a]];
-                            delete transmit_ws.socketList[type][keys[a]];
                             delete transmit_ws.status[keys[a]];
                         }
                         a = a + 1;
@@ -182,8 +179,7 @@ const agent_management = function terminal_server_services_agentManagement(socke
                 }
             },
             users = function terminal_server_services_agentManagement_users():void {
-                const userLength:number = Object.keys(transmit_ws.socketList.user).length;
-
+                const userLength:number = transmit_ws.getSocketKeys("user").length;
                 if (userLength > 0) {
                     const userData:userData = common.userData(vars.agents.device, "user", "");
                     data.agentFrom = vars.identity.hashUser;

@@ -218,7 +218,7 @@ body.blush {
 .blush #spaces .text-button-user{background:var(--blue-button-background);border-color:var(--blue-button-text);color:var(--blue-button-text)}
 .blush #spaces .agentList .share-tool-file-navigate,
 .blush #spaces .agentList .share-tool-terminal{background:var(--yellow-bright);border-color:var(--yellow-border);color:var(--yellow-dark)}
-.blush #spaces .agentList h4{background:white}
+.blush #spaces .agentList h4{background:var(--white);border-color:var(--shadow)}
 .blush #spaces .agentList .device,
 .blush #spaces .agentList .user{border-color:var(--shadow)}
 

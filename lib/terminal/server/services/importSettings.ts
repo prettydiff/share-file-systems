@@ -12,7 +12,7 @@ const importSettings = function terminal_server_services_importSettings(socketDa
             const settingsString:string = output.base64;
             if (settingsString.charAt(0) === "{" && settingsString.charAt(settingsString.length - 1) === "}" && settingsString.indexOf("\"agents\"") > 0 && settingsString.indexOf("\"queue\"") > 0) {
                 if (vars.test.type.indexOf("browser") < 0) {
-                    const importData:exportData = JSON.parse(settingsString),
+                    const importData:exportData = JSON.parse(settingsString) as exportData,
                         keys:string[] = Object.keys(importData.settings);
                     let index:number = keys.length;
                     vars.agents = importData.agents;
@@ -22,7 +22,7 @@ const importSettings = function terminal_server_services_importSettings(socketDa
                         // @ts-ignore string type keys[index] cannot map to the specified key names of the settings object
                         if (importData.settings[keys[index]] !== null) {
                             // @ts-ignore string type keys[index] cannot map to the specified key names of the settings object
-                            vars.settings[keys[index]] = importData.settings[keys[index]];
+                            vars.settings[keys[index]] = importData.settings[keys[index]] as boolean; // setting to type boolean is wrong, but prevents an incorrect lint warning
                         }
                     } while (index > 0);
                     settings({
@@ -66,8 +66,7 @@ const importSettings = function terminal_server_services_importSettings(socketDa
                                 .replace(/string-replace-hash-hashDevice/g, vars.identity.hashDevice)
                                 .replace(/string-replace-hash-hashUser/g, vars.identity.hashUser)
                             ) as string)
-                        );
-                    importData.settings.ui = importData.settings.ui;
+                        ) as exportData;
                     vars.settings.ui = importData.settings.ui;
                 }
                 settings({

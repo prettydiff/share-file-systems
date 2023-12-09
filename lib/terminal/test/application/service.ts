@@ -3,7 +3,7 @@
 
 import common from "../../../common/common.js";
 import readStorage from "../../utilities/readStorage.js";
-import receiver from "../../server/transmission/receiver.js";
+import tools from "../../server/transmission/tools.js";
 import transmit_http from "../../server/transmission/transmit_http.js";
 import vars from "../../utilities/vars.js";
 
@@ -161,15 +161,18 @@ const loopback:string = "127.0.0.1",
             });
         },
         execute: function terminal_test_application_services_execute(config:config_test_execute):void {
-            const test:socketData = service.tests[config.index].command;
-            // eslint-disable-next-line
-            test.data = JSON.parse(filePathDecode(null, JSON.stringify(test.data)) as string);
-            service.index = config.index;
-            service.fail = config.fail;
-            receiver(test, {
-                socket: transmit_ws.socketList.device[vars.identity.hashDevice],
-                type: "ws"
-            });
+            const test:socketData = service.tests[config.index].command,
+                socket:websocket_client = transmit_ws.getSocket("device", vars.identity.hashDevice);
+            if (socket !== null) {
+                // eslint-disable-next-line
+                test.data = JSON.parse(filePathDecode(null, JSON.stringify(test.data)) as string);
+                service.index = config.index;
+                service.fail = config.fail;
+                tools.receiver(test, {
+                    socket: socket,
+                    type: "ws"
+                });
+            }
         },
         fail: 0,
         index: 0,

@@ -289,6 +289,7 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                 // execution   - local/remote browser, local/remote devices
                 // purpose     - Update the UI with the invitation changes
                 addAgent("agentRequest");
+                sender.broadcast(socketData, "browser");
             },
             "invite-identity": function terminal_server_services_invite_identity():void {
                 // Step 7

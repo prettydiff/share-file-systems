@@ -37,9 +37,11 @@ import util from "../utilities/util.js";
  *         text       : (event:FocusEvent|KeyboardEvent|MouseEvent) => void; // Allows changing file system location by changing the text address of the current location.
  *     };
  *     tools: {
- *         listFail    : (count:number, box:modal) => void; // Display status information when the Operating system locks files from access.
- *         listItem    : (item:directory_item, extraClass:string) => HTMLElement; // Generates the HTML content for a single file system artifacts that populates a file system list.
- *         modalAddress: (event:FocusEvent|KeyboardEvent|MouseEvent, config:config_modal_history) => void; // Updates the file system address of the current file navigate modal in response to navigating to different locations.
+ *         listFail         : (count:number, box:modal) => void; // Display status information when the Operating system locks files from access.
+ *         listItem         : (item:directory_item, extraClass:string) => HTMLElement; // Generates the HTML content for a single file system artifacts that populates a file system list.
+ *         modalAddress     : (event:FocusEvent|KeyboardEvent|MouseEvent, config:config_modal_history) => void; // Updates the file system address of the current file navigate modal in response to navigating to different locations.
+ *         selectedAddresses: (element:HTMLElement, type:string) => [string, fileType, string][]; // Gather the selected addresses and types of file system artifacts in a fileNavigator modal.
+ *         selectNone       : (element:HTMLElement) => void;                     // Remove selections of file system artifacts in a given fileNavigator modal.
  *     };
  * }
  * type dragFlag = "" | "control" | "shift";
@@ -53,7 +55,6 @@ const file_browser:module_fileBrowser = {
                 length:number = data.files.length;
             let a:number = 0,
                 textArea:HTMLTextAreaElement,
-                span:HTMLElement,
                 modalResult:HTMLElement,
                 body:HTMLElement,
                 heading:HTMLElement;
@@ -85,7 +86,7 @@ const file_browser:module_fileBrowser = {
                 box:modal = element.getAncestor("box", "class"),
                 menu:HTMLElement = document.getElementById("contextMenu"),
                 addressField:HTMLInputElement = box.getElementsByClassName("fileAddress")[0].getElementsByTagName("input")[0],
-                addresses:[string, fileType, string][] = util.selectedAddresses(element, "details"),
+                addresses:[string, fileType, string][] = file_browser.tools.selectedAddresses(element, "details"),
                 agents:[fileAgent, fileAgent, fileAgent] = util.fileAgent(box, null),
                 payloadNetwork:service_fileSystem = {
                     action: "fs-details",
@@ -397,9 +398,13 @@ const file_browser:module_fileBrowser = {
                 let a:number = 0;
                 do {
                     if (local[a][0] !== location) {
-                        output.appendChild(file_browser.tools.listItem(local[a], (a < localLength - 1 && local[a + 1][1] !== local[a][1])
-                            ? "lastType"
-                            : ""));
+                        output.appendChild(file_browser.tools.listItem(
+                            local[a],
+                            location,
+                            (a < localLength - 1 && local[a + 1][1] !== local[a][1])
+                                ? "lastType"
+                                : ""
+                        ));
                     }
                     a = a + 1;
                 } while (a < localLength);
@@ -441,27 +446,25 @@ const file_browser:module_fileBrowser = {
                 expandTest:boolean = (data.message.indexOf("expand-") === 0),
                 expandLocation:string = data.message.replace("expand-", ""),
                 expand = function browser_content_fileBrowser_status_expand(box:modal):void {
-                    const list:HTMLCollectionOf<Element> = box.getElementsByClassName("fileList")[0].getElementsByTagName("label"),
+                    const list:HTMLCollectionOf<HTMLElement> = box.getElementsByClassName("fileList")[0].getElementsByTagName("li"),
                         max:number = list.length;
                     let index:number = 0,
-                        text:string = "",
-                        grandParent:HTMLElement = null;
-                    do {
-                        if (list[index].parentNode.lowName() === "p") {
-                            grandParent = list[index].parentNode.parentNode;
-                            text = list[index].firstChild.textContent;
+                        text:string = "";
+                    if (max > 0) {
+                        do {
+                            text = list[index].dataset.path;
                             if (text === expandLocation) {
-                                if (grandParent.getAttribute("class").indexOf("directory") > -1) {
-                                    grandParent.appendChild(file_browser.content.list(text, data.fileList, ""));
+                                if (list[index].getAttribute("class").indexOf("directory") > -1) {
+                                    list[index].appendChild(file_browser.content.list(text, data.fileList, ""));
                                     return;
                                 }
                             }
-                            if (grandParent.getAttribute("class").indexOf("directory") < 0) {
+                            if (list[index].getAttribute("class").indexOf("directory") < 0) {
                                 break;
                             }
-                        }
-                        index = index + 1;
-                    } while (index < max);
+                            index = index + 1;
+                        } while (index < max);
+                    }
                 };
             let listData:HTMLElement,
                 body:HTMLElement,
@@ -571,9 +574,7 @@ const file_browser:module_fileBrowser = {
                     : element.getAncestor("li", "tag"),
                 body:HTMLElement = li.getAncestor("body", "class"),
                 box:modal = body.parentNode.parentNode,
-                path:string = (li.getAttribute("class") === "link-directory")
-                    ? li.dataset.path
-                    : li.getElementsByTagName("label")[0].firstChild.textContent,
+                path:string = li.dataset.path,
                 id:string = box.getAttribute("id"),
                 agents:[fileAgent, fileAgent, fileAgent] = util.fileAgent(box, null, path),
                 payload:service_fileSystem = {
@@ -644,7 +645,7 @@ const file_browser:module_fileBrowser = {
                                 len:number = children.length;
                             let a:number = 0;
                             do {
-                                output.push(children[a].getElementsByTagName("label")[0].firstChild.textContent);
+                                output.push(children[a].dataset.path);
                                 a = a + 1;
                             } while (a < len);
                             return output;
@@ -798,9 +799,7 @@ const file_browser:module_fileBrowser = {
                 li:HTMLElement = (element.lowName() === "li")
                     ? element
                     : element.getAncestor("li", "tag"),
-                path:string = (li.getAttribute("class") === "link-file")
-                    ? li.dataset.path.replace(/&amp;/g, "&")
-                    : li.getElementsByTagName("label")[0].firstChild.textContent.replace(/&amp;/g, "&"),
+                path:string = li.dataset.path.replace(/&amp;/g, "&"),
                 box:modal = li.getAncestor("box", "class"),
                 agents:[fileAgent, fileAgent, fileAgent] = util.fileAgent(box, null),
                 payload:service_fileSystem = {
@@ -812,9 +811,10 @@ const file_browser:module_fileBrowser = {
                     location: [path],
                     name: ""
                 };
-            util.selectNone(box);
+            file_browser.tools.selectNone(box);
             network.send(payload, "file-system");
             file_browser.events.select(event);
+            event.stopPropagation();
         },
     
         /* Shows child elements of a directory */
@@ -831,7 +831,7 @@ const file_browser:module_fileBrowser = {
                         agentSource: agents[1],
                         agentWrite: null,
                         depth: 2,
-                        location: [li.firstChild.nextSibling.firstChild.textContent],
+                        location: [li.dataset.path],
                         name : "expand"
                     },
                     span:HTMLElement = document.createElement("span");
@@ -867,7 +867,10 @@ const file_browser:module_fileBrowser = {
         /* When clicking on a file list give focus to an input field so that the list can receive focus */
         listFocus: function browser_content_fileBrowser_listFocus(event:MouseEvent):void {
             const element:HTMLElement = event.target,
-                li:HTMLElement = element.getAncestor("li", "tag"),
+                name:string = element.lowName(),
+                li:HTMLElement = (name === "ul" || name === "li")
+                    ? element
+                    : element.getAncestor("li", "tag"),
                 inputs:HTMLCollectionOf<HTMLElement> = li.getElementsByTagName("input"),
                 input:HTMLElement = inputs[inputs.length - 1];
             input.focus();
@@ -1273,7 +1276,7 @@ const file_browser:module_fileBrowser = {
         },
     
         /* Build a single file system object from data */
-        listItem: function browser_content_fileBrowser_listItem(item:directory_item, extraClass:string):HTMLElement {
+        listItem: function browser_content_fileBrowser_listItem(item:directory_item, location:string, extraClass:string):HTMLElement {
             const li:HTMLElement = document.createElement("li"),
                 label:HTMLLabelElement = document.createElement("label"),
                 p:HTMLElement = document.createElement("p"),
@@ -1292,10 +1295,13 @@ const file_browser:module_fileBrowser = {
                             element.click();
                         }
                     }
-                };
+                },
+                replacement:number = (location === "\\")
+                    ? 0
+                    : location.length + 1;
             let span:HTMLElement,
                 plural:string;
-    
+
             // preparation of descriptive text and assistive features
             if (item[1] === "file") {
                 span = document.createElement("span");
@@ -1307,6 +1313,7 @@ const file_browser:module_fileBrowser = {
                 span.textContent = `file - ${common.commas(item[5].size)} byte${plural}`;
                 li.ondblclick = file_browser.events.execute;
                 li.onkeydown = file_browser.events.keyExecute;
+                li.setAttribute("data-path", item[0]);
             } else if (item[1] === "directory") {
                 if (item[4] > 0) {
                     const button:HTMLElement = document.createElement("button"),
@@ -1328,7 +1335,9 @@ const file_browser:module_fileBrowser = {
                 }
                 span.textContent = `directory - ${common.commas(item[4])} item${plural}`;
                 li.ondblclick = file_browser.events.directory;
+                li.setAttribute("data-path", item[0]);
             } else {
+                // symbolic link
                 span = document.createElement("span");
                 if (className === "link-directory") {
                     li.ondblclick = file_browser.events.directory;
@@ -1336,16 +1345,17 @@ const file_browser:module_fileBrowser = {
                     li.ondblclick = file_browser.events.execute;
                     li.onkeydown = file_browser.events.keyExecute;
                 }
-                li.setAttribute("data-path", item[5].linkPath);
                 if (item[1] === "link") {
                     span.textContent = "symbolic link";
+                    li.setAttribute("data-path", item[5].linkPath);
                 } else {
                     span.textContent = item[1];
+                    li.setAttribute("data-path", item[0]);
                 }
             }
     
             // prepare the primary item text (address)
-            text.appendText(item[0]);
+            text.appendText(item[0].slice(replacement));
             p.appendChild(text);
     
             // prepare the descriptive text
@@ -1391,7 +1401,7 @@ const file_browser:module_fileBrowser = {
                         ? undefined
                         : fileList.getElementsByTagName("li")[0];
                 if (listItem === undefined || listItem.getAttribute("class") === "empty-list") {
-                    config.address = "/";
+                    config.address = modalData.text_value;
                 } else {
                     const file:string = listItem.getElementsByTagName("p")[0].getElementsByTagName("label")[0].innerHTML;
                     if (file.charAt(0) === "/") {
@@ -1429,6 +1439,91 @@ const file_browser:module_fileBrowser = {
 
             // change the value in the html
             modalItem.getElementsByClassName("fileAddress")[0].getElementsByTagName("input")[0].value = config.address;
+        },
+
+        /* Gather the selected addresses and types of file system artifacts in a fileNavigator modal. */
+        selectedAddresses: function browser_utilities_util_selectedAddresses(element:HTMLElement, type:string):[string, fileType, string][] {
+            const output:[string, fileType, string][] = [],
+                agent:string = util.getAgent(element)[0],
+                parent:HTMLElement = element.parentNode,
+                drag:boolean = (parent.getAttribute("id") === "file-list-drag"),
+                box:modal = element.getAncestor("box", "class"),
+                dataModal:config_modal = browser.ui.modals[box.getAttribute("id")],
+                attribute = function browser_utilities_util_attribute(item:HTMLElement):void {
+                    const p:HTMLElement = item.getElementsByTagName("p")[0],
+                        classy:string = p.getAttribute("class"),
+                        path:string = item.dataset.path;
+                    output.push([path, item.getAttribute("class").replace(" lastType", "") as fileType, agent]);
+                    if (type === "cut") {
+                        if (classy !== null && classy.indexOf("selected") > -1) {
+                            p.setAttribute("class", "selected cut");
+                        } else {
+                            p.setAttribute("class", "cut");
+                        }
+                        dataModal.selection[path] = p.getAttribute("class");
+                    }
+                },
+                itemList:HTMLCollectionOf<HTMLElement> = (drag === true)
+                    ? parent.getElementsByTagName("li")
+                    : box.getElementsByClassName("fileList")[0].getElementsByTagName("li"),
+                len:number = itemList.length;
+            let a:number = 0,
+                p:HTMLElement = null;
+            if (element.lowName() !== "li") {
+                element = element.parentNode;
+            }
+            if (dataModal.selection === undefined) {
+                dataModal.selection = {};
+            }
+            do {
+                p = itemList[a].getElementsByTagName("p")[0];
+                if (itemList[a].getElementsByTagName("input")[0].checked === true) {
+                    attribute(itemList[a]);
+                } else {
+                    p.removeAttribute("class");
+                    if (dataModal.selection[itemList[a].dataset.path] !== undefined) {
+                        delete dataModal.selection[itemList[a].dataset.path];
+                    }
+                }
+                a = a + 1;
+            } while (a < len);
+            if (output.length > 0) {
+                return output;
+            }
+            // if nothing is selected, act on the one record interacted
+            attribute(element);
+            return output;
+        },
+
+        /* Remove selections of file system artifacts in a given fileNavigator modal. */
+        selectNone: function browser_utilities_util_selectNone(element:HTMLElement):void {
+            const box:modal = element.getAncestor("box", "class"),
+                fileList:HTMLElement = box.getElementsByClassName("fileList")[0] as HTMLElement,
+                child:HTMLElement = (fileList === undefined)
+                    ? null
+                    : fileList.firstChild as HTMLElement,
+                inputs:HTMLCollectionOf<HTMLInputElement> = (fileList === undefined)
+                    ? null
+                    : fileList.getElementsByTagName("input"),
+                inputLength:number = (fileList === undefined)
+                    ? 0
+                    : inputs.length,
+                p:HTMLCollectionOf<Element> = (fileList === undefined)
+                    ? null
+                    : fileList.getElementsByTagName("p");
+            let a:number = 0;
+            if (fileList === undefined || document.getElementById("newFileItem") !== null || child.getAttribute("class") === "empty-list") {
+                return;
+            }
+            if (inputLength > 0) {
+                do {
+                    if (inputs[a].type === "checkbox") {
+                        inputs[a].checked = false;
+                        p[a].removeAttribute("class");
+                    }
+                    a = a + 1;
+                } while (a < inputLength);
+            }
         }
     }
 

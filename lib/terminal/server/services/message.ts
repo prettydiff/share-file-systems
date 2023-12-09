@@ -26,7 +26,7 @@ const message = function terminal_server_services_message(socketData:socketData)
                     }, {
                         device: (data[0].agentType === "device")
                             ? data[0].agentTo
-                            : "",
+                            : vars.identity.hashUser,
                         user: (data[0].agentType === "device")
                             ? vars.identity.hashUser
                             : data[0].agentTo
@@ -92,26 +92,31 @@ const message = function terminal_server_services_message(socketData:socketData)
                 save();
             }
         };
-    if (data[0].agentTo === "device") {
+    if (data[0].agentTo === "device" || (data[0].agentType === "user" && data[0].agentTo === vars.identity.hashUser)) {
+        // send to all devices
+        sender.broadcast({
+            data: data,
+            service: "message"
+        }, "browser");
         broadcast("device");
+        osNotification();
     } else if (data[0].agentTo === "user") {
+        // send to all users
         broadcast("user");
     } else if (data[0].agentTo === "all") {
+        // send to all agents
         broadcast("device");
         broadcast("user");
+        osNotification();
     } else if (data[0].agentType === "device" && data[0].agentTo === vars.identity.hashDevice) {
+        // send to self device, loopback
         sender.broadcast({
             data: data,
             service: "message"
         }, "browser");
         osNotification();
-    } else if (data[0].agentType === "user" && data[0].agentTo === vars.identity.hashUser) {
-        sender.broadcast({
-            data: data,
-            service: "message"
-        }, "browser");
-        broadcast("device");
     } else {
+        // send to specified agent
         if (vars.agents[data[0].agentType][data[0].agentTo].status === "offline") {
             data.forEach(function terminal_server_services_message_offline(item:message_item):void {
                 item.offline = true;
@@ -123,7 +128,7 @@ const message = function terminal_server_services_message(socketData:socketData)
             }, {
                 device: (data[0].agentType === "device")
                     ? data[0].agentTo
-                    : "",
+                    : vars.identity.hashUser,
                 user: (data[0].agentType === "device")
                     ? vars.identity.hashUser
                     : data[0].agentTo

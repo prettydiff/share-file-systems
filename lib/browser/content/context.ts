@@ -211,7 +211,10 @@ const context:module_context = {
                 }
             },
             box:modal = element.getAncestor("box", "class"),
-            readOnly:boolean = browser.ui.modals[box.getAttribute("id")].read_only,
+            agentType:agentType = (box.dataset === undefined)
+                ? null
+                : box.dataset.agenttype as agentType,
+            readOnly:boolean = (browser.ui.modals[box.getAttribute("id")].read_only && agentType !== "device"),
             clientHeight:number = browser.content.clientHeight;
         let clientX:number,
             clientY:number,
@@ -226,14 +229,14 @@ const context:module_context = {
         menu.onclick = context.events.contextMenuRemove;
         if (nodeName === "ul") {
             functions.details();
-            if (readOnly === false) {
+            if (agentType === "device" || readOnly === false) {
                 functions.newDirectory();
                 functions.newFile();
                 functions.paste();
             }
         } else if (nodeName === "li") {
             functions.details();
-            if (box.dataset !== undefined && box.dataset.agenttype === "device") {
+            if (agentType === "device") {
                 functions.share();
             }
             if (element.getAttribute("class").indexOf("file") === 0) {
@@ -334,7 +337,7 @@ const context:module_context = {
                     : (contextElement.innerHTML.indexOf("Copy") === 0)
                         ? "copy"
                         : "cut",
-                selected:[string, fileType, string][] = util.selectedAddresses(element, type),
+                selected:[string, fileType, string][] = file_browser.tools.selectedAddresses(element, type),
                 agency:agentId = util.getAgent(box),
                 id:string = box.getAttribute("id"),
                 clipData:context_clipboard = {
@@ -357,7 +360,7 @@ const context:module_context = {
             }
             if (clipStore !== null) {
                 if (clipStore.id !== box.getAttribute("id") || type !== "cut") {
-                    util.selectNone(document.getElementById(clipStore.id));
+                    file_browser.tools.selectNone(document.getElementById(clipStore.id));
                 }
             }
             context.clipboard = JSON.stringify(clipData);
@@ -385,9 +388,9 @@ const context:module_context = {
                     location: [],
                     name: box.getElementsByClassName("header")[0].getElementsByTagName("input")[0].value
                 },
-                selected:[string, fileType, string][] = util.selectedAddresses(element, "destroy");
+                selected:[string, fileType, string][] = file_browser.tools.selectedAddresses(element, "destroy");
             if (selected.length < 1) {
-                payload.location.push(element.getElementsByTagName("label")[0].innerHTML);
+                payload.location.push(element.dataset.path);
             } else {
                 selected.forEach(function browser_content_context_destroy_each(value:[string, fileType, string]):void {
                     payload.location.push(value[0]);
@@ -578,7 +581,7 @@ const context:module_context = {
             }
             network.send(payload, "copy");
             context.clipboard = "";
-            util.selectNone(document.getElementById(clipData.id));
+            file_browser.tools.selectNone(document.getElementById(clipData.id));
             context.element = null;
             if (menu !== null) {
                 menu.parentNode.removeChild(menu);
