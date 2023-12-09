@@ -435,7 +435,7 @@ const fileSystem:module_fileSystem = {
         }
         sender.routeFile({
             callback: function terminal_server_services_fileSystem_menu_securityStatus(socketData:socketData):void {
-                sender.broadcast(socketData, "browser");
+                sender.send(socketData, "browser");
             },
             data: data,
             destination: "agentRequest",
@@ -462,7 +462,7 @@ const fileSystem:module_fileSystem = {
             }
         } else {
             const broadcast = function terminal_server_services_fileSystem_route_broadcast(routeData:socketData):void {
-                sender.broadcast(routeData, "browser");
+                sender.send(routeData, "browser");
             };
             if (vars.test.type === "service") {
                 service.evaluation(socketData);
@@ -548,7 +548,7 @@ const fileSystem:module_fileSystem = {
                 if (vars.test.type === "service") {
                     service.evaluation(socketData);
                 } else if (data.agentRequest.device === vars.identity.hashDevice && data.agentRequest.user === vars.identity.hashUser) {
-                    sender.broadcast(socketData, "browser");
+                    sender.send(socketData, "browser");
                 } else {
                     fileSystem.route(socketData);
                 }

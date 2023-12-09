@@ -209,7 +209,7 @@ const terminal:module_terminal = {
     },
     output: function terminal_server_services_terminalOutput(data:service_terminal):void {
         if (data[data.target].agent === vars.identity.hashDevice && data[data.target].agentType === "device") {
-            sender.broadcast({
+            sender.send({
                 data: data,
                 service: "terminal"
             }, "browser");

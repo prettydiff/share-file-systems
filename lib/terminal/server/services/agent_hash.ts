@@ -93,7 +93,7 @@ const hashAgent = function terminal_server_services_hashAgent(socketData:socketD
                         },
                         service: "settings"
                     });
-                    sender.broadcast({
+                    sender.send({
                         data: hashes,
                         service: "agent-hash"
                     }, "browser");

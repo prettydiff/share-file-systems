@@ -76,7 +76,7 @@ const importSettings = function terminal_server_services_importSettings(socketDa
                     },
                     service: "settings"
                 });
-                sender.broadcast({
+                sender.send({
                     data: "",
                     service: "reload"
                 }, "browser");

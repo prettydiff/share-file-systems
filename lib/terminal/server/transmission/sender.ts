@@ -9,75 +9,11 @@ import vars from "../../utilities/vars.js";
  * An abstraction to manage traffic output abstracted away from specific network protocols.
  * ```typescript
  * interface module_transmit_sender {
- *     agentQueue: (type:socketType, agent:string, payload:socketData) => void;  // If the agent is offline the message will be queued.
- *     broadcast : (payload:socketData, listType:agentType | "browser") => void; // Send a specified ata package to all agents of a given agent type.
- *     route     : (destination:agentCopy, socketData:socketData, callback:(socketData:socketData) => void) => void; // Automation to redirect data packages to a specific agent examination of a service identifier and agent data.
- *     send      : (data:socketData, agents:transmit_agents) => void;            // Send a specified data package to a specified agent
+ *     routeFile : (destination:agentCopy, socketData:socketData, callback:(socketData:socketData) => void) => void; // Automation to redirect data packages to a specific agent examination of a service identifier and agent data.
+ *     send      : (data:socketData, agents:transmit_agents|string) => void; // Send a specified data package to a specified agent
  * }
  * ``` */
 const sender:module_transmit_sender = {
-    agentQueue: function terminal_server_transmission_sender_agentQueue(type:socketType, agent:string, payload:socketData) {
-        const socket:websocket_client = transmit_ws.getSocket(type, agent);
-        if (socket !== null && (socket.status === "open" || socket.status === "pending")) {
-            transmit_ws.queue(payload, socket, 1);
-        } else if (vars.test.type === "" && (type === "device" || type === "user") && vars.agents[type][agent] !== undefined) {
-            const service_exclusions: service_type[] = [
-                "agent-hash",
-                "agent-management",
-                "agent-online",
-                "agent-status",
-                "copy-list-request",
-                "copy-list",
-                "copy-send-file",
-                "cut",
-                "error",
-                "hash-share",
-                "invite",
-                "GET",
-                "log",
-                "response-no-action",
-                "settings",
-                "test-browser"
-            ];
-            if (service_exclusions.indexOf(payload.service) < 0) {
-                if (vars.settings.queue[type][agent] === undefined) {
-                    vars.settings.queue[type][agent] = [];
-                }
-                if (vars.settings.queue[type][agent].length > 0 && JSON.stringify(vars.settings.queue[type][agent][vars.settings.queue[type][agent].length - 1]) === JSON.stringify(payload)) {
-                    return;
-                }
-                vars.settings.queue[type][agent].push(payload);
-                const settingsData:service_settings = {
-                    settings: vars.settings.queue,
-                    type: "queue"
-                };
-                settings({
-                    data: settingsData,
-                    service: "settings"
-                });
-            }
-        }
-    },
-    // send to all agents of a given type
-    broadcast: function terminal_server_transmission_sender_broadcast(payload:socketData, listType:agentType | "browser"):void {
-        if (listType === "browser") {
-            const list:string[] = transmit_ws.getSocketKeys("browser");
-            list.forEach(function terminal_server_transmission_transmitWs_broadcast_each(agent:string):void {
-                transmit_ws.queue(payload, transmit_ws.socketList.browser[agent], 1);
-            });
-        } else {
-            const list:string[] = Object.keys(vars.agents[listType]);
-            let index:number = list.length;
-            if (index > 0) {
-                do {
-                    index = index - 1;
-                    if (listType !== "device" || (listType === "device" && list[index] !== vars.identity.hashDevice)) {
-                        sender.agentQueue(listType, list[index], payload);
-                    }
-                } while (index > 0);
-            }
-        }
-    },
 
     // direct a data payload to a specific agent as determined by the service name and the agent details in the data payload
     routeFile: function terminal_server_transmission_sender_routeFile(config:config_senderRoute):void {
@@ -187,21 +123,87 @@ const sender:module_transmit_sender = {
     },
 
     // send a specified data package to a specified agent
-    send: function terminal_server_transmission_sender_send(data:socketData, agents:transmit_agents):void {
+    send: function terminal_server_transmission_sender_send(data:socketData, agents:transmit_agents|string):void {
         if (agents !== null) {
-            if (agents.user === "browser") {
-                sender.broadcast(data, "browser");
-            } else {
-                if (agents.user === vars.identity.hashUser) {
-                    if (agents.device.length === 141) {
-                        mask.unmaskDevice(agents.device, function terminal_server_transmission_sender_send_unmask(actualDevice:string):void {
-                            sender.agentQueue("device", actualDevice, data);
-                        });
-                    } else {
-                        sender.agentQueue("device", agents.device, data);
+            const agentQueue = function terminal_server_transmission_sender_send_agentQueue(type:socketType, agent:string, payload:socketData) {
+                    const socket:websocket_client = transmit_ws.getSocket(type, agent);
+                    if (socket !== null && (socket.status === "open" || socket.status === "pending")) {
+                        transmit_ws.queue(payload, socket, 1);
+                    } else if (vars.test.type === "" && (type === "device" || type === "user") && vars.agents[type][agent] !== undefined) {
+                        const service_exclusions: service_type[] = [
+                            "agent-hash",
+                            "agent-management",
+                            "agent-online",
+                            "agent-status",
+                            "copy-list-request",
+                            "copy-list",
+                            "copy-send-file",
+                            "cut",
+                            "error",
+                            "hash-share",
+                            "invite",
+                            "GET",
+                            "log",
+                            "response-no-action",
+                            "settings",
+                            "test-browser"
+                        ];
+                        if (service_exclusions.indexOf(payload.service) < 0) {
+                            if (vars.settings.queue[type][agent] === undefined) {
+                                vars.settings.queue[type][agent] = [];
+                            }
+                            if (vars.settings.queue[type][agent].length > 0 && JSON.stringify(vars.settings.queue[type][agent][vars.settings.queue[type][agent].length - 1]) === JSON.stringify(payload)) {
+                                return;
+                            }
+                            vars.settings.queue[type][agent].push(payload);
+                            const settingsData:service_settings = {
+                                settings: vars.settings.queue,
+                                type: "queue"
+                            };
+                            settings({
+                                data: settingsData,
+                                service: "settings"
+                            });
+                        }
                     }
+                },
+                broadcast = function terminal_server_transmission_sender_send_broadcast(listType:string) {
+                    const list:string[] = transmit_ws.getSocketKeys(listType);
+                    if (list.length > 0) {
+                        let index:number = list.length;
+                        if (index > 0) {
+                            if (listType === "user" || listType === "device") {
+                                do {
+                                    index = index - 1;
+                                    if (listType !== "device" || (listType === "device" && list[index] !== vars.identity.hashDevice)) {
+                                        agentQueue(listType, list[index], data);
+                                    }
+                                } while (index > 0);
+                            } else {
+                                list.forEach(function terminal_server_transmission_sender_send_broadcast(agent:string):void {
+                                    transmit_ws.queue(data, transmit_ws.socketList[listType][agent], 1);
+                                });
+                            }
+                        }
+                    }
+                };
+            if (typeof agents === "string") {
+                broadcast(agents);
+            } else {
+                if (agents.user === "browser") {
+                    broadcast("browser");
                 } else {
-                    sender.agentQueue("user", agents.user, data);
+                    if (agents.user === vars.identity.hashUser) {
+                        if (agents.device.length === 141) {
+                            mask.unmaskDevice(agents.device, function terminal_server_transmission_sender_send_unmask(actualDevice:string):void {
+                                agentQueue("device", actualDevice, data);
+                            });
+                        } else {
+                            agentQueue("device", agents.device, data);
+                        }
+                    } else {
+                        agentQueue("user", agents.user, data);
+                    }
                 }
             }
         }

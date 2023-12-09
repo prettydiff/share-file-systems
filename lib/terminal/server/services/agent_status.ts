@@ -13,7 +13,7 @@ const agent_status = function terminal_server_services_agentStatus(socketData:so
     agent.status = data.status;
 
     // update all listening browsers on the local machine
-    sender.broadcast(socketData, "browser");
+    sender.send(socketData, "browser");
 
     if (data.agent === vars.identity.hashDevice) {
         vars.settings.status = data.status;
@@ -46,19 +46,19 @@ const agent_status = function terminal_server_services_agentStatus(socketData:so
         // from a browser on local device
         if (data.agent === vars.identity.hashDevice && data.agentType === "device") {
             // transmit to other devices
-            sender.broadcast(socketData, "device");
+            sender.send(socketData, "device");
 
             // transmit to other users
             data.agent = vars.identity.hashUser;
             data.agentType = "user";
             data.broadcast = true;
-            sender.broadcast({
+            sender.send({
                 data: data,
                 service: socketData.service
             }, "user");
         } else if (data.agentType === "user") {
             // transmit to devices of a remote user
-            sender.broadcast(socketData, "device");
+            sender.send(socketData, "device");
         }
     }
 };

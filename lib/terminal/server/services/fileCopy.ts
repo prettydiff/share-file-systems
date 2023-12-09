@@ -729,7 +729,7 @@ const fileCopy:module_fileCopy = {
                 }
                 sender.routeFile({
                     callback: function terminal_server_services_fileCopy_security_securityStatus(socketData:socketData):void {
-                        sender.broadcast(socketData, "browser");
+                        sender.send(socketData, "browser");
                     },
                     data: status,
                     destination: "agentRequest",
@@ -799,7 +799,7 @@ const fileCopy:module_fileCopy = {
                         service: "file-system-status"
                     },
                     broadcast = function terminal_server_services_fileCopy_copyStatus_callbackDirectory_sendStatus_unmask_broadcast():void {
-                        sender.broadcast(statusMessage, "browser");
+                        sender.send(statusMessage, "browser");
                     };
                 if (vars.test.type === "service") {
                     service.evaluation(statusMessage);

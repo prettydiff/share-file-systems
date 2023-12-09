@@ -36,7 +36,7 @@ const error = function terminal_utilities_error(errText:string[], errObject:node
                         share: "",
                         user: vars.identity.hashUser
                     };
-                sender.broadcast({
+                sender.send({
                     data: Object.assign({
                         agentRequest: agent,
                         agentSource: agent,

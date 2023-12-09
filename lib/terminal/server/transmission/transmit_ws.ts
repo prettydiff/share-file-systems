@@ -453,7 +453,7 @@ const transmit_ws:module_transmit_ws = {
                     };
                     agent.status = "offline";
                     transmit_ws.ipAttempts[config.agentType][config.agent] = [];
-                    sender.broadcast({
+                    sender.send({
                         data: status,
                         service: "agent-status"
                     }, "browser");
@@ -958,11 +958,11 @@ const transmit_ws:module_transmit_ws = {
                         return 1;
                     });
                     transmit_ws.status[vars.identity.hashDevice] = list;
-                    sender.broadcast({
+                    sender.send({
                         data: transmit_ws.status,
                         service: "socket-list"
                     }, "browser");
-                    sender.broadcast({
+                    sender.send({
                         data: {
                             [vars.identity.hashDevice]: transmit_ws.status[vars.identity.hashDevice]
                         },
@@ -1075,7 +1075,7 @@ const transmit_ws:module_transmit_ws = {
         const data:socketList = socketData.data as socketList,
             keys:string[] = Object.keys(data);
         transmit_ws.status[keys[0]] = data[keys[0]];
-        sender.broadcast({
+        sender.send({
             data: transmit_ws.status,
             service: "socket-list"
         }, "browser");

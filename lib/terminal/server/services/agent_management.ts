@@ -46,8 +46,8 @@ const agent_management = function terminal_server_services_agentManagement(socke
                             service: "settings"
                         });
                     }
-                    sender.broadcast(socketData, "device");
-                    sender.broadcast(socketData, "browser");
+                    sender.send(socketData, "device");
+                    sender.send(socketData, "browser");
                 }
             }
         };
@@ -97,7 +97,7 @@ const agent_management = function terminal_server_services_agentManagement(socke
         };
         if (data.agentFrom === vars.identity.hashDevice) {
             // device issuing the deletion
-            sender.broadcast({
+            sender.send({
                 data: data,
                 service: "agent-management"
             }, "device");
@@ -138,7 +138,7 @@ const agent_management = function terminal_server_services_agentManagement(socke
                 },
                 service: "settings"
             });
-            sender.broadcast({
+            sender.send({
                 data: null,
                 service: "reload"
             }, "browser");
@@ -146,7 +146,7 @@ const agent_management = function terminal_server_services_agentManagement(socke
             // either
             // a device receiving notification of deletion of a third device
             // a deleted user
-            sender.broadcast({
+            sender.send({
                 data: data,
                 service: "agent-management"
             }, "browser");
@@ -195,7 +195,7 @@ const agent_management = function terminal_server_services_agentManagement(socke
                         status: "active"
                     };
 
-                    sender.broadcast({
+                    sender.send({
                         data: data,
                         service: "agent-management"
                     }, "user");
@@ -205,14 +205,14 @@ const agent_management = function terminal_server_services_agentManagement(socke
         modifyAgents("user");
         if (data.agentFrom === vars.identity.hashDevice) {
             // same device
-            sender.broadcast({
+            sender.send({
                 data: data,
                 service: "agent-management"
             }, "device");
             users();
         } else if (vars.agents.user[data.agentFrom] === undefined) {
             // same user, from a device
-            sender.broadcast({
+            sender.send({
                 data: data,
                 service: "agent-management"
             }, "browser");
@@ -221,18 +221,18 @@ const agent_management = function terminal_server_services_agentManagement(socke
             // different user
             data.agents.user[data.agentFrom].ipSelected = vars.agents.user[data.agentFrom].ipSelected;
             data.agentFrom = vars.identity.hashDevice;
-            sender.broadcast({
+            sender.send({
                 data: data,
                 service: "agent-management"
             }, "device");
-            sender.broadcast({
+            sender.send({
                 data: data,
                 service: "agent-management"
             }, "browser");
         }
     } else if (data.action === "rename") {
         if (data.agentFrom === vars.identity.hashDevice) {
-            sender.broadcast(socketData, "device");
+            sender.send(socketData, "device");
         }
         const renameType = function terminal_server_services_agentManagement_renameType(type:agentType):void {
             const keys:string[] = Object.keys(data.agents[type]);

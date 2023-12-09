@@ -156,7 +156,7 @@ interface module_agentStatus {
  *     type : string;                                                              // Stores the submitted type value.
  * }
  * ``` */
- interface module_browserSocket {
+interface module_browserSocket {
     error: () => void;
     hash: string;
     send: (data:socketData) => void;

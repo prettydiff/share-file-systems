@@ -144,7 +144,7 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                         });
                     } else {
                         inviteHttp("agentSource");
-                        sender.broadcast({
+                        sender.send({
                             data: data,
                             service: "invite"
                         }, "browser");
@@ -164,7 +164,7 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                         service: "invite"
                     });
                 } else {
-                    sender.broadcast({
+                    sender.send({
                         data: data,
                         service: "invite"
                     }, "browser");
@@ -246,7 +246,7 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                                     : userData[0]
                             };
                             // Update existing other devices of the new relationship
-                            sender.broadcast({
+                            sender.send({
                                 data: data,
                                 service: "invite"
                             }, "device");
@@ -270,7 +270,7 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                             });
                         }
                         if (vars.test.type !== "service") {
-                            sender.broadcast({
+                            sender.send({
                                 data: data,
                                 service: "invite"
                             }, "browser");
@@ -289,7 +289,7 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                 // execution   - local/remote browser, local/remote devices
                 // purpose     - Update the UI with the invitation changes
                 addAgent("agentRequest");
-                sender.broadcast(socketData, "browser");
+                sender.send(socketData, "browser");
             },
             "invite-identity": function terminal_server_services_invite_identity():void {
                 // Step 7
@@ -305,7 +305,7 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                                 service: "invite"
                             });
                         } else {
-                            sender.broadcast({
+                            sender.send({
                                 data: data,
                                 service: "invite"
                             }, "device");
