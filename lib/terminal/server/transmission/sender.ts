@@ -2,6 +2,7 @@
 
 import mask from "../../utilities/mask.js";
 import settings from "../services/settings.js";
+import tools from "./tools.js";
 import transmit_ws from "./transmit_ws.js";
 import vars from "../../utilities/vars.js";
 
@@ -194,7 +195,9 @@ const sender:module_transmit_sender = {
                     broadcast("browser");
                 } else {
                     if (agents.user === vars.identity.hashUser) {
-                        if (agents.device.length === 141) {
+                        if (agents.device === null || agents.device === "") {
+                            broadcast("device");
+                        } else if (agents.device.length === 141) {
                             mask.unmaskDevice(agents.device, function terminal_server_transmission_sender_send_unmask(actualDevice:string):void {
                                 agentQueue("device", actualDevice, data);
                             });
