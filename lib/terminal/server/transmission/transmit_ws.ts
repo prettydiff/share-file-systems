@@ -405,6 +405,9 @@ const transmit_ws:module_transmit_ws = {
                     ip:string = (function terminal_server_transmission_transmitWs_openAgent_ip():string {
                         const ipList = function terminal_server_transmission_transmitWs_openAgent_ip_ipList(type:"IPv4"|"IPv6"):string {
                                 let a:number = agent.ipAll[type].length;
+                                if (attempts === undefined) {
+                                    return null;
+                                }
                                 if (a > 0) {
                                     do {
                                         a = a - 1;
@@ -419,6 +422,9 @@ const transmit_ws:module_transmit_ws = {
                                 return null;
                             },
                             IPv6:string = ipList("IPv6");
+                        if (attempts === undefined) {
+                            return null;
+                        }
                         if (IPv6 === null) {
                             return ipList("IPv4");
                         }
@@ -427,6 +433,9 @@ const transmit_ws:module_transmit_ws = {
                         }
                         return IPv6;
                     }());
+                if (attempts === undefined) {
+                    return;
+                }
                 if (vars.agents[config.agentType][config.agent] === undefined) {
                     if (config.callback !== null) {
                         config.callback(null);
