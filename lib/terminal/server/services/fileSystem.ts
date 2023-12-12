@@ -8,9 +8,9 @@ import fileCopy from "./fileCopy.js";
 import fileExecution from "./fileExecution.js";
 import hash from "../../commands/library/hash.js";
 import mkdir from "../../commands/library/mkdir.js";
+import network from "../transmission/network.js";
 import node from "../../utilities/node.js";
 import remove from "../../commands/library/remove.js";
-import sender from "../transmission/sender.js";
 import vars from "../../utilities/vars.js";
 import service from "../../test/application/service.js";
 
@@ -29,7 +29,7 @@ import service from "../../test/application/service.js";
  *         write      : (data:service_fileSystem) => void; // Writes a string to a file.
  *     };
  *     menu: (data:service_fileSystem) => void; // Resolves actions from *service_fileSystem* to methods in this object's action property.
- *     route: (socketData:socketData) => void;  // Sends the data and destination to sender.routeFile method.
+ *     route: (socketData:socketData) => void;  // Sends the data and destination to network.routeFile method.
  *     status: {
  *         generate : (data:service_fileSystem, dirs:directory_response) => void;              // Formulates a status message to display in the modal status bar of a File Navigate type modal for distribution using the *statusBroadcast* method.
  *         specified: (message:string, agentRequest:fileAgent, agentSource:fileAgent) => void; // Specifies an exact string to send to the File Navigate modal status bar.
@@ -433,9 +433,9 @@ const fileSystem:module_fileSystem = {
                 }
             }
         }
-        sender.routeFile({
+        network.routeFile({
             callback: function terminal_server_services_fileSystem_menu_securityStatus(socketData:socketData):void {
-                sender.send(socketData, "browser");
+                network.send(socketData, "browser");
             },
             data: data,
             destination: "agentRequest",
@@ -449,7 +449,7 @@ const fileSystem:module_fileSystem = {
             if (vars.test.type === "service") {
                 fileSystem.menu(data);
             } else {
-                sender.routeFile({
+                network.routeFile({
                     callback: function terminal_server_services_fileSystem_route_fileSystem(routeData:socketData):void {
                         const fileData:service_fileSystem = routeData.data as service_fileSystem;
                         fileSystem.menu(fileData);
@@ -462,12 +462,12 @@ const fileSystem:module_fileSystem = {
             }
         } else {
             const broadcast = function terminal_server_services_fileSystem_route_broadcast(routeData:socketData):void {
-                sender.send(routeData, "browser");
+                network.send(routeData, "browser");
             };
             if (vars.test.type === "service") {
                 service.evaluation(socketData);
             } else {
-                sender.routeFile({
+                network.routeFile({
                     callback: broadcast,
                     data: data,
                     destination: "agentRequest",
@@ -548,7 +548,7 @@ const fileSystem:module_fileSystem = {
                 if (vars.test.type === "service") {
                     service.evaluation(socketData);
                 } else if (data.agentRequest.device === vars.identity.hashDevice && data.agentRequest.user === vars.identity.hashUser) {
-                    sender.send(socketData, "browser");
+                    network.send(socketData, "browser");
                 } else {
                     fileSystem.route(socketData);
                 }

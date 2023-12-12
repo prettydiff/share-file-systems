@@ -143,7 +143,7 @@ interface module_fileCopy {
  *         write      : (data:service_fileSystem) => void; // Writes a string to a file.
  *     };
  *     menu: (data:service_fileSystem) => void; // Resolves actions from *service_fileSystem* to methods in this object's action property.
- *     route: (socketData:socketData) => void;  // Sends the data and destination to sender.routeFile method.
+ *     route: (socketData:socketData) => void;  // Sends the data and destination to network.routeFile method.
  *     status: {
  *         generate : (data:service_fileSystem, dirs:directory_response) => void;              // Formulates a status message to display in the modal status bar of a File Navigate type modal for distribution using the *statusBroadcast* method.
  *         specified: (message:string, agentRequest:fileAgent, agentSource:fileAgent) => void; // Specifies an exact string to send to the File Navigate modal status bar.
@@ -545,31 +545,22 @@ interface module_transmit_http {
 }
 
 /**
- * An abstraction to manage traffic output abstracted away from specific network protocols.
- * ```typescript
- * interface module_transmit_sender {
- *     routeFile : (destination:agentCopy, socketData:socketData, callback:(socketData:socketData) => void) => void; // Automation to redirect data packages to a specific agent examination of a service identifier and agent data.
- *     send      : (data:socketData, agents:transmit_agents|string) => void; // Send a specified data package to a specified agent
- * }
- * ``` */
-interface module_transmit_sender {
-    routeFile: (config:config_senderRoute) => void;
-    send: (data:socketData, agents:transmit_agents|string) => void;
-}
-
-/**
  * A collection of transmission tools for use with either HTTP or WS.
  * ```typescript
- * interface module_transmit_tools {
- *     logger: (config:config_transmit_logger) => void;
- *     receiver: (socketData:socketData, transmit:transmit_type) => void;
- *     responder: (socketData:socketData, transmit:transmit_type) => void;
+ * interface module_transmit_network {
+ *     logger: (config:config_transmit_logger) => void;                    // Logs information about sending or receipt of a message from the network
+ *     receiver: (socketData:socketData, transmit:transmit_type) => void;  // Route messages from the network to the respective service handler for the given service type.
+ *     responder: (socketData:socketData, transmit:transmit_type) => void; // Pushes a payload onto the network either over a socket or as an HTTP response.
+ *     routeFile: (config:config_routeFile) => void;                       // Automation to redirect data packages to a specific agent examination of a service identifier and agent data.
+ *     send: (data:socketData, , agents:transmit_agents|string) => void;   // Send a data payload to either a specified agent or broadcast to an socket type.
  * }
  * ``` */
-interface module_transmit_tools {
+interface module_transmit_network {
     logger: (config:config_transmit_logger) => void;
     receiver: (socketData:socketData, transmit:transmit_type) => void;
     responder: (socketData:socketData, transmit:transmit_type) => void;
+    routeFile: (config:config_routeFile) => void;
+    send: (data:socketData, agents:transmit_agents|string) => void;
 }
 
 /**

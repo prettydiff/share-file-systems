@@ -3,8 +3,8 @@
 
 import error from "../../utilities/error.js";
 import osNotification from "../osNotification.js";
+import network from "../transmission/network.js";
 import node from "../../utilities/node.js";
-import sender from "../transmission/sender.js";
 import settings from "./settings.js";
 import vars from "../../utilities/vars.js";
 
@@ -69,21 +69,21 @@ const message = function terminal_server_services_message(socketData:socketData)
             }
         };
     if (data[0].agentTo === "device" || (data[0].agentType === "user" && data[0].agentTo === vars.identity.hashUser)) {
-        // send to all devices
-        sender.send(socketData, "browser");
-        sender.send(socketData, "device");
+        // send to all devices of self user
+        network.send(socketData, "browser");
+        network.send(socketData, "device");
         osNotification();
     } else if (data[0].agentTo === "user") {
         // send to all users
-        sender.send(socketData, "user");
+        network.send(socketData, "user");
     } else if (data[0].agentTo === "all") {
         // send to all agents
-        sender.send(socketData, "user");
-        sender.send(socketData, "device");
+        network.send(socketData, "user");
+        network.send(socketData, "device");
         osNotification();
     } else if (data[0].agentType === "device" && data[0].agentTo === vars.identity.hashDevice) {
         // send to self device, loopback
-        sender.send({
+        network.send({
             data: data,
             service: "message"
         }, "browser");
@@ -95,7 +95,7 @@ const message = function terminal_server_services_message(socketData:socketData)
                 item.offline = true;
             });
         } else {
-            sender.send({
+            network.send({
                 data: data,
                 service: "message"
             }, {

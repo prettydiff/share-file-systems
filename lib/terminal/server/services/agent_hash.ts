@@ -4,8 +4,8 @@
 
 import error from "../../utilities/error.js";
 import hash from "../../commands/library/hash.js";
+import network from "../transmission/network.js";
 import node from "../../utilities/node.js";
-import sender from "../transmission/sender.js";
 import settings from "./settings.js";
 import vars from "../../utilities/vars.js";
 
@@ -93,7 +93,7 @@ const hashAgent = function terminal_server_services_hashAgent(socketData:socketD
                         },
                         service: "settings"
                     });
-                    sender.send({
+                    network.send({
                         data: hashes,
                         service: "agent-hash"
                     }, "browser");

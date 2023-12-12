@@ -227,7 +227,7 @@ This scenario occurs when User A wishes to copy file system data from a share of
 The routing logic is defined in these project locations:
 * [/lib/terminal/server/services/fileCopy.ts](/lib/terminal/server/services/fileCopy.ts)
 * [/lib/terminal/server/services/fileSystem.ts](/lib/terminal/server/services/fileSystem.ts)
-* [/lib/terminal/server/transmission/sender.ts](/lib/terminal/server/transmission/sender.ts)
+* [/lib/terminal/server/transmission/network.ts](/lib/terminal/server/transmission/network.ts)
 
 ### Socket List
 The routing logic directly relies upon a living socket list.

@@ -266,11 +266,13 @@ interface ports {
  * The primary data type of all supported services.
  * ```typescript
  * interface socketData {
+ *     broadcast?: boolean;
  *     data: socketDataType;
  *     service: service_type;
  * }
  * ``` */
 interface socketData {
+    broadcast?: boolean;
     data: socketDataType;
     service: service_type;
 }

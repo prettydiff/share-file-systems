@@ -2,8 +2,8 @@
 /* lib/terminal/test/application/service - A list of service test related utilities. */
 
 import common from "../../../common/common.js";
+import network from "../../server/transmission/network.js";
 import readStorage from "../../utilities/readStorage.js";
-import tools from "../../server/transmission/tools.js";
 import transmit_http from "../../server/transmission/transmit_http.js";
 import vars from "../../utilities/vars.js";
 
@@ -168,7 +168,7 @@ const loopback:string = "127.0.0.1",
                 test.data = JSON.parse(filePathDecode(null, JSON.stringify(test.data)) as string);
                 service.index = config.index;
                 service.fail = config.fail;
-                tools.receiver(test, {
+                network.receiver(test, {
                     socket: socket,
                     type: "ws"
                 });

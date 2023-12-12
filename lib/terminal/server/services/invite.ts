@@ -5,7 +5,7 @@ import agent_management from "./agent_management.js";
 import common from "../../../common/common.js";
 import getAddress from "../../utilities/getAddress.js";
 import mask from "../../utilities/mask.js";
-import sender from "../transmission/sender.js";
+import network from "../transmission/network.js";
 import service from "../../test/application/service.js";
 import transmit_http from "../transmission/transmit_http.js";
 import transmit_ws from "../transmission/transmit_ws.js";
@@ -144,7 +144,7 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                         });
                     } else {
                         inviteHttp("agentSource");
-                        sender.send({
+                        network.send({
                             data: data,
                             service: "invite"
                         }, "browser");
@@ -164,7 +164,7 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                         service: "invite"
                     });
                 } else {
-                    sender.send({
+                    network.send({
                         data: data,
                         service: "invite"
                     }, "browser");
@@ -246,7 +246,7 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                                     : userData[0]
                             };
                             // Update existing other devices of the new relationship
-                            sender.send({
+                            network.send({
                                 data: data,
                                 service: "invite"
                             }, "device");
@@ -270,7 +270,7 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                             });
                         }
                         if (vars.test.type !== "service") {
-                            sender.send({
+                            network.send({
                                 data: data,
                                 service: "invite"
                             }, "browser");
@@ -289,7 +289,7 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                 // execution   - local/remote browser, local/remote devices
                 // purpose     - Update the UI with the invitation changes
                 addAgent("agentRequest");
-                sender.send(socketData, "browser");
+                network.send(socketData, "browser");
             },
             "invite-identity": function terminal_server_services_invite_identity():void {
                 // Step 7
@@ -305,7 +305,7 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                                 service: "invite"
                             });
                         } else {
-                            sender.send({
+                            network.send({
                                 data: data,
                                 service: "invite"
                             }, "device");

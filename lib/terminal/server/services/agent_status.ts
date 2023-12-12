@@ -1,6 +1,6 @@
 /* lib/terminal/server/services/agent_status - Publishes activity status of agents. */
 
-import sender from "../transmission/sender.js";
+import network from "../transmission/network.js";
 import vars from "../../utilities/vars.js";
 
 const agent_status = function terminal_server_services_agentStatus(socketData:socketData):void {
@@ -13,7 +13,7 @@ const agent_status = function terminal_server_services_agentStatus(socketData:so
     agent.status = data.status;
 
     // update all listening browsers on the local machine
-    sender.send(socketData, "browser");
+    network.send(socketData, "browser");
 
     if (data.agent === vars.identity.hashDevice) {
         vars.settings.status = data.status;
@@ -22,7 +22,7 @@ const agent_status = function terminal_server_services_agentStatus(socketData:so
             const device:string = (data.agentType === "device")
                 ? data.agent
                 : vars.identity.hashUser;
-            sender.send({
+            network.send({
                 data: {
                     agent: (data.agentType === "device")
                         ? vars.identity.hashDevice
@@ -46,19 +46,19 @@ const agent_status = function terminal_server_services_agentStatus(socketData:so
         // from a browser on local device
         if (data.agent === vars.identity.hashDevice && data.agentType === "device") {
             // transmit to other devices
-            sender.send(socketData, "device");
+            network.send(socketData, "device");
 
             // transmit to other users
             data.agent = vars.identity.hashUser;
             data.agentType = "user";
             data.broadcast = true;
-            sender.send({
+            network.send({
                 data: data,
                 service: socketData.service
             }, "user");
         } else if (data.agentType === "user") {
             // transmit to devices of a remote user
-            sender.send(socketData, "device");
+            network.send(socketData, "device");
         }
     }
 };

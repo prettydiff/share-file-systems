@@ -477,7 +477,7 @@ interface config_rename {
 }
 
 /**
- * For sender.route of terminal/server/transmission/sender
+ * For network.routeFile of terminal/server/transmission/network
  * ```typescript
  * interface config_senderRoute {
  *     callback: (socketData:socketData) => void;
@@ -487,7 +487,7 @@ interface config_rename {
  *     service: service_type;
  * }
  * ``` */
-interface config_senderRoute {
+interface config_routeFile {
     callback: (socketData:socketData) => void;
     data: service_copy | service_fileSystem | service_fileSystem_status;
     destination: agentCopy;

@@ -8,10 +8,10 @@ import error from "../../utilities/error.js";
 import hash from "../../commands/library/hash.js";
 import ipList from "../../utilities/ipList.js";
 import log from "../../utilities/log.js";
+import network from "./network.js";
 import node from "../../utilities/node.js";
 import readCerts from "../readCerts.js";
 import readStorage from "../../utilities/readStorage.js";
-import tools from "./tools.js";
 import transmit_ws from "./transmit_ws.js";
 import vars from "../../utilities/vars.js";
 
@@ -268,7 +268,7 @@ const transmit_http:module_transmit_http = {
                     },
                     post = function terminal_server_transmission_transmitHttp_receive_post():void {
                         const socketData:socketData = JSON.parse(body) as socketData;
-                        tools.logger({
+                        network.logger({
                             direction: "receive",
                             size: receivedLength,
                             socketData: socketData,
@@ -289,12 +289,12 @@ const transmit_http:module_transmit_http = {
                             request.socket.destroy();
                             serverResponse.socket.destroy();
                         } else {
-                            tools.receiver(socketData, {
+                            network.receiver(socketData, {
                                 socket: response,
                                 type: "http"
                             });
                             if (socketData.service !== "copy-send-file") {
-                                tools.responder({
+                                network.responder({
                                     data: null,
                                     service: "response-no-action"
                                 }, {
@@ -488,7 +488,7 @@ const transmit_http:module_transmit_http = {
             } else {
                 fsRequest.hash = config.agent;
                 fsRequest.type = config.agentType;
-                tools.logger({
+                network.logger({
                     direction: "send",
                     size: dataString.length,
                     socketData: config.payload,
@@ -572,7 +572,7 @@ const transmit_http:module_transmit_http = {
                     size = size + header.join("").length + 2;
                 });
                 config.serverResponse.writeHead(status, {"content-type": type});
-                tools.logger({
+                network.logger({
                     direction: "send",
                     size: size,
                     socketData: {
