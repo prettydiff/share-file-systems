@@ -94,9 +94,12 @@ const network:module_transmit_network = {
         if (actions[services] !== undefined) {
             actions[services](socketData, transmit);
         }
-        if (socketData.broadcast === true) {
-            socketData.broadcast = false;
-            network.send(socketData, "device");
+        if (typeof socketData.broadcast === "string" && socketData.broadcast !== "") {
+            const broadcast:string = socketData.broadcast;
+            if (socketData.broadcast === "device") {
+                socketData.broadcast = "";
+            }
+            network.send(socketData, broadcast);
         }
     },
     responder: function terminal_server_transmission_toolsResponder(data:socketData, transmit:transmit_type):void {
