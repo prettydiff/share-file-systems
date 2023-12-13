@@ -403,7 +403,9 @@ const transmit_ws:module_transmit_ws = {
                     socket:websocket_client = transmit_ws.getSocket(config.agentType, config.agent),
                     ip:string = (function terminal_server_transmission_transmitWs_openAgent_ip():string {
                         const ipList = function terminal_server_transmission_transmitWs_openAgent_ip_ipList(type:"IPv4"|"IPv6"):string {
-                                let a:number = agent.ipAll[type].length;
+                                let a:number = (agent === undefined)
+                                    ? 0
+                                    : agent.ipAll[type].length;
                                 if (a > 0) {
                                     do {
                                         a = a - 1;
