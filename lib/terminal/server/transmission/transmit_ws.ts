@@ -399,7 +399,6 @@ const transmit_ws:module_transmit_ws = {
         agent: function terminal_server_transmission_transmitWs_openAgent(config:config_websocket_openAgent):void {
             if (vars.settings.secure === true || vars.test.type.indexOf("browser_") === 0) {
                 const agent:agent = vars.agents[config.agentType][config.agent],
-                    attempts:string[] = transmit_ws.ipAttempts[config.agentType][config.agent],
                     selfIP:transmit_addresses_IP = vars.network.addresses,
                     socket:websocket_client = transmit_ws.getSocket(config.agentType, config.agent),
                     ip:string = (function terminal_server_transmission_transmitWs_openAgent_ip():string {
@@ -420,12 +419,9 @@ const transmit_ws:module_transmit_ws = {
                                     } while (a > 0);
                                 }
                                 return null;
-                            };
-                        let IPv6:string = null;
-                        if (attempts === undefined) {
-                            transmit_ws.ipAttempts[config.agentType][config.agent] = [];
-                        }
-                        IPv6 = ipList("IPv6");
+                            },
+                            attempts:string[] = transmit_ws.ipAttempts[config.agentType][config.agent],
+                            IPv6:string = ipList("IPv6");
                         if (IPv6 === null) {
                             return ipList("IPv4");
                         }
@@ -434,7 +430,7 @@ const transmit_ws:module_transmit_ws = {
                         }
                         return IPv6;
                     }());
-                if (vars.agents[config.agentType][config.agent] === undefined) {
+                if (agent === undefined) {
                     if (config.callback !== null) {
                         config.callback(null);
                     }
@@ -1017,6 +1013,7 @@ const transmit_ws:module_transmit_ws = {
                     transmit_ws.socketList.browserOther[config.identifier] = config.socket;
                 }
                 if (config.type === "device" || config.type === "user") {
+                    transmit_ws.ipAttempts[config.type][config.identifier] = [];
                     vars.agents[config.type][config.identifier].ipSelected = getAddress({
                         socket: config.socket,
                         type: "ws"
