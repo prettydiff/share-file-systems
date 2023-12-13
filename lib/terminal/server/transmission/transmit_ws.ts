@@ -404,9 +404,6 @@ const transmit_ws:module_transmit_ws = {
                     ip:string = (function terminal_server_transmission_transmitWs_openAgent_ip():string {
                         const ipList = function terminal_server_transmission_transmitWs_openAgent_ip_ipList(type:"IPv4"|"IPv6"):string {
                                 let a:number = agent.ipAll[type].length;
-                                if (attempts === undefined) {
-                                    return null;
-                                }
                                 if (a > 0) {
                                     do {
                                         a = a - 1;
@@ -420,7 +417,12 @@ const transmit_ws:module_transmit_ws = {
                                 }
                                 return null;
                             },
-                            attempts:string[] = transmit_ws.ipAttempts[config.agentType][config.agent],
+                            attempts:string[] = (transmit_ws.ipAttempts[config.agentType][config.agent] === undefined)
+                                ? (function terminal_server_transmission_transmitWs_openAgent_ip_ipList_attempts():string[] {
+                                    transmit_ws.ipAttempts[config.agentType][config.agent] = [];
+                                    return transmit_ws.ipAttempts[config.agentType][config.agent];
+                                }())
+                                : transmit_ws.ipAttempts[config.agentType][config.agent],
                             IPv6:string = ipList("IPv6");
                         if (IPv6 === null) {
                             return ipList("IPv4");
@@ -1013,7 +1015,6 @@ const transmit_ws:module_transmit_ws = {
                     transmit_ws.socketList.browserOther[config.identifier] = config.socket;
                 }
                 if (config.type === "device" || config.type === "user") {
-                    transmit_ws.ipAttempts[config.type][config.identifier] = [];
                     vars.agents[config.type][config.identifier].ipSelected = getAddress({
                         socket: config.socket,
                         type: "ws"
