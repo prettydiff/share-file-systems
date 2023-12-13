@@ -420,11 +420,12 @@ const transmit_ws:module_transmit_ws = {
                                     } while (a > 0);
                                 }
                                 return null;
-                            },
-                            IPv6:string = ipList("IPv6");
+                            };
+                        let IPv6:string = null;
                         if (attempts === undefined) {
-                            return null;
+                            transmit_ws.ipAttempts[config.agentType][config.agent] = [];
                         }
+                        IPv6 = ipList("IPv6");
                         if (IPv6 === null) {
                             return ipList("IPv4");
                         }
@@ -433,9 +434,6 @@ const transmit_ws:module_transmit_ws = {
                         }
                         return IPv6;
                     }());
-                if (attempts === undefined) {
-                    return;
-                }
                 if (vars.agents[config.agentType][config.agent] === undefined) {
                     if (config.callback !== null) {
                         config.callback(null);
@@ -447,9 +445,6 @@ const transmit_ws:module_transmit_ws = {
                         config.callback(socket);
                     }
                     return;
-                }
-                if (transmit_ws.ipAttempts[config.agentType][config.agent] === undefined) {
-                    transmit_ws.ipAttempts[config.agentType][config.agent] = [];
                 }
                 if (ip === null) {
                     const status:service_agentStatus = {
