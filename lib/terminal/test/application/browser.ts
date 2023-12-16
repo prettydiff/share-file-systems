@@ -74,7 +74,7 @@ const defaultCommand:commands = vars.environment.command,
         },
         exitMessage: "",
         exitSummary: function terminal_test_application_browser_exitSummary():string[] {
-            const socketList:socketListItem[] = transmit_ws.status[vars.identity.hashDevice],
+            const socketList:socketListItem[] = transmit_ws.socketList[vars.identity.hashDevice],
                 output:string[] = [
                     browser.exitMessage,
                     "",
@@ -434,11 +434,11 @@ const defaultCommand:commands = vars.environment.command,
                     log(["", "", timeStore[0]]);
                     vars.agents.device = {};
                     vars.agents.user = {};
-                    transmit_ws.status = {};
+                    transmit_ws.socketList = {};
                     remove(`${vars.path.project}lib${vars.path.sep}terminal${vars.path.sep}test${vars.path.sep}application${vars.path.sep}documentation`, [], null);
                     // close sockets
                     {
-                        const types:socketType[] = Object.keys(transmit_ws.socketList) as socketType[];
+                        const types:socketType[] = Object.keys(transmit_ws.socketMap) as socketType[];
                         let sockets:string[] = null,
                             socketIndex:number = 0,
                             typeIndex:number = types.length;
@@ -450,9 +450,9 @@ const defaultCommand:commands = vars.environment.command,
                                 if (socketIndex > 0) {
                                     do {
                                         socketIndex = socketIndex - 1;
-                                        transmit_ws.socketList[types[typeIndex]][sockets[socketIndex]].destroy();
+                                        transmit_ws.socketMap[types[typeIndex]][sockets[socketIndex]].destroy();
                                     } while (socketIndex > 0);
-                                    delete transmit_ws.socketList[types[typeIndex]];
+                                    delete transmit_ws.socketMap[types[typeIndex]];
                                 }
                             }
                         } while (typeIndex > 0);
@@ -477,7 +477,7 @@ const defaultCommand:commands = vars.environment.command,
                             user: {}
                         };
                         vars.settings.ui = ui;
-                        transmit_ws.status = {};
+                        transmit_ws.socketList = {};
                         browser.methods.sendAction("close", browser.name);
                         browser.methods.delay({
                             action: start,

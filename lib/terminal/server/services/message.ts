@@ -75,11 +75,13 @@ const message = function terminal_server_services_message(socketData:socketData)
         osNotification();
     } else if (data[0].agentTo === "user") {
         // send to all users
+        socketData.broadcast = "device";
         network.send(socketData, "user");
     } else if (data[0].agentTo === "all") {
         // send to all agents
-        network.send(socketData, "user");
         network.send(socketData, "device");
+        socketData.broadcast = "device";
+        network.send(socketData, "user");
         osNotification();
     } else if (data[0].agentType === "device" && data[0].agentTo === vars.identity.hashDevice) {
         // send to self device, loopback
@@ -90,21 +92,22 @@ const message = function terminal_server_services_message(socketData:socketData)
         osNotification();
     } else {
         // send to specified agent
-        if (vars.agents[data[0].agentType][data[0].agentTo].status === "offline") {
-            data.forEach(function terminal_server_services_message_offline(item:message_item):void {
-                item.offline = true;
-            });
-        } else {
+        if (data[0].agentType === "device") {
             network.send({
                 data: data,
                 service: "message"
             }, {
-                device: (data[0].agentType === "device")
-                    ? data[0].agentTo
-                    : vars.identity.hashUser,
-                user: (data[0].agentType === "device")
-                    ? vars.identity.hashUser
-                    : data[0].agentTo
+                device: data[0].agentTo,
+                user: vars.identity.hashUser
+            });
+        } else if (data[0].agentType === "user") {
+            network.send({
+                broadcast: "device",
+                data: data,
+                service: "message"
+            }, {
+                device: vars.identity.hashUser,
+                user: data[0].agentTo
             });
         }
     }

@@ -122,7 +122,7 @@ public class Window {
                         error(["Error running Windows netstat command in osNotifications"], statError);
                     }
                 };
-            node.child_process.exec(`netstat -aon | findstr "${transmit_ws.socketList.browser[agent].remotePort}"`, netStat);
+            node.child_process.exec(`netstat -aon | findstr "${transmit_ws.socketMap.browser[agent].remotePort}"`, netStat);
         });
     }
 };

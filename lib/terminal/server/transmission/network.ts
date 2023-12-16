@@ -158,17 +158,17 @@ const network:module_transmit_network = {
             unmask(destination.device, sendSelf);
         } else {
             const resolveUser = function terminal_server_transmission_sender_route_resolveUser(user:string):string {
-                    const socketKeys:string[] = Object.keys(transmit_ws.status);
+                    const socketKeys:string[] = Object.keys(transmit_ws.socketList);
                     let indexKeys:number = socketKeys.length,
                         indexList:number = 0;
                     if (indexKeys > 0) {
                         do {
                             indexKeys = indexKeys - 1;
-                            indexList = transmit_ws.status[socketKeys[indexKeys]].length;
+                            indexList = transmit_ws.socketList[socketKeys[indexKeys]].length;
                             if (indexList > 0) {
                                 do {
                                     indexList = indexList - 1;
-                                    if (transmit_ws.status[socketKeys[indexKeys]][indexList].type === "user" && transmit_ws.status[socketKeys[indexKeys]][indexList].name === user) {
+                                    if (transmit_ws.socketList[socketKeys[indexKeys]][indexList].type === "user" && transmit_ws.socketList[socketKeys[indexKeys]][indexList].name === user) {
                                         return socketKeys[indexKeys];
                                     }
                                 } while (indexList > 0);
@@ -287,7 +287,7 @@ const network:module_transmit_network = {
                                 } while (index > 0);
                             } else {
                                 list.forEach(function terminal_server_transmission_sender_send_broadcast(agent:string):void {
-                                    transmit_ws.queue(data, transmit_ws.socketList[listType][agent], 1);
+                                    transmit_ws.queue(data, transmit_ws.socketMap[listType][agent], 1);
                                 });
                             }
                         }
@@ -301,12 +301,14 @@ const network:module_transmit_network = {
             } else if (agents.user === "browser") {
                 broadcast("browser");
             } else if (agents.user === vars.identity.hashUser && vars.agents.device[agents.device] !== undefined) {
+                // same user
                 if (agents.device.length === 141) {
                     mask.unmaskDevice(agents.device, unmask);
                 } else {
                     agentQueue("device", agents.device, data);
                 }
             } else if (vars.agents.user[agents.user] !== undefined) {
+                // route to user
                 agentQueue("user", agents.user, data);
             }
         }

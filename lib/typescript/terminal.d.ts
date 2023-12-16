@@ -486,7 +486,6 @@ interface httpSocket_agent {
  *     date: number;
  *     message: string;
  *     mode: messageMode;
- *     offline?: boolean;
  * }
  * ``` */
 interface message_item {
@@ -496,7 +495,6 @@ interface message_item {
     date: number;
     message: string;
     mode: messageMode;
-    offline?: boolean;
 }
 
 /**

@@ -61,7 +61,7 @@ const transmit_http:module_transmit_http = {
                             ports: vars.network.ports
                         },
                         settings: settingsData,
-                        "socket-list": transmit_ws.status,
+                        "socket-list": transmit_ws.socketList,
                         test: (vars.test.browser !== null && request.url.indexOf("?test_browser") > 0)
                             ? vars.test.browser
                             : null

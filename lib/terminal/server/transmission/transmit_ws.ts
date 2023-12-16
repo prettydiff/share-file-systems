@@ -69,11 +69,11 @@ const transmit_ws:module_transmit_ws = {
         }
         socket.status = "closed";
         socket.destroy();
-        if (transmit_ws.socketList[type] !== undefined) {
-            delete transmit_ws.socketList[type][socket.hash];
+        if (transmit_ws.socketMap[type] !== undefined) {
+            delete transmit_ws.socketMap[type][socket.hash];
         }
         if (type === "device") {
-            delete transmit_ws.status[socket.hash];
+            delete transmit_ws.socketList[socket.hash];
         }
     },
     // composes fragments from browsers and agents into JSON for processing by receiver library
@@ -197,17 +197,17 @@ const transmit_ws:module_transmit_ws = {
     },
     // get a socket from the socket list
     getSocket: function terminal_server_transmission_transmitWs_getSocket(type:string, name:string):websocket_client {
-        if (transmit_ws.socketList[type] === undefined || transmit_ws.socketList[type][name] === undefined || transmit_ws.socketList[type][name] === null) {
+        if (transmit_ws.socketMap[type] === undefined || transmit_ws.socketMap[type][name] === undefined || transmit_ws.socketMap[type][name] === null) {
             return null;
         }
-        return transmit_ws.socketList[type][name];
+        return transmit_ws.socketMap[type][name];
     },
     // get all socket names from the given socket list type
     getSocketKeys: function terminal_server_transmission_transmitWs_getSocket(type:string):string[] {
-        if (transmit_ws.socketList[type] === undefined) {
+        if (transmit_ws.socketMap[type] === undefined) {
             return [];
         }
-        return Object.keys(transmit_ws.socketList[type]);
+        return Object.keys(transmit_ws.socketMap[type]);
     },
     ipAttempts: {
         device: {},
@@ -354,14 +354,7 @@ const transmit_ws:module_transmit_ws = {
                 const payload:Buffer = Buffer.concat([data.subarray(0, 2), unmask(data.subarray(2))]);
                 socket.write(payload);
                 socket.off("data", processor);
-                if (socket.type === "device" || socket.type === "user") {
-                    transmit_ws.agentClose(socket);
-                } else {
-                    if (transmit_ws.socketList[socket.type] !== undefined) {
-                        delete transmit_ws.socketList[socket.type][socket.hash];
-                    }
-                    socket.destroy();
-                }
+                socket.destroy();
             } else if (frame.opcode === 9) {
                 // respond to "ping" as "pong"
                 transmit_ws.queue(data.subarray(frame.startByte), socket, 10);
@@ -914,12 +907,12 @@ const transmit_ws:module_transmit_ws = {
                 },
                 list = function terminal_server_transmission_transmitWs_socketExtension_list():void {
                     const list:socketListItem[] = [],
-                        keysPrimary:string[] = Object.keys(transmit_ws.socketList),
+                        keysPrimary:string[] = Object.keys(transmit_ws.socketMap),
             
                         // populate data from sockets that are children of a group
                         child = function terminal_server_transmission_transmitWs_socketExtension_list_child():void {
                             // @ts-ignore
-                            const socketList:websocket_list = transmit_ws.socketList[keysPrimary[indexPrimary]],
+                            const socketList:websocket_list = transmit_ws.socketMap[keysPrimary[indexPrimary]],
                                 keysChild:string[] = Object.keys(socketList);
                             let indexChild:number = keysChild.length,
                                 socketItem:websocket_client,
@@ -960,14 +953,14 @@ const transmit_ws:module_transmit_ws = {
                         }
                         return 1;
                     });
-                    transmit_ws.status[vars.identity.hashDevice] = list;
+                    transmit_ws.socketList[vars.identity.hashDevice] = list;
                     network.send({
-                        data: transmit_ws.status,
+                        data: transmit_ws.socketList,
                         service: "socket-list"
                     }, "browser");
                     network.send({
                         data: {
-                            [vars.identity.hashDevice]: transmit_ws.status[vars.identity.hashDevice]
+                            [vars.identity.hashDevice]: transmit_ws.socketList[vars.identity.hashDevice]
                         },
                         service: "socket-list"
                     }, "device");
@@ -996,7 +989,7 @@ const transmit_ws:module_transmit_ws = {
             config.socket.frame = Buffer.from([]);    // stores pieces of frames, which can be divided due to TLS decoding or header separation from some browsers
             config.socket.frameExtended = 0;          // stores the payload size of a given message payload as derived from the extended size bytes of a frame header
             config.socket.hash = config.identifier;   // assigns a unique identifier to the socket based upon the socket's credentials
-            config.socket.handler = config.handler;   //  assigns an event handler to process incoming messages
+            config.socket.handler = config.handler;   // assigns an event handler to process incoming messages
             config.socket.ping = ping;                // provides a means to insert a ping control frame and measure the round trip time of the returned pong frame
             config.socket.pong = {};                  // stores termination times and callbacks for pong handling
             config.socket.queue = [];                 // stores messages for transmit, because websocket protocol cannot intermix messages
@@ -1006,15 +999,15 @@ const transmit_ws:module_transmit_ws = {
             config.socket.type = config.type;         // assigns the type name on the socket
             if (config.type === "browser" || config.type === "device" || config.type === "testRemote" || config.type === "user") {
                 if (config.type !== "browser" || (config.type === "browser" && config.identifier.indexOf("-primary-") > 0)) {
-                    if (transmit_ws.socketList[config.type] === undefined) {
-                        transmit_ws.socketList[config.type] = {};
+                    if (transmit_ws.socketMap[config.type] === undefined) {
+                        transmit_ws.socketMap[config.type] = {};
                     }
-                    transmit_ws.socketList[config.type][config.identifier] = config.socket;
+                    transmit_ws.socketMap[config.type][config.identifier] = config.socket;
                 } else {
-                    if (transmit_ws.socketList.browserOther === undefined) {
-                        transmit_ws.socketList.browserOther = {};
+                    if (transmit_ws.socketMap.browserOther === undefined) {
+                        transmit_ws.socketMap.browserOther = {};
                     }
-                    transmit_ws.socketList.browserOther[config.identifier] = config.socket;
+                    transmit_ws.socketMap.browserOther[config.identifier] = config.socket;
                 }
                 if (config.type === "device" || config.type === "user") {
                     vars.agents[config.type][config.identifier].ipSelected = getAddress({
@@ -1056,10 +1049,10 @@ const transmit_ws:module_transmit_ws = {
                     config.socket.on("close", socketEnd);
                 }
             } else {
-                if (transmit_ws.socketList[config.type] === undefined) {
-                    transmit_ws.socketList[config.type] = {};
+                if (transmit_ws.socketMap[config.type] === undefined) {
+                    transmit_ws.socketMap[config.type] = {};
                 }
-                transmit_ws.socketList[config.type][config.identifier] = config.socket;
+                transmit_ws.socketMap[config.type][config.identifier] = config.socket;
                 config.socket.on("close", socketEnd);
             }
             config.socket.on("end", socketEnd);
@@ -1071,15 +1064,14 @@ const transmit_ws:module_transmit_ws = {
             list();
         }
     },
-    // a list of local sockets
-    socketList: {},
-    status: {},
+    socketMap: {},  // a list of local sockets
+    socketList: {}, // a human readable list of sockets
     statusUpdate: function terminal_server_transmission_transmitWs_statusUpdate(socketData:socketData):void {
         const data:socketList = socketData.data as socketList,
             keys:string[] = Object.keys(data);
-        transmit_ws.status[keys[0]] = data[keys[0]];
+        transmit_ws.socketList[keys[0]] = data[keys[0]];
         network.send({
-            data: transmit_ws.status,
+            data: transmit_ws.socketList,
             service: "socket-list"
         }, "browser");
     }
