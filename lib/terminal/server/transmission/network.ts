@@ -92,7 +92,9 @@ const network:module_transmit_network = {
             device:string = (route === null)
                 ? null
                 : route.device;
-        if (route === null || socketData.route.user === vars.identity.hashUser) {
+        if (transmit.type === "http" && (socketData.service === "agent-online" || socketData.service === "copy-send-file" || socketData.service === "invite")) {
+            actions[services](socketData, transmit);
+        } else if (route === null || socketData.route.user === vars.identity.hashUser) {
             if (vars.environment.command === "perf" && services.indexOf("perf-") !== 0) {
                 return;
             }
