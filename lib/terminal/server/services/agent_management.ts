@@ -15,6 +15,10 @@ const agent_management = function terminal_server_services_agentManagement(socke
         routeDevice:transmit_agents = {
             device: "broadcast",
             user: vars.identity.hashUser
+        },
+        routeSelf:transmit_agents = {
+            device: vars.identity.hashDevice,
+            user: vars.identity.hashUser
         };
     if (data.action === "add") {
         const addAgents = function terminal_server_services_agentManagement_addAgents(type:agentType):void {
@@ -43,7 +47,7 @@ const agent_management = function terminal_server_services_agentManagement(socke
                             settings: vars.agents[type],
                             type: type
                         },
-                        route: null,
+                        route: routeSelf,
                         service: "settings"
                     });
                     if (type === "device") {
@@ -52,7 +56,7 @@ const agent_management = function terminal_server_services_agentManagement(socke
                                 settings: vars.identity,
                                 type: "identity"
                             },
-                            route: null,
+                            route: routeSelf,
                             service: "settings"
                         });
                     }
@@ -100,7 +104,7 @@ const agent_management = function terminal_server_services_agentManagement(socke
                             settings: vars.agents[type],
                             type: type
                         },
-                        route: null,
+                        route: routeSelf,
                         service: "settings"
                     });
                 }
@@ -136,7 +140,7 @@ const agent_management = function terminal_server_services_agentManagement(socke
                     settings: {},
                     type: "device"
                 },
-                route: null,
+                route: routeSelf,
                 service: "settings"
             });
             settings({
@@ -144,7 +148,7 @@ const agent_management = function terminal_server_services_agentManagement(socke
                     settings: {},
                     type: "user"
                 },
-                route: null,
+                route: routeSelf,
                 service: "settings"
             });
             settings({
@@ -152,7 +156,7 @@ const agent_management = function terminal_server_services_agentManagement(socke
                     settings: vars.identity,
                     type: "identity"
                 },
-                route: null,
+                route: routeSelf,
                 service: "settings"
             });
             network.send({
@@ -193,7 +197,7 @@ const agent_management = function terminal_server_services_agentManagement(socke
                             settings: vars.agents[type],
                             type: type
                         },
-                        route: null,
+                        route: routeSelf,
                         service: "settings"
                     });
                 }
@@ -276,7 +280,7 @@ const agent_management = function terminal_server_services_agentManagement(socke
                         settings: vars.agents[type],
                         type: type
                     },
-                    route: null,
+                    route: routeSelf,
                     service: "settings"
                 });
             }

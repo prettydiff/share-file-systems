@@ -86,7 +86,9 @@ const network:module_transmit_network = {
                     actions[services](socketData, transmit);
                 }
             },
-            device:string = socketData.route.device;
+            device:string = (socketData.route === null || socketData.route === undefined)
+                ? null
+                : socketData.route.device;
         if (socketData.route.user === vars.identity.hashUser) {
             if (vars.environment.command === "perf" && services.indexOf("perf-") !== 0) {
                 return;
@@ -98,13 +100,20 @@ const network:module_transmit_network = {
                     vars.test.socket = transmit.socket as httpSocket_response;
                 }
             }
-            if (device.length === 141) {
+            if (device !== null && device.length === 141) {
                 mask.unmaskDevice(device, unmask);
             } else {
                 if (device === "broadcast") {
                     network.send(socketData);
                 }
-                if ((device === "broadcast" || device === vars.identity.hashDevice || (transmit.socket.type === "user" && device === "")) && actions[services] !== undefined) {
+                if (
+                    (
+                        device === "broadcast" ||
+                        device === vars.identity.hashDevice ||
+                        (transmit.socket.type === "user" && device === "") ||
+                        (device === null && transmit.socket.type !== "device" && transmit.socket.type !== "user")
+                    ) && actions[services] !== undefined
+                ) {
                     actions[services](socketData, transmit);
                 }
             }
