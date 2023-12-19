@@ -583,19 +583,6 @@ interface transmit_addresses_socket {
 }
 
 /**
- * A naming convention passed into the network.send method.
- * ```typescript
- * interface transmit_agents {
- *     device: string;
- *     user: string;
- * }
- * ``` */
-interface transmit_agents {
-    device: string;
-    user: string;
-}
-
-/**
  * A message queue store.
  * ```typescript
  * interface transmit_queue {

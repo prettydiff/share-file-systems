@@ -552,7 +552,7 @@ interface module_transmit_http {
  *     receiver: (socketData:socketData, transmit:transmit_type) => void;  // Route messages from the network to the respective service handler for the given service type.
  *     responder: (socketData:socketData, transmit:transmit_type) => void; // Pushes a payload onto the network either over a socket or as an HTTP response.
  *     routeFile: (config:config_routeFile) => void;                       // Automation to redirect data packages to a specific agent examination of a service identifier and agent data.
- *     send: (data:socketData, , agents:transmit_agents|string) => void;   // Send a data payload to either a specified agent or broadcast to an socket type.
+ *     send: (data:socketData) => void;                                    // Send a data payload to either a specified agent or broadcast to an socket type.
  * }
  * ``` */
 interface module_transmit_network {
@@ -560,7 +560,7 @@ interface module_transmit_network {
     receiver: (socketData:socketData, transmit:transmit_type) => void;
     responder: (socketData:socketData, transmit:transmit_type) => void;
     routeFile: (config:config_routeFile) => void;
-    send: (data:socketData, agents:transmit_agents|string) => void;
+    send: (data:socketData) => void;
 }
 
 /**
@@ -589,10 +589,10 @@ interface module_transmit_network {
  *     queueSend       : (socket:websocket_client) => void;                                     // Pushes messages stored from the agent's offline queue into the transmission queue.
  *     server          : (config:config_websocket_server) => node_net_Server;                   // Creates a websocket server.
  *     socketExtensions: (config:config_websocket_extensions) => void;                          // applies application specific extensions to sockets
+ *     socketList      : socketList;                                                            // Stores open socket status information for all devices.
  *     socketMap      : {
  *         [key:string]: websocket_list;
  *     };                                                                                       // A store of open sockets by agent type.
- *     socketList      : socketList;                                                            // Stores open socket status information for all devices.
  *     statusUpdate    : (socketData:socketData) => void;                                       // Receive socket status list updates from other devices.
  * }
  * ``` */
@@ -619,9 +619,9 @@ interface module_transmit_ws {
     queueSend: (socket:websocket_client) => void;
     server: (config:config_websocket_server) => node_net_Server;
     socketExtensions: (config:config_websocket_extensions) => void;
+    socketList: socketList;
     socketMap: {
         [key:string]: websocket_list;
     };
-    socketList: socketList;
     statusUpdate: (socketData:socketData) => void;
 }

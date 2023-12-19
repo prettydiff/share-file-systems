@@ -6,7 +6,6 @@ import error from "../../utilities/error.js";
 import humanTime from "../../utilities/humanTime.js";
 import ipList from "../../utilities/ipList.js";
 import log from "../../utilities/log.js";
-import network from "../../server/transmission/network.js";
 import node from "../../utilities/node.js";
 import remove from "../../commands/library/remove.js";
 import time from "../../utilities/time.js";
@@ -847,20 +846,17 @@ const defaultCommand:commands = vars.environment.command,
                     // self
                     const keys:string[] = transmit_ws.getSocketKeys("browser"),
                         keyLength:number = keys.length;
-                    if (keyLength > 0) {
-                        testItem.test = filePathDecode(testItem.test, "") as test_browserItem;
-                        network.send({
-                            data: testItem,
-                            service: "test-browser"
-                        }, {
-                            device: keys[keys.length - 1],
-                            user: "browser"
-                        });
-                    }
+                    testItem.test = filePathDecode(testItem.test, "") as test_browserItem;
+                    transmit_ws.queue({
+                        data: testItem,
+                        route: null,
+                        service: "test-browser"
+                    }, transmit_ws.socketMap.browser[keys[keyLength - 1]], 1);
                 } else {
                     // remote
                     transmit_ws.queue({
                         data: testItem,
+                        route: null,
                         service: "test-browser"
                     }, transmit_ws.getSocket("testRemote", testItem.test.machine), 1);
                 }

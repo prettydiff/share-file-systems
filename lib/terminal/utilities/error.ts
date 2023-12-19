@@ -42,8 +42,12 @@ const error = function terminal_utilities_error(errText:string[], errObject:node
                         agentSource: agent,
                         agentWrite: null
                     }, server),
+                    route: {
+                        device: "browser",
+                        user: "browser"
+                    },
                     service: "error"
-                }, "browser");
+                });
             }
             if (noStack !== true && stackTrace !== null) {
                 const stackMessage:string = `${vars.text.cyan}Stack trace${vars.text.none + node.os.EOL}-----------${node.os.EOL}`;

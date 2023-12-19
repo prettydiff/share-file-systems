@@ -19,6 +19,7 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
         inviteHttp = function terminal_server_services_invite_inviteHttp(agent:"agentRequest"|"agentSource"):void {
             const payload:socketData = {
                     data: data,
+                    route: null,
                     service: "invite"
                 },
                 httpConfig:config_http_request = {
@@ -74,6 +75,7 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
             if (vars.test.type !== "service") {
                 agent_management({
                     data: addAgentData,
+                    route: null,
                     service: "agent-management"
                 });
                 if (type === "agentRequest") {
@@ -140,14 +142,19 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                     if (vars.test.type === "service") {
                         service.evaluation({
                             data: data,
+                            route: null,
                             service: "invite"
                         });
                     } else {
                         inviteHttp("agentSource");
                         network.send({
                             data: data,
+                            route: {
+                                device: "browser",
+                                user: "browser"
+                            },
                             service: "invite"
-                        }, "browser");
+                        });
                     }
                 });
             },
@@ -161,13 +168,18 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                 if (vars.test.type === "service") {
                     service.evaluation({
                         data: data,
+                        route: null,
                         service: "invite"
                     });
                 } else {
                     network.send({
                         data: data,
+                        route: {
+                            device: "browser",
+                            user: "browser"
+                        },
                         service: "invite"
-                    }, "browser");
+                    });
                 }
             },
             "invite-ask": function terminal_server_services_invite_ask():void {
@@ -211,6 +223,7 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                     if (vars.test.type === "service") {
                         service.evaluation({
                             data: data,
+                            route: null,
                             service: "invite"
                         });
                     } else {
@@ -248,14 +261,19 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                             // Update existing other devices of the new relationship
                             network.send({
                                 data: data,
+                                route: {
+                                    device: "broadcast",
+                                    user: vars.identity.hashDevice
+                                },
                                 service: "invite"
-                            }, "device");
+                            });
 
                             // Send identity data to the remote (and their devices)
                             data.action = "invite-identity";
                             if (vars.test.type === "service") {
                                 service.evaluation({
                                     data: data,
+                                    route: null,
                                     service: "invite"
                                 });
                             } else {
@@ -266,14 +284,19 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                         if (vars.test.type === "service" && data.status !== "accepted") {
                             service.evaluation({
                                 data: data,
+                                route: null,
                                 service: "invite"
                             });
                         }
                         if (vars.test.type !== "service") {
                             network.send({
                                 data: data,
+                                route: {
+                                    device: "browser",
+                                    user: "browser"
+                                },
                                 service: "invite"
-                            }, "browser");
+                            });
                         }
                     }
                 };
@@ -289,7 +312,11 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                 // execution   - local/remote browser, local/remote devices
                 // purpose     - Update the UI with the invitation changes
                 addAgent("agentRequest");
-                network.send(socketData, "browser");
+                socketData.route = {
+                    device: "browser",
+                    user: "browser"
+                };
+                network.send(socketData);
             },
             "invite-identity": function terminal_server_services_invite_identity():void {
                 // Step 7
@@ -302,13 +329,18 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                         if (vars.test.type === "service") {
                             service.evaluation({
                                 data: data,
+                                route: null,
                                 service: "invite"
                             });
                         } else {
                             network.send({
                                 data: data,
+                                route: {
+                                    device: "broadcast",
+                                    user: vars.identity.hashDevice
+                                },
                                 service: "invite"
-                            }, "device");
+                            });
                             addAgent("agentRequest");
                         }
                     }

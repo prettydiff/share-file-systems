@@ -20,8 +20,12 @@ const hashShare = function terminal_server_services_hashShare(socketData:socketD
                     };
                 network.send({
                     data: hashResponse,
+                    route: {
+                        device: "browser",
+                        user: "browser"
+                    },
                     service: "hash-share"
-                }, "browser");
+                });
             },
             digest: "hex",
             directInput: true,

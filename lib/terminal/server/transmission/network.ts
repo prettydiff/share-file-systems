@@ -31,7 +31,7 @@ import vars from "../../utilities/vars.js";
  * }
  * ``` */
 const network:module_transmit_network = {
-    logger: function terminal_server_transmission_toolsLogger(config:config_transmit_logger):void {
+    logger: function terminal_server_transmission_network_logger(config:config_transmit_logger):void {
         vars.network.count[config.transmit.type][config.direction] = vars.network.count[config.transmit.type][config.direction] + 1;
         vars.network.size[config.transmit.type][config.direction] = vars.network.size[config.transmit.type][config.direction] + config.size;
         if (vars.settings.verbose === true) {
@@ -54,7 +54,7 @@ const network:module_transmit_network = {
         }
     },
     /* Library for handling all traffic related to incoming messages. */
-    receiver: function terminal_server_transmission_toolsReceiver(socketData:socketData, transmit:transmit_type):void {
+    receiver: function terminal_server_transmission_network_receiver(socketData:socketData, transmit:transmit_type):void {
         const services:service_type = socketData.service,
             actions:transmit_receiver = {
                 "agent-hash": agent_hash,
@@ -80,29 +80,39 @@ const network:module_transmit_network = {
                 "socket-list": transmit_ws.statusUpdate,
                 "terminal": terminal.input,
                 "test-browser": browser.methods.route
-            };
-        if (vars.environment.command === "perf" && services.indexOf("perf-") !== 0) {
-            return;
-        }
-        if (vars.test.type === "service") {
-            if (services === "invite") {
-                vars.test.socket = null;
+            },
+            unmask = function terminal_server_transmission_network_receiver_unmask(actualDevice:string):void {
+                if (actualDevice === vars.identity.hashDevice && actions[services] !== undefined) {
+                    actions[services](socketData, transmit);
+                }
+            },
+            device:string = socketData.route.device;
+        if (socketData.route.user === vars.identity.hashUser) {
+            if (vars.environment.command === "perf" && services.indexOf("perf-") !== 0) {
+                return;
+            }
+            if (vars.test.type === "service") {
+                if (services === "invite") {
+                    vars.test.socket = null;
+                } else {
+                    vars.test.socket = transmit.socket as httpSocket_response;
+                }
+            }
+            if (device.length === 141) {
+                mask.unmaskDevice(device, unmask);
             } else {
-                vars.test.socket = transmit.socket as httpSocket_response;
+                if (device === "broadcast") {
+                    network.send(socketData);
+                }
+                if ((device === "broadcast" || device === vars.identity.hashDevice || (transmit.socket.type === "user" && device === "")) && actions[services] !== undefined) {
+                    actions[services](socketData, transmit);
+                }
             }
-        }
-        if (actions[services] !== undefined) {
-            actions[services](socketData, transmit);
-        }
-        if (typeof socketData.broadcast === "string" && socketData.broadcast !== "") {
-            const broadcast:string = socketData.broadcast;
-            if (socketData.broadcast === "device") {
-                socketData.broadcast = "";
-            }
-            network.send(socketData, broadcast);
+        } else {
+            network.send(socketData);
         }
     },
-    responder: function terminal_server_transmission_toolsResponder(data:socketData, transmit:transmit_type):void {
+    responder: function terminal_server_transmission_network_responder(data:socketData, transmit:transmit_type):void {
         if (transmit === null || transmit.socket === null) {
             return;
         }
@@ -122,24 +132,26 @@ const network:module_transmit_network = {
     },
 
     // direct a data payload to a specific agent as determined by the service name and the agent details in the data payload
-    routeFile: function terminal_server_transmission_sender_routeFile(config:config_routeFile):void {
-        const sendSelf = function terminal_server_transmission_sender_route_sendSelf(device:string):void {
+    routeFile: function terminal_server_transmission_network_routeFile(config:config_routeFile):void {
+        const sendSelf = function terminal_server_transmission_network_routeFile_sendSelf(device:string):void {
                 if (device === vars.identity.hashDevice) {
                     config.callback({
                         data: config.data,
+                        route: null,
                         service: config.service
                     });
                 } else {
                     network.send({
                         data: config.data,
+                        route: {
+                            device: device,
+                            user: vars.identity.hashUser
+                        },
                         service: config.service
-                    }, {
-                        device: device,
-                        user: vars.identity.hashUser
                     });
                 }
             },
-            unmask = function terminal_server_transmission_sender_route_unmask(device:string, callback:(device:string) => void):void {
+            unmask = function terminal_server_transmission_network_routeFile_unmask(device:string, callback:(device:string) => void):void {
                 // same user
                 if (device.length === 141) {
                     // masked device
@@ -157,7 +169,7 @@ const network:module_transmit_network = {
             // same user, send to device
             unmask(destination.device, sendSelf);
         } else {
-            const resolveUser = function terminal_server_transmission_sender_route_resolveUser(user:string):string {
+            const resolveUser = function terminal_server_transmission_network_routeFile_resolveUser(user:string):string {
                     const socketKeys:string[] = Object.keys(transmit_ws.socketList);
                     let indexKeys:number = socketKeys.length,
                         indexList:number = 0;
@@ -177,28 +189,30 @@ const network:module_transmit_network = {
                     }
                     return "";
                 },
-                sendUser = function terminal_server_transmission_sender_route_sendUser(device:string):void {
+                sendUser = function terminal_server_transmission_network_routeFile_sendUser(device:string):void {
                     if (device === vars.identity.hashDevice) {
                         // if current device holds socket to destination user, send data to user with masked device identity
-                        mask.fileAgent(config.data[config.origination], function terminal_server_transmission_sender_route_sendUser_mask(device:string):void {
+                        mask.fileAgent(config.data[config.origination], function terminal_server_transmission_network_routeFile_sendUser_mask(device:string):void {
                             config.data[config.origination].device = device;
                             network.send({
                                 data: config.data,
+                                route: {
+                                    device: "",
+                                    user: destination.user
+                                },
                                 service: config.service
-                            }, {
-                                device: "",
-                                user: destination.user
                             });
                         });
                     } else {
                         // send to device containing socket to destination user
-                        unmask(device, function terminal_server_transmission_sender_route_sendUser_callback(unmasked:string):void {
+                        unmask(device, function terminal_server_transmission_network_routeFile_sendUser_callback(unmasked:string):void {
                             network.send({
                                 data: config.data,
+                                route: {
+                                    device: unmasked,
+                                    user: vars.identity.hashUser
+                                },
                                 service: config.service
-                            }, {
-                                device: unmasked,
-                                user: vars.identity.hashUser
                             });
                         });
                     }
@@ -229,88 +243,133 @@ const network:module_transmit_network = {
     },
 
     // send a specified data package to either a specified agent or broadcast by socket type or devices of a user
-    send: function terminal_server_transmission_sender_send(data:socketData, agents:transmit_agents|string):void {
-        if (agents !== null && agents !== "") {
-            const agentQueue = function terminal_server_transmission_sender_send_agentQueue(type:socketType, agent:string, payload:socketData) {
-                    const socket:websocket_client = transmit_ws.getSocket(type, agent);
-                    if (socket !== null && (socket.status === "open" || socket.status === "pending")) {
-                        transmit_ws.queue(payload, socket, 1);
-                    } else if (vars.test.type === "" && (type === "device" || type === "user") && vars.agents[type][agent] !== undefined) {
-                        const service_exclusions: service_type[] = [
-                            "agent-hash",
-                            "agent-management",
-                            "agent-online",
-                            "agent-status",
-                            "copy-list-request",
-                            "copy-list",
-                            "copy-send-file",
-                            "cut",
-                            "error",
-                            "hash-share",
-                            "invite",
-                            "GET",
-                            "log",
-                            "response-no-action",
-                            "settings",
-                            "test-browser"
-                        ];
-                        if (service_exclusions.indexOf(payload.service) < 0) {
-                            if (vars.settings.queue[type][agent] === undefined) {
-                                vars.settings.queue[type][agent] = [];
-                            }
-                            if (vars.settings.queue[type][agent].length > 0 && JSON.stringify(vars.settings.queue[type][agent][vars.settings.queue[type][agent].length - 1]) === JSON.stringify(payload)) {
-                                return;
-                            }
-                            vars.settings.queue[type][agent].push(payload);
-                            const settingsData:service_settings = {
-                                settings: vars.settings.queue,
-                                type: "queue"
-                            };
-                            settings({
-                                data: settingsData,
-                                service: "settings"
+    send: function terminal_server_transmission_network_send(data:socketData):void {
+        if (data.route === null) {
+            return;
+        }
+        const agentQueue = function terminal_server_transmission_network_send_agentQueue(type:socketType, agent:string, payload:socketData):void {
+                const socket:websocket_client = transmit_ws.getSocket(type, agent);
+                if (socket !== null && (socket.status === "open" || socket.status === "pending")) {
+                    transmit_ws.queue(payload, socket, 1);
+                } else if (vars.test.type === "" && (type === "device" || type === "user") && vars.agents[type][agent] !== undefined) {
+                    const service_exclusions: service_type[] = [
+                        "agent-hash",
+                        "agent-management",
+                        "agent-online",
+                        "agent-status",
+                        "copy-list-request",
+                        "copy-list",
+                        "copy-send-file",
+                        "cut",
+                        "error",
+                        "hash-share",
+                        "invite",
+                        "GET",
+                        "log",
+                        "response-no-action",
+                        "settings",
+                        "test-browser"
+                    ];
+                    if (service_exclusions.indexOf(payload.service) < 0) {
+                        if (vars.settings.queue[type][agent] === undefined) {
+                            vars.settings.queue[type][agent] = [];
+                        }
+                        if (vars.settings.queue[type][agent].length > 0 && JSON.stringify(vars.settings.queue[type][agent][vars.settings.queue[type][agent].length - 1]) === JSON.stringify(payload)) {
+                            return;
+                        }
+                        vars.settings.queue[type][agent].push(payload);
+                        const settingsData:service_settings = {
+                            settings: vars.settings.queue,
+                            type: "queue"
+                        };
+                        settings({
+                            data: settingsData,
+                            route: null,
+                            service: "settings"
+                        });
+                    }
+                }
+            },
+            broadcast = function terminal_server_transmission_network_send_broadcast(listType:string):void {
+                const list:string[] = transmit_ws.getSocketKeys(listType);
+                if (list.length > 0) {
+                    let index:number = list.length;
+                    if (index > 0) {
+                        if (listType === "user" || listType === "device") {
+                            do {
+                                index = index - 1;
+                                if (listType !== "device" || (listType === "device" && list[index] !== vars.identity.hashDevice)) {
+                                    if (listType === "user") {
+                                        data.route.user = list[index];
+                                    } else if (listType === "device") {
+                                        data.route.device = list[index];
+                                    }
+                                    agentQueue(listType, list[index], data);
+                                }
+                            } while (index > 0);
+                        } else {
+                            list.forEach(function terminal_server_transmission_network_send_broadcast_each(agent:string):void {
+                                transmit_ws.queue(data, transmit_ws.socketMap[listType][agent], 1);
                             });
                         }
                     }
-                },
-                broadcast = function terminal_server_transmission_sender_send_broadcast(listType:string) {
-                    const list:string[] = transmit_ws.getSocketKeys(listType);
-                    if (list.length > 0) {
-                        let index:number = list.length;
-                        if (index > 0) {
-                            if (listType === "user" || listType === "device") {
-                                do {
-                                    index = index - 1;
-                                    if (listType !== "device" || (listType === "device" && list[index] !== vars.identity.hashDevice)) {
-                                        agentQueue(listType, list[index], data);
-                                    }
-                                } while (index > 0);
-                            } else {
-                                list.forEach(function terminal_server_transmission_sender_send_broadcast(agent:string):void {
-                                    transmit_ws.queue(data, transmit_ws.socketMap[listType][agent], 1);
-                                });
-                            }
-                        }
-                    }
-                },
-                unmask = function terminal_server_transmission_sender_send_unmask(actualDevice:string):void {
-                    agentQueue("device", actualDevice, data);
-                };
-            if (typeof agents === "string") {
-                broadcast(agents);
-            } else if (agents.user === "browser") {
-                broadcast("browser");
-            } else if (agents.user === vars.identity.hashUser && vars.agents.device[agents.device] !== undefined) {
-                // same user
-                if (agents.device.length === 141) {
-                    mask.unmaskDevice(agents.device, unmask);
-                } else {
-                    agentQueue("device", agents.device, data);
                 }
-            } else if (vars.agents.user[agents.user] !== undefined) {
-                // route to user
-                agentQueue("user", agents.user, data);
+            },
+            unmask = function terminal_server_transmission_network_send_unmask(actualDevice:string):void {
+                if (actualDevice !== "") {
+                    agentQueue("device", actualDevice, data);
+                }
+            },
+            device:string = data.route.device,
+            user:string = data.route.user;
+        if (device === "browser" || user === "browser") {
+            // broadcast to browser
+            broadcast("browser");
+        } else if (user === "broadcast") {
+            // broadcast to all users
+            data.route = {
+                device: "broadcast",
+                user: ""
+            };
+            broadcast("user");
+        } else if (user === vars.identity.hashUser) {
+            // same user
+            if (device === "broadcast") {
+                // broadcast to all devices
+                broadcast("device");
+            } else if (vars.agents.device[device] !== undefined) {
+                if (data.route.device.length === 141) {
+                    mask.unmaskDevice(device, unmask);
+                } else {
+                    agentQueue("device", device, data);
+                }
             }
+        } else if (vars.agents.user[user] !== undefined) {
+            // route to user
+            const devices:string[] = Object.keys(transmit_ws.socketList);
+            let lenDevice:number = devices.length,
+                deviceList:socketListItem[],
+                lenList:number = 0;
+            do {
+                lenDevice = lenDevice - 1;
+                deviceList = transmit_ws.socketList[devices[lenDevice]];
+                lenList = deviceList.length;
+                if (lenList > 0) {
+                    do {
+                        lenList = lenList - 1;
+                        if (deviceList[lenList].type === "user" && deviceList[lenList].name === user) {
+                            if (devices[lenDevice] === vars.identity.hashDevice) {
+                                // socket to user on current device
+                                agentQueue("user", user, data);
+                            } else {
+                                // send to device containing user socket
+                                agentQueue("device", devices[lenDevice], data);
+                            }
+                            return;
+                        }
+                    } while (lenList > 0);
+                }
+            } while (lenDevice > 0);
         }
     }
 };

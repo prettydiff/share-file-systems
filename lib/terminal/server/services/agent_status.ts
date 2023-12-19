@@ -5,7 +5,11 @@ import vars from "../../utilities/vars.js";
 
 const agent_status = function terminal_server_services_agentStatus(socketData:socketData):void {
     const data:service_agentStatus = socketData.data as service_agentStatus,
-        agent:agent = vars.agents[data.agentType][data.agent];
+        agent:agent = vars.agents[data.agentType][data.agent],
+        routeDevice:transmit_agents = {
+            device: "broadcast",
+            user: vars.identity.hashUser
+        };
 
     if (agent === undefined) {
         return;
@@ -13,15 +17,25 @@ const agent_status = function terminal_server_services_agentStatus(socketData:so
     agent.status = data.status;
 
     // update all listening browsers on the local machine
-    network.send(socketData, "browser");
+    socketData.route = {
+        device: "browser",
+        user: "browser"
+    };
+    network.send(socketData);
 
     if (data.agent === vars.identity.hashDevice) {
         vars.settings.status = data.status;
     } else {
         if (data.respond === true) {
-            const device:string = (data.agentType === "device")
-                ? data.agent
-                : vars.identity.hashUser;
+            const route:transmit_agents = (data.agentType === "device")
+                ? {
+                    device: data.agent,
+                    user: vars.identity.hashUser
+                }
+                : {
+                    device: "broadcast",
+                    user: data.agent
+                };
             network.send({
                 data: {
                     agent: (data.agentType === "device")
@@ -32,10 +46,8 @@ const agent_status = function terminal_server_services_agentStatus(socketData:so
                     respond: (data.respond === true && data.agent === vars.identity.hashDevice && data.agentType === "device" && data.status === "active"),
                     status: vars.settings.status
                 },
+                route: route,
                 service: "agent-status"
-            }, {
-                device: device,
-                user: vars.identity.hashUser
             });
         }
     }
@@ -46,7 +58,8 @@ const agent_status = function terminal_server_services_agentStatus(socketData:so
         // from a browser on local device
         if (data.agent === vars.identity.hashDevice && data.agentType === "device") {
             // transmit to other devices
-            network.send(socketData, "device");
+            socketData.route = routeDevice;
+            network.send(socketData);
 
             // transmit to other users
             data.agent = vars.identity.hashUser;
@@ -54,11 +67,16 @@ const agent_status = function terminal_server_services_agentStatus(socketData:so
             data.broadcast = true;
             network.send({
                 data: data,
+                route: {
+                    device: "broadcast",
+                    user: "broadcast"
+                },
                 service: socketData.service
-            }, "user");
+            });
         } else if (data.agentType === "user") {
             // transmit to devices of a remote user
-            network.send(socketData, "device");
+            socketData.route = routeDevice;
+            network.send(socketData);
         }
     }
 };

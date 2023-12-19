@@ -8,7 +8,7 @@ import transmit_ws from "./transmission/transmit_ws.js";
 // cspell:words findstr, gwmi, netstat, processid
 
 const osNotification = function terminal_server_osNotification():void {
-    const keys:string[] = transmit_ws.getSocketKeys("browser") as string[];
+    const keys:string[] = transmit_ws.getSocketKeys("browser");
     if (process.platform === "win32") {
         // 1. Resolves a process ID from an open web socket client port
         // 2. Checks if a Powershell process object associated with that ID has a mainWindowHandle value greater than 0

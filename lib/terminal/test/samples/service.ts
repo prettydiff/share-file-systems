@@ -177,6 +177,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     status: status,
                     type: "device"
                 } as service_invite,
+                route: null,
                 service: "invite"
             };
         },
@@ -202,6 +203,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                 location: [`some-modal-id:${filePathEncode("absolute", "tsconfig.json")}`],
                 name: "",
             } as service_fileSystem,
+            route: null,
             service: "file-system"
         },
         name: "fs-base64, Base 64 Local",
@@ -216,6 +218,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                 }],
                 type: "base64"
             },
+            route: null,
             service: "file-system-string"
         }
     });
@@ -235,6 +238,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                 location: [`some-modal-id:${filePathEncode("absolute", "tsconfig.json")}`],
                 name: ""
             } as service_fileSystem,
+            route: null,
             service: "file-system"
         },
         name: "fs-base64, Base 64 Remote Device",
@@ -249,6 +253,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                 }],
                 type: "base64"
             },
+            route: null,
             service: "file-system-string"
         }
     });
@@ -263,6 +268,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                 location: [filePathEncode("absolute", "tsconfig.json")],
                 name: "test-ID"
             } as service_fileSystem,
+            route: null,
             service: "file-system"
         },
         name: "fs-details, Details of Local tsconfig.json",
@@ -275,6 +281,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                 ],
                 id: "test-ID"
             },
+            route: null,
             service: "file-system-details"
         }
     });
@@ -294,6 +301,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                 location: [filePathEncode("absolute", "tsconfig.json")],
                 name: "test-ID"
             } as service_fileSystem,
+            route: null,
             service: "file-system"
         },
         name: "fs-details, Details of Remote Device tsconfig.json",
@@ -306,6 +314,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                 ],
                 id: "test-ID"
             },
+            route: null,
             service: "file-system-details"
         }
     });
@@ -320,6 +329,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                 location: [filePathEncode("absolute", `${storagePath}serviceTestLocal`)],
                 name: "directory"
             } as service_fileSystem,
+            route: null,
             service: "file-system"
         },
         name: "fs-new, Local New Directory",
@@ -336,6 +346,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                 ],
                 message: "1 directory, XXXX file, XXXX symbolic links, XXXX errors"
             },
+            route: null,
             service: "file-system-status"
         }
     });
@@ -355,6 +366,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                 location: [filePathEncode("absolute", `${storagePath}serviceTestLocal.json`)],
                 name: "file"
             } as service_fileSystem,
+            route: null,
             service: "file-system"
         },
         name: "fs-new, Local New File",
@@ -377,6 +389,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                 ],
                 message: "1 directory, XXXX files, XXXX symbolic links, XXXX errors"
             },
+            route: null,
             service: "file-system-status"
         }
     });
@@ -396,6 +409,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                 location: [filePathEncode("absolute", `${storagePath}serviceTestRemote`)],
                 name: "directory"
             } as service_fileSystem,
+            route: null,
             service: "file-system"
         },
         name: "fs-new, Remote Device New Directory",
@@ -419,6 +433,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                 ],
                 message: "2 directories, XXXX files, XXXX symbolic links, XXXX errors"
             },
+            route: null,
             service: "file-system-status"
         }
     });
@@ -438,6 +453,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                 location: [filePathEncode("absolute", `${storagePath}serviceTestRemote.json`)],
                 name: "file"
             } as service_fileSystem,
+            route: null,
             service: "file-system"
         },
         name: "fs-new, Remote Device New File",
@@ -462,6 +478,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                 ],
                 message: "2 directories, XXXX files, XXXX symbolic links, XXXX errors"
             },
+            route: null,
             service: "file-system-status"
         }
     });
@@ -476,6 +493,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                 location: [filePathEncode("absolute", `${storagePath}serviceTestLocal.json`)],
                 name: "local test fragment"
             } as service_fileSystem,
+            route: null,
             service: "file-system"
         },
         name: "fs-write, Write Local",
@@ -492,6 +510,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                 ],
                 type: "read"
             },
+            route: null,
             service: "file-system-string"
         }
     });
@@ -511,6 +530,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                 location: [filePathEncode("absolute", `${storagePath}serviceTestRemote.json`)],
                 name: "remote device text fragment"
             } as service_fileSystem,
+            route: null,
             service: "file-system"
         },
         name: "fs-write, Write Remote Device to Local",
@@ -527,6 +547,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                 ],
                 type: "read"
             },
+            route: null,
             service: "file-system-string"
         }
     });
@@ -541,6 +562,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                 location: [`new-window-id:${filePathEncode("absolute", `${storagePath}serviceTestLocal.json`)}`],
                 name: ""
             } as service_fileSystem,
+            route: null,
             service: "file-system"
         },
         name: "fs-read, Read Local",
@@ -557,6 +579,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                 ],
                 type: "read"
             },
+            route: null,
             service: "file-system-string"
         }
     });
@@ -576,6 +599,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                 location: [`new-window-remote-id:${filePathEncode("absolute", `${storagePath}serviceTestRemote.json`)}`],
                 name: ""
             } as service_fileSystem,
+            route: null,
             service: "file-system"
         },
         name: "fs-read, Read Remote Device",
@@ -592,6 +616,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                 ],
                 type: "read"
             },
+            route: null,
             service: "file-system-string"
         }
     });
@@ -606,6 +631,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                 location: [filePathEncode("absolute", `${storagePath}serviceTestLocal`)],
                 name: "serviceLocal"
             } as service_fileSystem,
+            route: null,
             service: "file-system"
         },
         name: "fs-rename, Rename Local Directory",
@@ -625,6 +651,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                 ],
                 message: `Renamed serviceLocal from ${filePathEncode("absolute", `${storagePath}serviceTestLocal`)}`
             },
+            route: null,
             service: "file-system-status"
         }
     });
@@ -639,6 +666,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                 location: [filePathEncode("absolute", `${storagePath}serviceTestLocal.json`)],
                 name: "serviceLocal.json"
             } as service_fileSystem,
+            route: null,
             service: "file-system"
         },
         name: "fs-rename, Rename Local File",
@@ -658,6 +686,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                 ],
                 message: `Renamed serviceLocal.json from ${filePathEncode("absolute", `${storagePath}serviceTestLocal.json`)}`
             },
+            route: null,
             service: "file-system-status"
         }
     });
@@ -677,6 +706,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                 location: [filePathEncode("absolute", `${storagePath}serviceTestRemote`)],
                 name: "serviceRemote"
             } as service_fileSystem,
+            route: null,
             service: "file-system"
         },
         name: "fs-rename, Rename Remote Device Directory",
@@ -701,6 +731,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                 ],
                 message: `Renamed serviceRemote from ${filePathEncode("absolute", `${storagePath}serviceTestRemote`)}`
             },
+            route: null,
             service: "file-system-status"
         }
     });
@@ -720,6 +751,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                 location: [filePathEncode("absolute", `${storagePath}serviceTestRemote.json`)],
                 name: "serviceRemote.json"
             } as service_fileSystem,
+            route: null,
             service: "file-system"
         },
         name: "fs-rename, Rename Remote Device File",
@@ -744,6 +776,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                 ],
                 message: `Renamed serviceRemote.json from ${filePathEncode("absolute", `${storagePath}serviceTestRemote.json`)}`
             },
+            route: null,
             service: "file-system-status"
         }
     });
@@ -758,6 +791,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                 location: [testLocation],
                 name: ".js"
             } as service_fileSystem,
+            route: null,
             service: "file-system"
         },
         name: "fs-directory, Directory Local 1",
@@ -777,6 +811,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                 ],
                 message: "2 directories, XXXX files, XXXX symbolic links, XXXX errors"
             },
+            route: null,
             service: "file-system-status"
         }
     });
@@ -791,6 +826,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                 location: [filePathEncode("absolute", `${storagePath}serviceLocal.json`)],
                 name: ".js"
             } as service_fileSystem,
+            route: null,
             service: "file-system"
         },
         name: "fs-directory, Directory Local 2",
@@ -805,6 +841,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                 ],
                 message: "0 directories, XXXX files, XXXX symbolic links, XXXX errors"
             },
+            route: null,
             service: "file-system-status"
         }
     });
@@ -824,6 +861,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                 location: [testLocation],
                 name: ".js"
             } as service_fileSystem,
+            route: null,
             service: "file-system"
         },
         name: "fs-directory, Directory Remote Device 1",
@@ -848,6 +886,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                 ],
                 message: "2 directories, XXXX files, XXXX symbolic links, XXXX errors"
             },
+            route: null,
             service: "file-system-status"
         }
     });
@@ -867,6 +906,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                 location: [testLocation],
                 name: ".js"
             } as service_fileSystem,
+            route: null,
             service: "file-system"
         },
         name: "fs-directory, Directory Remote Device 2",
@@ -891,6 +931,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                 ],
                 message: "2 directories, XXXX files, XXXX symbolic links, XXXX errors"
             },
+            route: null,
             service: "file-system-status"
         }
     });
@@ -905,6 +946,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                 location: [testLocation],
                 name: ".json"
             } as service_fileSystem,
+            route: null,
             service: "file-system"
         },
         name: "fs-search, Search Local 1",
@@ -920,6 +962,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                 ],
                 message: `search-Directory fragment search "<em>.json</em>" returned <strong>2</strong> matches from <em>${testLocation}</em>.`
             },
+            route: null,
             service: "file-system-status"
         }
     });
@@ -939,6 +982,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                 location: [testLocation],
                 name: ".json"
             } as service_fileSystem,
+            route: null,
             service: "file-system"
         },
         name: "fs-search, Search Remote Device 1",
@@ -959,6 +1003,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                 ],
                 message: `search-Directory fragment search "<em>.json</em>" returned <strong>2</strong> matches from <em>${testLocation}</em>.`
             },
+            route: null,
             service: "file-system-status"
         }
     });
@@ -973,6 +1018,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                 location: [filePathEncode("absolute", `${storagePath}serviceLocal`)],
                 name: ""
             } as service_fileSystem,
+            route: null,
             service: "file-system"
         },
         name: "fs-destroy, Destroy Local Directory",
@@ -991,6 +1037,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                 ],
                 message: "Destroyed XXXX file system item"
             },
+            route: null,
             service: "file-system-status"
         }
     });
@@ -1005,6 +1052,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                 location: [filePathEncode("absolute", `${storagePath}serviceLocal.json`)],
                 name: ""
             } as service_fileSystem,
+            route: null,
             service: "file-system"
         },
         name: "fs-destroy, Destroy Local File",
@@ -1022,6 +1070,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                 ],
                 message: "Destroyed XXXX file system item"
             },
+            route: null,
             service: "file-system-status"
         }
     });
@@ -1041,6 +1090,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                 location: [filePathEncode("absolute", `${storagePath}serviceRemote`)],
                 name: ""
             } as service_fileSystem,
+            route: null,
             service: "file-system"
         },
         name: "fs-destroy, Destroy Remote Device Directory",
@@ -1062,6 +1112,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                 ],
                 message: "Destroyed XXXX file system item"
             },
+            route: null,
             service: "file-system-status"
         }
     });
@@ -1081,6 +1132,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                 location: [filePathEncode("absolute", `${storagePath}serviceRemote.json`)],
                 name: ""
             } as service_fileSystem,
+            route: null,
             service: "file-system"
         },
         name: "fs-destroy, Destroy Remote Device File",
@@ -1101,6 +1153,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                 ],
                 message: "Destroyed XXXX file system item"
             },
+            route: null,
             service: "file-system-status"
         }
     });
@@ -1115,6 +1168,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                 location: [`some-modal-id:${filePathEncode("absolute", "tsconfig.json")}`],
                 name: ""
             } as service_fileSystem,
+            route: null,
             service: "file-system"
         },
         name: "fs-hash, Hash Local",
@@ -1131,6 +1185,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                 ],
                 type: "hash"
             },
+            route: null,
             service: "file-system-string"
         }
     });
@@ -1150,6 +1205,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                 location: [`some-modal-id:${filePathEncode("absolute", "tsconfig.json")}`],
                 name: ""
             } as service_fileSystem,
+            route: null,
             service: "file-system"
         },
         name: "fs-hash, Hash Remote Device",
@@ -1166,6 +1222,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                 ],
                 type: "hash"
             },
+            route: null,
             service: "file-system-string"
         }
     });
@@ -1182,6 +1239,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                 execute: false,
                 location: [filePathEncode("absolute", "tsconfig.json")]
             } as service_copy,
+            route: null,
             service: "copy"
         },
         name: "copy, Copy Local to Local",
@@ -1198,6 +1256,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                 ],
                 message: "Writing XXXX 00% complete. XXXX file written at size XXXX (XXXX bytes) with XXXX integrity failures."
             },
+            route: null,
             service: "file-system-status"
         }
     });
@@ -1217,6 +1276,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                 execute: false,
                 location: [filePathEncode("absolute", "tsconfig.json")]
             } as service_copy,
+            route: null,
             service: "copy"
         },
         name: "copy, Copy Local to Remote Device",
@@ -1239,6 +1299,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                 ],
                 message: "Writing XXXX 00% complete. XXXX file written at size XXXX (XXXX bytes) with XXXX integrity failures."
             },
+            route: null,
             service: "file-system-status"
         }
     });
@@ -1258,6 +1319,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                 execute: false,
                 location: [filePathEncode("absolute", "tsconfig.json")]
             } as service_copy,
+            route: null,
             service: "copy"
         },
         name: "copy, Copy Remote Device to Local",
@@ -1281,6 +1343,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                 ],
                 message: "Writing XXXX 00% complete. XXXX file written at size XXXX (XXXX bytes) with XXXX integrity failures."
             },
+            route: null,
             service: "file-system-status"
         }
     });
@@ -1304,6 +1367,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                 execute: false,
                 location: [filePathEncode("absolute", "version.json")]
             } as service_copy,
+            route: null,
             service: "copy"
         },
         name: "copy, Copy from Remote Device to different Remote Device",
@@ -1333,6 +1397,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                 ],
                 message: "Writing XXXX 00% complete. XXXX file written at size XXXX (XXXX bytes) with XXXX integrity failures."
             },
+            route: null,
             service: "file-system-status"
         }
     });
@@ -1357,6 +1422,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                 execute: false,
                 location: [filePathEncode("absolute", "tsconfig.json")]
             } as service_copy,
+            route: null,
             service: "copy"
         },
         name: "copy, Copy Remote Device to Same Remote Device 1",
@@ -1387,6 +1453,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                 ],
                 message: "Writing XXXX 00% complete. XXXX file written at size XXXX (XXXX bytes) with XXXX integrity failures."
             },
+            route: null,
             service: "file-system-status"
         }
     });
@@ -1417,6 +1484,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                 } as agents,
                 type: "device"
             } as service_settings,
+            route: null,
             service: "settings"
         },
         name: "settings device, Local device settings",
@@ -1444,6 +1512,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                 } as agents,
                 type: "device"
             } as service_settings,
+            route: null,
             service: "settings"
         }
     });
@@ -1459,6 +1528,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                 }] as service_message,
                 type: "message"
             } as service_settings,
+            route: null,
             service: "settings"
         },
         name: "settings message, Local message",
@@ -1474,6 +1544,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                 }] as service_message,
                 type: "message"
             } as service_settings,
+            route: null,
             service: "settings"
         }
     });
@@ -1533,6 +1604,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                 },
                 type: "ui"
             } as service_settings,
+            route: null,
             service: "settings"
         },
         name: "settings configuration, Local settings",
@@ -1592,6 +1664,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                 },
                 type: "ui"
             } as service_settings,
+            route: null,
             service: "settings"
         }
     });
@@ -1619,6 +1692,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                 } as agents,
                 type: "user"
             } as service_settings,
+            route: null,
             service: "settings"
         },
         name: "settings user, Local user",
@@ -1646,6 +1720,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                 } as agents,
                 type: "user"
             } as service_settings,
+            route: null,
             service: "settings"
         }
     });
@@ -1688,6 +1763,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                 status: "invited",
                 type: "device"
             } as service_invite,
+            route: null,
             service: "invite"
         },
         name: "invite, invite-request - Local device invite",
@@ -1727,6 +1803,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                 status: "invited",
                 type: "device"
             } as service_invite,
+            route: null,
             service: "invite"
         }
     });
@@ -1768,6 +1845,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                 status: "ignored",
                 type: "device"
             } as service_invite,
+            route: null,
             service: "invite"
         },
         name: "invite, invite-response - Local device invite",
@@ -1933,6 +2011,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                 status: "ignored",
                 type: "device"
             } as service_invite,
+            route: null,
             service: "invite"
         }
     });
@@ -1974,6 +2053,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                 status: "accepted",
                 type: "device"
             } as service_invite,
+            route: null,
             service: "invite"
         },
         name: "invite, invite-response - Local device invite response, accepted",
@@ -2018,6 +2098,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                 status: "ignored",
                 type: "device"
             } as service_invite,
+            route: null,
             service: "invite"
         },
         name: "invite, invite-response - Local device invite response, ignored",
@@ -2062,6 +2143,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                 status: "declined",
                 type: "device"
             } as service_invite,
+            route: null,
             service: "invite"
         },
         name: "invite, invite-response - Local device invite response, declined",

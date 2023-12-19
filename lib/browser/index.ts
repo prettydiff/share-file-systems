@@ -242,6 +242,10 @@ import disallowed from "../common/disallowed.js";
                     modal_configuration.modals["socket-list"](null, null);
                     configuration.tools.socketList({
                         data: state["socket-list"],
+                        route: {
+                            device: browser.identity.hashDevice,
+                            user: browser.identity.hashUser
+                        },
                         service: "socket-list"
                     });
                 }

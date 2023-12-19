@@ -37,6 +37,7 @@ const fileExecution = function terminal_server_services_fileExecute(pathList:fil
                     status.message = `Opened file location ${path}`;
                     fileSystem.route({
                         data: status,
+                        route: null,
                         service: "file-system-status"
                     });
                 }

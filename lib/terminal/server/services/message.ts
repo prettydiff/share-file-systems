@@ -21,6 +21,7 @@ const message = function terminal_server_services_message(socketData:socketData)
                         settings: vars.settings.message,
                         type: "message"
                     },
+                    route: null,
                     service: "message"
                 });
             };
@@ -70,44 +71,67 @@ const message = function terminal_server_services_message(socketData:socketData)
         };
     if (data[0].agentTo === "device" || (data[0].agentType === "user" && data[0].agentTo === vars.identity.hashUser)) {
         // send to all devices of self user
-        network.send(socketData, "browser");
-        network.send(socketData, "device");
+        socketData.route = {
+            device: "browser",
+            user: "browser"
+        };
+        network.send(socketData);
+        socketData.route = {
+            device: "broadcast",
+            user: vars.identity.hashUser
+        };
+        network.send(socketData);
         osNotification();
     } else if (data[0].agentTo === "user") {
         // send to all users
-        socketData.broadcast = "device";
-        network.send(socketData, "user");
+        socketData.route = {
+            device: "broadcast",
+            user: "broadcast"
+        };
+        network.send(socketData);
     } else if (data[0].agentTo === "all") {
         // send to all agents
-        network.send(socketData, "device");
-        socketData.broadcast = "device";
-        network.send(socketData, "user");
+        socketData.route = {
+            device: "broadcast",
+            user: vars.identity.hashUser
+        };
+        network.send(socketData);
+        socketData.route = {
+            device: "broadcast",
+            user: "broadcast"
+        };
+        network.send(socketData);
         osNotification();
     } else if (data[0].agentType === "device" && data[0].agentTo === vars.identity.hashDevice) {
         // send to self device, loopback
         network.send({
             data: data,
+            route: {
+                device: "browser",
+                user: "browser"
+            },
             service: "message"
-        }, "browser");
+        });
         osNotification();
     } else {
         // send to specified agent
         if (data[0].agentType === "device") {
             network.send({
                 data: data,
+                route: {
+                    device: data[0].agentTo,
+                    user: vars.identity.hashUser
+                },
                 service: "message"
-            }, {
-                device: data[0].agentTo,
-                user: vars.identity.hashUser
             });
         } else if (data[0].agentType === "user") {
             network.send({
-                broadcast: "device",
                 data: data,
+                route: {
+                    device: "broadcast",
+                    user: data[0].agentTo
+                },
                 service: "message"
-            }, {
-                device: vars.identity.hashUser,
-                user: data[0].agentTo
             });
         }
     }

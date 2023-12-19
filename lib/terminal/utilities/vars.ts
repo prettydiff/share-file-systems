@@ -101,7 +101,7 @@ const vars:module_terminalVariables = {
                 keys:string[] = Object.keys(interfaces),
                 length:number = keys.length,
                 // the family property of the network interface objects are different types depending upon Node version
-                familySanitize = function terminal_utilities_vars_addresses_familySanitize(input:string|number):number {
+                familySanitize = function terminal_utilities_vars_addresses_familySanitize(input:number|string):number {
                     if (typeof input === "number") {
                         return input;
                     }

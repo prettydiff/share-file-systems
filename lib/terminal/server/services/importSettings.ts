@@ -30,6 +30,7 @@ const importSettings = function terminal_server_services_importSettings(socketDa
                             settings: vars.agents.device,
                             type: "device"
                         },
+                        route: null,
                         service: "settings"
                     });
                     settings({
@@ -37,6 +38,7 @@ const importSettings = function terminal_server_services_importSettings(socketDa
                             settings: vars.identity,
                             type: "identity"
                         },
+                        route: null,
                         service: "settings"
                     });
                     settings({
@@ -44,6 +46,7 @@ const importSettings = function terminal_server_services_importSettings(socketDa
                             settings: vars.settings.ui,
                             type: "message"
                         },
+                        route: null,
                         service: "settings"
                     });
                     settings({
@@ -51,6 +54,7 @@ const importSettings = function terminal_server_services_importSettings(socketDa
                             settings: vars.settings.queue,
                             type: "queue"
                         },
+                        route: null,
                         service: "settings"
                     });
                     settings({
@@ -58,6 +62,7 @@ const importSettings = function terminal_server_services_importSettings(socketDa
                             settings: vars.agents.user,
                             type: "user"
                         },
+                        route: null,
                         service: "settings"
                     });
                 } else {
@@ -74,12 +79,17 @@ const importSettings = function terminal_server_services_importSettings(socketDa
                         settings: vars.settings.ui,
                         type: "ui"
                     },
+                    route: null,
                     service: "settings"
                 });
                 network.send({
                     data: "",
+                    route: {
+                        device: "browser",
+                        user: "browser"
+                    },
                     service: "reload"
-                }, "browser");
+                });
             }
         },
         base64Config:config_command_base64 = {

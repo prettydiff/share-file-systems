@@ -59,6 +59,7 @@ const ipResolve = function terminal_server_transmission_ipResolve(agentName:stri
                 ip: list[ipCount],
                 payload: {
                     data: data,
+                    route: null,
                     service: "agent-online"
                 },
                 port: vars.agents[data.agentType][data.agent].ports.http,

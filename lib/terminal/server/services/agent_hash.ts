@@ -84,6 +84,7 @@ const hashAgent = function terminal_server_services_hashAgent(socketData:socketD
                             settings: vars.agents.device,
                             type: "device"
                         },
+                        route: null,
                         service: "settings"
                     });
                     settings({
@@ -91,12 +92,17 @@ const hashAgent = function terminal_server_services_hashAgent(socketData:socketD
                             settings: vars.identity,
                             type: "identity"
                         },
+                        route: null,
                         service: "settings"
                     });
                     network.send({
                         data: hashes,
+                        route: {
+                            device: "browser",
+                            user: "browser"
+                        },
                         service: "agent-hash"
-                    }, "browser");
+                    });
                 }
             };
             input.callback = callbackSecret;

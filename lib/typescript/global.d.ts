@@ -266,14 +266,14 @@ interface ports {
  * The primary data type of all supported services.
  * ```typescript
  * interface socketData {
- *     broadcast?: string;
  *     data: socketDataType;
+ *     route: transmit_agents;
  *     service: service_type;
  * }
  * ``` */
 interface socketData {
-    broadcast?: string;
     data: socketDataType;
+    route: transmit_agents;
     service: service_type;
 }
 
@@ -320,4 +320,17 @@ interface socketListItem {
  * ``` */
 interface stringStore {
     [key:string]: string;
+}
+
+/**
+ * A naming convention passed into the network.send method.
+ * ```typescript
+ * interface transmit_agents {
+ *     device: string;
+ *     user: string;
+ * }
+ * ``` */
+interface transmit_agents {
+    device: string;
+    user: string;
 }

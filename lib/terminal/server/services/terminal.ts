@@ -211,8 +211,12 @@ const terminal:module_terminal = {
         if (data[data.target].agent === vars.identity.hashDevice && data[data.target].agentType === "device") {
             network.send({
                 data: data,
+                route: {
+                    device: "browser",
+                    user: "browser"
+                },
                 service: "terminal"
-            }, "browser");
+            });
         } else {
             const agents:transmit_agents = (data[data.target].agentType === "device")
                 ? {
@@ -225,8 +229,9 @@ const terminal:module_terminal = {
                 };
             network.send({
                 data: data,
+                route: agents,
                 service: "terminal"
-            }, agents);
+            });
         }
     },
     processes: {}

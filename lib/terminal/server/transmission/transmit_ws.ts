@@ -62,6 +62,10 @@ const transmit_ws:module_transmit_ws = {
                 respond: false,
                 status: "offline"
             },
+            route: {
+                device: "broadcast",
+                user: "broadcast"
+            },
             service: "agent-status"
         });
         if (vars.settings.verbose === true) {
@@ -157,6 +161,7 @@ const transmit_ws:module_transmit_ws = {
                                         settings: vars.agents[config.socketType],
                                         type: config.socketType
                                     },
+                                    route: null,
                                     service: "settings"
                                 });
                             }
@@ -451,8 +456,12 @@ const transmit_ws:module_transmit_ws = {
                     transmit_ws.ipAttempts[config.agentType][config.agent] = [];
                     network.send({
                         data: status,
+                        route: {
+                            device: "browser",
+                            user: "browser"
+                        },
                         service: "agent-status"
-                    }, "browser");
+                    });
                 } else {
                     transmit_ws.createSocket({
                         callback: config.callback,
@@ -665,6 +674,7 @@ const transmit_ws:module_transmit_ws = {
             };
             settings({
                 data: settingsData,
+                route: null,
                 service: "settings"
             });
         }
@@ -956,14 +966,22 @@ const transmit_ws:module_transmit_ws = {
                     transmit_ws.socketList[vars.identity.hashDevice] = list;
                     network.send({
                         data: transmit_ws.socketList,
+                        route: {
+                            device: "browser",
+                            user: "browser"
+                        },
                         service: "socket-list"
-                    }, "browser");
+                    });
                     network.send({
                         data: {
                             [vars.identity.hashDevice]: transmit_ws.socketList[vars.identity.hashDevice]
                         },
+                        route: {
+                            device: "broadcast",
+                            user: vars.identity.hashUser
+                        },
                         service: "socket-list"
-                    }, "device");
+                    });
                 },
                 socketEnd = function terminal_server_transmission_transmitWs_socketExtension_socketEnd():void {
                     config.socket.status = "end";
@@ -1039,6 +1057,7 @@ const transmit_ws:module_transmit_ws = {
                         };
                         agent_management({
                             data: management,
+                            route: null,
                             service: "agent-management"
                         });
                     }
@@ -1065,15 +1084,19 @@ const transmit_ws:module_transmit_ws = {
         }
     },
     socketMap: {},  // a list of local sockets
-    socketList: {}, // a human readable list of sockets
+    socketList: {}, // a human readable list of objects describing known sockets on all devices
     statusUpdate: function terminal_server_transmission_transmitWs_statusUpdate(socketData:socketData):void {
         const data:socketList = socketData.data as socketList,
             keys:string[] = Object.keys(data);
         transmit_ws.socketList[keys[0]] = data[keys[0]];
         network.send({
             data: transmit_ws.socketList,
+            route: {
+                device: "browser",
+                user: "browser"
+            },
             service: "socket-list"
-        }, "browser");
+        });
     }
 };
 

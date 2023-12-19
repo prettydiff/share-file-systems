@@ -20,8 +20,16 @@ const agent_online = function terminal_server_services_agentOnline(socketData:so
     if (local !== "") {
         agentData.ipSelected = local;
     }
-    network.send(socketData, "browser");
-    network.send(socketData, "device");
+    socketData.route = {
+        device: "browser",
+        user: "browser"
+    };
+    network.send(socketData);
+    socketData.route = {
+        device: "broadcast",
+        user: vars.identity.hashUser
+    };
+    network.send(socketData);
 };
 
 export default agent_online;

@@ -7,7 +7,15 @@ import transmit_ws from "../transmission/transmit_ws.js";
 import vars from "../../utilities/vars.js";
 
 const agent_management = function terminal_server_services_agentManagement(socketData:socketData):void {
-    const data:service_agentManagement = socketData.data as service_agentManagement;
+    const data:service_agentManagement = socketData.data as service_agentManagement,
+        routeBrowser:transmit_agents = {
+            device: "browser",
+            user: "browser"
+        },
+        routeDevice:transmit_agents = {
+            device: "broadcast",
+            user: vars.identity.hashUser
+        };
     if (data.action === "add") {
         const addAgents = function terminal_server_services_agentManagement_addAgents(type:agentType):void {
             const keys:string[] = (data.agents[type] === null)
@@ -35,6 +43,7 @@ const agent_management = function terminal_server_services_agentManagement(socke
                             settings: vars.agents[type],
                             type: type
                         },
+                        route: null,
                         service: "settings"
                     });
                     if (type === "device") {
@@ -43,11 +52,14 @@ const agent_management = function terminal_server_services_agentManagement(socke
                                 settings: vars.identity,
                                 type: "identity"
                             },
+                            route: null,
                             service: "settings"
                         });
                     }
-                    network.send(socketData, "device");
-                    network.send(socketData, "browser");
+                    socketData.route = routeDevice;
+                    network.send(socketData);
+                    socketData.route = routeBrowser;
+                    network.send(socketData);
                 }
             }
         };
@@ -88,6 +100,7 @@ const agent_management = function terminal_server_services_agentManagement(socke
                             settings: vars.agents[type],
                             type: type
                         },
+                        route: null,
                         service: "settings"
                     });
                 }
@@ -99,8 +112,9 @@ const agent_management = function terminal_server_services_agentManagement(socke
             // device issuing the deletion
             network.send({
                 data: data,
+                route: routeDevice,
                 service: "agent-management"
-            }, "device");
+            });
             setTimeout(deleteContainer, 25);
         } else if (data.agents.device[vars.identity.hashDevice] !== undefined) {
             // a deleted device
@@ -122,6 +136,7 @@ const agent_management = function terminal_server_services_agentManagement(socke
                     settings: {},
                     type: "device"
                 },
+                route: null,
                 service: "settings"
             });
             settings({
@@ -129,6 +144,7 @@ const agent_management = function terminal_server_services_agentManagement(socke
                     settings: {},
                     type: "user"
                 },
+                route: null,
                 service: "settings"
             });
             settings({
@@ -136,20 +152,23 @@ const agent_management = function terminal_server_services_agentManagement(socke
                     settings: vars.identity,
                     type: "identity"
                 },
+                route: null,
                 service: "settings"
             });
             network.send({
                 data: null,
+                route: routeBrowser,
                 service: "reload"
-            }, "browser");
+            });
         } else {
             // either
             // a device receiving notification of deletion of a third device
             // a deleted user
             network.send({
                 data: data,
+                route: routeBrowser,
                 service: "agent-management"
-            }, "browser");
+            });
             deleteContainer();
         }
     } else if (data.action === "modify") {
@@ -174,6 +193,7 @@ const agent_management = function terminal_server_services_agentManagement(socke
                             settings: vars.agents[type],
                             type: type
                         },
+                        route: null,
                         service: "settings"
                     });
                 }
@@ -197,8 +217,12 @@ const agent_management = function terminal_server_services_agentManagement(socke
 
                     network.send({
                         data: data,
+                        route: {
+                            device: "broadcast",
+                            user: "broadcast"
+                        },
                         service: "agent-management"
-                    }, "user");
+                    });
                 }
             };
         modifyAgents("device");
@@ -207,15 +231,17 @@ const agent_management = function terminal_server_services_agentManagement(socke
             // same device
             network.send({
                 data: data,
+                route: routeDevice,
                 service: "agent-management"
-            }, "device");
+            });
             users();
         } else if (vars.agents.user[data.agentFrom] === undefined) {
             // same user, from a device
             network.send({
                 data: data,
+                route: routeBrowser,
                 service: "agent-management"
-            }, "browser");
+            });
             users();
         } else {
             // different user
@@ -223,16 +249,19 @@ const agent_management = function terminal_server_services_agentManagement(socke
             data.agentFrom = vars.identity.hashDevice;
             network.send({
                 data: data,
+                route: routeDevice,
                 service: "agent-management"
-            }, "device");
+            });
             network.send({
                 data: data,
+                route: routeBrowser,
                 service: "agent-management"
-            }, "browser");
+            });
         }
     } else if (data.action === "rename") {
         if (data.agentFrom === vars.identity.hashDevice) {
-            network.send(socketData, "device");
+            socketData.route = routeDevice;
+            network.send(socketData);
         }
         const renameType = function terminal_server_services_agentManagement_renameType(type:agentType):void {
             const keys:string[] = Object.keys(data.agents[type]);
@@ -247,6 +276,7 @@ const agent_management = function terminal_server_services_agentManagement(socke
                         settings: vars.agents[type],
                         type: type
                     },
+                    route: null,
                     service: "settings"
                 });
             }

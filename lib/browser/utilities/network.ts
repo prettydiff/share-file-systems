@@ -116,6 +116,10 @@ const network:module_network = {
     send: function browser_utilities_network_send(data:socketDataType, service:service_type):void {
         const socketData:socketData = {
             data: data,
+            route: {
+                device: browser.identity.hashDevice,
+                user: browser.identity.hashUser
+            },
             service: service
         };
         if (browser.loading === true || browser.socket === null) {

@@ -108,6 +108,7 @@ const perf:module_perf = {
                 index = index - 1;
                 transmit_ws.queue({
                     data: ["Performance test", messageBody],
+                    route: null,
                     service: "log"
                 }, perf.socket, 2);
             } while (index > 0);
@@ -119,6 +120,7 @@ const perf:module_perf = {
                 index = index - 1;
                 transmit_ws.queue({
                     data: ["Performance test", messageBody],
+                    route: null,
                     service: "log"
                 }, perf.socket, 1);
             } while (index > 0);
@@ -131,6 +133,7 @@ const perf:module_perf = {
             ]);
             transmit_ws.queue({
                 data: ["Performance test", "complete"],
+                route: null,
                 service: "perf-socket"
             }, perf.socket, 1);
         }

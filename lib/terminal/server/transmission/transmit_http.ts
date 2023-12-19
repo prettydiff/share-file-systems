@@ -296,6 +296,7 @@ const transmit_http:module_transmit_http = {
                             if (socketData.service !== "copy-send-file") {
                                 network.responder({
                                     data: null,
+                                    route: null,
                                     service: "response-no-action"
                                 }, {
                                     socket: response,
@@ -831,6 +832,7 @@ const transmit_http:module_transmit_http = {
                                                                     };
                                                                     agent_management({
                                                                         data: agentManagement,
+                                                                        route: null,
                                                                         service: "agent-management"
                                                                     });
                                                                 }

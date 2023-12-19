@@ -68,6 +68,7 @@ const fileSystem:module_fileSystem = {
                                 dirs: result,
                                 id: data.name
                             },
+                            route: null,
                             service: "file-system-details"
                         });
                     } else {
@@ -146,6 +147,7 @@ const fileSystem:module_fileSystem = {
                     agentSource: agentSource,
                     agentWrite: null
                 }, error),
+                route: null,
                 service: "error"
             });
         },
@@ -192,6 +194,7 @@ const fileSystem:module_fileSystem = {
                 fileSystem.status.specified(`Generating integrity hash for file copy to execute ${data.location[0]}`, data.agentRequest, data.agentSource);
                 fileCopy.route({
                     data: copyPayload,
+                    route: null,
                     service: "copy"
                 });
             }
@@ -237,6 +240,7 @@ const fileSystem:module_fileSystem = {
                     if (b === length) {
                         fileSystem.route({
                             data: stringData,
+                            route: null,
                             service: "file-system-string"
                         });
                     }
@@ -361,6 +365,7 @@ const fileSystem:module_fileSystem = {
                     };
                     fileSystem.route({
                         data: stringData,
+                        route: null,
                         service: "file-system-string"
                     });
                 }
@@ -368,13 +373,6 @@ const fileSystem:module_fileSystem = {
         }
     },
     menu: function terminal_server_services_fileSystem_menu(data:service_fileSystem):void {
-        const status:service_fileSystem_status = {
-            agentRequest: data.agentRequest,
-            agentSource: data.agentSource,
-            agentWrite: null,
-            fileList: null,
-            message: `Security violation from file system action <em>${data.action.replace("fs-", "")}</em>.`
-        };
         let methodName:"destroy"|"directory"|"execute"|"newArtifact"|"read"|"rename"|"write" = null;
         if (data.action === "fs-base64" || data.action === "fs-hash" || data.action === "fs-read") {
             methodName = "read";
@@ -435,7 +433,11 @@ const fileSystem:module_fileSystem = {
         }
         network.routeFile({
             callback: function terminal_server_services_fileSystem_menu_securityStatus(socketData:socketData):void {
-                network.send(socketData, "browser");
+                socketData.route = {
+                    device: "browser",
+                    user: "browser"
+                };
+                network.send(socketData);
             },
             data: data,
             destination: "agentRequest",
@@ -462,7 +464,11 @@ const fileSystem:module_fileSystem = {
             }
         } else {
             const broadcast = function terminal_server_services_fileSystem_route_broadcast(routeData:socketData):void {
-                network.send(routeData, "browser");
+                routeData.route = {
+                    device: "browser",
+                    user: "browser"
+                };
+                network.send(routeData);
             };
             if (vars.test.type === "service") {
                 service.evaluation(socketData);
@@ -543,12 +549,17 @@ const fileSystem:module_fileSystem = {
                     },
                     socketData:socketData = {
                         data: status,
+                        route: null,
                         service: "file-system-status"
                     };
                 if (vars.test.type === "service") {
                     service.evaluation(socketData);
                 } else if (data.agentRequest.device === vars.identity.hashDevice && data.agentRequest.user === vars.identity.hashUser) {
-                    network.send(socketData, "browser");
+                    socketData.route = {
+                        device: "browser",
+                        user: "browser"
+                    };
+                    network.send(socketData);
                 } else {
                     fileSystem.route(socketData);
                 }
@@ -581,6 +592,7 @@ const fileSystem:module_fileSystem = {
             };
             fileSystem.route({
                 data: status,
+                route: null,
                 service: "file-system-status"
             });
         }

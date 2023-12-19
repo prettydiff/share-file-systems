@@ -103,6 +103,7 @@ const fileCopy:module_fileCopy = {
                                                 // send status to agentRequest
                                                 fileSystem.route({
                                                     data: status,
+                                                    route: null,
                                                     service: "file-system-status"
                                                 });
 
@@ -110,12 +111,14 @@ const fileCopy:module_fileCopy = {
                                                 status.agentRequest = data.agentWrite;
                                                 fileSystem.route({
                                                     data: status,
+                                                    route: null,
                                                     service: "file-system-status"
                                                 });
                                             }
 
                                             fileCopy.route({
                                                 data: copyList,
+                                                route: null,
                                                 service: "copy-list"
                                             });
                                         };
@@ -175,6 +178,7 @@ const fileCopy:module_fileCopy = {
                         if (vars.test.type !== "service") {
                             fileSystem.route({
                                 data: status,
+                                route: null,
                                 service: "file-system-status"
                             });
                         }
@@ -495,6 +499,7 @@ const fileCopy:module_fileCopy = {
                                 };
                                 fileCopy.route({
                                     data: cutService,
+                                    route: null,
                                     service: "cut"
                                 });
                             } else if (data.execute === true) {
@@ -520,6 +525,7 @@ const fileCopy:module_fileCopy = {
                                     ip: data.ip,
                                     payload: {
                                         data: payload,
+                                        route: null,
                                         service: "copy-send-file"
                                     },
                                     port: data.port,
@@ -729,7 +735,11 @@ const fileCopy:module_fileCopy = {
                 }
                 network.routeFile({
                     callback: function terminal_server_services_fileCopy_security_securityStatus(socketData:socketData):void {
-                        network.send(socketData, "browser");
+                        socketData.route = {
+                            device: "browser",
+                            user: "browser"
+                        };
+                        network.send(socketData);
                     },
                     data: status,
                     destination: "agentRequest",
@@ -796,10 +806,14 @@ const fileCopy:module_fileCopy = {
                     },
                     statusMessage:socketData = {
                         data: copyStatus,
+                        route: {
+                            device: "browser",
+                            user: "browser"
+                        },
                         service: "file-system-status"
                     },
                     broadcast = function terminal_server_services_fileCopy_copyStatus_callbackDirectory_sendStatus_unmask_broadcast():void {
-                        network.send(statusMessage, "browser");
+                        network.send(statusMessage);
                     };
                 if (vars.test.type === "service") {
                     service.evaluation(statusMessage);
