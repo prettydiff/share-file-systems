@@ -86,10 +86,13 @@ const network:module_transmit_network = {
                     actions[services](socketData, transmit);
                 }
             },
-            device:string = (socketData.route === null || socketData.route === undefined)
+            route:transmit_agents = (socketData.route === null || socketData.route === undefined)
                 ? null
-                : socketData.route.device;
-        if (socketData.route.user === vars.identity.hashUser) {
+                : socketData.route,
+            device:string = (route === null)
+                ? null
+                : route.device;
+        if (route === null || socketData.route.user === vars.identity.hashUser) {
             if (vars.environment.command === "perf" && services.indexOf("perf-") !== 0) {
                 return;
             }
