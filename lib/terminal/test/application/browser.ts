@@ -385,8 +385,8 @@ const defaultCommand:commands = vars.environment.command,
             },
             reset: function terminal_test_application_browser_reset():void {
                 const timeStore:[string, number] = time("Resetting Test Environment", false, 0),
-                    launch = function terminal_test_application_browser_reset_start_launch():void {
-                        const start = function terminal_test_application_browser_reset_readdir_browserLaunch():void {
+                    launch = function terminal_test_application_browser_reset_launch():void {
+                        const start = function terminal_test_application_browser_reset_launch_start():void {
                             const keyword:string = (process.platform === "darwin")
                                     ? "open"
                                     : (process.platform === "win32")
@@ -401,7 +401,7 @@ const defaultCommand:commands = vars.environment.command,
                                 path:string = `https://${vars.network.domain[0] + port}/?${verboseFlag}`,
                                 // execute a browser by file path to the browser binary
                                 browserCommand:string = (process.argv.length > 0 && (process.argv[0].indexOf("\\") > -1 || process.argv[0].indexOf("/") > -1))
-                                    ? (function terminal_test_application_browser_reset_readdir_browserLaunch_browserCommand():string {
+                                    ? (function terminal_test_application_browser_reset_launch_start_browserCommand():string {
                                         if (process.platform === "win32") {
                                             // yes, this is ugly.  Windows old cmd shell doesn't play well with file paths
                                             process.argv[0] = `${process.argv[0].replace(/\\/g, "\"\\\"").replace("\"\\", "\\") + "\""}`;
@@ -414,7 +414,7 @@ const defaultCommand:commands = vars.environment.command,
                                         return `${keyword} ${process.argv[0]} ${path}`;
                                     }())
                                     : `${keyword} ${path}`,
-                                child = function terminal_test_application_browser_reset_readdir_browserLaunch_child(errs:node_childProcess_ExecException, stdout:string, stderr:Buffer | string):void {
+                                child = function terminal_test_application_browser_reset_launch_start_child(errs:node_childProcess_ExecException, stdout:string, stderr:Buffer | string):void {
                                     if (errs !== null) {
                                         error(["Error opening browser in test automation."], errs);
                                         return;
@@ -846,12 +846,14 @@ const defaultCommand:commands = vars.environment.command,
                     // self
                     const keys:string[] = transmit_ws.getSocketKeys("browser"),
                         keyLength:number = keys.length;
-                    testItem.test = filePathDecode(testItem.test, "") as test_browserItem;
-                    transmit_ws.queue({
-                        data: testItem,
-                        route: null,
-                        service: "test-browser"
-                    }, transmit_ws.socketMap.browser[keys[keyLength - 1]], 1);
+                    if (keyLength > 0) {
+                        testItem.test = filePathDecode(testItem.test, "") as test_browserItem;
+                        transmit_ws.queue({
+                            data: testItem,
+                            route: null,
+                            service: "test-browser"
+                        }, transmit_ws.socketMap.browser[keys[keyLength - 1]], 1);
+                    }
                 } else {
                     // remote
                     transmit_ws.queue({
