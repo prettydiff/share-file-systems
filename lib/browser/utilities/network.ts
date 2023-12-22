@@ -112,7 +112,7 @@ const network:module_network = {
         actions[type](socketData);
     },
 
-    /* Performs the HTTP request */
+    /* Sends a network message to the terminal */
     send: function browser_utilities_network_send(data:socketDataType, service:service_type):void {
         const socketData:socketData = {
             data: data,

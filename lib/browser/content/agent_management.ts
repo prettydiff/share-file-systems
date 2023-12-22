@@ -930,11 +930,6 @@ const agent_management:module_agentManagement = {
             invitation.action = "invite-answer";
             invitation.message = `Invite accepted: ${common.dateFormat(new Date())}`;
             invitation.status = "accepted";
-            if (invitation.type === "device") {
-                browser.identity.hashUser = invitation.agentRequest.hashUser;
-                browser.identity.nameUser = invitation.agentRequest.nameUser;
-                network.configuration();
-            }
             network.send(invitation, "invite");
         },
 
