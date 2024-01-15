@@ -59,8 +59,7 @@ const agent_management = function terminal_server_services_agentManagement(socke
                         keys.forEach(function terminal_server_services_invite_addAgent_each(device:string):void {
                             if (
                                 device !== vars.identity.hashDevice &&
-                                transmit_ws.socketMap.device !== undefined &&
-                                transmit_ws.socketMap.device[device] === undefined
+                                (transmit_ws.socketMap.device === undefined || transmit_ws.socketMap.device[device] === undefined)
                             ) {
                                 transmit_ws.open.agent({
                                     agent: device,
