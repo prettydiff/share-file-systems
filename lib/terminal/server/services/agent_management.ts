@@ -57,7 +57,11 @@ const agent_management = function terminal_server_services_agentManagement(socke
                         vars.identity.nameUser = data.identity.nameUser;
                         vars.identity.secretUser = data.identity.secretUser;
                         keys.forEach(function terminal_server_services_invite_addAgent_each(device:string):void {
-                            if (device !== vars.identity.hashDevice && transmit_ws.socketMap.device[device] === undefined) {
+                            if (
+                                device !== vars.identity.hashDevice &&
+                                transmit_ws.socketMap.device !== undefined &&
+                                transmit_ws.socketMap.device[device] === undefined
+                            ) {
                                 transmit_ws.open.agent({
                                     agent: device,
                                     agentType: "device",
