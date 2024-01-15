@@ -8,7 +8,6 @@ import mask from "../../utilities/mask.js";
 import network from "../transmission/network.js";
 import service from "../../test/application/service.js";
 import transmit_http from "../transmission/transmit_http.js";
-import transmit_ws from "../transmission/transmit_ws.js";
 import vars from "../../utilities/vars.js";
 
 const invite = function terminal_server_services_invite(socketData:socketData, transmit:transmit_type):void {
@@ -38,66 +37,46 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
             }
         },
         addAgent = function terminal_server_services_invite_addAgent(type:agentTransmit):void {
-            const addAgentData:service_agentManagement = {
-                action: "add",
-                agents: (data.type === "device")
-                    ? {
-                        device: data[type].devices,
-                        user: {}
-                    }
-                    : {
-                        device: {},
-                        user: {
-                            [data[type].hashUser]: {
-                                deviceData: null,
-                                ipAll: data[type].ipAll,
-                                ipSelected: remoteIP,
-                                name: data[type].nameUser,
-                                ports: data[type].ports,
-                                secret: data[type].secret,
-                                shares: data[type].shares,
-                                status: "active"
-                            }
-                        }
-                    },
-                agentFrom: vars.identity.hashDevice,
-                identity: (data.type === "device" && (data.action === "invite-complete" || data.action === "invite-identity"))
-                    ? {
-                        hashDevice: null,
-                        hashUser: data[type].hashUser,
-                        nameDevice: null,
-                        nameUser: data[type].nameUser,
-                        secretDevice: null,
-                        secretUser: data[type].secret
-                    }
-                    : null
-            };
             if (vars.test.type !== "service") {
+                const addAgentData:service_agentManagement = {
+                    action: "add",
+                    agents: (data.type === "device")
+                        ? {
+                            device: data[type].devices,
+                            user: {}
+                        }
+                        : {
+                            device: {},
+                            user: {
+                                [data[type].hashUser]: {
+                                    deviceData: null,
+                                    ipAll: data[type].ipAll,
+                                    ipSelected: remoteIP,
+                                    name: data[type].nameUser,
+                                    ports: data[type].ports,
+                                    secret: data[type].secret,
+                                    shares: data[type].shares,
+                                    status: "active"
+                                }
+                            }
+                        },
+                    agentFrom: vars.identity.hashDevice,
+                    identity: (data.type === "device" && (data.action === "invite-complete" || data.action === "invite-identity"))
+                        ? {
+                            hashDevice: null,
+                            hashUser: data[type].hashUser,
+                            nameDevice: null,
+                            nameUser: data[type].nameUser,
+                            secretDevice: null,
+                            secretUser: data[type].secret
+                        }
+                        : null
+                };
                 agent_management({
                     data: addAgentData,
                     route: null,
                     service: "agent-management"
                 });
-                if (type === "agentRequest") {
-                    const keys:string[] = Object.keys(addAgentData.agents[data.type]);
-                    if (data.type === "device") {
-                        keys.forEach(function terminal_server_services_invite_addAgent_each(device:string):void {
-                            if (device !== vars.identity.hashDevice) {
-                                transmit_ws.open.agent({
-                                    agent: device,
-                                    agentType: "device",
-                                    callback: null
-                                });
-                            }
-                        });
-                    } else {
-                        transmit_ws.open.agent({
-                            agent: keys[0],
-                            agentType: "user",
-                            callback: null
-                        });
-                    }
-                }
             }
         },
        /**

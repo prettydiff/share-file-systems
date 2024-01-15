@@ -37,19 +37,6 @@ const agent_management = function terminal_server_services_agentManagement(socke
                     a = a + 1;
                 } while (a < lengthKeys);
                 if (count > 0) {
-                    if (type === "device" && vars.agents.device[data.agentFrom] !== undefined && data.identity !== null) {
-                        vars.identity.hashUser = data.identity.hashUser;
-                        vars.identity.nameUser = data.identity.nameUser;
-                        vars.identity.secretUser = data.identity.secretUser;
-                    }
-                    settings({
-                        data: {
-                            settings: vars.agents[type],
-                            type: type
-                        },
-                        route: routeSelf,
-                        service: "settings"
-                    });
                     if (type === "device") {
                         settings({
                             data: {
@@ -64,6 +51,35 @@ const agent_management = function terminal_server_services_agentManagement(socke
                     network.send(socketData);
                     socketData.route = routeBrowser;
                     network.send(socketData);
+                    if (type === "device" && vars.agents.device[data.agentFrom] !== undefined && data.identity !== null) {
+                        const keys:string[] = Object.keys(vars.agents.device);
+                        vars.identity.hashUser = data.identity.hashUser;
+                        vars.identity.nameUser = data.identity.nameUser;
+                        vars.identity.secretUser = data.identity.secretUser;
+                        keys.forEach(function terminal_server_services_invite_addAgent_each(device:string):void {
+                            if (device !== vars.identity.hashDevice && transmit_ws.socketMap.device[device] === undefined) {
+                                transmit_ws.open.agent({
+                                    agent: device,
+                                    agentType: "device",
+                                    callback: null
+                                });
+                            }
+                        });
+                    } else if (type === "user") {
+                        transmit_ws.open.agent({
+                            agent: keys[0],
+                            agentType: "user",
+                            callback: null
+                        });
+                    }
+                    settings({
+                        data: {
+                            settings: vars.agents[type],
+                            type: type
+                        },
+                        route: routeSelf,
+                        service: "settings"
+                    });
                 }
             }
         };
