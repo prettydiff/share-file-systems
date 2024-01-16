@@ -153,7 +153,7 @@ const transmit_ws:module_transmit_ws = {
                         header.push("");
                         client.write(header.join("\r\n"));
                         client.once("data", function terminal_server_transmission_transmitWs_createSocket_hash_ready_data():void {
-                            if (config.socketType === "device" || config.socketType === "user") {
+                            if ((config.socketType === "device" || config.socketType === "user") && vars.agents[config.socketType][config.hash] !== undefined) {
                                 transmit_ws.ipAttempts[config.socketType][config.hash] = [];
                                 vars.agents[config.socketType][config.hash].ipSelected = config.ip;
                                 settings({

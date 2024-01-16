@@ -17,6 +17,7 @@ const settings = function terminal_server_services_settings(dataPackage:socketDa
             node.fs.rename(fileName, `${location}.json`, function terminal_server_services_settings_rename_renameNode(erName:node_error):void {
                 if (erName !== null) {
                     node.fs.unlink(fileName, function terminal_server_services_settings_rename_renameNode_unlink():void {
+                        vars.terminal.tempCount = vars.terminal.tempCount - 1;
                         return;
                     });
                 }
@@ -44,14 +45,15 @@ const settings = function terminal_server_services_settings(dataPackage:socketDa
     }
     if (vars.test.type === "service") {
         writeCallback(null);
-    } else {
-
+    } else if (vars.terminal.tempCount < 10) {
         if (data.type !== "ui") {
             node.fs.writeFile(fileName, JSON.stringify(data.settings), "utf8", writeCallback);
+            vars.terminal.tempCount = vars.terminal.tempCount + 1;
         } else if (settingsData.storage === "" || settingsData.storage === undefined) {
             settingsData.storage = `${vars.path.project}lib${vars.path.sep}storage${vars.path.sep}`;
             vars.settings.ui.storage = settingsData.storage;
             node.fs.writeFile(fileName, JSON.stringify(data.settings), "utf8", writeCallback);
+            vars.terminal.tempCount = vars.terminal.tempCount + 1;
         } else {
             node.fs.stat(settingsData.storage, function terminal_server_services_settings_storageStat(storageError:node_error):void {
                 if (storageError === null) {
@@ -63,6 +65,7 @@ const settings = function terminal_server_services_settings(dataPackage:socketDa
                     settingsData.storage = vars.settings.ui.storage;
                 }
                 node.fs.writeFile(fileName, JSON.stringify(data.settings), "utf8", writeCallback);
+                vars.terminal.tempCount = vars.terminal.tempCount + 1;
             });
         }
     }

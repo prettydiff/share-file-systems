@@ -270,6 +270,7 @@ const vars:module_terminalVariables = {
             : (process.platform === "win32")
                 ? ""
                 : "xdg-open",
+        tempCount: 0
     },
     test: {
         flags: {
