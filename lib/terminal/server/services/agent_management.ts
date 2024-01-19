@@ -67,6 +67,8 @@ const agent_management = function terminal_server_services_agentManagement(socke
                             }
                         });
                     } else if (type === "user") {
+                        socketData.route = routeDevice;
+                        network.send(socketData);
                         transmit_ws.open.agent({
                             agent: keys[0],
                             agentType: "user",
@@ -194,7 +196,7 @@ const agent_management = function terminal_server_services_agentManagement(socke
             });
             deleteContainer();
         }
-    } else if (data.action === "modify") {
+    } else if (data.action === "modify") {console.log("modify "+data.agentFrom);
         const modifyAgents = function terminal_server_services_agentManagement_modifyAgents(type:agentType):void {
                 const keys:string[] = (data.agents[type] === undefined || data.agents[type] === null)
                         ? []
