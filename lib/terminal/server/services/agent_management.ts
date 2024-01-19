@@ -47,12 +47,10 @@ const agent_management = function terminal_server_services_agentManagement(socke
                             service: "settings"
                         });
                     }
-                    socketData.route = routeDevice;
-                    network.send(socketData);
-                    socketData.route = routeBrowser;
-                    network.send(socketData);
                     if (type === "device" && vars.agents.device[data.agentFrom] !== undefined && data.identity !== null) {
                         const keys:string[] = Object.keys(vars.agents.device);
+                        socketData.route = routeDevice;
+                        network.send(socketData);
                         vars.identity.hashUser = data.identity.hashUser;
                         vars.identity.nameUser = data.identity.nameUser;
                         vars.identity.secretUser = data.identity.secretUser;
@@ -75,6 +73,8 @@ const agent_management = function terminal_server_services_agentManagement(socke
                             callback: null
                         });
                     }
+                    socketData.route = routeBrowser;
+                    network.send(socketData);
                     settings({
                         data: {
                             settings: vars.agents[type],
