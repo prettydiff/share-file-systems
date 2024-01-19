@@ -20,7 +20,7 @@ const agent_management = function terminal_server_services_agentManagement(socke
             device: vars.identity.hashDevice,
             user: vars.identity.hashUser
         };
-    if (data.action === "add") {
+    if (data.action === "add" || data.action === "add-modify") {
         const addAgents = function terminal_server_services_agentManagement_addAgents(type:agentType):void {
             const keys:string[] = (data.agents[type] === null)
                     ? []
@@ -49,8 +49,11 @@ const agent_management = function terminal_server_services_agentManagement(socke
                     }
                     if (type === "device" && vars.agents.device[data.agentFrom] !== undefined && data.identity !== null) {
                         const keys:string[] = Object.keys(vars.agents.device);
-                        socketData.route = routeDevice;
-                        network.send(socketData);
+                        if (data.action === "add") {
+                            socketData.route = routeDevice;
+                            data.action = "add-modify";
+                            network.send(socketData);
+                        }
                         vars.identity.hashUser = data.identity.hashUser;
                         vars.identity.nameUser = data.identity.nameUser;
                         vars.identity.secretUser = data.identity.secretUser;
@@ -67,8 +70,11 @@ const agent_management = function terminal_server_services_agentManagement(socke
                             }
                         });
                     } else if (type === "user") {
-                        socketData.route = routeDevice;
-                        network.send(socketData);
+                        if (data.action === "add") {
+                            socketData.route = routeDevice;
+                            data.action = "add-modify";
+                            network.send(socketData);
+                        }
                         transmit_ws.open.agent({
                             agent: keys[0],
                             agentType: "user",

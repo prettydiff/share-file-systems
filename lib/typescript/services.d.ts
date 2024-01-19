@@ -21,14 +21,14 @@ interface service_agentHash {
  * A data object to change agents from the available agent lists.
  * ```typescript
  * interface service_agentManagement {
- *     action: "add" | "delete" | "modify" | "rename";
+ *     action: agentAction;
  *     agentFrom: string;
  *     agents: agentData;
  *     identity: identity;
  * }
  * ``` */
 interface service_agentManagement {
-    action: "add" | "delete" | "modify" | "rename";
+    action: agentAction;
     agentFrom: string;
     agents: agentData;
     identity: identity;
