@@ -9,7 +9,7 @@
  *     type: agentType;
  * }
  * ``` */
- interface agentManagement_addAgent {
+interface agentManagement_addAgent {
     callback?: () => void;
     hash: string;
     name: string;

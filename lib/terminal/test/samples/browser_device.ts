@@ -102,6 +102,26 @@ const browserDevice:test_browserItem[] = [
     inviteAccept("self", "VM3", "user"),
     inviteConfirm("self", "VM3", "user"),
 
+    // verify no delay elements in agent management
+    {
+        interaction: [],
+        machine: "self",
+        name: "On self verify no delay elements within agent management modal",
+        unit: [
+            {
+                node: [
+                    ["getModalsByModalType", "agent-management", 0],
+                    ["getElementsByClassName", "body", 0],
+                    ["getElementsByClassName", "delay", null]
+                ],
+                qualifier: "is",
+                target: ["length"],
+                type: "property",
+                value: 0
+            }
+        ]
+    },
+
     //open shares on self
     {
         delay: {

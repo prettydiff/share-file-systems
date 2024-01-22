@@ -11,7 +11,7 @@
  *     user: string;
  * }
  * ``` */
- interface service_agentHash {
+interface service_agentHash {
     device: string;
     deviceData: deviceData;
     user: string;
@@ -21,14 +21,14 @@
  * A data object to change agents from the available agent lists.
  * ```typescript
  * interface service_agentManagement {
- *     action: "add" | "delete" | "modify" | "rename";
+ *     action: agentAction;
  *     agentFrom: string;
  *     agents: agentData;
  *     identity: identity;
  * }
  * ``` */
 interface service_agentManagement {
-    action: "add" | "delete" | "modify" | "rename";
+    action: agentAction;
     agentFrom: string;
     agents: agentData;
     identity: identity;
@@ -72,7 +72,7 @@ interface service_agentStatus extends agency {
  *     execute     : boolean;
  * }
  * ``` */
- interface service_copy extends fileSystem {
+interface service_copy extends fileSystem {
     cut         : boolean;
     execute     : boolean;
 }
@@ -109,7 +109,7 @@ interface service_copy_send_file extends fileSystem_agents {
  *     port        : number;
  * }
  * ``` */
- interface service_copy_write extends fileSystem_agents {
+interface service_copy_write extends fileSystem_agents {
     cut         : boolean;
     execute     : boolean;
     hash        : string;
