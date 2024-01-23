@@ -851,7 +851,7 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                             // gather the desired comment
                                             {
                                                 const reg:RegExp = new RegExp(`\\n {4}interface ${name}`),
-                                                    tsIndex:number = modules[type].replace(reg, `\ninterface ${name}`).indexOf(`\ninterface ${name}`);
+                                                    tsIndex:number = modules[type].replace(reg, `\n ?interface ${name}`).indexOf(`\n ?interface ${name}`);
                                                 let c:number = tsIndex,
                                                     commentEnd:number = 0;
                                                 if (tsIndex > 0) {

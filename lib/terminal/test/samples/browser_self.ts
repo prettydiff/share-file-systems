@@ -2609,6 +2609,11 @@ const buildExport = function terminal_test_samples_browserSelf_buildExport():str
                         ["getElementsByTagName", "li", 2],
                         ["getElementsByTagName", "button", 0]
                     ]
+                },
+                {
+                    event: "wait",
+                    node: null,
+                    value: "25"
                 }
             ],
             machine: "self",
@@ -4411,6 +4416,199 @@ const buildExport = function terminal_test_samples_browserSelf_buildExport():str
                     target: ["value"],
                     type: "property",
                     value: "222"
+                }
+            ]
+        },
+
+        // expand a file list
+        {
+            delay: {
+                node: [
+                    ["getModalsByModalType", "file-navigate", 0],
+                    ["getElementsByClassName", "body", 0],
+                    ["getElementsByText", "lib", 0],
+                    ["parentNode", null, null],
+                    ["parentNode", null, null],
+                    ["getElementsByTagName", "li", 0],
+                    ["getElementsByTagName", "p", 0],
+                    ["getElementsByTagName", "label", 0]
+                ],
+                qualifier: "is",
+                target: ["firstChild", "textContent"],
+                type: "property",
+                value: "browser"
+            },
+            interaction: [
+                {
+                    event: "click",
+                    node: [
+                        ["getModalsByModalType", "file-navigate", 0],
+                        ["getElementsByClassName", "body", 0],
+                        ["getElementsByText", "lib", 0],
+                        ["parentNode", null, null],
+                        ["parentNode", null, null],
+                        ["getElementsByTagName", "button", 0]
+                    ]
+                }
+            ],
+            machine: "self",
+            name: "Expand a file list",
+            unit: [
+                {
+                    node: [
+                        ["getModalsByModalType", "file-navigate", 0],
+                        ["getElementsByTagName", "input", 0]
+                    ],
+                    qualifier: "ends",
+                    target: ["value"],
+                    type: "property",
+                    value: "share-file-systems"
+                }
+            ]
+        },
+
+        // expand another directory
+        {
+            delay: {
+                node: [
+                    ["getModalsByModalType", "file-navigate", 0],
+                    ["getElementsByClassName", "body", 0],
+                    ["getElementsByText", "lib", 0],
+                    ["parentNode", null, null],
+                    ["parentNode", null, null],
+                    ["getElementsByTagName", "li", 0],
+                    ["getElementsByTagName", "li", 3],
+                    ["getElementsByTagName", "p", 0],
+                    ["getElementsByTagName", "label", 0]
+                ],
+                qualifier: "is",
+                target: ["firstChild", "textContent"],
+                type: "property",
+                value: "readme.md"
+            },
+            interaction: [
+                {
+                    event: "click",
+                    node: [
+                        ["getModalsByModalType", "file-navigate", 0],
+                        ["getElementsByClassName", "body", 0],
+                        ["getElementsByText", "lib", 0],
+                        ["parentNode", null, null],
+                        ["parentNode", null, null],
+                        ["getElementsByTagName", "li", 0],
+                        ["getElementsByTagName", "button", 0]
+                    ]
+                }
+            ],
+            machine: "self",
+            name: "Expand second file list",
+            unit: []
+        },
+
+        // execute item in expanded file list
+        {
+            interaction: [
+                {
+                    event: "dblclick",
+                    node: [
+                        ["getModalsByModalType", "file-navigate", 0],
+                        ["getElementsByClassName", "body", 0],
+                        ["getElementsByText", "lib", 0],
+                        ["parentNode", null, null],
+                        ["parentNode", null, null],
+                        ["getElementsByTagName", "li", 0],
+                        ["getElementsByTagName", "li", 3]
+                    ]
+                }
+            ],
+            machine: "self",
+            name: "Execute file from expanded list",
+            unit: [
+                {
+                    node: [
+                        ["getModalsByModalType", "file-navigate", 0],
+                        ["getElementsByTagName", "input", 0]
+                    ],
+                    qualifier: "ends",
+                    target: ["value"],
+                    type: "property",
+                    value: "share-file-systems"
+                },
+                {
+                    node: [
+                        ["getModalsByModalType", "file-navigate", 0],
+                        ["getElementsByClassName", "body", 0],
+                        ["getElementsByText", "lib", 0],
+                        ["parentNode", null, null],
+                        ["parentNode", null, null],
+                        ["getElementsByTagName", "li", 0],
+                        ["getElementsByTagName", "li", 3],
+                        ["getElementsByTagName", "p", 0]
+                    ],
+                    qualifier: "is",
+                    target: ["class"],
+                    type: "attribute",
+                    value: "selected"
+                }
+            ]
+        },
+
+        // test for file execution of less expanded list
+        {
+            interaction: [
+                {
+                    event: "click",
+                    node: [
+                        ["getModalsByModalType", "file-navigate", 0],
+                        ["getElementsByClassName", "body", 0],
+                        ["getElementsByText", "lib", 0],
+                        ["parentNode", null, null],
+                        ["parentNode", null, null],
+                        ["getElementsByTagName", "li", 0],
+                        ["getElementsByTagName", "button", 0]
+                    ]
+                },
+                {
+                    event: "dblclick",
+                    node: [
+                        ["getModalsByModalType", "file-navigate", 0],
+                        ["getElementsByClassName", "body", 0],
+                        ["getElementsByText", "lib", 0],
+                        ["parentNode", null, null],
+                        ["parentNode", null, null],
+                        ["getElementsByText", "readme.md", 0],
+                        ["parentNode", null, null],
+                        ["parentNode", null, null]
+                    ]
+                }
+            ],
+            machine: "self",
+            name: "Execute file from alternate expanded list",
+            unit: [
+                {
+                    node: [
+                        ["getModalsByModalType", "file-navigate", 0],
+                        ["getElementsByTagName", "input", 0]
+                    ],
+                    qualifier: "ends",
+                    target: ["value"],
+                    type: "property",
+                    value: "share-file-systems"
+                },
+                {
+                    node: [
+                        ["getModalsByModalType", "file-navigate", 0],
+                        ["getElementsByClassName", "body", 0],
+                        ["getElementsByText", "lib", 0],
+                        ["parentNode", null, null],
+                        ["parentNode", null, null],
+                        ["getElementsByText", "readme.md", 0],
+                        ["parentNode", null, null]
+                    ],
+                    qualifier: "is",
+                    target: ["class"],
+                    type: "attribute",
+                    value: "selected"
                 }
             ]
         },

@@ -112,11 +112,7 @@ const message = function terminal_server_services_message(socketData:socketData)
         }, "browser");
         broadcast("device");
     } else {
-        if (vars.agents[data[0].agentType][data[0].agentTo].status === "offline") {
-            data.forEach(function terminal_server_services_message_offline(item:message_item):void {
-                item.offline = true;
-            });
-        } else {
+        if (vars.agents[data[0].agentType][data[0].agentTo].status !== "offline") {
             sender.send({
                 data: data,
                 service: "message"

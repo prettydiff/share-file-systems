@@ -319,3 +319,16 @@ interface socketListItem {
 interface stringStore {
     [key:string]: string;
 }
+
+/**
+ * A naming convention passed into the sender.send method.
+ * ```typescript
+ * interface transmit_agents {
+ *     device: string;
+ *     user: string;
+ * }
+ * ``` */
+interface transmit_agents {
+    device: string;
+    user: string;
+}

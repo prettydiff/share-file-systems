@@ -331,6 +331,7 @@ interface module_terminal {
  *         cwd                : string;               // current working directory from the perspective of the TypeScript libraries (`${vars.projectPath}lib`)
  *         exclusions         : string[];             // a file system exclusion list provided by the user from terminal arguments
  *         executionKeyword   : string;               // an OS specific keyword to execute an application by name from the terminal
+ *         tempCount          : number;               // counts the number of temp files written by the settings utility before being renamed
  *     };
  *     test: {
  *         browser: service_testBrowser;                        // current test_browser object when running test automation in the browser
@@ -387,6 +388,7 @@ interface module_terminalVariables {
         cwd                : string;
         exclusions         : string[];
         executionKeyword   : string;
+        tempCount          : number;
     };
     test: {
         browser: service_testBrowser;

@@ -26,7 +26,9 @@ const agent_status:module_agentStatus = {
                     }
                 },
                 active:boolean = (agent_status.selfStatus.status === "active"),
-                localDevice:HTMLElement = document.getElementById(browser.identity.hashDevice);
+                localDevice:HTMLElement = (browser.identity.hashDevice === "")
+                    ? null
+                    : document.getElementById(browser.identity.hashDevice);
             if (active === false && localDevice !== null) {
                 localDevice.setAttribute("class", "active");
                 agent_status.selfStatus.status = "active";
@@ -46,8 +48,10 @@ const agent_status:module_agentStatus = {
         },
         idle: function browser_utilities_agentStatus_idle():void {
             const localDevice:HTMLElement = document.getElementById(browser.identity.hashDevice),
-                currentStatus:activityStatus = localDevice.getAttribute("class") as activityStatus;
-            if (currentStatus === "active") {
+                currentStatus:activityStatus = (localDevice === null)
+                    ? null
+                    : localDevice.getAttribute("class") as activityStatus;
+            if (currentStatus === "active" && localDevice !== null) {
                 localDevice.setAttribute("class", "idle");
                 agent_status.selfStatus.status = "idle";
                 network.send(agent_status.selfStatus, "agent-status");
