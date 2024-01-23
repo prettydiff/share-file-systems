@@ -3,6 +3,18 @@
 import browser from "./browser.js";
 import network from "./network.js";
 
+/**
+ * Module definition for browser-side websocket handling.
+ * ```typescript
+ * interface module_browserSocket {
+ *     error: () => void;                                                          // An error handling method.
+ *     hash : string;                                                              // Stores a hash value used to authenticate a client hash tunnel at the server.
+ *     send : (data:socketData) => void;                                           // Packages micro-service data for transmission in the application's micro-service format.
+ *     sock : websocket_local;                                                     // Provides a web socket object in a way that allows for explicit type declarations, reuse, and without angering the TypeScript gods.
+ *     start: (callback: () => void, hashDevice:string, type:string) => WebSocket; // Initiates a web socket client from the browser.
+ *     type : string;                                                              // Stores the submitted type value.
+ * }
+ * ``` */
 const webSocket:module_browserSocket = {
     error: function browser_utilities_socketError():void {
         setTimeout(function browser_utilities_socketError_delay():void {

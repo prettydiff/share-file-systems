@@ -3,8 +3,8 @@
 
 import uiDefault from "../../common/uiDefault.js";
 
-const browser:browser = {                               // agents - stores agent objects by agent hash id
-    agents: {
+const browser:browser = {
+    agents: {                                           // agents - stores agent objects by agent hash id
         device: {},
         user: {}
     },
