@@ -477,16 +477,16 @@ interface config_rename {
 }
 
 /**
- * For sender.route of terminal/server/transmission/sender
+ * For network.fileRoute of terminal/server/transmission/network
  * ```typescript
- * interface config_senderRoute {
+ * interface config_fileRoute {
  *     callback:(socketData:socketData) => void;
  *     destination:agentCopy;
  *     origination:agentCopy;
  *     socketData:socketData;
  * }
  * ``` */
-interface config_senderRoute {
+interface config_fileRoute {
     callback:(socketData:socketData) => void;
     destination:agentCopy;
     origination:agentCopy;

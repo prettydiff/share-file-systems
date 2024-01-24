@@ -143,7 +143,7 @@ interface module_fileCopy {
  *         write      : (data:service_fileSystem) => void; // Writes a string to a file.
  *     };
  *     menu: (data:service_fileSystem) => void; // Resolves actions from *service_fileSystem* to methods in this object's action property.
- *     route: (socketData:socketData) => void;  // Sends the data and destination to sender.route method.
+ *     route: (socketData:socketData) => void;  // Sends the data and destination to network.fileRoute method.
  *     status: {
  *         generate : (data:service_fileSystem, dirs:directory_response) => void;              // Formulates a status message to display in the modal status bar of a File Navigate type modal for distribution using the *statusBroadcast* method.
  *         specified: (message:string, agentRequest:fileAgent, agentSource:fileAgent) => void; // Specifies an exact string to send to the File Navigate modal status bar.
@@ -547,35 +547,22 @@ interface module_transmit_http {
 }
 
 /**
- * An abstraction to manage traffic output abstracted away from specific network protocols.
- * ```typescript
- * interface module_transmit_sender {
- *     agentQueue: (type:socketType, agent:string, payload:socketData) => void;  // If the agent is offline the message will be queued.
- *     broadcast : (payload:socketData, listType:agentType | "browser") => void; // Send a specified ata package to all agents of a given agent type.
- *     route     : (destination:agentCopy, socketData:socketData, callback:(socketData:socketData) => void) => void; // Automation to redirect data packages to a specific agent examination of a service identifier and agent data.
- *     send      : (data:socketData, agents:transmit_agents) => void;            // Send a specified data package to a specified agent
- * }
- * ``` */
- interface module_transmit_sender {
-    agentQueue: (type:socketType, agent:string, payload:socketData) => void;
-    broadcast: (payload:socketData, listType:agentType | "browser") => void;
-    route: (config:config_senderRoute) => void;
-    send: (data:socketData, agents:transmit_agents) => void;
-}
-
-/**
  * A collection of transmission tools for use with either HTTP or WS.
  * ```typescript
- * interface module_transmit_tools {
- *     logger: (config:config_transmit_logger) => void;
- *     receiver: (socketData:socketData, transmit:transmit_type) => void;
- *     responder: (socketData:socketData, transmit:transmit_type) => void;
+ * interface module_transmit_network {
+ *     fileRoute: (destination:agentCopy, socketData:socketData, callback:(socketData:socketData) => void) => void; // Automation to redirect data packages to a specific agent examination of a service identifier and agent data.
+ *     logger   : (config:config_transmit_logger) => void;                  // logs data about incoming and outgoing messages
+ *     receiver : (socketData:socketData, transmit:transmit_type) => void;  // function for handling all traffic related to incoming messages.
+ *     responder: (socketData:socketData, transmit:transmit_type) => void;  // function for generating generalized HTTP responses
+ *     send     : (data:socketData, agents:transmit_agents|string) => void; // Send a specified data package to a specified agent
  * }
  * ``` */
-interface module_transmit_tools {
+interface module_transmit_network {
+    fileRoute: (config:config_fileRoute) => void;
     logger: (config:config_transmit_logger) => void;
     receiver: (socketData:socketData, transmit:transmit_type) => void;
     responder: (socketData:socketData, transmit:transmit_type) => void;
+    send: (data:socketData, agents:transmit_agents|string) => void;
 }
 
 /**

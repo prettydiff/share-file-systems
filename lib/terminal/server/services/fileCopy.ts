@@ -9,10 +9,10 @@ import error from "../../utilities/error.js";
 import fileExecution from "./fileExecution.js";
 import fileSystem from "./fileSystem.js";
 import mkdir from "../../commands/library/mkdir.js";
+import network from "../transmission/network.js";
 import node from "../../utilities/node.js";
 import remove from "../../commands/library/remove.js";
 import rename from "../../utilities/rename.js";
-import sender from "../transmission/sender.js";
 import service from "../../test/application/service.js";
 import transmit_http from "../transmission/transmit_http.js";
 import vars from "../../utilities/vars.js";
@@ -632,7 +632,7 @@ const fileCopy:module_fileCopy = {
                 const data:service_copy = socketData.data as service_copy;
                 fileCopy.actions.copySelf(data);
             } else {
-                sender.route({
+                network.fileRoute({
                     callback: agentSource,
                     destination: "agentSource",
                     origination: "agentRequest",
@@ -648,7 +648,7 @@ const fileCopy:module_fileCopy = {
                     fileCopy.actions.write(copyData);
                 }
             };
-            sender.route({
+            network.fileRoute({
                 callback: copyList,
                 destination: "agentWrite",
                 origination: "agentSource",
@@ -725,9 +725,9 @@ const fileCopy:module_fileCopy = {
                         }
                     }
                 }
-                sender.route({
+                network.fileRoute({
                     callback: function terminal_server_services_fileCopy_security_securityStatus(socketData:socketData):void {
-                        sender.broadcast(socketData, "browser");
+                        network.send(socketData, "browser");
                     },
                     destination: "agentRequest",
                     origination: config.self,
@@ -799,18 +799,18 @@ const fileCopy:module_fileCopy = {
                         service: "file-system-status"
                     },
                     broadcast = function terminal_server_services_fileCopy_copyStatus_callbackDirectory_sendStatus_unmask_broadcast():void {
-                        sender.broadcast(statusMessage, "browser");
+                        network.send(statusMessage, "browser");
                     };
                 if (vars.test.type === "service") {
                     service.evaluation(statusMessage);
                 } else {
-                    sender.route({
+                    network.fileRoute({
                         callback: broadcast,
                         destination: "agentSource",
                         origination: "agentWrite",
                         socketData: statusMessage
                     });
-                    sender.route({
+                    network.fileRoute({
                         callback: broadcast,
                         destination: "agentRequest",
                         origination: "agentWrite",

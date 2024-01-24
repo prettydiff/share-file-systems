@@ -3,8 +3,8 @@
 
 import common from "../../common/common.js";
 import humanTime from "./humanTime.js";
+import network from "../server/transmission/network.js";
 import node from "./node.js";
-import sender from "../server/transmission/sender.js";
 import vars from "./vars.js";
 
 // uniform error formatting
@@ -36,7 +36,7 @@ const error = function terminal_utilities_error(errText:string[], errObject:node
                         share: "",
                         user: vars.identity.hashUser
                     };
-                sender.broadcast({
+                network.send({
                     data: Object.assign({
                         agentRequest: agent,
                         agentSource: agent,
