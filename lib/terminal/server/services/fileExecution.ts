@@ -45,10 +45,7 @@ const fileExecution = function terminal_server_services_fileExecute(pathList:fil
     // to protect against execution flood only a maximum of 10 files will execute
     do {
         if (pathList[index][1] === "file") {
-            // don't actually open the files in test automation
-            if (vars.test.type === "") {
-                execute(pathList[index][0]);
-            }
+            execute(pathList[index][0]);
             counter = counter + 1;
             if (counter === 10) {
                 break;
