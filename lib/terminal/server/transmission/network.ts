@@ -32,9 +32,9 @@ import vars from "../../utilities/vars.js";
  * ``` */
 const network:module_transmit_network = {
     // direct a data payload to a specific agent as determined by the service name and the agent details in the data payload
-    fileRoute: function terminal_server_transmission_sender_route(config:config_senderRoute):void {
+    fileRoute: function terminal_server_transmission_network_fileRoute(config:config_fileRoute):void {
         const data:service_copy = config.socketData.data as service_copy,
-            sendSelf = function terminal_server_transmission_sender_route_sendSelf(device:string):void {
+            sendSelf = function terminal_server_transmission_network_fileRoute_sendSelf(device:string):void {
                 if (device === vars.identity.hashDevice) {
                     config.callback(config.socketData);
                 } else {
@@ -44,7 +44,7 @@ const network:module_transmit_network = {
                     });
                 }
             },
-            unmask = function terminal_server_transmission_sender_route_unmask(device:string, callback:(device:string) => void):void {
+            unmask = function terminal_server_transmission_network_fileRoute_unmask(device:string, callback:(device:string) => void):void {
                 // same user
                 if (device.length === 141) {
                     // masked device
@@ -62,7 +62,7 @@ const network:module_transmit_network = {
             // same user, send to device
             unmask(destination.device, sendSelf);
         } else {
-            const resolveUser = function terminal_server_transmission_sender_route_resolveUser(user:string):string {
+            const resolveUser = function terminal_server_transmission_network_fileRoute_resolveUser(user:string):string {
                     const socketKeys:string[] = Object.keys(transmit_ws.status);
                     let indexKeys:number = socketKeys.length,
                         indexList:number = 0;
@@ -82,10 +82,10 @@ const network:module_transmit_network = {
                     }
                     return "";
                 },
-                sendUser = function terminal_server_transmission_sender_route_sendUser(device:string):void {
+                sendUser = function terminal_server_transmission_network_fileRoute_sendUser(device:string):void {
                     if (device === vars.identity.hashDevice) {
                         // if current device holds socket to destination user, send data to user with masked device identity
-                        mask.fileAgent(data[config.origination], function terminal_server_transmission_sender_route_sendUser_mask(device:string):void {
+                        mask.fileAgent(data[config.origination], function terminal_server_transmission_network_fileRoute_sendUser_mask(device:string):void {
                             data[config.origination].device = device;
                             network.send(config.socketData, {
                                 device: "",
@@ -94,7 +94,7 @@ const network:module_transmit_network = {
                         });
                     } else {
                         // send to device containing socket to destination user
-                        unmask(device, function terminal_server_transmission_sender_route_sendUser_callback(unmasked:string):void {
+                        unmask(device, function terminal_server_transmission_network_fileRoute_sendUser_callback(unmasked:string):void {
                             network.send(config.socketData, {
                                 device: unmasked,
                                 user: vars.identity.hashUser
@@ -215,8 +215,8 @@ const network:module_transmit_network = {
     },
 
     // send a specified data package to a specified agent
-    send: function terminal_server_transmission_sender_send(data:socketData, agents:transmit_agents|string):void {
-        const agentQueue = function terminal_server_transmission_sender_send_agentQueue(type:socketType, agent:string, payload:socketData) {
+    send: function terminal_server_transmission_network_send(data:socketData, agents:transmit_agents|string):void {
+        const agentQueue = function terminal_server_transmission_network_send_agentQueue(type:socketType, agent:string, payload:socketData) {
                 const socket:websocket_client = transmit_ws.socketList[type as agentType][agent];
                 if (socket !== undefined && socket !== null && (socket.status === "open" || socket.status === "pending")) {
                     transmit_ws.queue(payload, socket, 1);
@@ -258,7 +258,7 @@ const network:module_transmit_network = {
                     }
                 }
             },
-            broadcast = function terminal_server_transmission_sender_send_broadcast(payload:socketData, listType:string):void {
+            broadcast = function terminal_server_transmission_network_send_broadcast(payload:socketData, listType:string):void {
                 if (listType === "device" || listType === "user") {
                     const list:string[] = Object.keys(vars.agents[listType]);
                     let index:number = list.length;
@@ -272,7 +272,7 @@ const network:module_transmit_network = {
                     }
                 } else {
                     const list:string[] = Object.keys(transmit_ws.socketList[listType]);
-                    list.forEach(function terminal_server_transmission_sender_send_broadcast_each(namedSocket:string):void {
+                    list.forEach(function terminal_server_transmission_network_send_broadcast_each(namedSocket:string):void {
                         transmit_ws.queue(payload, transmit_ws.socketList.browser[namedSocket], 1);
                     });
                 }
@@ -285,7 +285,7 @@ const network:module_transmit_network = {
             } else {
                 if (agents.user === vars.identity.hashUser) {
                     if (agents.device.length === 141) {
-                        mask.unmaskDevice(agents.device, function terminal_server_transmission_sender_send_unmask(actualDevice:string):void {
+                        mask.unmaskDevice(agents.device, function terminal_server_transmission_network_send_unmask(actualDevice:string):void {
                             agentQueue("device", actualDevice, data);
                         });
                     } else {

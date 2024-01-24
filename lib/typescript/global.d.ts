@@ -321,7 +321,7 @@ interface stringStore {
 }
 
 /**
- * A naming convention passed into the sender.send method.
+ * A naming convention passed into the network.send method.
  * ```typescript
  * interface transmit_agents {
  *     device: string;

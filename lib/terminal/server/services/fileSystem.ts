@@ -29,7 +29,7 @@ import service from "../../test/application/service.js";
  *         write      : (data:service_fileSystem) => void; // Writes a string to a file.
  *     };
  *     menu: (data:service_fileSystem) => void; // Resolves actions from *service_fileSystem* to methods in this object's action property.
- *     route: (socketData:socketData) => void;  // Sends the data and destination to sender.route method.
+ *     route: (socketData:socketData) => void;  // Sends the data and destination to network.fileRoute method.
  *     status: {
  *         generate : (data:service_fileSystem, dirs:directory_response) => void;              // Formulates a status message to display in the modal status bar of a File Navigate type modal for distribution using the *statusBroadcast* method.
  *         specified: (message:string, agentRequest:fileAgent, agentSource:fileAgent) => void; // Specifies an exact string to send to the File Navigate modal status bar.
