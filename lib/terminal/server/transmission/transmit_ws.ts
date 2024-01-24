@@ -10,10 +10,9 @@ import getAddress from "../../utilities/getAddress.js";
 import hash from "../../commands/library/hash.js";
 import log from "../../utilities/log.js";
 import mask from "../../utilities/mask.js";
+import network from "./network.js";
 import node from "../../utilities/node.js";
-import sender from "./sender.js";
 import settings from "../services/settings.js";
-import tools from "./tools.js";
 import vars from "../../utilities/vars.js";
 
 /**
@@ -80,7 +79,7 @@ const transmit_ws:module_transmit_ws = {
 
         // prevent parsing errors in the case of malformed or empty payloads
         if (result.charAt(0) === "{" && result.charAt(result.length - 1) === "}" && result.indexOf("\"data\":") > 0 && result.indexOf("\"service\":") > 0) {
-            tools.receiver(JSON.parse(result) as socketData, {
+            network.receiver(JSON.parse(result) as socketData, {
                 // eslint-disable-next-line
                 socket: this,
                 type: "ws"
@@ -308,7 +307,7 @@ const transmit_ws:module_transmit_ws = {
                     }
                     complete = unmask(socket.frame.subarray(frame.startByte, size));
                     socket.frame = socket.frame.subarray(size);
-                    tools.logger({
+                    network.logger({
                         direction: "receive",
                         size: data.length,
                         socketData: {
@@ -432,7 +431,7 @@ const transmit_ws:module_transmit_ws = {
                     };
                     agent.status = "offline";
                     transmit_ws.ipAttempts[config.agentType][config.agent] = [];
-                    sender.broadcast({
+                    network.send({
                         data: status,
                         service: "agent-status"
                     }, "browser");
@@ -587,7 +586,7 @@ const transmit_ws:module_transmit_ws = {
                     ? body as Buffer
                     : Buffer.from(JSON.stringify(body as socketData)),
                 len:number = dataPackage.length;
-            tools.logger({
+            network.logger({
                 direction: "send",
                 size: dataPackage.length,
                 socketData: {
@@ -609,7 +608,7 @@ const transmit_ws:module_transmit_ws = {
             frameHeader[0] = 128 + opcode;
             frameHeader[1] = frameBody.length;
             socketItem.queue.unshift(Buffer.concat([frameHeader, frameBody]));
-            tools.logger({
+            network.logger({
                 direction: "send",
                 size: frameHeader[1] + 2,
                 socketData: {
@@ -933,11 +932,11 @@ const transmit_ws:module_transmit_ws = {
                         return 1;
                     });
                     transmit_ws.status[vars.identity.hashDevice] = list;
-                    sender.broadcast({
+                    network.send({
                         data: transmit_ws.status,
                         service: "socket-list"
                     }, "browser");
-                    sender.broadcast({
+                    network.send({
                         data: {
                             [vars.identity.hashDevice]: transmit_ws.status[vars.identity.hashDevice]
                         },
@@ -1046,7 +1045,7 @@ const transmit_ws:module_transmit_ws = {
         const data:socketList = socketData.data as socketList,
             keys:string[] = Object.keys(data);
         transmit_ws.status[keys[0]] = data[keys[0]];
-        sender.broadcast({
+        network.send({
             data: transmit_ws.status,
             service: "socket-list"
         }, "browser");

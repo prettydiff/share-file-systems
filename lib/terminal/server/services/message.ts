@@ -2,9 +2,9 @@
 /* lib/terminal/server/services/message - Process and send text messages. */
 
 import error from "../../utilities/error.js";
-import osNotification from "../osNotification.js";
+import network from "../transmission/network.js";
 import node from "../../utilities/node.js";
-import sender from "../transmission/sender.js";
+import osNotification from "../osNotification.js";
 import settings from "./settings.js";
 import vars from "../../utilities/vars.js";
 
@@ -20,7 +20,7 @@ const message = function terminal_server_services_message(socketData:socketData)
                 agentLength = agentLength - 1;
                 if (agentType === "user" || (agentType === "device" && list[agentLength] !== vars.identity.hashDevice)) {
                     data[0].message = `(broadcast) ${data[0].message}`;
-                    sender.send({
+                    network.send({
                         data: data,
                         service: "message"
                     }, {
@@ -100,20 +100,20 @@ const message = function terminal_server_services_message(socketData:socketData)
         broadcast("device");
         broadcast("user");
     } else if (data[0].agentType === "device" && data[0].agentTo === vars.identity.hashDevice) {
-        sender.broadcast({
+        network.send({
             data: data,
             service: "message"
         }, "browser");
         osNotification();
     } else if (data[0].agentType === "user" && data[0].agentTo === vars.identity.hashUser) {
-        sender.broadcast({
+        network.send({
             data: data,
             service: "message"
         }, "browser");
         broadcast("device");
     } else {
         if (vars.agents[data[0].agentType][data[0].agentTo].status !== "offline") {
-            sender.send({
+            network.send({
                 data: data,
                 service: "message"
             }, {

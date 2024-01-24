@@ -2,7 +2,7 @@
 /* lib/terminal/server/services/terminal - Processes terminal messaging for remote devices and display to the user in a browser. */
 
 import node from "../../utilities/node.js";
-import sender from "../transmission/sender.js";
+import network from "../transmission/network.js";
 import vars from "../../utilities/vars.js";
 
 /**
@@ -209,7 +209,7 @@ const terminal:module_terminal = {
     },
     output: function terminal_server_services_terminalOutput(data:service_terminal):void {
         if (data[data.target].agent === vars.identity.hashDevice && data[data.target].agentType === "device") {
-            sender.broadcast({
+            network.send({
                 data: data,
                 service: "terminal"
             }, "browser");
@@ -223,7 +223,7 @@ const terminal:module_terminal = {
                     device: null,
                     user: data[data.target].agent
                 };
-            sender.send({
+            network.send({
                 data: data,
                 service: "terminal"
             }, agents);

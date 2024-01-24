@@ -8,9 +8,9 @@ import fileCopy from "./fileCopy.js";
 import fileExecution from "./fileExecution.js";
 import hash from "../../commands/library/hash.js";
 import mkdir from "../../commands/library/mkdir.js";
+import network from "../transmission/network.js";
 import node from "../../utilities/node.js";
 import remove from "../../commands/library/remove.js";
-import sender from "../transmission/sender.js";
 import vars from "../../utilities/vars.js";
 import service from "../../test/application/service.js";
 
@@ -433,9 +433,9 @@ const fileSystem:module_fileSystem = {
                 }
             }
         }
-        sender.route({
+        network.fileRoute({
             callback: function terminal_server_services_fileSystem_menu_securityStatus(socketData:socketData):void {
-                sender.broadcast(socketData, "browser");
+                network.send(socketData, "browser");
             },
             destination: "agentRequest",
             origination: "agentRequest",
@@ -451,7 +451,7 @@ const fileSystem:module_fileSystem = {
             if (vars.test.type === "service") {
                 fileSystem.menu(data);
             } else {
-                sender.route({
+                network.fileRoute({
                     callback: function terminal_server_services_fileSystem_route_fileSystem(routeData:socketData):void {
                         const fileData:service_fileSystem = routeData.data as service_fileSystem;
                         fileSystem.menu(fileData);
@@ -463,12 +463,12 @@ const fileSystem:module_fileSystem = {
             }
         } else {
             const broadcast = function terminal_server_services_fileSystem_route_broadcast(routeData:socketData):void {
-                sender.broadcast(routeData, "browser");
+                network.send(routeData, "browser");
             };
             if (vars.test.type === "service") {
                 service.evaluation(socketData);
             } else {
-                sender.route({
+                network.fileRoute({
                     callback: broadcast,
                     destination: "agentRequest",
                     origination: "agentSource",
@@ -548,7 +548,7 @@ const fileSystem:module_fileSystem = {
                 if (vars.test.type === "service") {
                     service.evaluation(socketData);
                 } else if (data.agentRequest.device === vars.identity.hashDevice && data.agentRequest.user === vars.identity.hashUser) {
-                    sender.broadcast(socketData, "browser");
+                    network.send(socketData, "browser");
                 } else {
                     fileSystem.route(socketData);
                 }

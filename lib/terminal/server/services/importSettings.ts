@@ -2,7 +2,7 @@
 
 import base64 from "../../commands/library/base64.js";
 import filePathDecode from "../../test/application/browserUtilities/file_path_decode.js";
-import sender from "../transmission/sender.js";
+import network from "../transmission/network.js";
 import settings from "./settings.js";
 import vars from "../../utilities/vars.js";
 
@@ -76,7 +76,7 @@ const importSettings = function terminal_server_services_importSettings(socketDa
                     },
                     service: "settings"
                 });
-                sender.broadcast({
+                network.send({
                     data: "",
                     service: "reload"
                 }, "browser");

@@ -6,9 +6,9 @@ import error from "../../utilities/error.js";
 import humanTime from "../../utilities/humanTime.js";
 import ipList from "../../utilities/ipList.js";
 import log from "../../utilities/log.js";
+import network from "../../server/transmission/network.js";
 import node from "../../utilities/node.js";
 import remove from "../../commands/library/remove.js";
-import sender from "../../server/transmission/sender.js";
 import time from "../../utilities/time.js";
 import transmit_http from "../../server/transmission/transmit_http.js";
 import transmit_ws from "../../server/transmission/transmit_ws.js";
@@ -849,7 +849,7 @@ const defaultCommand:commands = vars.environment.command,
                         keyLength:number = keys.length;
                     if (keyLength > 0) {
                         testItem.test = filePathDecode(testItem.test, "") as test_browserItem;
-                        sender.send({
+                        network.send({
                             data: testItem,
                             service: "test-browser"
                         }, {
