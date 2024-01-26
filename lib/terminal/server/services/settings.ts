@@ -13,18 +13,22 @@ const settings = function terminal_server_services_settings(dataPackage:socketDa
         settingsData:ui_data = (data.type === "ui")
             ? data.settings as ui_data
             : null,
+        tempCount:number = (vars.test.type === "")
+            ? 20
+            : 100,
         changeName = function terminal_server_services_settings_changeName():void {
-            node.fs.rename(fileName, `${location}.json`, function terminal_server_services_settings_rename_renameNode(erName:node_error):void {
-                if (erName !== null) {
-                    node.fs.unlink(fileName, function terminal_server_services_settings_rename_renameNode_unlink():void {
-                        vars.terminal.tempCount = vars.terminal.tempCount - 1;
-                        return;
-                    });
-                }
-                if (vars.test.type === "service" && dataPackage.service === "settings") {
-                    service.evaluation(dataPackage);
-                }
-            });
+            if (vars.test.type === "service" && dataPackage.service === "settings") {
+                service.evaluation(dataPackage);
+            } else {
+                node.fs.rename(fileName, `${location}.json`, function terminal_server_services_settings_rename_renameNode(erName:node_error):void {
+                    if (erName !== null) {
+                        node.fs.unlink(fileName, function terminal_server_services_settings_rename_renameNode_unlink():void {
+                            vars.terminal.tempCount = vars.terminal.tempCount - 1;
+                            return;
+                        });
+                    }
+                });
+            }
         },
         writeCallback = function terminal_server_services_settings_writeCallback(erSettings:node_error):void {
             if (erSettings === null) {
@@ -45,7 +49,7 @@ const settings = function terminal_server_services_settings(dataPackage:socketDa
     }
     if (vars.test.type === "service") {
         writeCallback(null);
-    } else if (vars.terminal.tempCount < 100) {
+    } else if (vars.terminal.tempCount < tempCount) {
         if (data.type !== "ui") {
             node.fs.writeFile(fileName, JSON.stringify(data.settings), "utf8", writeCallback);
             vars.terminal.tempCount = vars.terminal.tempCount + 1;

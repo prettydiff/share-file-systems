@@ -589,9 +589,6 @@ const modal:module_modal = {
                     ? undefined
                     : title.getElementsByTagName("button")[0],
                 status:HTMLElement = box.getElementsByClassName("status-bar")[0] as HTMLElement,
-                statusBar:HTMLElement = (status === undefined)
-                    ? null
-                    : status.getElementsByTagName("p")[0] as HTMLElement,
                 footer:HTMLElement = box.getElementsByClassName("footer")[0] as HTMLElement,
                 footerButtons:HTMLElement = (footer === undefined)
                     ? undefined
@@ -615,7 +612,6 @@ const modal:module_modal = {
                 body.style.height = `${browser.ui.modals[id].height / 10}em`;
                 if (status !== undefined) {
                     status.style.width = `${(browser.ui.modals[id].width - 20) / 10}em`;
-                    statusBar.style.width = `${(browser.ui.modals[id].width - 40) / 15}em`;
                 }
             } else {
                 browser.ui.modals[id].status = "maximized";
@@ -637,7 +633,6 @@ const modal:module_modal = {
                     if (status !== undefined) {
                         height = height - status.clientHeight;
                         status.style.width = `${(contentArea.clientWidth - 40) / 10}em`;
-                        statusBar.style.width = `${(contentArea.clientWidth - 60) / 15}em`;
                     }
                     if (message !== undefined) {
                         message.style.width = `${(contentArea.clientWidth - footerOffset - 60) / 15}em`;
@@ -854,9 +849,6 @@ const modal:module_modal = {
                 footer:HTMLElement = box.getElementsByClassName("footer")[0] as HTMLElement,
                 footerButton:boolean = (footer !== undefined && footer.getElementsByTagName("button").length > 0),
                 status:HTMLElement = box.getElementsByClassName("status-bar")[0] as HTMLElement,
-                statusBar:HTMLElement = (status === undefined)
-                    ? undefined
-                    : status.getElementsByTagName("p")[0],
                 sideBottom:HTMLElement =  box.getElementsByClassName("side-b")[0] as HTMLElement,
                 sideTop:HTMLElement = box.getElementsByClassName("side-t")[0] as HTMLElement,
                 mouseEvent:MouseEvent = event as MouseEvent,
@@ -929,9 +921,8 @@ const modal:module_modal = {
                             heading.style.width = `${principle + 0.2}em`;
                         }
                         headingButton.style.width = `${widths[0]}em`;
-                        if (statusBar !== undefined) {
+                        if (status !== undefined) {
                             status.style.width = `${widths[1]}em`;
-                            statusBar.style.width = `${widths[1] - 2}em`;
                         }
                     }
                     if (values[1] > -10) {
