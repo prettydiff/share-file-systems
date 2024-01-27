@@ -263,7 +263,8 @@ const message:module_message = {
                     agentType: agency[2],
                     date: Date.now(),
                     message: textArea.value,
-                    mode: textArea.getAttribute("class") as messageMode
+                    mode: textArea.getAttribute("class") as messageMode,
+                    userDevice: false
                 };
             delete browser.ui.modals[box.getAttribute("id")].historyIndex;
             if (agency[2] === "user" && agency[0] === browser.identity.hashUser) {

@@ -74,7 +74,8 @@ const message = function terminal_server_services_message(socketData:socketData)
             service: "message"
         }, "browser");
         osNotification();
-        if (data[0].agentType === "user") {
+        if (data[0].agentType === "user" && data[0].userDevice === false) {
+            data[0].userDevice = true;
             network.send(socketData, "device");
         }
     } else if (data[0].agentTo === "device" || data[0].agentTo === "user") {
