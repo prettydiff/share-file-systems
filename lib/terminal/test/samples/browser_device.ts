@@ -2106,7 +2106,7 @@ const browserDevice:test_browserItem[] = [
             {
                 event: "wait",
                 node: null,
-                value: "100"
+                value: "500"
             }
         ],
         machine: "self",
@@ -2561,7 +2561,13 @@ const browserDevice:test_browserItem[] = [
 
     // on vm3 verify message from self
     {
-        interaction: [],
+        interaction: [
+            {
+                event: "wait",
+                node: null,
+                value: "100"
+            }
+        ],
         machine: "VM3",
         name: "On VM3 verify message from self",
         unit: [
@@ -2736,7 +2742,13 @@ const browserDevice:test_browserItem[] = [
 
     // on vm3 verify message from VM2
     {
-        interaction: [],
+        interaction: [
+            {
+                event: "wait",
+                node: null,
+                value: "100"
+            }
+        ],
         machine: "VM3",
         name: "On VM3 verify message from VM2",
         unit: [
@@ -2749,7 +2761,7 @@ const browserDevice:test_browserItem[] = [
                 qualifier: "is",
                 target: ["innerHTML"],
                 type: "property",
-                value: "<p>Response from VM2.</p>"
+                value: "<p>Hello from VM2.</p>"
             },
             {
                 node: [
@@ -2791,7 +2803,7 @@ const browserDevice:test_browserItem[] = [
                 qualifier: "is",
                 target: ["innerHTML"],
                 type: "property",
-                value: "<p>Response from VM2.</p>"
+                value: "<p>Hello from VM2.</p>"
             },
             {
                 node: [
