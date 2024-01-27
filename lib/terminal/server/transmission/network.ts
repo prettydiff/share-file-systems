@@ -175,7 +175,7 @@ const network:module_transmit_network = {
                 "message": message,
                 "perf-socket": perf.conclude.socket,
                 "settings": settings,
-                "socket-map": transmit_ws.statusUpdate,
+                "socket-map": transmit_ws.socketMapUpdate,
                 "terminal": terminal.input,
                 "test-browser": browser.methods.route
             };

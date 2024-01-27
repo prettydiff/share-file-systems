@@ -592,10 +592,10 @@ interface module_transmit_network {
  *     server          : (config:config_websocket_server) => node_net_Server;                   // Creates a websocket server.
  *     socketExtensions: (config:config_websocket_extensions) => void;                          // applies application specific extensions to sockets
  *     socketMap       : socketMap;                                                             // Stores open socket status information for all devices.
+ *     socketMapUpdate : (socketData:socketData) => void;                                    // Receive socket status list updates from other devices.
  *     socketStore     : {
  *         [key:string]: websocket_list;
  *     };                                                                                       // A store of open sockets by agent type.
- *     statusUpdate    : (socketData:socketData) => void;                                       // Receive socket status list updates from other devices.
  * }
  * ``` */
 interface module_transmit_ws {
@@ -622,8 +622,8 @@ interface module_transmit_ws {
     server: (config:config_websocket_server) => node_net_Server;
     socketExtensions: (config:config_websocket_extensions) => void;
     socketMap: socketMap;
+    socketMapUpdate: (socketData:socketData) => void;
     socketStore: {
         [key:string]: websocket_list;
     };
-    statusUpdate: (socketData:socketData) => void;
 }

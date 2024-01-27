@@ -67,7 +67,9 @@ const transmit_ws:module_transmit_ws = {
         }
         socket.status = "closed";
         socket.destroy();
-        delete transmit_ws.socketStore[type][socket.hash];
+        if (transmit_ws.socketStore[type] !== undefined) {
+            delete transmit_ws.socketStore[type][socket.hash];
+        }
         if (type === "device") {
             delete transmit_ws.socketMap[socket.hash];
         }
@@ -407,7 +409,12 @@ const transmit_ws:module_transmit_ws = {
                 }
                 const socket:websocket_client = transmit_ws.getSocket(config.agentType, config.agent),
                     agent:agent = vars.agents[config.agentType][config.agent],
-                    attempts:string[] = transmit_ws.ipAttempts[config.agentType][config.agent],
+                    attempts:string[] = (transmit_ws.ipAttempts[config.agentType][config.agent] === undefined)
+                        ? (function terminal_server_transmission_transmitWs_openAgent_ip_ipList_attempts():string[] {
+                            transmit_ws.ipAttempts[config.agentType][config.agent] = [];
+                            return transmit_ws.ipAttempts[config.agentType][config.agent];
+                        }())
+                        : transmit_ws.ipAttempts[config.agentType][config.agent],
                     selfIP:transmit_addresses_IP = vars.network.addresses,
                     ip:string = (function terminal_server_transmission_transmitWs_openAgent_ip():string {
                         const ipList = function terminal_server_transmission_transmitWs_openAgent_ip_ipList(type:"IPv4"|"IPv6"):string {
@@ -434,6 +441,12 @@ const transmit_ws:module_transmit_ws = {
                         }
                         return IPv6;
                     }());
+                if (agent === undefined) {
+                    if (config.callback !== null) {
+                        config.callback(null);
+                    }
+                    return;
+                }
                 if (socket !== null) {
                     if (config.callback !== null) {
                         config.callback(socket);
@@ -510,6 +523,9 @@ const transmit_ws:module_transmit_ws = {
                     writeCallback();
                 }
             };
+        if (socketItem === undefined || socketItem === null) {
+            return;
+        }
         // OPCODES
         // ## Messages
         // 0 - continuation - fragments of a message payload following an initial fragment
@@ -1064,9 +1080,7 @@ const transmit_ws:module_transmit_ws = {
     },
     // a map of which devices have which sockets open
     socketMap: {},
-    // a store of local sockets
-    socketStore: {},
-    statusUpdate: function terminal_server_transmission_transmitWs_statusUpdate(socketData:socketData):void {
+    socketMapUpdate: function terminal_server_transmission_transmitWs_statusUpdate(socketData:socketData):void {
         const data:socketMap = socketData.data as socketMap,
             keys:string[] = Object.keys(data);
         transmit_ws.socketMap[keys[0]] = data[keys[0]];
@@ -1074,7 +1088,9 @@ const transmit_ws:module_transmit_ws = {
             data: transmit_ws.socketMap,
             service: "socket-map"
         }, "browser");
-    }
+    },
+    // a store of local sockets
+    socketStore: {}
 };
 
 export default transmit_ws;
