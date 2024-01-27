@@ -1,4 +1,5 @@
 <!-- documentation/decentralization - A brief write up explaining how this application invents full decentralization. -->
+<!-- cspell:words Buterin, Vitalik -->
 
 # Decentralization and Share File Systems
 Decentralization simply means to transmit without an intermediary.

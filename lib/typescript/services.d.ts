@@ -232,6 +232,18 @@ interface service_invite {
 }
 
 /**
+ * A list of messages for transport across the network.
+ * ```typescript
+ * interface service_message extends Array<message_item> {
+ *     userDevice: boolean;
+ *     [index:number]: message_item;
+ * }
+ * ``` */
+interface service_message extends Array<message_item> {
+    [index:number]: message_item;
+}
+
+/**
  * Saves user generated data and configurations to a file.
  * ```typescript
  * interface service_settings {

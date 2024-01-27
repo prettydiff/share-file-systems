@@ -13,30 +13,6 @@ const message = function terminal_server_services_message(socketData:socketData)
     // data length greater than 1 only applies to sending or receiving offline messages
     const data:service_message = socketData.data as service_message,
         count:number = 500,
-        broadcast = function terminal_server_services_message_broadcast(agentType:agentType):void {
-            const list:string[] = Object.keys(vars.agents[agentType]);
-            let agentLength:number = list.length;
-            do {
-                agentLength = agentLength - 1;
-                if (agentType === "user" || (agentType === "device" && list[agentLength] !== vars.identity.hashDevice)) {
-                    data[0].message = `(broadcast) ${data[0].message}`;
-                    network.send({
-                        data: data,
-                        service: "message"
-                    }, {
-                        device: (data[0].agentType === "device")
-                            ? data[0].agentTo
-                            : vars.identity.hashUser,
-                        user: (data[0].agentType === "device")
-                            ? vars.identity.hashUser
-                            : data[0].agentTo
-                    });
-                }
-                if (agentType === "device") {
-                    osNotification();
-                }
-            } while (agentLength > 0);
-        },
         write = function terminal_server_services_message_write():void {
             const 
             save = function terminal_server_services_message_write_save():void {
@@ -92,38 +68,36 @@ const message = function terminal_server_services_message(socketData:socketData)
                 save();
             }
         };
-    if (data[0].agentTo === "device") {
-        broadcast("device");
-    } else if (data[0].agentTo === "user") {
-        broadcast("user");
-    } else if (data[0].agentTo === "all") {
-        broadcast("device");
-        broadcast("user");
-    } else if (data[0].agentType === "device" && data[0].agentTo === vars.identity.hashDevice) {
+    if ((data[0].agentType === "device" && data[0].agentTo === vars.identity.hashDevice) || (data[0].agentType === "user" && data[0].agentTo === vars.identity.hashUser)) {
         network.send({
             data: data,
             service: "message"
         }, "browser");
         osNotification();
-    } else if (data[0].agentType === "user" && data[0].agentTo === vars.identity.hashUser) {
-        network.send({
-            data: data,
-            service: "message"
-        }, "browser");
-        broadcast("device");
+        if (data[0].agentType === "user" && data[0].userDevice === false) {
+            data[0].userDevice = true;
+            network.send(socketData, "device");
+        }
+    } else if (data[0].agentTo === "device" || data[0].agentTo === "user") {
+        network.send(socketData, data[0].agentTo);
+    } else if (data[0].agentTo === "all") {
+        network.send(socketData, "device");
+        network.send(socketData, "user");
     } else {
         if (vars.agents[data[0].agentType][data[0].agentTo].status !== "offline") {
+            const agency:transmit_agents = (data[0].agentType === "device")
+                ? {
+                    device: data[0].agentTo,
+                    user: vars.identity.hashUser
+                }
+                : {
+                    device: "",
+                    user: data[0].agentTo
+                };
             network.send({
                 data: data,
                 service: "message"
-            }, {
-                device: (data[0].agentType === "device")
-                    ? data[0].agentTo
-                    : vars.identity.hashUser,
-                user: (data[0].agentType === "device")
-                    ? vars.identity.hashUser
-                    : data[0].agentTo
-            });
+            }, agency);
         }
     }
     vars.settings.message = vars.settings.message.concat(data);

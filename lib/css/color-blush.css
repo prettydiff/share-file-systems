@@ -151,9 +151,9 @@ body.blush {
 .blush #spaces #agentList .all-shares button:hover,
 .blush #spaces #agentList .device-all-shares:hover,
 .blush #spaces #agentList .user-all-shares:hover{background:var(--white)}
-.blush #spaces .box .socket-list th{background:var(--background)}
-.blush #spaces .box .socket-list .closed{background:var(--pink);border-color:var(--red-text);color:var(--red-text)}
-.blush #spaces .box .socket-list .pending{background:var(--blue-button-background);border-color:var(--blue-button-text);color:var(--blue-button-text)}
+.blush #spaces .box .socket-map th{background:var(--background)}
+.blush #spaces .box .socket-map .closed{background:var(--pink);border-color:var(--red-text);color:var(--red-text)}
+.blush #spaces .box .socket-map .pending{background:var(--blue-button-background);border-color:var(--blue-button-text);color:var(--blue-button-text)}
 
 /* minimize tray at bottom */
 .blush #spaces #tray{background:var(--background-dark);border-color:var(--grey-medium)}

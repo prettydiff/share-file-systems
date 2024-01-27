@@ -64,22 +64,12 @@ const agent_management = function terminal_server_services_agentManagement(socke
                     let a:number = 0,
                         socket:websocket_client = null;
                     do {
-                        if (keys[a] === vars.identity.hashUser && type === "user") {
-                            socket = transmit_ws.socketList[type][data.agentFrom];
-                            if (socket !== null && socket !== undefined) {
-                                socket.destroy();
-                            }
-                            delete vars.agents.user[data.agentFrom];
-                            delete transmit_ws.socketList.user[data.agentFrom];
-                            delete transmit_ws.status[data.agentFrom];
-                        } else {
-                            socket = transmit_ws.socketList[type][keys[a]];
-                            if (socket !== null && socket !== undefined) {
-                                socket.destroy();
-                            }
-                            delete vars.agents[type][keys[a]];
-                            delete transmit_ws.socketList[type][keys[a]];
-                            delete transmit_ws.status[keys[a]];
+                        socket = transmit_ws.getSocket(type, data.agentFrom);
+                        if (socket !== null) {
+                            socket.destroy();
+                            delete vars.agents[type][data.agentFrom];
+                            delete transmit_ws.socketStore[type][data.agentFrom];
+                            delete transmit_ws.socketMap[data.agentFrom];
                         }
                         a = a + 1;
                     } while (a < lengthKeys);
@@ -116,7 +106,7 @@ const agent_management = function terminal_server_services_agentManagement(socke
                 device: {},
                 user: {}
             };
-            transmit_ws.status = {};
+            transmit_ws.socketMap = {};
             settings({
                 data: {
                     settings: {},
@@ -179,7 +169,7 @@ const agent_management = function terminal_server_services_agentManagement(socke
                 }
             },
             users = function terminal_server_services_agentManagement_users():void {
-                const userLength:number = Object.keys(transmit_ws.socketList.user).length;
+                const userLength:number = transmit_ws.getSocketList("user").length;
 
                 if (userLength > 0) {
                     const userData:userData = common.userData(vars.agents.device, "user", "");

@@ -278,18 +278,18 @@ interface socketData {
 /**
  * Stores a collection of socket data respective of all devices.
  * ```typescript
- * interface socketList {
- *     [key:string]: socketListItem[];
+ * interface socketMap {
+ *     [key:string]: socketMapItem[];
  * }
  * ``` */
-interface socketList {
-    [key:string]: socketListItem[];
+interface socketMap {
+    [key:string]: socketMapItem[];
 }
 
 /**
  * A data package describing lists of sockets.
  * ```typescript
- * interface socketListItem {
+ * interface socketMapItem {
  *     localAddress: string;
  *     localPort: number;
  *     name: string;
@@ -299,7 +299,7 @@ interface socketList {
  *     type: string;
  * }
  * ``` */
-interface socketListItem {
+interface socketMapItem {
     localAddress: string;
     localPort: number;
     name: string;

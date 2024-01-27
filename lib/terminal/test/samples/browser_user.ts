@@ -530,7 +530,7 @@ const docFiles:string = "Writing 100.00% complete. 22 files written at size ",
                 qualifier: "is",
                 target: ["innerHTML"],
                 type: "property",
-                value: "temp.txt"
+                value: "device.json"
             },
             interaction: [
                 {
@@ -586,7 +586,7 @@ const docFiles:string = "Writing 100.00% complete. 22 files written at size ",
                 qualifier: "ends",
                 target: ["firstChild", "textContent"],
                 type: "property",
-                value: "temp.txt"
+                value: "device.json"
             },
             interaction: [
                 {
@@ -1417,7 +1417,7 @@ const docFiles:string = "Writing 100.00% complete. 22 files written at size ",
                 qualifier: "is",
                 target: ["innerHTML"],
                 type: "property",
-                value: "5 directories, 7 files, 0 symbolic links, 0 errors"
+                value: "6 directories, 7 files, 0 symbolic links, 0 errors"
             },
             interaction: [
                 {
@@ -1438,7 +1438,7 @@ const docFiles:string = "Writing 100.00% complete. 22 files written at size ",
                         ["getModalsByModalType", "file-navigate", 2],
                         ["getElementsByClassName", "body", 0],
                         ["getElementsByClassName", "fileList", 0],
-                        ["getElementsByTagName", "li", 4]
+                        ["getElementsByTagName", "li", 5]
                     ],
                     qualifier: "is",
                     target: ["class"],
@@ -2144,7 +2144,7 @@ const docFiles:string = "Writing 100.00% complete. 22 files written at size ",
                 qualifier: "is",
                 target: ["innerHTML"],
                 type: "property",
-                value: "6 directories, 7 files, 0 symbolic links, 0 errors"
+                value: "7 directories, 7 files, 0 symbolic links, 0 errors"
             },
             interaction: [
                 {
@@ -2164,7 +2164,7 @@ const docFiles:string = "Writing 100.00% complete. 22 files written at size ",
                         ["getModalsByModalType", "file-navigate", 3],
                         ["getElementsByClassName", "body", 0],
                         ["getElementsByClassName", "fileList", 0],
-                        ["getElementsByTagName", "li", 5]
+                        ["getElementsByTagName", "li", 6]
                     ],
                     qualifier: "is",
                     target: ["class"],

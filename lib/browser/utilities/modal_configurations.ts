@@ -33,7 +33,7 @@ import util from "./util.js";
  *         "media": modal_open;
  *         "message": modal_open;
  *         "shares": modal_open;
- *         "socket-list": modal_open;
+ *         "socket-map": modal_open;
  *         "terminal": modal_open;
  *         "text-pad": modal_open;
  *     };
@@ -489,7 +489,7 @@ const modal_configuration:module_modalConfiguration = {
                     div:HTMLElement = element.getAncestor("div", "tag"),
                     agent:string = div.dataset.hash,
                     agentType:agentType = div.getAttribute("class") as agentType,
-                    identity:boolean = (agent !== browser.identity.hashDevice && agent !== "");
+                    identity:boolean = (agent === browser.identity.hashDevice || agent === "");
                 if (identity === true && browser.agents[agentType][agent] === undefined) {
                     return null;
                 }
@@ -504,8 +504,8 @@ const modal_configuration:module_modalConfiguration = {
                     text_placeholder: "text",
                     text_value: "",
                     title_supplement: (identity === true)
-                        ? `${common.capitalize(agentType)} ${browser.agents[agentType][agent].name}`
-                        : `all ${agentType}s`,
+                        ? `all ${agentType}s`
+                        : `${common.capitalize(agentType)} ${browser.agents[agentType][agent].name}`,
                     type: "message",
                     width: 800
                 };
@@ -549,20 +549,20 @@ const modal_configuration:module_modalConfiguration = {
             return modal.content(config);
         },
 
-        "socket-list": function browser_utilities_modalConfiguration_socketList(event:Event, config?:config_modal):modal {
+        "socket-map": function browser_utilities_modalConfiguration_socketMap(event:Event, config?:config_modal):modal {
             // building configuration modal
-            if (document.getElementById("socketList-modal") === null) {
+            if (document.getElementById("socketMap-modal") === null) {
                 const payloadModal:config_modal = {
                     agent: browser.identity.hashDevice,
                     agentIdentity: false,
                     agentType: "device",
                     closeHandler: modal.events.closeEnduring,
                     content: null,
-                    id: "socketList-modal",
+                    id: "socketMap-modal",
                     read_only: false,
                     single: true,
                     status: "hidden",
-                    type: "socket-list"
+                    type: "socket-map"
                 };
                 if (config !== null && config !== undefined) {
                     payloadModal.callback = config.callback;
@@ -579,10 +579,10 @@ const modal_configuration:module_modalConfiguration = {
                 return modal.content(payloadModal);
             }
             if (browser.loading === true) {
-                return document.getElementById("socketList-modal");
+                return document.getElementById("socketMap-modal");
             }
-            const conf:HTMLElement = document.getElementById("socketList-modal"),
-                data:config_modal = browser.ui.modals["socketList-modal"];
+            const conf:HTMLElement = document.getElementById("socketMap-modal"),
+                data:config_modal = browser.ui.modals["socketMap-modal"];
             modal.events.zTop(event as MouseEvent, conf);
             if (data.status === "hidden") {
                 conf.style.display = "block";
@@ -743,7 +743,7 @@ const modal_configuration:module_modalConfiguration = {
             menu: false,
             text: ""
         },
-        "socket-list": {
+        "socket-map": {
             icon: "🖧",
             menu: false,
             text: "Open Sockets"

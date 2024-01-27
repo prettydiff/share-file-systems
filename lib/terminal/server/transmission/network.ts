@@ -63,17 +63,17 @@ const network:module_transmit_network = {
             unmask(destination.device, sendSelf);
         } else {
             const resolveUser = function terminal_server_transmission_network_fileRoute_resolveUser(user:string):string {
-                    const socketKeys:string[] = Object.keys(transmit_ws.status);
+                    const socketKeys:string[] = Object.keys(transmit_ws.socketMap);
                     let indexKeys:number = socketKeys.length,
                         indexList:number = 0;
                     if (indexKeys > 0) {
                         do {
                             indexKeys = indexKeys - 1;
-                            indexList = transmit_ws.status[socketKeys[indexKeys]].length;
+                            indexList = transmit_ws.socketMap[socketKeys[indexKeys]].length;
                             if (indexList > 0) {
                                 do {
                                     indexList = indexList - 1;
-                                    if (transmit_ws.status[socketKeys[indexKeys]][indexList].type === "user" && transmit_ws.status[socketKeys[indexKeys]][indexList].name === user) {
+                                    if (transmit_ws.socketMap[socketKeys[indexKeys]][indexList].type === "user" && transmit_ws.socketMap[socketKeys[indexKeys]][indexList].name === user) {
                                         return socketKeys[indexKeys];
                                     }
                                 } while (indexList > 0);
@@ -175,7 +175,7 @@ const network:module_transmit_network = {
                 "message": message,
                 "perf-socket": perf.conclude.socket,
                 "settings": settings,
-                "socket-list": transmit_ws.statusUpdate,
+                "socket-map": transmit_ws.socketMapUpdate,
                 "terminal": terminal.input,
                 "test-browser": browser.methods.route
             };
@@ -217,8 +217,8 @@ const network:module_transmit_network = {
     // send a specified data package to a specified agent
     send: function terminal_server_transmission_network_send(data:socketData, agents:transmit_agents|string):void {
         const agentQueue = function terminal_server_transmission_network_send_agentQueue(type:socketType, agent:string, payload:socketData) {
-                const socket:websocket_client = transmit_ws.socketList[type as agentType][agent];
-                if (socket !== undefined && socket !== null && (socket.status === "open" || socket.status === "pending")) {
+                const socket:websocket_client = transmit_ws.getSocket(type, agent);
+                if (socket !== null && (socket.status === "open" || socket.status === "pending")) {
                     transmit_ws.queue(payload, socket, 1);
                 } else if (vars.test.type === "" && (type === "device" || type === "user") && vars.agents[type][agent] !== undefined) {
                     const service_exclusions: service_type[] = [
@@ -271,9 +271,9 @@ const network:module_transmit_network = {
                         } while (index > 0);
                     }
                 } else {
-                    const list:string[] = Object.keys(transmit_ws.socketList[listType]);
-                    list.forEach(function terminal_server_transmission_network_send_broadcast_each(namedSocket:string):void {
-                        transmit_ws.queue(payload, transmit_ws.socketList.browser[namedSocket], 1);
+                    const socketList:websocket_client[] = transmit_ws.getSocketList(listType);
+                    socketList.forEach(function terminal_server_transmission_network_send_broadcast_each(socketItem:websocket_client):void {
+                        transmit_ws.queue(payload, socketItem, 1);
                     });
                 }
             };
@@ -291,8 +291,32 @@ const network:module_transmit_network = {
                     } else {
                         agentQueue("device", agents.device, data);
                     }
-                } else {
-                    agentQueue("user", agents.user, data);
+                } else if (vars.agents.user[agents.user] !== undefined) {
+                    // route to user
+                    const devices:string[] = Object.keys(transmit_ws.socketMap);
+                    let lenDevice:number = devices.length,
+                        deviceList:socketMapItem[],
+                        lenList:number = 0;
+                    do {
+                        lenDevice = lenDevice - 1;
+                        deviceList = transmit_ws.socketMap[devices[lenDevice]];
+                        lenList = deviceList.length;
+                        if (lenList > 0) {
+                            do {
+                                lenList = lenList - 1;
+                                if (deviceList[lenList].type === "user" && deviceList[lenList].name === agents.user) {
+                                    if (devices[lenDevice] === vars.identity.hashDevice) {
+                                        // socket to user on current device
+                                        agentQueue("user", agents.user, data);
+                                    } else {
+                                        // send to device containing user socket
+                                        agentQueue("device", devices[lenDevice], data);
+                                    }
+                                    return;
+                                }
+                            } while (lenList > 0);
+                        }
+                    } while (lenDevice > 0);
                 }
             }
         }

@@ -39,10 +39,10 @@ import vars from "../../utilities/vars.js";
  *     queueSend       : (socket:websocket_client) => void;                                     // Pushes messages stored from the agent's offline queue into the transmission queue.
  *     server          : (config:config_websocket_server) => node_net_Server;                   // Creates a websocket server.
  *     socketExtensions: (config:config_websocket_extensions) => void;                          // applies application specific extensions to sockets
- *     socketList      : {
+ *     socketMap       : socketMap;                                                             // Stores open socket status information for all devices.
+ *     socketStore      : {
  *         [key:string]: websocket_list;
  *     };                                                                                       // A store of open sockets by agent type.
- *     status          : socketList;                                                            // Stores open socket status information for all devices.
  *     statusUpdate    : (socketData:socketData) => void;                                       // Receive socket status list updates from other devices.
  * }
  * ``` */
@@ -67,9 +67,11 @@ const transmit_ws:module_transmit_ws = {
         }
         socket.status = "closed";
         socket.destroy();
-        delete transmit_ws.socketList[type][socket.hash];
+        if (transmit_ws.socketStore[type] !== undefined) {
+            delete transmit_ws.socketStore[type][socket.hash];
+        }
         if (type === "device") {
-            delete transmit_ws.status[socket.hash];
+            delete transmit_ws.socketMap[socket.hash];
         }
     },
     // composes fragments from browsers and agents into JSON for processing by receiver library
@@ -190,6 +192,27 @@ const transmit_ws:module_transmit_ws = {
             source: Buffer.from(Math.random().toString(), "base64").toString(),
             stat: null
         });
+    },
+    getSocket: function terminal_server_transmission_transmitWs_getSocket(type:string, name:string):websocket_client {
+        if (transmit_ws.socketStore[type] === undefined || transmit_ws.socketStore[type] === null || transmit_ws.socketStore[type][name] === undefined || transmit_ws.socketStore[type][name] === null) {
+            return null;
+        }
+        return transmit_ws.socketStore[type][name];
+    },
+    getSocketList: function terminal_server_transmission_transmitWs_getSocketList(type:string):websocket_client[] {
+        if (transmit_ws.socketStore[type] === undefined || transmit_ws.socketStore[type] === null) {
+            return [];
+        }
+        const keys:string[] = Object.keys(transmit_ws.socketStore[type]),
+            output:websocket_client[] = [];
+        let index:number = keys.length;
+        if (index > 0) {
+            do {
+                index = index - 1;
+                output.push(transmit_ws.socketStore[type][keys[index]]);
+            } while (index > 0);
+        }
+        return output;
     },
     ipAttempts: {
         device: {},
@@ -337,7 +360,7 @@ const transmit_ws:module_transmit_ws = {
                 socket.write(payload);
                 socket.off("data", processor);
                 if (socket.type === "browser") {
-                    delete transmit_ws.socketList.browser[socket.hash];
+                    delete transmit_ws.socketStore.browser[socket.hash];
                     socket.destroy();
                 } else if (socket.type === "device" || socket.type === "user") {
                     transmit_ws.agentClose(socket);
@@ -384,17 +407,14 @@ const transmit_ws:module_transmit_ws = {
                     }
                     return;
                 }
-                if (transmit_ws.socketList[config.agentType][config.agent] !== undefined && transmit_ws.socketList[config.agentType][config.agent] !== null) {
-                    if (config.callback !== null) {
-                        config.callback(transmit_ws.socketList[config.agentType][config.agent]);
-                    }
-                    return;
-                }
-                if (transmit_ws.ipAttempts[config.agentType][config.agent] === undefined) {
-                    transmit_ws.ipAttempts[config.agentType][config.agent] = [];
-                }
-                const agent:agent = vars.agents[config.agentType][config.agent],
-                    attempts:string[] = transmit_ws.ipAttempts[config.agentType][config.agent],
+                const socket:websocket_client = transmit_ws.getSocket(config.agentType, config.agent),
+                    agent:agent = vars.agents[config.agentType][config.agent],
+                    attempts:string[] = (transmit_ws.ipAttempts[config.agentType][config.agent] === undefined)
+                        ? (function terminal_server_transmission_transmitWs_openAgent_ip_ipList_attempts():string[] {
+                            transmit_ws.ipAttempts[config.agentType][config.agent] = [];
+                            return transmit_ws.ipAttempts[config.agentType][config.agent];
+                        }())
+                        : transmit_ws.ipAttempts[config.agentType][config.agent],
                     selfIP:transmit_addresses_IP = vars.network.addresses,
                     ip:string = (function terminal_server_transmission_transmitWs_openAgent_ip():string {
                         const ipList = function terminal_server_transmission_transmitWs_openAgent_ip_ipList(type:"IPv4"|"IPv6"):string {
@@ -421,6 +441,21 @@ const transmit_ws:module_transmit_ws = {
                         }
                         return IPv6;
                     }());
+                if (agent === undefined) {
+                    if (config.callback !== null) {
+                        config.callback(null);
+                    }
+                    return;
+                }
+                if (socket !== null) {
+                    if (config.callback !== null) {
+                        config.callback(socket);
+                    }
+                    return;
+                }
+                if (transmit_ws.ipAttempts[config.agentType][config.agent] === undefined) {
+                    transmit_ws.ipAttempts[config.agentType][config.agent] = [];
+                }
                 if (ip === null) {
                     const status:service_agentStatus = {
                         agent: config.agent,
@@ -488,6 +523,9 @@ const transmit_ws:module_transmit_ws = {
                     writeCallback();
                 }
             };
+        if (socketItem === undefined || socketItem === null) {
+            return;
+        }
         // OPCODES
         // ## Messages
         // 0 - continuation - fragments of a message payload following an initial fragment
@@ -712,7 +750,7 @@ const transmit_ws:module_transmit_ws = {
                                             : (type === "testRemote" && vars.test.type === "browser_remote")
                                                 ? "self"
                                                 : hashName;
-                                        if (test === false || ((type === "device" || type === "user") && transmit_ws.socketList[type][identifier] !== undefined)) {
+                                        if (test === false || ((type === "device" || type === "user") && transmit_ws.getSocket(type, identifier) !== null)) {
                                             socket.destroy();
                                             return;
                                         }
@@ -846,9 +884,12 @@ const transmit_ws:module_transmit_ws = {
     // adds custom properties necessary to this application to newly created sockets
     socketExtensions: function terminal_server_transmission_transmitWs_socketExtension(config:config_websocket_extensions):void {
         if (
+            // permit test remote device
             (config.type === "testRemote" && vars.test.type.indexOf("browser_") === 0) ||
+            // permit perf tests
             (config.type === "perf" && (config.socket.remoteAddress === "::1" || config.socket.remoteAddress.replace("::ffff:", "") === "127.0.0.1")) ||
-            transmit_ws.socketList[config.type as agentType | "browser"][config.identifier] === undefined
+            // permit if the socket is not already created
+            transmit_ws.getSocket(config.type, config.identifier) === null
         ) {
             const ping = function terminal_server_transmission_transmitWs_socketExtension_ping(ttl:number, callback:(err:node_error, roundtrip:bigint) => void):void {
                     const errorObject = function terminal_server_transmission_transmitWs_socketExtension_ping_errorObject(code:string, message:string):node_error {
@@ -884,15 +925,14 @@ const transmit_ws:module_transmit_ws = {
                     }
                 },
                 list = function terminal_server_transmission_transmitWs_socketExtension_list():void {
-                    const list:socketListItem[] = [],
-                        keysPrimary:string[] = Object.keys(transmit_ws.socketList),
+                    const list:socketMapItem[] = [],
+                        keysPrimary:string[] = Object.keys(transmit_ws.socketStore),
             
                         // populate data from sockets that are children of a group
                         child = function terminal_server_transmission_transmitWs_socketExtension_list_child():void {
                             // @ts-ignore
-                            const socketList:websocket_list = transmit_ws.socketList[keysPrimary[indexPrimary]],
-                                keysChild:string[] = Object.keys(socketList);
-                            let indexChild:number = keysChild.length,
+                            const socketList:websocket_client[] = transmit_ws.getSocketList(keysPrimary[indexPrimary]);
+                            let indexChild:number = socketList.length,
                                 socketItem:websocket_client,
                                 address:transmit_addresses_socket = null;
                             if (indexChild < 1) {
@@ -900,12 +940,12 @@ const transmit_ws:module_transmit_ws = {
                             }
                             do {
                                 indexChild = indexChild - 1;
-                                socketItem = socketList[keysChild[indexChild]];
+                                socketItem = socketList[indexChild];
                                 address = getAddress({socket: socketItem, type: "ws"});
                                 list.push({
                                     localAddress: address.local.address,
                                     localPort: address.local.port,
-                                    name: keysChild[indexChild],
+                                    name: socketItem.hash,
                                     remoteAddress: address.remote.address,
                                     remotePort: address.remote.port,
                                     status: socketItem.status,
@@ -925,22 +965,22 @@ const transmit_ws:module_transmit_ws = {
                     } while (indexPrimary > 0);
             
                     // sort the raw data by group name
-                    list.sort(function terminal_server_transmission_transmitWs_socketExtension_list_sort(a:socketListItem, b:socketListItem):-1|1 {
+                    list.sort(function terminal_server_transmission_transmitWs_socketExtension_list_sort(a:socketMapItem, b:socketMapItem):-1|1 {
                         if (a.type < b.type) {
                             return -1;
                         }
                         return 1;
                     });
-                    transmit_ws.status[vars.identity.hashDevice] = list;
+                    transmit_ws.socketMap[vars.identity.hashDevice] = list;
                     network.send({
-                        data: transmit_ws.status,
-                        service: "socket-list"
+                        data: transmit_ws.socketMap,
+                        service: "socket-map"
                     }, "browser");
                     network.send({
                         data: {
-                            [vars.identity.hashDevice]: transmit_ws.status[vars.identity.hashDevice]
+                            [vars.identity.hashDevice]: transmit_ws.socketMap[vars.identity.hashDevice]
                         },
-                        service: "socket-list"
+                        service: "socket-map"
                     }, "device");
                 },
                 socketEnd = function terminal_server_transmission_transmitWs_socketExtension_socketEnd():void {
@@ -975,11 +1015,17 @@ const transmit_ws:module_transmit_ws = {
             config.socket.setKeepAlive(true, 0);      // standard method to retain socket against timeouts from inactivity until a close frame comes in
             config.socket.status = "open";            // sets the status flag for the socket
             config.socket.type = config.type;         // assigns the type name on the socket
+            if (transmit_ws.socketStore[config.type] === undefined) {
+                transmit_ws.socketStore[config.type] = {};
+            }
             if (config.type === "browser" || config.type === "device" || config.type === "testRemote" || config.type === "user") {
                 if (config.type !== "browser" || (config.type === "browser" && config.identifier.indexOf("-primary-") > 0)) {
-                    transmit_ws.socketList[config.type][config.identifier] = config.socket;
+                    transmit_ws.socketStore[config.type][config.identifier] = config.socket;
                 } else {
-                    transmit_ws.socketList.browserOther[config.identifier] = config.socket;
+                    if (transmit_ws.socketStore.browserOther === undefined) {
+                        transmit_ws.socketStore.browserOther = {};
+                    }
+                    transmit_ws.socketStore.browserOther[config.identifier] = config.socket;
                 }
                 if (config.type === "device" || config.type === "user") {
                     vars.agents[config.type][config.identifier].ipSelected = getAddress({
@@ -1032,24 +1078,19 @@ const transmit_ws:module_transmit_ws = {
             list();
         }
     },
-    // a list of local sockets
-    socketList: {
-        browser: {},
-        browserOther: {},
-        device: {},
-        testRemote: {},
-        user: {}
-    },
-    status: {},
-    statusUpdate: function terminal_server_transmission_transmitWs_statusUpdate(socketData:socketData):void {
-        const data:socketList = socketData.data as socketList,
+    // a map of which devices have which sockets open
+    socketMap: {},
+    socketMapUpdate: function terminal_server_transmission_transmitWs_statusUpdate(socketData:socketData):void {
+        const data:socketMap = socketData.data as socketMap,
             keys:string[] = Object.keys(data);
-        transmit_ws.status[keys[0]] = data[keys[0]];
+        transmit_ws.socketMap[keys[0]] = data[keys[0]];
         network.send({
-            data: transmit_ws.status,
-            service: "socket-list"
+            data: transmit_ws.socketMap,
+            service: "socket-map"
         }, "browser");
-    }
+    },
+    // a store of local sockets
+    socketStore: {}
 };
 
 export default transmit_ws;

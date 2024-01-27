@@ -74,7 +74,7 @@ const defaultCommand:commands = vars.environment.command,
         },
         exitMessage: "",
         exitSummary: function terminal_test_application_browser_exitSummary():string[] {
-            const socketList:socketListItem[] = transmit_ws.status[vars.identity.hashDevice],
+            const socketList:socketMapItem[] = transmit_ws.socketMap[vars.identity.hashDevice],
                 output:string[] = [
                     browser.exitMessage,
                     "",
@@ -274,12 +274,12 @@ const defaultCommand:commands = vars.environment.command,
                             };
                     summary.push("\u0007");
                     if (browser.args.mode !== "self") {
-                        const agents:string[] = Object.keys(transmit_ws.socketList.testRemote);
-                        agents.forEach(function terminal_test_application_browser_exit_agents(name:string):void {
+                        const agents:websocket_client[] = transmit_ws.getSocketList("testRemote");
+                        agents.forEach(function terminal_test_application_browser_exit_agents(socketItem:websocket_client):void {
                             const action:"close"|"exit" = (browser.args.noClose === true)
                                 ? "exit"
                                 : "close";
-                            browser.methods.sendAction(action, name, browser.exitMessage);
+                            browser.methods.sendAction(action, socketItem.hash, browser.exitMessage);
                         });
                     }
                     closing();
@@ -434,25 +434,25 @@ const defaultCommand:commands = vars.environment.command,
                     log(["", "", timeStore[0]]);
                     vars.agents.device = {};
                     vars.agents.user = {};
-                    transmit_ws.status = {};
+                    transmit_ws.socketMap = {};
                     remove(`${vars.path.project}lib${vars.path.sep}terminal${vars.path.sep}test${vars.path.sep}application${vars.path.sep}documentation`, [], null);
                     // close sockets
                     {
-                        const types:socketType[] = Object.keys(transmit_ws.socketList) as socketType[];
-                        let sockets:string[] = null,
+                        const types:string[] = Object.keys(transmit_ws.socketStore) as socketType[];
+                        let sockets:websocket_client[] = null,
                             socketIndex:number = 0,
                             typeIndex:number = types.length;
                         do {
                             typeIndex = typeIndex - 1;
                             if (types[typeIndex] !== "testRemote") {
-                                sockets = Object.keys(transmit_ws.socketList[types[typeIndex]]);
+                                sockets = transmit_ws.getSocketList(types[typeIndex]);
                                 socketIndex = sockets.length;
                                 if (socketIndex > 0) {
                                     do {
                                         socketIndex = socketIndex - 1;
-                                        transmit_ws.socketList[types[typeIndex]][sockets[socketIndex]].destroy();
+                                        sockets[socketIndex].destroy();
                                     } while (socketIndex > 0);
-                                    transmit_ws.socketList[types[typeIndex]] = {};
+                                    transmit_ws.socketStore[types[typeIndex]] = {};
                                 }
                             }
                         } while (typeIndex > 0);
@@ -477,7 +477,7 @@ const defaultCommand:commands = vars.environment.command,
                             user: {}
                         };
                         vars.settings.ui = ui;
-                        transmit_ws.status = {};
+                        transmit_ws.socketMap = {};
                         browser.methods.sendAction("close", browser.name);
                         browser.methods.delay({
                             action: start,
@@ -845,15 +845,15 @@ const defaultCommand:commands = vars.environment.command,
             send: function terminal_test_application_browser_send(testItem:service_testBrowser):void {
                 if (testItem.test.machine === browser.name) {
                     // self
-                    const keys:string[] = Object.keys(transmit_ws.socketList.browser),
-                        keyLength:number = keys.length;
-                    if (keyLength > 0) {
+                    const browsers:websocket_client[] = transmit_ws.getSocketList("browser"),
+                        len:number = browsers.length;
+                    if (len > 0) {
                         testItem.test = filePathDecode(testItem.test, "") as test_browserItem;
                         network.send({
                             data: testItem,
                             service: "test-browser"
                         }, {
-                            device: keys[keys.length - 1],
+                            device: browsers[len - 1].hash,
                             user: "browser"
                         });
                     }
@@ -862,7 +862,7 @@ const defaultCommand:commands = vars.environment.command,
                     transmit_ws.queue({
                         data: testItem,
                         service: "test-browser"
-                    }, transmit_ws.socketList.testRemote[testItem.test.machine], 1);
+                    }, transmit_ws.socketStore.testRemote[testItem.test.machine], 1);
                 }
 
                 // Once a reset test is sent it is necessary to eliminate the event portion of the test.

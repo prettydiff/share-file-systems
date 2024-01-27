@@ -118,7 +118,7 @@ import disallowed from "../common/disallowed.js";
                 const allDevice:HTMLElement = agentList.getElementsByClassName("device-all-shares")[0] as HTMLElement,
                     allUser:HTMLElement = agentList.getElementsByClassName("user-all-shares")[0] as HTMLElement,
                     allShares:HTMLElement = agentList.getElementsByClassName("all-shares")[0].getElementsByTagName("button")[0],
-                    socketList:HTMLElement = agentList.getElementsByClassName("sockets")[0].getElementsByTagName("button")[0],
+                    socketMap:HTMLElement = agentList.getElementsByClassName("sockets")[0].getElementsByTagName("button")[0],
                     fullscreen = function browser_init_complete_fullscreen():void {
                         if (document.fullscreenEnabled === true) {
                             if (document.fullscreenElement === null) {
@@ -223,7 +223,7 @@ import disallowed from "../common/disallowed.js";
                 allShares.onclick                                   = modal_configuration.modals.shares;
                 allDevice.onclick                                   = modal_configuration.modals.shares;
                 allUser.onclick                                     = modal_configuration.modals.shares;
-                socketList.onclick                                  = modal_configuration.modals["socket-list"];
+                socketMap.onclick                                   = modal_configuration.modals["socket-map"];
                 document.getElementById("minimize-all").onclick     = minimizeAll;
                 document.onvisibilitychange                         = visibility;
                 if (document.fullscreenEnabled === true) {
@@ -238,11 +238,11 @@ import disallowed from "../common/disallowed.js";
                 if (document.getModalsByModalType("configuration")[0] === undefined) {
                     modal_configuration.modals.configuration(null, null);
                 }
-                if (document.getModalsByModalType("socket-list")[0] === undefined) {
-                    modal_configuration.modals["socket-list"](null, null);
-                    configuration.tools.socketList({
-                        data: state["socket-list"],
-                        service: "socket-list"
+                if (document.getModalsByModalType("socket-map")[0] === undefined) {
+                    modal_configuration.modals["socket-map"](null, null);
+                    configuration.tools.socketMap({
+                        data: state["socket-map"],
+                        service: "socket-map"
                     });
                 }
 

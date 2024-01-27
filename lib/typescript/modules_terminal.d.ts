@@ -572,6 +572,8 @@ interface module_transmit_network {
  *     agentClose      : (socket:websocket_client) => void;                                     // A uniform way to notify browsers when a remote agent goes offline
  *     clientReceiver  : websocket_messageHandler;                                              // Processes data from regular agent websocket tunnels into JSON for processing by receiver library.
  *     createSocket    : (config:config_websocket_create) => void;                              // Creates a new socket for use by openAgent and openService methods.
+ *     getSocket: (type:string, name:string) => websocket_client;                               // safely returns a socket from the store
+ *     getSocketList: (type:string) => websocket_client[];                                      // safely returns a list of sockets from the store by socket type
  *     ipAttempts      : {
  *         device: {
  *             [key:string]: string[];
@@ -589,17 +591,19 @@ interface module_transmit_network {
  *     queueSend       : (socket:websocket_client) => void;                                     // Pushes messages stored from the agent's offline queue into the transmission queue.
  *     server          : (config:config_websocket_server) => node_net_Server;                   // Creates a websocket server.
  *     socketExtensions: (config:config_websocket_extensions) => void;                          // applies application specific extensions to sockets
- *     socketList      : {
+ *     socketMap       : socketMap;                                                             // Stores open socket status information for all devices.
+ *     socketMapUpdate : (socketData:socketData) => void;                                    // Receive socket status list updates from other devices.
+ *     socketStore     : {
  *         [key:string]: websocket_list;
  *     };                                                                                       // A store of open sockets by agent type.
- *     status          : socketList;                                                            // Stores open socket status information for all devices.
- *     statusUpdate    : (socketData:socketData) => void;                                       // Receive socket status list updates from other devices.
  * }
  * ``` */
 interface module_transmit_ws {
     agentClose: (socket:websocket_client) => void;
     clientReceiver: websocket_messageHandler;
     createSocket: (config:config_websocket_create) => void;
+    getSocket: (type:string, name:string) => websocket_client;
+    getSocketList: (type:string) => websocket_client[];
     ipAttempts: {
         device: {
             [key:string]: string[];
@@ -617,9 +621,9 @@ interface module_transmit_ws {
     queueSend: (socket:websocket_client) => void;
     server: (config:config_websocket_server) => node_net_Server;
     socketExtensions: (config:config_websocket_extensions) => void;
-    socketList: {
+    socketMap: socketMap;
+    socketMapUpdate: (socketData:socketData) => void;
+    socketStore: {
         [key:string]: websocket_list;
     };
-    status: socketList;
-    statusUpdate: (socketData:socketData) => void;
 }
