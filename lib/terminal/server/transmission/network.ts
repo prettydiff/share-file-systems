@@ -293,7 +293,7 @@ const network:module_transmit_network = {
                     }
                 } else if (vars.agents.user[agents.user] !== undefined) {
                     // route to user
-                    const devices:string[] = Object.keys(transmit_ws.socketList);
+                    const devices:string[] = Object.keys(transmit_ws.status);
                     let lenDevice:number = devices.length,
                         deviceList:socketListItem[],
                         lenList:number = 0;

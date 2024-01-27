@@ -2574,7 +2574,7 @@ const browserDevice:test_browserItem[] = [
                 qualifier: "is",
                 target: ["innerHTML"],
                 type: "property",
-                value: "<p>Hello from self.</p>"
+                value: "<p>Hello from User-self.</p>"
             },
             {
                 node: [
@@ -2585,7 +2585,49 @@ const browserDevice:test_browserItem[] = [
                 qualifier: "contains",
                 target: ["innerHTML"],
                 type: "property",
-                value: "<span>Device</span>"
+                value: "<span>User</span>"
+            },
+            {
+                node: [
+                    ["getModalsByModalType", "message", 0],
+                    ["getElementsByClassName", "message-content", 0],
+                    ["getElementsByTagName", "th", 0]
+                ],
+                qualifier: "contains",
+                target: ["innerHTML"],
+                type: "property",
+                value: "<strong>User-self</strong>"
+            }
+        ]
+    },
+
+    // on vm4 verify message from self
+    {
+        interaction: [],
+        machine: "VM4",
+        name: "On VM4 verify message from self",
+        unit: [
+            {
+                node: [
+                    ["getModalsByModalType", "message", 0],
+                    ["getElementsByClassName", "message-content", 0],
+                    ["getElementsByTagName", "td", 0]
+                ],
+                qualifier: "is",
+                target: ["innerHTML"],
+                type: "property",
+                value: "<p>Hello from User-self.</p>"
+            },
+            {
+                node: [
+                    ["getModalsByModalType", "message", 0],
+                    ["getElementsByClassName", "message-content", 0],
+                    ["getElementsByTagName", "th", 0]
+                ],
+                qualifier: "contains",
+                target: ["innerHTML"],
+                type: "property",
+                value: "<span>User</span>"
             },
             {
                 node: [
@@ -2707,7 +2749,7 @@ const browserDevice:test_browserItem[] = [
                 qualifier: "is",
                 target: ["innerHTML"],
                 type: "property",
-                value: "<p>Response from VM1.</p>"
+                value: "<p>Response from VM2.</p>"
             },
             {
                 node: [
@@ -2749,7 +2791,7 @@ const browserDevice:test_browserItem[] = [
                 qualifier: "is",
                 target: ["innerHTML"],
                 type: "property",
-                value: "<p>Response from VM1.</p>"
+                value: "<p>Response from VM2.</p>"
             },
             {
                 node: [
