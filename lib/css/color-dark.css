@@ -126,9 +126,9 @@ body.dark{
 .dark #spaces #agentList .all-shares button:hover,
 .dark #spaces #agentList .device-all-shares:hover,
 .dark #spaces #agentList .user-all-shares:hover{background:var(--shares-background)}
-.dark #spaces .box .socket-list th{background:var(--background)}
-.dark #spaces .box .socket-list .closed{background:var(--background-red-dark);border-color:var(--red-primary);color:var(--red-primary)}
-.dark #spaces .box .socket-list .pending{background:var(--maximize-background);border-color:var(--blue-primary);color:var(--blue-primary)}
+.dark #spaces .box .socket-map th{background:var(--background)}
+.dark #spaces .box .socket-map .closed{background:var(--background-red-dark);border-color:var(--red-primary);color:var(--red-primary)}
+.dark #spaces .box .socket-map .pending{background:var(--maximize-background);border-color:var(--blue-primary);color:var(--blue-primary)}
 
 /* minimize tray at bottom */
 .dark #spaces #tray{background:var(--background);border-color:var(--button-hover)}

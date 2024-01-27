@@ -8,14 +8,14 @@ import transmit_ws from "./transmission/transmit_ws.js";
 // cspell:words findstr, gwmi, netstat, processid
 
 const osNotification = function terminal_server_osNotification():void {
-    const keys:string[] = Object.keys(transmit_ws.socketList.browser);
-    if (process.platform === "win32") {
+    const sockets:websocket_client[] = transmit_ws.getSocketList("browser");
+    if (process.platform === "win32" && sockets.length > 0) {
         // 1. Resolves a process ID from an open web socket client port
         // 2. Checks if a Powershell process object associated with that ID has a mainWindowHandle value greater than 0
         // 3. If so then executes the flash on the window associated with that handle
         // 4. If not then resolves the parent process ID for the given process ID and then repeats steps 2 and 3
 
-        keys.forEach(function terminal_server_osNotification_wsClients(agent:string):void {
+        sockets.forEach(function terminal_server_osNotification_wsClients(socketItem:websocket_client):void {
             // this flash function stores the powershell instruction to flash a window in the task bar
             // * please note that this is a C# instruction passed through powershell as a template and powershell template instructions cannot be preceded by white space
             const flash = function terminal_server_osNotification_wsClients_flash(handle:string):void {
@@ -122,7 +122,7 @@ public class Window {
                         error(["Error running Windows netstat command in osNotifications"], statError);
                     }
                 };
-            node.child_process.exec(`netstat -aon | findstr "${transmit_ws.socketList.browser[agent].remotePort}"`, netStat);
+            node.child_process.exec(`netstat -aon | findstr "${transmit_ws.socketStore.browser[socketItem.hash].remotePort}"`, netStat);
         });
     }
 };

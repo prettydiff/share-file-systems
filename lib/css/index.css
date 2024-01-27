@@ -153,13 +153,13 @@ body.login #spaces{bottom:0;padding:2.5em 0 0;position:fixed;top:0}
 #spaces #agentList .sockets{margin:0;position:relative;z-index:2}
 #spaces #agentList .all-shares{margin:0 0 3em;position:relative;z-index:2}
 #spaces #device{margin:0 0 3em}
-#spaces .box .socket-list{font-size:var(--textSize);margin:0.5em}
-#spaces .box table.socket-list{border-collapse:collapse;border-style:solid;border-width:0.1em}
-#spaces .box .socket-list td,
-#spaces .box .socket-list th{border-style:solid;border-width:0.05em;padding:0.2em 0.5em;text-align:left}
-#spaces .box .socket-list thead th,
-#spaces .box .socket-list tbody th span{font-weight:bold}
-#spaces .box .socket-list tbody th{font-weight:normal}
+#spaces .box .socket-map{font-size:var(--textSize);margin:0.5em}
+#spaces .box table.socket-map{border-collapse:collapse;border-style:solid;border-width:0.1em}
+#spaces .box .socket-map td,
+#spaces .box .socket-map th{border-style:solid;border-width:0.05em;padding:0.2em 0.5em;text-align:left}
+#spaces .box .socket-map thead th,
+#spaces .box .socket-map tbody th span{font-weight:bold}
+#spaces .box .socket-map tbody th{font-weight:normal}
 
 /* minimize tray at bottom */
 #spaces #tray{border-style:solid;border-width:0.1em 0.1em 0.1em 0;bottom:0;display:block;min-height:6em;padding:0;position:fixed;z-index:1}

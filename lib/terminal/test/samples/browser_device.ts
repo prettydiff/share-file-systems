@@ -2152,7 +2152,7 @@ const browserDevice:test_browserItem[] = [
     {
         delay: {
             node: [
-                ["getModalsByModalType", "socket-list", 0],
+                ["getModalsByModalType", "socket-map", 0],
                 ["getElementsByTagName", "tbody", 0],
                 ["getElementsByTagName", "tr", null]
             ],
@@ -2176,7 +2176,7 @@ const browserDevice:test_browserItem[] = [
         unit: [
             {
                 node: [
-                    ["getModalsByModalType", "socket-list", 0],
+                    ["getModalsByModalType", "socket-map", 0],
                     ["getElementsByTagName", "tbody", 0],
                     ["getElementsByTagName", "th", null]
                 ],
@@ -2192,7 +2192,7 @@ const browserDevice:test_browserItem[] = [
     {
         delay: {
             node: [
-                ["getModalsByModalType", "socket-list", 0],
+                ["getModalsByModalType", "socket-map", 0],
                 ["getElementsByClassName", "body", 0]
             ],
             qualifier: "greater",
@@ -2215,7 +2215,7 @@ const browserDevice:test_browserItem[] = [
         unit: [
             {
                 node: [
-                    ["getModalsByModalType", "socket-list", 0],
+                    ["getModalsByModalType", "socket-map", 0],
                     ["getElementsByTagName", "tbody", 0],
                     ["getElementsByTagName", "th", null]
                 ],
@@ -2226,7 +2226,7 @@ const browserDevice:test_browserItem[] = [
             },
             {
                 node: [
-                    ["getModalsByModalType", "socket-list", 0],
+                    ["getModalsByModalType", "socket-map", 0],
                     ["getElementsByTagName", "tbody", 0],
                     ["getElementsByTagName", "tr", null]
                 ],

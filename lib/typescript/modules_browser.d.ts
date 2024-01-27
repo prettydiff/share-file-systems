@@ -244,7 +244,7 @@ interface module_common {
  *         addUserColor    : (agent:string, type:agentType, configElement?:HTMLElement)) => void; // Add agent color options to the configuration modal content.
  *         applyAgentColors: (agent:string, type:agentType, colors:[string, string]) => void;     // Update the specified color information against the default colors of the current color scheme.
  *         radio           : (element:HTMLElement) => void;                                       // Sets a class on a grandparent element to apply style changes to the corresponding label.
- *         socketList      : (socketData:socketData) => void;                                     // Receives a service message and produces a content update for the socket list modal.
+ *         socketMap       : (socketData:socketData) => void;                                     // Receives a service message and produces a content update for the socket list modal.
  *         styleText       : (input:configuration_styleText) => void;                             // Generates the CSS code for an agent specific style change and populates it into an HTML style tag.
  *     };
  * }
@@ -264,7 +264,7 @@ interface module_configuration {
         addUserColor: (agent:string, type:agentType, configElement?:HTMLElement) => void;
         applyAgentColors: (agent:string, type:agentType, colors:[string, string]) => void;
         radio: (element:HTMLElement) => void;
-        socketList: (socketData:socketData) => void;
+        socketMap: (socketData:socketData) => void;
         styleText: (input:configuration_styleText) => void;
     };
 }
@@ -509,7 +509,7 @@ interface module_modal {
  *         "media": modal_open;
  *         "message": modal_open;
  *         "shares": modal_open;
- *         "socket-list": modal_open;
+ *         "socket-map": modal_open;
  *         "terminal": modal_open;
  *         "text-pad": modal_open;
  *     };
@@ -535,7 +535,7 @@ interface module_modalConfiguration {
         "media": modal_open;
         "message": modal_open;
         "shares": modal_open;
-        "socket-list": modal_open;
+        "socket-map": modal_open;
         "terminal": modal_open;
         "text-pad": modal_open;
     };

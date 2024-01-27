@@ -103,7 +103,7 @@ const network:module_network = {
                 "invite": agent_management.tools.inviteTransmissionReceipt,
                 "message": message.tools.receive,
                 "reload": reload,
-                "socket-list": configuration.tools.socketList,
+                "socket-map": configuration.tools.socketMap,
                 "terminal": terminal.events.receive,
                 "test-browser": remote.receive
             },

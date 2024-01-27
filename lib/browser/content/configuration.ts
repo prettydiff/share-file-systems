@@ -26,7 +26,7 @@ import util from "../utilities/util.js";
  *         addUserColor    : (agent:string, type:agentType, configElement?:HTMLElement)) => void; // Add agent color options to the configuration modal content.
  *         applyAgentColors: (agent:string, type:agentType, colors:[string, string]) => void;     // Update the specified color information against the default colors of the current color scheme.
  *         radio           : (element:HTMLElement) => void;                                       // Sets a class on a grandparent element to apply style changes to the corresponding label.
- *         socketList      : (socketData:socketData) => void;                                     // Receives a service message and produces a content update for the socket list modal.
+ *         socketMap       : (socketData:socketData) => void;                                     // Receives a service message and produces a content update for the socket list modal.
  *         styleText       : (input:configuration_styleText) => void;                             // Generates the CSS code for an agent specific style change and populates it into an HTML style tag.
  *     };
  * }
@@ -539,16 +539,16 @@ const configuration:module_configuration = {
             parent.setAttribute("class", "radio-checked");
         },
 
-        socketList: function browser_content_configuration_socketList(socketData:socketData):void {
-            const list:socketList = socketData.data as socketList,
+        socketMap: function browser_content_configuration_socketMap(socketData:socketData):void {
+            const list:socketMap = socketData.data as socketMap,
                 keys:string[] = Object.keys(list),
                 len:number = keys.length,
-                body:HTMLElement = document.getElementById("socketList-modal").getElementsByClassName("body")[0] as HTMLElement,
+                body:HTMLElement = document.getElementById("socketMap-modal").getElementsByClassName("body")[0] as HTMLElement,
                 p:HTMLElement = document.createElement("p");
             body.removeChild(body.firstChild);
             if (len > 0) {
                 const table:HTMLElement = document.createElement("table"),
-                    cell = function browser_content_configuration_socketList_cell(text:string, tagName:"td"|"th", parent:HTMLElement):void {
+                    cell = function browser_content_configuration_socketMap_cell(text:string, tagName:"td"|"th", parent:HTMLElement):void {
                         const tag:HTMLElement = document.createElement(tagName);
                         if (bodySection === true && tagName === "th") {
                             const span:HTMLElement = document.createElement("span"),
@@ -568,7 +568,7 @@ const configuration:module_configuration = {
                     tr:HTMLElement = document.createElement("tr"),
                     indexDevice:number = 0,
                     indexSocket:number = 0,
-                    device:socketListItem[] = null,
+                    device:socketMapItem[] = null,
                     deviceLen:number = 0,
                     bodySection:boolean = false,
                     type:agentType = null;
@@ -623,12 +623,12 @@ const configuration:module_configuration = {
                     }
                     indexDevice = indexDevice + 1;
                 } while (indexDevice < len);
-                table.setAttribute("class", "socket-list");
+                table.setAttribute("class", "socket-map");
                 table.appendChild(section);
                 body.appendChild(table);
                 return;
             }
-            p.setAttribute("class", "socket-list");
+            p.setAttribute("class", "socket-map");
             p.appendText("No open sockets.");
             body.appendChild(p);
         },
