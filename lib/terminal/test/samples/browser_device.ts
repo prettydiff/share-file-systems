@@ -1351,10 +1351,10 @@ const browserDevice:test_browserItem[] = [
                 ["getElementsByClassName", "fileList", 0],
                 ["getElementsByTagName", "li", 0]
             ],
-            qualifier: "is",
+            qualifier: "begins",
             target: ["class"],
             type: "attribute",
-            value: "directory lastType"
+            value: "directory"
         },
         interaction: [
             {
@@ -1509,7 +1509,7 @@ const browserDevice:test_browserItem[] = [
             node: [
                 ["getModalsByModalType", "file-navigate", 0],
                 ["getElementsByClassName", "fileList", 0],
-                ["getElementsByTagName", "li", 2],
+                ["getElementsByTagName", "li", 6],
                 ["getElementsByTagName", "label", 0]
             ],
             qualifier: "is",
@@ -1996,14 +1996,14 @@ const browserDevice:test_browserItem[] = [
     {
         delay: {
             node: [
-                ["getModalsByModalType", "file-navigate", 0],
+                ["getModalsByModalType", "file-navigate", 2],
                 ["getElementsByClassName", "status-bar", 0],
                 ["getElementsByTagName", "p", 0]
             ],
-            qualifier: "is",
+            qualifier: "begins",
             target: ["innerHTML"],
             type: "property",
-            value: "Requested file system artifacts removed."
+            value: "Writing 100.00% complete. 2 files written at size "
         },
         interaction: [
             {
@@ -2125,14 +2125,14 @@ const browserDevice:test_browserItem[] = [
             },
             {
                 node: [
-                    ["getModalsByModalType", "file-navigate", 2],
+                    ["getModalsByModalType", "file-navigate", 0],
                     ["getElementsByClassName", "status-bar", 0],
                     ["getElementsByTagName", "p", 0]
                 ],
-                qualifier: "begins",
+                qualifier: "is",
                 target: ["innerHTML"],
                 type: "property",
-                value: "Writing 100.00% complete. 2 files written at size "
+                value: "Requested file system artifacts removed."
             },
             {
                 node: [
@@ -2464,6 +2464,139 @@ const browserDevice:test_browserItem[] = [
                 target: ["innerHTML"],
                 type: "property",
                 value: "<strong>VM1</strong>"
+            }
+        ]
+    },
+
+    // on self open message modal to VM3
+    {
+        interaction: [
+            {
+                event: "click",
+                node: [
+                    ["getModalsByModalType", "shares", 0],
+                    ["getElementsByClassName", "body", 0]
+                ]
+            },
+            {
+                event: "click",
+                node: [
+                    ["getModalsByModalType", "shares", 0],
+                    ["getElementsByClassName", "user", 0],
+                    ["getElementsByClassName", "tools", 0],
+                    ["getElementsByText", "Text ", 0],
+                    ["parentNode", null, null]
+                ]
+            }
+        ],
+        machine: "self",
+        name: "On self open message modal to VM3",
+        unit: [
+            {
+                node: [
+                    ["getModalsByModalType", "message", 0]
+                ],
+                qualifier: "greater",
+                target: ["clientHeight"],
+                type: "property",
+                value: 200
+            }
+        ]
+    },
+
+    // on self send message modal to VM3
+    {
+        interaction: [
+            {
+                event: "click",
+                node: [
+                    ["getModalsByModalType", "message", 1],
+                    ["getElementsByTagName", "textarea", 0]
+                ]
+            },
+            {
+                event: "setValue",
+                node: [
+                    ["getModalsByModalType", "message", 1],
+                    ["getElementsByTagName", "textarea", 0]
+                ],
+                value: "Hello from User-self."
+            },
+            {
+                event: "click",
+                node: [
+                    ["getModalsByModalType", "message", 1],
+                    ["getElementsByClassName", "footer-buttons", 0],
+                    ["getElementsByTagName", "button", 0]
+                ]
+            }
+        ],
+        machine: "self",
+        name: "On self send message to VM3",
+        unit: [
+            {
+                node: [
+                    ["getModalsByModalType", "message", 1],
+                    ["getElementsByClassName", "message-content", 0],
+                    ["getElementsByTagName", "td", 0]
+                ],
+                qualifier: "is",
+                target: ["innerHTML"],
+                type: "property",
+                value: "<p>Hello from User-self.</p>"
+            },
+            {
+                node: [
+                    ["getModalsByModalType", "message", 1],
+                    ["getElementsByClassName", "message-content", 0],
+                    ["getElementsByTagName", "th", 0]
+                ],
+                qualifier: "contains",
+                target: ["innerHTML"],
+                type: "property",
+                value: "<strong>User-self</strong>"
+            }
+        ]
+    },
+
+    // on vm3 verify message from self
+    {
+        interaction: [],
+        machine: "VM3",
+        name: "On VM3 verify message from self",
+        unit: [
+            {
+                node: [
+                    ["getModalsByModalType", "message", 0],
+                    ["getElementsByClassName", "message-content", 0],
+                    ["getElementsByTagName", "td", 0]
+                ],
+                qualifier: "is",
+                target: ["innerHTML"],
+                type: "property",
+                value: "<p>Hello from self.</p>"
+            },
+            {
+                node: [
+                    ["getModalsByModalType", "message", 0],
+                    ["getElementsByClassName", "message-content", 0],
+                    ["getElementsByTagName", "th", 0]
+                ],
+                qualifier: "contains",
+                target: ["innerHTML"],
+                type: "property",
+                value: "<span>Device</span>"
+            },
+            {
+                node: [
+                    ["getModalsByModalType", "message", 0],
+                    ["getElementsByClassName", "message-content", 0],
+                    ["getElementsByTagName", "th", 0]
+                ],
+                qualifier: "contains",
+                target: ["innerHTML"],
+                type: "property",
+                value: "<strong>User-self</strong>"
             }
         ]
     },

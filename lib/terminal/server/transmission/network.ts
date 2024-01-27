@@ -218,7 +218,7 @@ const network:module_transmit_network = {
     send: function terminal_server_transmission_network_send(data:socketData, agents:transmit_agents|string):void {
         const agentQueue = function terminal_server_transmission_network_send_agentQueue(type:socketType, agent:string, payload:socketData) {
                 const socket:websocket_client = transmit_ws.socketList[type as agentType][agent];
-                if (socket !== undefined && socket !== null && (socket.status === "open" || socket.status === "pending")) {
+                if (socket !== undefined && socket !== null && (socket.status === "open" || socket.status === "pending")) {console.log(payload);
                     transmit_ws.queue(payload, socket, 1);
                 } else if (vars.test.type === "" && (type === "device" || type === "user") && vars.agents[type][agent] !== undefined) {
                     const service_exclusions: service_type[] = [

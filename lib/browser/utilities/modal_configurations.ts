@@ -489,7 +489,7 @@ const modal_configuration:module_modalConfiguration = {
                     div:HTMLElement = element.getAncestor("div", "tag"),
                     agent:string = div.dataset.hash,
                     agentType:agentType = div.getAttribute("class") as agentType,
-                    identity:boolean = (agent !== browser.identity.hashDevice && agent !== "");
+                    identity:boolean = (agent === browser.identity.hashDevice || agent === "");
                 if (identity === true && browser.agents[agentType][agent] === undefined) {
                     return null;
                 }
@@ -504,8 +504,8 @@ const modal_configuration:module_modalConfiguration = {
                     text_placeholder: "text",
                     text_value: "",
                     title_supplement: (identity === true)
-                        ? `${common.capitalize(agentType)} ${browser.agents[agentType][agent].name}`
-                        : `all ${agentType}s`,
+                        ? `all ${agentType}s`
+                        : `${common.capitalize(agentType)} ${browser.agents[agentType][agent].name}`,
                     type: "message",
                     width: 800
                 };
