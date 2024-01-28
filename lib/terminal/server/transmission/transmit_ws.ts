@@ -543,6 +543,12 @@ const transmit_ws:module_transmit_ws = {
             do {
                 index = index - 1;
                 if (stringBody.includes(devices[index]) === true) {
+                    if (vars.test.type !== "") {
+                        // eslint-disable-next-line
+                        console.log(`${vars.text.angry}Sending device identifier on user socket:${vars.text.none}`);
+                        // eslint-disable-next-line
+                        console.log(stringBody);
+                    }
                     return;
                 }
             } while (index > 0);
