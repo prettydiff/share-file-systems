@@ -947,7 +947,7 @@ const transmit_ws:module_transmit_ws = {
                 list = function terminal_server_transmission_transmitWs_socketExtension_list():void {
                     const list:socketMapItem[] = [],
                         keysPrimary:string[] = Object.keys(transmit_ws.socketStore),
-            
+
                         // populate data from sockets that are children of a group
                         child = function terminal_server_transmission_transmitWs_socketExtension_list_child():void {
                             // @ts-ignore
@@ -973,7 +973,7 @@ const transmit_ws:module_transmit_ws = {
                                 });
                             } while (indexChild > 0);
                         };
-            
+
                     // loop through the socket groups
                     let indexPrimary:number = keysPrimary.length;
                     if (vars.identity.hashDevice === "") {
@@ -983,7 +983,7 @@ const transmit_ws:module_transmit_ws = {
                         indexPrimary = indexPrimary - 1;
                         child();
                     } while (indexPrimary > 0);
-            
+
                     // sort the raw data by group name
                     list.sort(function terminal_server_transmission_transmitWs_socketExtension_list_sort(a:socketMapItem, b:socketMapItem):-1|1 {
                         if (a.type < b.type) {

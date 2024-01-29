@@ -216,7 +216,7 @@ const network:module_transmit_network = {
 
     // send a specified data package to a specified agent
     send: function terminal_server_transmission_network_send(data:socketData, agents:transmit_agents|string):void {
-        const agentQueue = function terminal_server_transmission_network_send_agentQueue(type:socketType, agent:string, payload:socketData) {
+        const agentQueue = function terminal_server_transmission_network_send_agentQueue(type:socketType, agent:string, payload:socketData):void {
                 const socket:websocket_client = transmit_ws.getSocket(type, agent);
                 if (socket !== null && (socket.status === "open" || socket.status === "pending")) {
                     transmit_ws.queue(payload, socket, 1);
