@@ -176,7 +176,7 @@ const transmit_ws:module_transmit_ws = {
                 }
                 client.once("error", callbackError);
                 if (config.socketType === "device" || config.socketType === "user") {
-                    mask.mask(vars.agents[config.socketType][config.hash].secret, function terminal_server_transmission_transmitWs_createSocket_hash_maskDevice(key:string):void {
+                    mask.mask(vars.agents[config.socketType][config.hash].secret, null, function terminal_server_transmission_transmitWs_createSocket_hash_maskDevice(key:string):void {
                         header.push(`challenge: ${key}`);
                         client.once("ready", callbackReady);
                     });
@@ -522,9 +522,49 @@ const transmit_ws:module_transmit_ws = {
                 } else {
                     writeCallback();
                 }
-            };
+            },
+            socketData:socketData = body as socketData,
+            isBuffer:boolean = (socketItem === undefined || socketItem === null)
+                ? false
+                :  (socketData.service === undefined),
+            stringBody:string = (isBuffer === true)
+                ? null
+                : JSON.stringify(socketData);
+        let dataPackage:Buffer = (isBuffer === true)
+            ? body as Buffer
+            : Buffer.from(stringBody);
         if (socketItem === undefined || socketItem === null) {
             return;
+        }
+        // verify that payload to a user does not contain any device identifiers
+        if (isBuffer === false && socketItem.type === "user") {
+            const devices:string[] = Object.keys(vars.agents.device),
+                violations:string[] = [
+                    `${vars.text.angry}Sending the following device identifier(s) on user socket at the indicated string index(es):${vars.text.none}`,
+                    `Service: ${vars.text.angry + socketData.service + vars.text.none}`,
+                    ""
+                ],
+                filler:string = "x".repeat(128);
+            let index:number = devices.length,
+                position:number = -1,
+                tempString:string = stringBody;
+            do {
+                index = index - 1;
+                position = tempString.indexOf(devices[index]);
+                if (position > -1) {
+                    do {
+                        violations.push(`${vars.text.angry}*${vars.text.none} ${position} - ${devices[index]}`);
+                        tempString = tempString.replace(devices[index], filler);
+                        position = tempString.indexOf(devices[index]);
+                    } while (position > -1);
+                }
+            } while (index > 0);
+            if (violations.length > 3) {
+                violations.push("");
+                violations.push(stringBody);
+                log(violations);
+                return;
+            }
         }
         // OPCODES
         // ## Messages
@@ -552,10 +592,7 @@ const transmit_ws:module_transmit_ws = {
         // * Mask bit is set as payload length (up to 127) + 128 assigned to frame header second byte.
         // * Mask key is first 4 bytes following payload length bytes (if any).
         if (opcode === 1 || opcode === 2 || opcode === 3 || opcode === 4 || opcode === 5 || opcode === 6 || opcode === 7) {
-            const socketData:socketData = body as socketData,
-                isBuffer:boolean = (socketData.service === undefined),
-                // fragmentation is disabled by assigning a value of 0
-                fragmentSize:number = (socketItem.type === "browser")
+            const fragmentSize:number = (socketItem.type === "browser")
                     ? 0
                     : 1e6,
                 op:1|2 = (isBuffer === true)
@@ -620,10 +657,7 @@ const transmit_ws:module_transmit_ws = {
                         terminal_server_transmission_transmitWs_queue_fragmentation(false);
                     }
                 };
-            let dataPackage:Buffer = (isBuffer === true)
-                    ? body as Buffer
-                    : Buffer.from(JSON.stringify(body as socketData)),
-                len:number = dataPackage.length;
+            let len:number = dataPackage.length;
             network.logger({
                 direction: "send",
                 size: dataPackage.length,
@@ -641,8 +675,7 @@ const transmit_ws:module_transmit_ws = {
             fragmentation(true);
         } else if (opcode === 8 || opcode === 9 || opcode === 10 || opcode === 11 || opcode === 12 || opcode === 13 || opcode === 14 || opcode === 15) {
             const frameHeader:Buffer = Buffer.alloc(2),
-                bodyData:Buffer = body as Buffer,
-                frameBody:Buffer = bodyData.subarray(0, 125);
+                frameBody:Buffer = dataPackage.subarray(0, 125);
             frameHeader[0] = 128 + opcode;
             frameHeader[1] = frameBody.length;
             socketItem.queue.unshift(Buffer.concat([frameHeader, frameBody]));
@@ -650,7 +683,7 @@ const transmit_ws:module_transmit_ws = {
                 direction: "send",
                 size: frameHeader[1] + 2,
                 socketData: {
-                    data: bodyData,
+                    data: dataPackage,
                     service: "response-no-action"
                 },
                 transmit: {
@@ -927,7 +960,7 @@ const transmit_ws:module_transmit_ws = {
                 list = function terminal_server_transmission_transmitWs_socketExtension_list():void {
                     const list:socketMapItem[] = [],
                         keysPrimary:string[] = Object.keys(transmit_ws.socketStore),
-            
+
                         // populate data from sockets that are children of a group
                         child = function terminal_server_transmission_transmitWs_socketExtension_list_child():void {
                             // @ts-ignore
@@ -953,7 +986,7 @@ const transmit_ws:module_transmit_ws = {
                                 });
                             } while (indexChild > 0);
                         };
-            
+
                     // loop through the socket groups
                     let indexPrimary:number = keysPrimary.length;
                     if (vars.identity.hashDevice === "") {
@@ -963,7 +996,7 @@ const transmit_ws:module_transmit_ws = {
                         indexPrimary = indexPrimary - 1;
                         child();
                     } while (indexPrimary > 0);
-            
+
                     // sort the raw data by group name
                     list.sort(function terminal_server_transmission_transmitWs_socketExtension_list_sort(a:socketMapItem, b:socketMapItem):-1|1 {
                         if (a.type < b.type) {
@@ -1080,7 +1113,7 @@ const transmit_ws:module_transmit_ws = {
     },
     // a map of which devices have which sockets open
     socketMap: {},
-    socketMapUpdate: function terminal_server_transmission_transmitWs_statusUpdate(socketData:socketData):void {
+    socketMapUpdate: function terminal_server_transmission_transmitWs_socketMapUpdate(socketData:socketData):void {
         const data:socketMap = socketData.data as socketMap,
             keys:string[] = Object.keys(data);
         transmit_ws.socketMap[keys[0]] = data[keys[0]];

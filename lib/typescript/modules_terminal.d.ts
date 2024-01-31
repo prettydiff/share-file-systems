@@ -213,16 +213,16 @@ interface module_inviteActions {
  * Methods to mask or unmask a device identity between users.
  * ```typescript
  * interface module_mask {
- *     fileAgent: (agent:fileAgent, callback:(key:string) => void) => void;                   // An abstraction layer specific for fileAgent data.
- *     mask: (input:string, callback:(key:string) => void) => void;                           // Converts a device identity into a new hash of 141 character length.
- *     resolve: (agent:fileAgent) => string;                                                  // Resolves a device identifier from a share for the current local user.
- *     unmaskDevice: (maskItem:string, callback:(device:string) => void) => void;             // Compares a temporary 141 character device identity against owned devices to determine validity of share permissions.
- *     unmaskToken: (maskItem:string, token:string, callback:(test:boolean) => void) => void; // Compares a 141 character masked hash against a string hashed from a date and submitted token.
+ *     fileAgent: (agent:fileAgent, callback:(key:string) => void) => void;                               // An abstraction layer specific for fileAgent data.
+ *     mask: (input:string, identifier:string, callback:(key:string, identifier:string) => void) => void; // Converts a device identity into a new hash of 141 character length.
+ *     resolve: (agent:fileAgent) => string;                                                              // Resolves a device identifier from a share for the current local user.
+ *     unmaskDevice: (maskItem:string, callback:(device:string) => void) => void;                         // Compares a temporary 141 character device identity against owned devices to determine validity of share permissions.
+ *     unmaskToken: (maskItem:string, token:string, callback:(test:boolean) => void) => void;             // Compares a 141 character masked hash against a string hashed from a date and submitted token.
  * }
  * ``` */
 interface module_mask {
     fileAgent: (agent:fileAgent, callback:(key:string) => void) => void;
-    mask: (input:string, callback:(key:string) => void) => void;
+    mask: (input:string, identifier:string, callback:(key:string, identifier:string) => void) => void;
     resolve: (agent:fileAgent) => string;
     unmaskDevice: (maskItem:string, callback:(device:string) => void) => void;
     unmaskToken: (maskItem:string, token:string, callback:(test:boolean) => void) => void;

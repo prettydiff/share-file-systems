@@ -20,18 +20,18 @@ const mask:module_mask = {
         if (agent.device.length === 141 || agent.device === "" || agent.user !== vars.identity.hashUser) {
             callback(agent.device);
         } else {
-            mask.mask(mask.resolve(agent), function terminal_utilities_mask_fileAgent_mask(key:string):void {
+            mask.mask(mask.resolve(agent), null, function terminal_utilities_mask_fileAgent_mask(key:string):void {
                 agent.device = key;
                 callback(agent.device);
             });
         }
     },
-    mask: function terminal_utilities_mask_mask(input:string, callback:(hashMask:string) => void):void {
+    mask: function terminal_utilities_mask_mask(input:string, identifier:string, callback:(hashMask:string, identifier:string) => void):void {
         const date:string = Date.now().toString(),
             hashInput:config_command_hash = {
                 algorithm: "sha3-512",
                 callback: function terminal_utilities_mask_mask_hash(title:string, output:hash_output):void {
-                    callback(date + output.hash);
+                    callback(date + output.hash, identifier);
                 },
                 digest: "hex",
                 directInput: true,

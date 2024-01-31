@@ -34,6 +34,7 @@ const network:module_transmit_network = {
     // direct a data payload to a specific agent as determined by the service name and the agent details in the data payload
     fileRoute: function terminal_server_transmission_network_fileRoute(config:config_fileRoute):void {
         const data:service_copy = config.socketData.data as service_copy,
+            destination:fileAgent = data[config.destination],
             sendSelf = function terminal_server_transmission_network_fileRoute_sendSelf(device:string):void {
                 if (device === vars.identity.hashDevice) {
                     config.callback(config.socketData);
@@ -57,72 +58,40 @@ const network:module_transmit_network = {
                     callback(mask.resolve(destination));
                 }
             };
-        let destination:fileAgent = data[config.destination];
         if (destination.user === vars.identity.hashUser) {
             // same user, send to device
             unmask(destination.device, sendSelf);
         } else {
-            const resolveUser = function terminal_server_transmission_network_fileRoute_resolveUser(user:string):string {
-                    const socketKeys:string[] = Object.keys(transmit_ws.socketMap);
-                    let indexKeys:number = socketKeys.length,
-                        indexList:number = 0;
-                    if (indexKeys > 0) {
-                        do {
-                            indexKeys = indexKeys - 1;
-                            indexList = transmit_ws.socketMap[socketKeys[indexKeys]].length;
-                            if (indexList > 0) {
-                                do {
-                                    indexList = indexList - 1;
-                                    if (transmit_ws.socketMap[socketKeys[indexKeys]][indexList].type === "user" && transmit_ws.socketMap[socketKeys[indexKeys]][indexList].name === user) {
-                                        return socketKeys[indexKeys];
-                                    }
-                                } while (indexList > 0);
-                            }
-                        } while (indexKeys > 0);
-                    }
-                    return "";
+            const flag:flagList = {
+                    agentRequest: false,
+                    agentSource: false,
+                    agentWrite: false
                 },
-                sendUser = function terminal_server_transmission_network_fileRoute_sendUser(device:string):void {
-                    if (device === vars.identity.hashDevice) {
-                        // if current device holds socket to destination user, send data to user with masked device identity
-                        mask.fileAgent(data[config.origination], function terminal_server_transmission_network_fileRoute_sendUser_mask(device:string):void {
-                            data[config.origination].device = device;
-                            network.send(config.socketData, {
-                                device: "",
-                                user: destination.user
-                            });
-                        });
-                    } else {
-                        // send to device containing socket to destination user
-                        unmask(device, function terminal_server_transmission_network_fileRoute_sendUser_callback(unmasked:string):void {
-                            network.send(config.socketData, {
-                                device: unmasked,
-                                user: vars.identity.hashUser
-                            });
+                complete = function terminal_server_transmission_network_fileRoute_complete(device:string, agent:string):void {
+                    flag[agent] = true;
+                    if (device !== null) {
+                        data[agent as agentCopy].device = device;
+                    }
+                    if (flag.agentRequest === true && flag.agentSource === true && flag.agentWrite === true) {
+                        network.send(config.socketData, {
+                            device: destination.device,
+                            user: destination.user
                         });
                     }
                 },
-                userDevice:string = resolveUser(destination.user);
-
-            if (userDevice === "") {
-                // if no device contains a socket to the user send to agentRequest only if
-                // * destination is not agent request
-                // * operation requires more than two agents
-                if (config.destination !== "agentRequest" && data.agentWrite !== null && data.agentWrite !== undefined) {
-                    destination = data.agentRequest;
-                    if (destination.user === vars.identity.hashUser) {
-                        // if agentRequest is the same user, send to device
-                        unmask(destination.device, sendSelf);
+                masker = function terminal_server_transmission_network_fileRoute_masker(agent:agentCopy):void {
+                    if (data[agent] !== null && data[agent].user === vars.identity.hashUser && data[agent].device.length === 128) {
+                        mask.mask(data[agent].device, agent, complete);
                     } else {
-                        // resolve device containing socket to agentRequest
-                        const requestor:string = resolveUser(data.agentRequest.user);
-                        if (requestor !== "") {
-                            sendUser(requestor);
-                        }
+                        complete(null, agent);
                     }
-                }
+                };
+            if (data.agentRequest.user === vars.identity.hashUser && data.agentSource.user === data.agentRequest.user && (data.agentWrite === null || data.agentWrite.user === data.agentRequest.user)) {
+                sendSelf(destination.device);
             } else {
-                sendUser(userDevice);
+                masker("agentRequest");
+                masker("agentSource");
+                masker("agentWrite");
             }
         }
     },
@@ -216,7 +185,7 @@ const network:module_transmit_network = {
 
     // send a specified data package to a specified agent
     send: function terminal_server_transmission_network_send(data:socketData, agents:transmit_agents|string):void {
-        const agentQueue = function terminal_server_transmission_network_send_agentQueue(type:socketType, agent:string, payload:socketData) {
+        const agentQueue = function terminal_server_transmission_network_send_agentQueue(type:socketType, agent:string, payload:socketData):void {
                 const socket:websocket_client = transmit_ws.getSocket(type, agent);
                 if (socket !== null && (socket.status === "open" || socket.status === "pending")) {
                     transmit_ws.queue(payload, socket, 1);
