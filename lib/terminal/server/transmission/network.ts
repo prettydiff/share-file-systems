@@ -33,6 +33,7 @@ import vars from "../../utilities/vars.js";
 const network:module_transmit_network = {
     // direct a data payload to a specific agent as determined by the service name and the agent details in the data payload
     fileRoute: function terminal_server_transmission_network_fileRoute(config:config_fileRoute):void {
+        /*
         const data:service_copy = config.socketData.data as service_copy,
             sendSelf = function terminal_server_transmission_network_fileRoute_sendSelf(device:string):void {
                 if (device === vars.identity.hashDevice) {
@@ -57,6 +58,7 @@ const network:module_transmit_network = {
                     callback(mask.resolve(destination));
                 }
             };
+
         let destination:fileAgent = data[config.destination];
         if (destination.user === vars.identity.hashUser) {
             // same user, send to device
@@ -123,6 +125,68 @@ const network:module_transmit_network = {
                 }
             } else {
                 sendUser(userDevice);
+            }
+        }
+        */
+        const data:service_copy = config.socketData.data as service_copy,
+            destination:fileAgent = data[config.destination],
+            sendSelf = function terminal_server_transmission_network_fileRoute_sendSelf(device:string):void {
+                if (device === vars.identity.hashDevice) {
+                    config.callback(config.socketData);
+                } else {
+                    network.send(config.socketData, {
+                        device: device,
+                        user: vars.identity.hashUser
+                    });
+                }
+            },
+            unmask = function terminal_server_transmission_network_fileRoute_unmask(device:string, callback:(device:string) => void):void {
+                // same user
+                if (device.length === 141) {
+                    // masked device
+                    mask.unmaskDevice(device, callback);
+                } else if (device.length === 128) {
+                    // normal device
+                    callback(device);
+                } else if (destination.share.length === 128) {
+                    // resolve from share
+                    callback(mask.resolve(destination));
+                }
+            };
+        if (destination.user === vars.identity.hashUser) {
+            // same user, send to device
+            unmask(destination.device, sendSelf);
+        } else {
+            const flag:flagList = {
+                    agentRequest: false,
+                    agentSource: false,
+                    agentWrite: false
+                },
+                complete = function terminal_server_transmission_network_fileRoute_complete(device:string, agent:string):void {
+                    flag[agent] = true;
+                    if (device !== null) {
+                        data[agent as agentCopy].device = device;
+                    }
+                    if (flag.agentRequest === true && flag.agentSource === true && flag.agentWrite === true) {
+                        network.send(config.socketData, {
+                            device: destination.device,
+                            user: destination.user
+                        });
+                    }
+                },
+                masker = function terminal_server_transmission_network_fileRoute_masker(agent:agentCopy):void {
+                    if (data[agent] !== null && data[agent].user === vars.identity.hashUser && data[agent].device.length === 128) {
+                        mask.mask(data[agent].device, agent, complete);
+                    } else {
+                        complete(null, agent);
+                    }
+                };
+            if (data.agentRequest.user === vars.identity.hashUser && data.agentSource.user === data.agentRequest.user && (data.agentWrite === null || data.agentWrite.user === data.agentRequest.user)) {
+                sendSelf(destination.device);
+            } else {
+                masker("agentRequest");
+                masker("agentSource");
+                masker("agentWrite");
             }
         }
     },

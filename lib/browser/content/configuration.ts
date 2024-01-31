@@ -592,32 +592,38 @@ const configuration:module_configuration = {
                         cell(keys[indexDevice], "th", tr);
                         section.appendChild(tr);
                         do {
-                            tr = document.createElement("tr");
-                            cell(device[indexSocket].type, "td", tr);
-                            cell(device[indexSocket].status, "td", tr);
-                            if (device[indexSocket].status === "open") {
-                                cell(device[indexSocket].localAddress, "td", tr);
-                                cell(device[indexSocket].localPort.toString(), "td", tr);
-                                cell(device[indexSocket].remoteAddress, "td", tr);
-                                cell(device[indexSocket].remotePort.toString(), "td", tr);
-                            } else {
-                                cell("", "td", tr);
-                                cell("", "td", tr);
-                                cell("", "td", tr);
-                                cell("", "td", tr);
+                            // agent deletion can result in a race condition to report the updated socket list containing deleted agent data
+                            if (
+                                (device[indexSocket].type !== "device" && device[indexSocket].type !== "user") ||
+                                ((device[indexSocket].type === "device" || device[indexSocket].type === "user") && browser.agents[type] !== undefined && browser.agents[type][device[indexSocket].name] !== undefined)
+                            ) {
+                                tr = document.createElement("tr");
+                                cell(device[indexSocket].type, "td", tr);
+                                cell(device[indexSocket].status, "td", tr);
+                                if (device[indexSocket].status === "open") {
+                                    cell(device[indexSocket].localAddress, "td", tr);
+                                    cell(device[indexSocket].localPort.toString(), "td", tr);
+                                    cell(device[indexSocket].remoteAddress, "td", tr);
+                                    cell(device[indexSocket].remotePort.toString(), "td", tr);
+                                } else {
+                                    cell("", "td", tr);
+                                    cell("", "td", tr);
+                                    cell("", "td", tr);
+                                    cell("", "td", tr);
+                                }
+                                if (device[indexSocket].type === "device" || device[indexSocket].type === "user") {
+                                    type = device[indexSocket].type as agentType;
+                                    cell(`${browser.agents[type][device[indexSocket].name].name} - ${device[indexSocket].name}`, "td", tr);
+                                } else {
+                                    cell(device[indexSocket].name, "td", tr);
+                                }
+                                if (device[indexSocket].status === "end" || device[indexSocket].status === "closed") {
+                                    tr.setAttribute("class", "closed");
+                                } else if (device[indexSocket].status === "pending") {
+                                    tr.setAttribute("class", "pending");
+                                }
+                                section.appendChild(tr);
                             }
-                            if (device[indexSocket].type === "device" || device[indexSocket].type === "user") {
-                                type = device[indexSocket].type as agentType;
-                                cell(`${browser.agents[type][device[indexSocket].name].name} - ${device[indexSocket].name}`, "td", tr);
-                            } else {
-                                cell(device[indexSocket].name, "td", tr);
-                            }
-                            if (device[indexSocket].status === "end" || device[indexSocket].status === "closed") {
-                                tr.setAttribute("class", "closed");
-                            } else if (device[indexSocket].status === "pending") {
-                                tr.setAttribute("class", "pending");
-                            }
-                            section.appendChild(tr);
                             indexSocket = indexSocket + 1;
                         } while (indexSocket < deviceLen);
                     }

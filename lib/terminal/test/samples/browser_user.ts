@@ -235,11 +235,9 @@ const docFiles:string = "Writing 100.00% complete. 22 files written at size ",
             delay: {
                 node: [
                     ["getModalsByModalType", "file-navigate", 0],
-                    ["getElementsByClassName", "fileList", 0],
-                    ["getElementsByTagName", "li", 0],
-                    ["getElementsByTagName", "label", 0]
+                    ["getElementsByClassName", "fileList", 0]
                 ],
-                qualifier: "is",
+                qualifier: "contains",
                 target: ["innerHTML"],
                 type: "property",
                 value: "temp.txt"
@@ -523,14 +521,12 @@ const docFiles:string = "Writing 100.00% complete. 22 files written at size ",
             delay: {
                 node: [
                     ["getModalsByModalType", "file-navigate", 0],
-                    ["getElementsByClassName", "fileList", 0],
-                    ["getElementsByTagName", "li", 0],
-                    ["getElementsByTagName", "label", 0]
+                    ["getElementsByClassName", "fileList", 0]
                 ],
-                qualifier: "is",
+                qualifier: "contains",
                 target: ["innerHTML"],
                 type: "property",
-                value: "device.json"
+                value: "temp.txt"
             },
             interaction: [
                 {
@@ -579,14 +575,12 @@ const docFiles:string = "Writing 100.00% complete. 22 files written at size ",
             delay: {
                 node: [
                     ["getModalsByModalType", "file-navigate", 0],
-                    ["getElementsByClassName", "fileList", 0],
-                    ["getElementsByTagName", "li", 0],
-                    ["getElementsByTagName", "label", 0]
+                    ["getElementsByClassName", "fileList", 0]
                 ],
-                qualifier: "ends",
-                target: ["firstChild", "textContent"],
+                qualifier: "contains",
+                target: ["innerHTML"],
                 type: "property",
-                value: "device.json"
+                value: "temp.txt"
             },
             interaction: [
                 {

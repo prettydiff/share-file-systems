@@ -134,7 +134,7 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                 // formulation - local browser
                 // execution   - local terminal
                 // purpose     - Start the invitation process
-                mask.mask(vars.identity.hashDevice, function terminal_server_services_invite_start_mask(key:string):void {
+                mask.mask(vars.identity.hashDevice, null, function terminal_server_services_invite_start_mask(key:string):void {
                     data.agentRequest.session = key;
                     data.action = "invite-request";
                     if (vars.test.type === "service") {
@@ -182,7 +182,7 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                 // formulation - remote browser
                 // execution   - remote terminal
                 // purpose     - Inform the terminal of the answer to the invitation
-                mask.mask(vars.identity.hashDevice, function terminal_server_services_invite_answer_mask(key:string):void {
+                mask.mask(vars.identity.hashDevice, null, function terminal_server_services_invite_answer_mask(key:string):void {
                     data.action = "invite-response";
                     if (data.status === "accepted") {
                         const session:string = key;

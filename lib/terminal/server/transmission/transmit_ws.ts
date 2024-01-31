@@ -176,7 +176,7 @@ const transmit_ws:module_transmit_ws = {
                 }
                 client.once("error", callbackError);
                 if (config.socketType === "device" || config.socketType === "user") {
-                    mask.mask(vars.agents[config.socketType][config.hash].secret, function terminal_server_transmission_transmitWs_createSocket_hash_maskDevice(key:string):void {
+                    mask.mask(vars.agents[config.socketType][config.hash].secret, null, function terminal_server_transmission_transmitWs_createSocket_hash_maskDevice(key:string):void {
                         header.push(`challenge: ${key}`);
                         client.once("ready", callbackReady);
                     });
@@ -538,20 +538,33 @@ const transmit_ws:module_transmit_ws = {
         }
         // verify that payload to a user does not contain any device identifiers
         if (isBuffer === false && socketItem.type === "user") {
-            const devices:string[] = Object.keys(vars.agents.device);
-            let index:number = devices.length;
+            const devices:string[] = Object.keys(vars.agents.device),
+                violations:string[] = [
+                    `${vars.text.angry}Sending the following device identifier(s) on user socket at the indicated string index(es):${vars.text.none}`,
+                    `Service: ${vars.text.angry + socketData.service + vars.text.none}`,
+                    ""
+                ],
+                filler:string = "x".repeat(128);
+            let index:number = devices.length,
+                position:number = -1,
+                tempString:string = stringBody;
             do {
                 index = index - 1;
-                if (stringBody.includes(devices[index]) === true) {
-                    if (vars.test.type !== "") {
-                        // eslint-disable-next-line
-                        console.log(`${vars.text.angry}Sending device identifier on user socket:${vars.text.none}`);
-                        // eslint-disable-next-line
-                        console.log(stringBody);
-                    }
-                    return;
+                position = tempString.indexOf(devices[index]);
+                if (position > -1) {
+                    do {
+                        violations.push(`${vars.text.angry}*${vars.text.none} ${position} - ${devices[index]}`);
+                        tempString = tempString.replace(devices[index], filler);
+                        position = tempString.indexOf(devices[index]);
+                    } while (position > -1);
                 }
             } while (index > 0);
+            if (violations.length > 3) {
+                violations.push("");
+                violations.push(stringBody);
+                log(violations);
+                return;
+            }
         }
         // OPCODES
         // ## Messages
@@ -1100,7 +1113,7 @@ const transmit_ws:module_transmit_ws = {
     },
     // a map of which devices have which sockets open
     socketMap: {},
-    socketMapUpdate: function terminal_server_transmission_transmitWs_statusUpdate(socketData:socketData):void {
+    socketMapUpdate: function terminal_server_transmission_transmitWs_socketMapUpdate(socketData:socketData):void {
         const data:socketMap = socketData.data as socketMap,
             keys:string[] = Object.keys(data);
         transmit_ws.socketMap[keys[0]] = data[keys[0]];
