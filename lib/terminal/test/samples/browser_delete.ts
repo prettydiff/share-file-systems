@@ -599,6 +599,44 @@ const browserDelete:test_browserItem[] = [
         machine: "self",
         name: "On self verify user is deleted",
         unit: null
+    },
+
+    // on self open socket map
+    {
+        delay: {
+            node: [
+                ["getModalsByModalType", "socket-map", 0]
+            ],
+            qualifier: "greater",
+            target: ["clientHeight"],
+            type: "property",
+            value: 10
+        },
+        interaction: [
+            {
+                event: "click",
+                node: [
+                    ["getElementById", "agentList", null],
+                    ["getElementsByTagName", "button", 0]
+                ]
+            }
+        ],
+        machine: "self",
+        name: "On self verify socket map displays after agent deletion.",
+        unit: [
+            {
+                node: [
+                    ["getModalsByModalType", "socket-map", 0],
+                    ["getElementsByClassName", "body", 0],
+                    ["getElementsByTagName", "table", 0],
+                    ["getElementsByTagName", "tr", null]
+                ],
+                qualifier: "greater",
+                target: ["length"],
+                type: "property",
+                value: 8
+            }
+        ]
     }
 ];
 
