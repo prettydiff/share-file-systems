@@ -316,10 +316,10 @@ const configuration:module_configuration = {
                     indexMap:string[] = [
                         `.${color} #spaces .box div.body{background:`,
                         `.${color} #spaces .box input, .${color} #spaces .box textarea{background:`,
-                        `.${color} #spaces .box .body, .${color} #spaces .box textarea{backdrop-filter:`
+                        `.${color} #spaces .box .body, .${color} #spaces .box textarea{-webkit-backdrop-filter:xxx;backdrop-filter:`
                     ],
                     existingCSS:string[] = browser.style.firstChild.textContent.split("\n"),
-                    newProperty:string = `${indexMap[index] + value}}`;
+                    newProperty:string = `${indexMap[index].replace("xxx", value) + value}}`;
                 let css:number = existingCSS.length;
                 do {
                     css = css - 1;

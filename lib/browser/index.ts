@@ -276,7 +276,7 @@ import disallowed from "../common/disallowed.js";
                 colors.forEach(function browser_init_colorsEach(color:string):void {
                     text.push(`.${color} #spaces .box div.body{background:${browser.ui.colorBackgrounds[color][0]}}`);
                     text.push(`.${color} #spaces .box input, .${color} #spaces .box textarea{background:${browser.ui.colorBackgrounds[color][1]}}`);
-                    text.push(`.${color} #spaces .box .body, .${color} #spaces .box textarea{backdrop-filter:${browser.ui.colorBackgrounds[color][2]}}`);
+                    text.push(`.${color} #spaces .box .body, .${color} #spaces .box textarea{-webkit-backdrop-filter:${browser.ui.colorBackgrounds[color][2]};backdrop-filter:${browser.ui.colorBackgrounds[color][2]}}`);
                 });
                 text.push("/*window css end*/");
                 browser.style.appendText(text.join("\n"));

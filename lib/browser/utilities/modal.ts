@@ -195,7 +195,7 @@ const modal:module_modal = {
                         event: modal.events.minimize,
                         parent: section,
                         spanText: "Minimize",
-                        text: "↙ ",
+                        text: "↵ ",
                         title: "Minimize"
                     });
                     buttonCount = buttonCount + 1;
@@ -310,7 +310,7 @@ const modal:module_modal = {
                 : modal.events.close,
             parent: section,
             spanText: "Close",
-            text: "✖ ",
+            text: "⨯ ",
             title: "Close"
         });
         buttonCount = buttonCount + 1;
