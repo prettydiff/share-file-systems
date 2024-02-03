@@ -1,14 +1,17 @@
 /* lib/common/disallowed - Reassignments from default conventions that either dated or most frequently misused. */
 
 const disallowed = function common_disallowed(browser:boolean):void {
-    const forbidden = function common_disallowed_forbidden():void {
+    const div:HTMLElement = (browser === true)
+            ? document.createElement("div")
+            : null,
+        forbidden = function common_disallowed_forbidden():HTMLElement {
             // eslint-disable-next-line
             new Error(`Disallowed feature used on: ${this}\n The feature is not supported in this application.`);
-            return undefined;
+            return div;
         },
         forbiddenList = function common_disallowed_forbiddenList():NodeListOf<HTMLElement> {
             // eslint-disable-next-line
-            const list:any = [];
+            const list:any = [div];
             // eslint-disable-next-line
             new Error(`Disallowed feature used on: ${this}\n The feature is not supported in this application.`);
             // eslint-disable-next-line
