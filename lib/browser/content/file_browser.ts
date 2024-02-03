@@ -1295,10 +1295,7 @@ const file_browser:module_fileBrowser = {
                             element.click();
                         }
                     }
-                },
-                replacement:number = (location === "\\")
-                    ? 0
-                    : location.length + 1;
+                };
             let span:HTMLElement,
                 plural:string;
 
@@ -1354,8 +1351,12 @@ const file_browser:module_fileBrowser = {
                 }
             }
     
-            // prepare the primary item text (address)
-            text.appendText(item[0].slice(replacement));
+            // prepare the primary item text (address) to become a local name instead of absolute path
+            if (location === "") {
+                text.appendText(item[0]);
+            } else {
+                text.appendText(item[0].slice(location.length + 1));
+            }
             p.appendChild(text);
     
             // prepare the descriptive text
