@@ -711,9 +711,6 @@ const transmit_http:module_transmit_http = {
                                     // exclude from tests except for browser tests
                                     if (vars.test.type === "browser_remote" || vars.test.type === "") {
                                         const networkList:string[] = ipList(vars.agents.device[vars.identity.hashDevice], false, ""),
-                                            certificateList:string[] = [
-                                                "Certificate Logs"
-                                            ],
                                             domainList:string[] = [
                                                 "Web Page Addresses"
                                             ],

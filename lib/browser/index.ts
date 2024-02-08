@@ -271,6 +271,7 @@ import disallowed from "../common/disallowed.js";
                 // log page load performance
                 perform = performance.getEntries()[0] as PerformanceNavigationTiming;
                 browser.pageBody.onload = function browser_init_complete_performanceDelay():void {
+                    // eslint-disable-next-line
                     console.log(`Browser's domComplete measure: ${perform.domComplete.toFixed(2)}ms by means of ${perform.type}.`, null);
                 };
             },

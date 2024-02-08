@@ -37,11 +37,6 @@ const websocket = function terminal_commands_interface_websocket(callback:comman
                 ipList(function terminal_commands_interface_websocket_ipList_ipCallback(ip:string):void {
                     output.push(`   ${vars.text.angry}*${vars.text.none} ${ip}`);
                 });
-                if (certLogs !== null) {
-                    certLogs.forEach(function terminal_commands_interface_websocket_certLogs(value:string):void {
-                        output.push(value);
-                    });
-                }
                 output.push("");
                 if (vars.test.type === "browser_remote") {
                     output.push("");
@@ -56,8 +51,7 @@ const websocket = function terminal_commands_interface_websocket(callback:comman
         options: null,
         port: 0
     };
-    let a:number = process.argv.length,
-        certLogs:string[] = null;
+    let a:number = process.argv.length;
 
     if (a > 0) {
         do {
@@ -72,9 +66,8 @@ const websocket = function terminal_commands_interface_websocket(callback:comman
         } while (a > 0);
     }
 
-    readCerts(function terminal_commands_interface_websocket_readCerts(tlsOptions:transmit_tlsOptions, logs:string[]):void {
+    readCerts(function terminal_commands_interface_websocket_readCerts(tlsOptions:transmit_tlsOptions):void {
         config.options = tlsOptions;
-        certLogs = logs;
         transmit_ws.server(config);
     });
 };
