@@ -158,7 +158,18 @@ const network:module_transmit_network = {
                 vars.test.socket = transmit.socket as httpSocket_response;
             }
         }
-        if (actions[services] !== undefined) {
+        if (
+            // do not process service data on unknown service identifiers
+            actions[services] !== undefined && (
+                // http traffic is limited to GET requests and 'invite' service types
+                (transmit.type === "http" && services === "invite") ||
+                // ws traffic must not be on an agent associated socket unless the corresponding agent identifier is already locally known
+                (transmit.type === "ws" && (
+                    ((transmit.socket.type === "user" || transmit.socket.type === "device") && vars.agents[transmit.socket.type] !== undefined && vars.agents[transmit.socket.type][transmit.socket.hash] !== undefined) ||
+                    (transmit.socket.type !== "user" && transmit.socket.type !== "device")
+                ))
+            )
+        ) {
             actions[services](socketData, transmit);
         }
     },

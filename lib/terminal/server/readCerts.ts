@@ -5,7 +5,7 @@ import error from "../utilities/error.js";
 import node from "../utilities/node.js";
 import vars from "../utilities/vars.js";
 
-const readCerts = function terminal_server_readCerts(callback:(options:transmit_tlsOptions, certLogs:string[]) => void):void {
+const readCerts = function terminal_server_readCerts(callback:(options:transmit_tlsOptions) => void):void {
     const certLocation:string = `${vars.path.project}lib${vars.path.sep}certificate${vars.path.sep}`,
         certName:string = "share-file",
         caName:string = "share-file-ca",
@@ -30,7 +30,7 @@ const readCerts = function terminal_server_readCerts(callback:(options:transmit_
                         `${vars.text.cyan}share build${vars.text.none}`
                     ], null);
                 } else {
-                    callback(https, []);
+                    callback(https);
                 }
             }
         },

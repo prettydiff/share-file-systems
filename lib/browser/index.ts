@@ -30,29 +30,31 @@ import disallowed from "../common/disallowed.js";
             const log:(...params:unknown[]) => void = console.log;
             // eslint-disable-next-line
             console.log = function browser_log_logger(...params:unknown[]):void {
-                // this condition prevents endless recursion against the http response text
-                if (params[0] !== "browser log received") {
-                    const error:string = new Error().stack;
-                    params.forEach(function browser_low_logger_params(value:unknown, index:number, arr:unknown[]):void {
-                        const element:HTMLElement = value as HTMLElement;
-                        if (value !== null && value !== undefined && typeof element.nodeType === "number" && typeof element.parentNode === "object" && (/,"service":"log"\}$/).test(JSON.stringify(value)) === false) {
+                const error:string = new Error().stack;
+                params.forEach(function browser_low_logger_params(value:unknown, index:number, arr:unknown[]):void {
+                    const element:HTMLElement = value as HTMLElement;
+                    if (value !== null && value !== undefined) {
+                        if (typeof element.nodeType === "number" && typeof element.parentNode === "object" && (/,"service":"log"\}$/).test(JSON.stringify(value)) === false) {
                             arr[index] = element.outerHTML;
                         }
                         log(value);
-                    });
-                    if (
-                        params[0] === null ||
-                        params[0] === undefined ||
-                        (
-                            error.indexOf("browser_network_send") < 0 &&
-                            error.indexOf("browser_utilities_webSocket_sendWrapper_delay") < 0 &&
-                            // prevent sending of verbose test automation comments
-                            params[0].toString().indexOf("On browser receiving test index ") !== 0 &&
-                            params[0].toString().indexOf("On browser sending results for test index ") !== 0
-                        )
-                    ) {
-                        network.send(params, "log");
                     }
+                });
+                if (params[1] === null) {
+                    return;
+                }
+                if (
+                    params[0] === null ||
+                    params[0] === undefined ||
+                    (
+                        error.indexOf("browser_network_send") < 0 &&
+                        error.indexOf("browser_utilities_webSocket_sendWrapper_delay") < 0 &&
+                        // prevent sending of verbose test automation comments
+                        params[0].toString().indexOf("On browser receiving test index ") !== 0 &&
+                        params[0].toString().indexOf("On browser sending results for test index ") !== 0
+                    )
+                ) {
+                    network.send(params, "log");
                 }
             };
         }());
@@ -115,6 +117,7 @@ import disallowed from "../common/disallowed.js";
             // page initiation once state restoration completes
             loadComplete = function browser_init_complete(socket:boolean):void {
                 // change status to idle
+                let perform:PerformanceNavigationTiming = null;
                 const allDevice:HTMLElement = agentList.getElementsByClassName("device-all-shares")[0] as HTMLElement,
                     allUser:HTMLElement = agentList.getElementsByClassName("user-all-shares")[0] as HTMLElement,
                     allShares:HTMLElement = agentList.getElementsByClassName("all-shares")[0].getElementsByTagName("button")[0],
@@ -264,6 +267,12 @@ import disallowed from "../common/disallowed.js";
                         "primary"
                     );
                 }
+
+                // log page load performance
+                perform = performance.getEntries()[0] as PerformanceNavigationTiming;
+                browser.pageBody.onload = function browser_init_complete_performanceDelay():void {
+                    console.log(`Browser's domComplete measure: ${perform.domComplete.toFixed(2)}ms by means of ${perform.type}.`, null);
+                };
             },
 
             // apply background CSS

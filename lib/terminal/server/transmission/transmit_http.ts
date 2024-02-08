@@ -623,8 +623,7 @@ const transmit_http:module_transmit_http = {
                     key: false
                 }
             },
-            portString:string = "",
-            certLogs:string[] = null;
+            portString:string = "";
         const scheme:string = (vars.settings.secure === true)
                 ? "https"
                 : "http",
@@ -748,17 +747,20 @@ const transmit_http:module_transmit_http = {
                                         });
                                         section(domainList, "cyan");
 
-                                        if (certLogs !== null) {
-                                            certLogs.forEach(function terminal_server_transmission_transmitHttp_server_start_listen_websocketCallback_logOutput_certLogs(value:string):void {
-                                                certificateList.push(value);
-                                            });
-                                            section(certificateList, "white");
-                                        }
-
                                         section([
                                             "Text Message Count",
                                             common.commas(vars.settings.message.length)
                                         ], "white");
+
+                                        section([
+                                            "Process ID",
+                                            process.pid.toString()
+                                        ], "cyan");
+
+                                        section([
+                                            "Node.js Version",
+                                            process.version
+                                        ], "cyan");
 
                                         section([
                                             "Verbose Messaging",
@@ -921,8 +923,7 @@ const transmit_http:module_transmit_http = {
             serverCallback = null;
         }
         if (vars.settings.secure === true) {
-            readCerts(function terminal_server_transmission_transmitHttp_server_readCerts(options:transmit_tlsOptions, logs:string[]):void {
-                certLogs = logs;
+            readCerts(function terminal_server_transmission_transmitHttp_server_readCerts(options:transmit_tlsOptions):void {
                 tlsOptions = options;
                 start(node.https.createServer(tlsOptions.options, transmit_http.receive));
             });
