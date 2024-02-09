@@ -8,7 +8,7 @@ import ipList from "../../utilities/ipList.js";
 import log from "../../utilities/log.js";
 import network from "../../server/transmission/network.js";
 import node from "../../utilities/node.js";
-import remove from "../../commands/library/remove.js";
+import remove_files from "../../../applications/remove_files/index.js";
 import time from "../../utilities/time.js";
 import transmit_http from "../../server/transmission/transmit_http.js";
 import transmit_ws from "../../server/transmission/transmit_ws.js";
@@ -435,7 +435,7 @@ const defaultCommand:commands = vars.environment.command,
                     vars.agents.device = {};
                     vars.agents.user = {};
                     transmit_ws.socketMap = {};
-                    remove(`${vars.path.project}lib${vars.path.sep}terminal${vars.path.sep}test${vars.path.sep}application${vars.path.sep}documentation`, [], null);
+                    remove_files.terminal.library(null, `${vars.path.project}lib${vars.path.sep}terminal${vars.path.sep}test${vars.path.sep}application${vars.path.sep}documentation`, []);
                     // close sockets
                     {
                         const types:string[] = Object.keys(transmit_ws.socketStore) as socketType[];
@@ -489,7 +489,7 @@ const defaultCommand:commands = vars.environment.command,
                         start();
                     }
                 };
-                remove(vars.path.settings, [`${vars.path.settings}temp.txt`], launch);
+                remove_files.terminal.library(launch, vars.path.settings, [`${vars.path.settings}temp.txt`]);
             },
             "reset-complete": function terminal_test_application_browser_resetComplete(item:service_testBrowser):void {
                 browser.remote.count = browser.remote.count + 1;

@@ -2934,7 +2934,7 @@ const buildExport = function terminal_test_samples_browserSelf_buildExport():str
                 qualifier: "is",
                 target: ["innerHTML"],
                 type: "property",
-                value: "directory - 6 items"
+                value: "directory - 7 items"
             },
             interaction: [
                 {
@@ -4436,7 +4436,7 @@ const buildExport = function terminal_test_samples_browserSelf_buildExport():str
                 qualifier: "is",
                 target: ["firstChild", "textContent"],
                 type: "property",
-                value: "browser"
+                value: "applications"
             },
             interaction: [
                 {
@@ -4476,7 +4476,7 @@ const buildExport = function terminal_test_samples_browserSelf_buildExport():str
                     ["getElementsByText", "lib", 0],
                     ["parentNode", null, null],
                     ["parentNode", null, null],
-                    ["getElementsByTagName", "li", 0],
+                    ["getElementsByTagName", "li", 1],
                     ["getElementsByTagName", "li", 3],
                     ["getElementsByTagName", "p", 0],
                     ["getElementsByTagName", "label", 0]
@@ -4495,7 +4495,7 @@ const buildExport = function terminal_test_samples_browserSelf_buildExport():str
                         ["getElementsByText", "lib", 0],
                         ["parentNode", null, null],
                         ["parentNode", null, null],
-                        ["getElementsByTagName", "li", 0],
+                        ["getElementsByTagName", "li", 1],
                         ["getElementsByTagName", "button", 0]
                     ]
                 }
@@ -4516,7 +4516,7 @@ const buildExport = function terminal_test_samples_browserSelf_buildExport():str
                         ["getElementsByText", "lib", 0],
                         ["parentNode", null, null],
                         ["parentNode", null, null],
-                        ["getElementsByTagName", "li", 0],
+                        ["getElementsByTagName", "li", 1],
                         ["getElementsByTagName", "li", 3]
                     ]
                 }
@@ -4541,7 +4541,7 @@ const buildExport = function terminal_test_samples_browserSelf_buildExport():str
                         ["getElementsByText", "lib", 0],
                         ["parentNode", null, null],
                         ["parentNode", null, null],
-                        ["getElementsByTagName", "li", 0],
+                        ["getElementsByTagName", "li", 1],
                         ["getElementsByTagName", "li", 3],
                         ["getElementsByTagName", "p", 0]
                     ],

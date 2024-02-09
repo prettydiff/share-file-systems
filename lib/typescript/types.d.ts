@@ -18,7 +18,7 @@ type byte = [0|1, 0|1, 0|1, 0|1, 0|1, 0|1, 0|1, 0|1];
 type certArgs = "intermediate-domain"|"intermediate-fileName"|"location"|"organization"|"root-domain"|"root-fileName"|"server-domain"|"server-fileName";
 type certKey = "ca" | "crt" | "key";
 type color = [string, string];
-type commands = "agent_data" | "agent_online" | "base64" | "build" | "certificate" | "commands" | "copy" | "directory" | "get" | "hash" | "lint" | "mkdir" | "perf" | "remove" | "service" | "test_browser" | "test_service" | "test_simulation" | "test" | "typescript" | "update" | "version" | "websocket";
+type commands = "agent_data" | "agent_online" | "base64" | "build" | "certificate" | "commands" | "copy" | "directory" | "get" | "hash" | "lint" | "mkdir" | "perf" | "remove_files" | "service" | "test_browser" | "test_service" | "test_simulation" | "test" | "typescript" | "update" | "version" | "websocket";
 type contextType = "" | "Base64" | "copy" | "cut" | "directory" | "Edit" | "file" | "Hash";
 type directory_item = [string, fileType, string, number, number, directory_data, string];
 type directory_mode = "array" | "hash" | "list" | "read" | "search" | "type";
@@ -70,6 +70,7 @@ type userData = [agentShares, transmit_addresses_IP];
 
 // typed functions
 type commandCallback = (title:string, text:string[], fail:boolean) => void;
+type commandInterface = (callback:commandCallback) => void;
 type directory_sort = (a:directory_item, b:directory_item) => -1 | 1;
 type modal_open = (event:Event, config?:config_modal) => modal;
 type receiver = (socketData:socketData, transmit:transmit_type) => void;

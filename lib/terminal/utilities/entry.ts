@@ -10,7 +10,7 @@ import vars from "./vars.js";
 
 import disallowed from "../../common/disallowed.js";
 
-const entry = function terminal_utilities_entry(callback:(title:string, text:string[]) => void):void {
+const entry = function terminal_utilities_entry(callback:commandCallback):void {
     // supported command name
     // global
     vars.terminal.command_instruction = "node ./js/lib/terminal/utilities/terminal ";

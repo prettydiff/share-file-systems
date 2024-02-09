@@ -10,7 +10,7 @@ import hash from "../../commands/library/hash.js";
 import mkdir from "../../commands/library/mkdir.js";
 import network from "../transmission/network.js";
 import node from "../../utilities/node.js";
-import remove from "../../commands/library/remove.js";
+import remove_files from "../../../applications/remove_files/index.js";
 import vars from "../../utilities/vars.js";
 import service from "../../test/application/service.js";
 
@@ -43,7 +43,7 @@ const fileSystem:module_fileSystem = {
             const callback = function terminal_server_services_fileSystem_destroy_callback():void {
                 count = count - 1;
                 if (count > -1) {
-                    remove(data.location[count], [], terminal_server_services_fileSystem_destroy_callback);
+                    remove_files.terminal.library(terminal_server_services_fileSystem_destroy_callback, data.location[count], []);
                 } else {
                     fileSystem.status.generate(data, null);
                 }

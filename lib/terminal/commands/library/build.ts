@@ -12,7 +12,7 @@ import log from "../../utilities/log.js";
 import mkdir from "./mkdir.js";
 import node from "../../utilities/node.js";
 import readStorage from "../../utilities/readStorage.js";
-import remove from "./remove.js";
+import remove_files from "../../../applications/remove_files/index.js";
 import testListRunner from "../../test/application/runner.js";
 import typescript from "./typescript.js";
 import vars from "../../utilities/vars.js";
@@ -634,7 +634,7 @@ const build = function terminal_commands_library_build(config:config_command_bui
                             count:number = 0;
                         do {
                             a = a - 1;
-                            remove(vars.path.project + keys[a], [], removeCallback);
+                            remove_files.terminal.library(removeCallback, vars.path.project + keys[a], []);
                         } while (a > 0);
                         return;
                     }
@@ -1048,11 +1048,11 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                         }
                                     };
                                 log(outputLog);
-                                remove(`${certDir}share-file-ca.csr`, [], delComplete);
-                                remove(`${certDir}share-file-root.csr`, [], delComplete);
-                                remove(`${certDir}share-file.csr`, [], delComplete);
-                                remove(`${certDir}share-file-ca.srl`, [], delComplete);
-                                remove(`${certDir}share-file-root.srl`, [], delComplete);
+                                remove_files.terminal.library(delComplete, `${certDir}share-file-ca.csr`, []);
+                                remove_files.terminal.library(delComplete, `${certDir}share-file-root.csr`, []);
+                                remove_files.terminal.library(delComplete, `${certDir}share-file.csr`, []);
+                                remove_files.terminal.library(delComplete, `${certDir}share-file-ca.srl`, []);
+                                remove_files.terminal.library(delComplete, `${certDir}share-file-root.srl`, []);
                             },
                             certs = function terminal_commands_library_build_osSpecific_windows_certs():void {
                                 const windowsStoreName:"CurrentUser"|"LocalMachine" = "CurrentUser",
@@ -1501,9 +1501,9 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                                         globalWrite();
                                                     } else {
                                                         const link:string = node.path.resolve(`${npm + vars.path.sep}..${vars.path.sep}..${vars.path.sep}bin${vars.path.sep + commandName}`);
-                                                        remove(link, [], function terminal_commands_library_build_shellGlobal_npm_files_readEntry_read_write_link():void {
+                                                        remove_files.terminal.library(function terminal_commands_library_build_shellGlobal_npm_files_readEntry_read_write_link():void {
                                                             node.fs.symlink(writeName, link, globalWrite);
-                                                        });
+                                                        }, link, []);
                                                     }
                                                 });
                                             } else {
@@ -1525,8 +1525,8 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                         }
                                     },
                                     binName:string = `${bin + vars.path.sep + commandName}.mjs`;
-                                remove(binName.replace(".mjs", ".js"), [], removeCallback);
-                                remove(binName, [], removeCallback);
+                                remove_files.terminal.library(removeCallback, binName.replace(".mjs", ".js"), []);
+                                remove_files.terminal.library(removeCallback, binName, []);
                             };
                         node.fs.stat(bin, function terminal_commands_library_build_shellGlobal_npm_stat(errs:node_error):void {
                             if (errs === null) {
@@ -1558,7 +1558,7 @@ const build = function terminal_commands_library_build(config:config_command_bui
             },
             // phase typescript compiles the working code into JavaScript
             typescript_compile: function terminal_commands_library_build_typescriptCompile():void {
-                remove(vars.path.js, [], function terminal_commands_library_build_typescriptCompile_remove():void {
+                remove_files.terminal.library(function terminal_commands_library_build_typescriptCompile_remove():void {
                     const command:string = "npx swc ./lib -d ./js/lib",
                         complete:string = "TypeScript files compiled to JavaScript.";
                     node.child_process.exec(command, {
@@ -1566,7 +1566,7 @@ const build = function terminal_commands_library_build(config:config_command_bui
                     }, function terminal_commands_library_build_typescriptCompile_callback():void {
                         next(complete);
                     });
-                });
+                }, vars.path.js, []);
             },
             // phase typescript compiles the working code into JavaScript
             typescript_validate: function terminal_commands_library_build_typescriptValidate():void {

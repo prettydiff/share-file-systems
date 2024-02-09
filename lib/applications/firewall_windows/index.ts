@@ -7,7 +7,7 @@ import vars from "../../terminal/utilities/vars.js";
 
 /* cspell: words advfirewall netsh runas */
 
-const firewall_windows:application = {
+const firewall_windows:application<null, null> = {
     browser: null,
     service: null,
     terminal: {

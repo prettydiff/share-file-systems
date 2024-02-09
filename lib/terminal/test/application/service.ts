@@ -8,7 +8,7 @@ import transmit_http from "../../server/transmission/transmit_http.js";
 import vars from "../../utilities/vars.js";
 
 import filePathDecode from "./browserUtilities/file_path_decode.js";
-import remove from "../../commands/library/remove.js";
+import remove_files from "../../../applications/remove_files/index.js";
 import testComplete from "./testComplete.js";
 import testEvaluation from "./evaluation.js";
 import tests from "../samples/service.js";
@@ -105,12 +105,12 @@ const loopback:string = "127.0.0.1",
                 };
             vars.path.settings = `${projectPath}lib${sep}terminal${sep}test${sep}storageTest${sep}`;
             readStorage(true, settingsComplete);
-            remove(removePath, [`${removePath + vars.path.sep}temp.txt`], function terminal_test_application_services_addServers_storageRemoval():void {
+            remove_files.terminal.library(function terminal_test_application_services_addServers_storageRemoval():void {
                 flags.removal = true;
                 if (flags.settings === true) {
                     servers();
                 }
-            });
+            }, removePath, [`${removePath + vars.path.sep}temp.txt`]);
         },
         agents: {
             device: {},

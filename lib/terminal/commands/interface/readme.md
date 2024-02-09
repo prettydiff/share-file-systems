@@ -17,7 +17,6 @@ The interface files that interpret shell arguments for corresponding libraries l
 * **[lint.ts](lint.ts)**                       - Shell interface for executing TypeScript lint as configured by this application.
 * **[mkdir.ts](mkdir.ts)**                     - Shell interface to utility mkdir for creating directory structures recursively.
 * **[perf.ts](perf.ts)**                       - Shell interface to utility perf that allows for performance testing.
-* **[remove.ts](remove.ts)**                   - Shell interface for removing file system artifacts.
 * **[service.ts](service.ts)**                 - Shell interface for running the application's network services, the applications default command.
 * **[test.ts](test.ts)**                       - Shell interface wrapping all test automation utilities.
 * **[test_browser.ts](test_browser.ts)**       - Shell interface for tests to be sent to the browser to impose changes to the DOM and test the result.

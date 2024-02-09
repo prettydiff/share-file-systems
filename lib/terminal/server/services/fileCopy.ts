@@ -11,7 +11,7 @@ import fileSystem from "./fileSystem.js";
 import mkdir from "../../commands/library/mkdir.js";
 import network from "../transmission/network.js";
 import node from "../../utilities/node.js";
-import remove from "../../commands/library/remove.js";
+import remove_files from "../../../applications/remove_files/index.js";
 import rename from "../../utilities/rename.js";
 import service from "../../test/application/service.js";
 import transmit_http from "../transmission/transmit_http.js";
@@ -227,7 +227,7 @@ const fileCopy:module_fileCopy = {
                                 }
                             };
                             data.location.forEach(function terminal_server_services_fileCopy_copySelf_callback_removeEach(value:string):void {
-                                remove(value, [], removeCallback);
+                                remove_files.terminal.library(removeCallback, value, []);
                             });
                         }
 
@@ -278,7 +278,7 @@ const fileCopy:module_fileCopy = {
                         }
                     },
                     removeItem = function terminal_server_services_fileCopy_cut_cutFiles_removeItem():void {
-                        remove(data.fileList[count][0], data.failList, removeCallback);
+                        remove_files.terminal.library(removeCallback, data.fileList[count][0], data.failList);
                     };
                 removeItem();
             };

@@ -10,10 +10,10 @@
  *     terminal: application_terminal;
  * }
  * ``` */
-interface application {
+interface application<Type1, Type2> {
     browser: application_browser;
     service: application_service[];
-    terminal: application_terminal;
+    terminal: application_terminal<Type1, Type2>;
 }
 
 /** Defines the browser environment portion of an installed application.
@@ -78,16 +78,16 @@ interface application_service {
 
 /** Defines the command line interface details for a given installed application.
  * ```typescript
- * interface application_terminal {
+ * interface application_terminal<Type1, Type2> {
  *     command: string;
  *     documentation: documentation_command_item;
- *     interface: (callback:commandCallback) => void;
- *     library: (callback:commandCallback) => void;
+ *     io: commandInterface;
+ *     library: (callback:commandCallback, arg1?:Type1, arg2?:Type2) => void;
  * }
  * ``` */
-interface application_terminal {
+interface application_terminal<Type1, Type2> {
     command: string;
     documentation: documentation_command_item;
-    interface: (callback:commandCallback) => void;
-    library: (callback:commandCallback) => void;
+    io: commandInterface;
+    library: (callback:commandCallback, arg1?:Type1, arg2?:Type2) => void;
 }

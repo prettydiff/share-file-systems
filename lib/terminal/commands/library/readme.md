@@ -17,6 +17,5 @@ The terminal libraries that are available for execution both internally and dire
 * **[lint.ts](lint.ts)**                 - Executes a TypeScript configured form of ESLint from the application's dev dependencies.
 * **[mkdir.ts](mkdir.ts)**               - A utility for recursively creating directories in the file system.
 * **[perf.ts](perf.ts)**                 - Allows for performance testing of the application.
-* **[remove.ts](remove.ts)**             - A command driven utility to recursively remove file system artifacts.
 * **[typescript.ts](typescript.ts)**     - Executes TypeScript type checks.
 * **[update.ts](update.ts)**             - A command to update the application from git and then run the build.

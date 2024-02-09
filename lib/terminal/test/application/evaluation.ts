@@ -6,7 +6,7 @@ import error from "../../utilities/error.js";
 import humanTime from "../../utilities/humanTime.js";
 import log from "../../utilities/log.js";
 import node from "../../utilities/node.js";
-import remove from "../../commands/library/remove.js";
+import remove_files from "../../../applications/remove_files/index.js";
 import vars from "../../utilities/vars.js";
 
 import service from "./service.js";
@@ -131,9 +131,9 @@ const testEvaluation = function terminal_test_application_testEvaluation(output:
                 };
             testMessage();
             if (typeof output.test.artifact === "string" && output.test.artifact.length > 0) {
-                remove(output.test.artifact, [`${vars.path.project}lib${vars.path.sep}terminal${vars.path.sep}test${vars.path.sep}storageTest${vars.path.sep}temp${vars.path.sep}temp.txt`], function terminal_test_application_testListRunner_increment_remove():void {
+                remove_files.terminal.library(function terminal_test_application_testListRunner_increment_remove():void {
                     interval();
-                });
+                }, output.test.artifact, [`${vars.path.project}lib${vars.path.sep}terminal${vars.path.sep}test${vars.path.sep}storageTest${vars.path.sep}temp${vars.path.sep}temp.txt`]);
             } else {
                 interval();
             }

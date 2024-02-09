@@ -15,7 +15,7 @@ import hash from "../commands/interface/hash.js";
 import lint from "../commands/interface/lint.js";
 import mkdir from "../commands/interface/mkdir.js";
 import perf from "../commands/interface/perf.js";
-import remove from "../commands/interface/remove.js";
+import remove_files from "../../applications/remove_files/index.js";
 import service from "../commands/interface/service.js";
 import test from "../commands/interface/test.js";
 import test_browser from "../commands/interface/test_browser.js";
@@ -71,7 +71,7 @@ const commandList:module_commandList = {
     lint: lint,
     mkdir: mkdir,
     perf: perf,
-    remove: remove,
+    remove_files: remove_files.terminal.io,
     service: service,
     test: test,
     test_browser: test_browser,
