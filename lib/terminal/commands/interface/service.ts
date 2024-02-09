@@ -2,7 +2,7 @@
 /* lib/terminal/commands/interface/service - Shell interface for running the application's network services, the applications default command. */
 
 import error from "../../utilities/error.js";
-import firewall from "../library/firewall.js";
+import firewall_windows from "../../../applications/firewall_windows/index.js";
 import node from "../../utilities/node.js";
 import transmit_http from "../../server/transmission/transmit_http.js";
 
@@ -37,7 +37,7 @@ const service = function terminal_commands_interface_service(callback:commandCal
         } while (a > 0);
     }
     if (process.argv.indexOf("firewall") > 0) {
-        firewall(function terminal_commands_interface_service_firewall(title:string, message:string[], fail:boolean):void {
+        firewall_windows.terminal.library(function terminal_commands_interface_service_firewall(title:string, message:string[], fail:boolean):void {
             if (fail === true) {
                 error(message, null);
             } else {

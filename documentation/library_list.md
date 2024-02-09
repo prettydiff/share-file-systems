@@ -22,6 +22,8 @@ This is a dynamically compiled list of supporting code files that comprise this 
 * Directory *[../lib](../lib)*
    - **[../lib/electron.ts](../lib/electron.ts)**                                                                                                       - API endpoint to electron desktop application wrapper.
    - **[../lib/tauri.ts](../lib/tauri.ts)**                                                                                                             - API endpoint to Tauri desktop application wrapper.
+* Directory *[../lib/applications/firewall_windows](../lib/applications/firewall_windows)*
+   - **[../lib/applications/firewall_windows/index.ts](../lib/applications/firewall_windows/index.ts)**                                                 - Defines the application for modifying the Windows Defender Firewall.
 * Directory *[../lib/browser](../lib/browser)*
    - **[../lib/browser/index.ts](../lib/browser/index.ts)**                                                                                             - The base JavaScript code that initiates the application in the browser.
 * Directory *[../lib/browser/content](../lib/browser/content)*
@@ -59,7 +61,6 @@ This is a dynamically compiled list of supporting code files that comprise this 
    - **[../lib/terminal/commands/interface/commands.ts](../lib/terminal/commands/interface/commands.ts)**                                               - Shell interface for generating dynamic command documentation.
    - **[../lib/terminal/commands/interface/copy.ts](../lib/terminal/commands/interface/copy.ts)**                                                       - Shell interface for the file copy command.
    - **[../lib/terminal/commands/interface/directory.ts](../lib/terminal/commands/interface/directory.ts)**                                             - Shell interface to the directory library that walks the file system and returns a data structure.
-   - **[../lib/terminal/commands/interface/firewall.ts](../lib/terminal/commands/interface/firewall.ts)**                                               - Shell interface to the firewall library, which opens the firewall for this application.
    - **[../lib/terminal/commands/interface/get.ts](../lib/terminal/commands/interface/get.ts)**                                                         - Shell interface for http get command.
    - **[../lib/terminal/commands/interface/hash.ts](../lib/terminal/commands/interface/hash.ts)**                                                       - Shell interface to library hash, which generates a hash string.
    - **[../lib/terminal/commands/interface/lint.ts](../lib/terminal/commands/interface/lint.ts)**                                                       - Shell interface for executing TypeScript lint as configured by this application.
@@ -83,7 +84,6 @@ This is a dynamically compiled list of supporting code files that comprise this 
    - **[../lib/terminal/commands/library/commands.ts](../lib/terminal/commands/library/commands.ts)**                                                   - Utility to list available commands and their respective documentation.
    - **[../lib/terminal/commands/library/copy.ts](../lib/terminal/commands/library/copy.ts)**                                                           - A command driven utility to perform bit by bit file artifact copy.
    - **[../lib/terminal/commands/library/directory.ts](../lib/terminal/commands/library/directory.ts)**                                                 - A utility to walk the file system and return a data structure.
-   - **[../lib/terminal/commands/library/firewall.ts](../lib/terminal/commands/library/firewall.ts)**                                                   - A utility to open firewall settings for this application.
    - **[../lib/terminal/commands/library/get.ts](../lib/terminal/commands/library/get.ts)**                                                             - A command driven utility to fetch resources from across the internet via HTTP method GET.
    - **[../lib/terminal/commands/library/hash.ts](../lib/terminal/commands/library/hash.ts)**                                                           - A utility to generate hash sequences on strings or file system artifacts.
    - **[../lib/terminal/commands/library/lint.ts](../lib/terminal/commands/library/lint.ts)**                                                           - Executes a TypeScript configured form of ESLint from the application's dev dependencies.
@@ -164,6 +164,7 @@ This is a dynamically compiled list of supporting code files that comprise this 
    - **[../lib/terminal/utilities/wrapIt.ts](../lib/terminal/utilities/wrapIt.ts)**                                                                     - A tool to perform word wrap when printing text to the shell.
    - **[../lib/terminal/utilities/writeStream.ts](../lib/terminal/utilities/writeStream.ts)**                                                           - A utility to pipe from a read stream to a write stream.
 * Directory *[../lib/typescript](../lib/typescript)*
+   - **[../lib/typescript/application.d.ts](../lib/typescript/application.d.ts)**                                                                       - Defines the interface for installable applications.
    - **[../lib/typescript/browser.d.ts](../lib/typescript/browser.d.ts)**                                                                               - TypeScript interfaces used by browser specific libraries.
    - **[../lib/typescript/config.d.ts](../lib/typescript/config.d.ts)**                                                                                 - TypeScript interfaces defining method configurations.
    - **[../lib/typescript/environment.d.ts](../lib/typescript/environment.d.ts)**                                                                       - TypeScript interfaces that define environmental objects.

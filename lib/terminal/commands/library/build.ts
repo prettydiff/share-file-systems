@@ -5,7 +5,7 @@ import certificate from "./certificate.js";
 import commands_documentation from "../../utilities/commands_documentation.js";
 import error from "../../utilities/error.js";
 import directory from "./directory.js";
-import firewall from "./firewall.js";
+import firewall_windows from "../../../applications/firewall_windows/index.js";
 import humanTime from "../../utilities/humanTime.js";
 import lint from "./lint.js";
 import log from "../../utilities/log.js";
@@ -1102,7 +1102,7 @@ const build = function terminal_commands_library_build(config:config_command_bui
                             },
                             firewallWrapper = function terminal_commands_library_build_osSpecific_windows_firewallWrapper():void {
                                 if (process.argv.indexOf("firewall") > -1) {
-                                    firewall(function terminal_commands_library_build_osSpecific_windows_firewallWrapper_callback(title:string, message:string[], fail:boolean):void {
+                                    firewall_windows.terminal.library(function terminal_commands_library_build_osSpecific_windows_firewallWrapper_callback(title:string, message:string[], fail:boolean):void {
                                         if (fail === true) {
                                             error(message, null);
                                         } else {

@@ -12,7 +12,6 @@ The terminal libraries that are available for execution both internally and dire
 * **[commands.ts](commands.ts)**         - Utility to list available commands and their respective documentation.
 * **[copy.ts](copy.ts)**                 - A command driven utility to perform bit by bit file artifact copy.
 * **[directory.ts](directory.ts)**       - A utility to walk the file system and return a data structure.
-* **[firewall.ts](firewall.ts)**         - A utility to open firewall settings for this application.
 * **[get.ts](get.ts)**                   - A command driven utility to fetch resources from across the internet via HTTP method GET.
 * **[hash.ts](hash.ts)**                 - A utility to generate hash sequences on strings or file system artifacts.
 * **[lint.ts](lint.ts)**                 - Executes a TypeScript configured form of ESLint from the application's dev dependencies.

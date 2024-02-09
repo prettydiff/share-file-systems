@@ -4,6 +4,7 @@ These files are custom TypeScript definitions supporting this project.
 ## Files
 <!-- Do not edit below this line.  Contents dynamically populated. -->
 
+* **[application.d.ts](application.d.ts)**           - Defines the interface for installable applications.
 * **[browser.d.ts](browser.d.ts)**                   - TypeScript interfaces used by browser specific libraries.
 * **[config.d.ts](config.d.ts)**                     - TypeScript interfaces defining method configurations.
 * **[environment.d.ts](environment.d.ts)**           - TypeScript interfaces that define environmental objects.
