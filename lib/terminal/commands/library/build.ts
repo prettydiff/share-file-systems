@@ -462,7 +462,7 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                                         }
                                                         index = index + 1;
                                                     } while (index < len);
-                                                    subjectAltNames.push("IP.1  = 127.0.0.1/255.0.0.0");
+                                                    // subjectAltNames.push("IP.1  = 127.0.0.1");
                                                     nameConstraints.push(`permitted;${subjectAltNames[index]}`);
                                                     fileStr = [
                                                         fileStr.slice(0, fileStr.indexOf(fields[0]) + fields[0].length),
