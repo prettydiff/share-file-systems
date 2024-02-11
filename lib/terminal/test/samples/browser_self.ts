@@ -2728,6 +2728,11 @@ const buildExport = function terminal_test_samples_browserSelf_buildExport():str
                     value: exportString
                 },
                 {
+                    event: "wait",
+                    node: null,
+                    value: "50"
+                },
+                {
                     event: "click",
                     node: [
                         ["getModalsByModalType", "export", 0],
@@ -3281,8 +3286,8 @@ const buildExport = function terminal_test_samples_browserSelf_buildExport():str
                 node: [
                     ["getModalsByModalType", "file-navigate", 1],
                     ["getElementsByClassName", "fileList", 0],
-                    ["getElementsByTagName", "li", 3],
-                    ["getElementsByTagName", "p", 0],
+                    ["getElementsByText", "documentation", 0],
+                    ["parentNode", null, null],
                     ["lastChild", null, null]
                 ],
                 qualifier: "is",
