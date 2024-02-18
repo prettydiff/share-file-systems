@@ -63,7 +63,7 @@ const humanTime = function terminal_utilities_humanTime(finished:boolean):string
     if (finished === true) {
         const finalMem:string    = common.prettyBytes(process.memoryUsage.rss()),
             finalTime:string = hourString + minuteString + secondString,
-            // eslint-disable-next-line
+            // eslint-disable-next-line no-console
             logger:(input:string) => void = console.log;
         logger("");
         logger(`${finalMem} of memory consumed`);

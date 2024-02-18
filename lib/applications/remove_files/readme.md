@@ -1,4 +1,4 @@
-# lib/applications/remove Code Files
+# lib/applications/remove_files Code Files
 Defines the application for recursively removing file system artifacts.
 
 ## Files

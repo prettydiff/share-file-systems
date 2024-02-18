@@ -515,7 +515,7 @@ const file_browser:module_fileBrowser = {
                                 if (expandTest === true) {
                                     expand(box);
                                 } else {
-                                    // eslint-disable-next-line
+                                    // eslint-disable-next-line no-restricted-syntax
                                     p.innerHTML = data.message.replace(/((execute)|(search))-/, "");
                                     p.setAttribute("aria-live", "polite");
                                     p.setAttribute("role", "status");

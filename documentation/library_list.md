@@ -24,6 +24,8 @@ This is a dynamically compiled list of supporting code files that comprise this 
    - **[../lib/tauri.ts](../lib/tauri.ts)**                                                                                                             - API endpoint to Tauri desktop application wrapper.
 * Directory *[../lib/applications/firewall_windows](../lib/applications/firewall_windows)*
    - **[../lib/applications/firewall_windows/index.ts](../lib/applications/firewall_windows/index.ts)**                                                 - Defines the application for modifying the Windows Defender Firewall.
+* Directory *[../lib/applications/install](../lib/applications/install)*
+   - **[../lib/applications/install/index.ts](../lib/applications/install/index.ts)**                                                                   - Defines the application for installing other components.
 * Directory *[../lib/applications/remove_files](../lib/applications/remove_files)*
    - **[../lib/applications/remove_files/index.ts](../lib/applications/remove_files/index.ts)**                                                         - Defines the application for recursively removing file system artifacts.
 * Directory *[../lib/browser](../lib/browser)*

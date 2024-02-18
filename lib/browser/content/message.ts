@@ -412,7 +412,7 @@ const message:module_message = {
                     messageText = strings.join("");
                 }
             }
-            // eslint-disable-next-line
+            // eslint-disable-next-line no-restricted-syntax
             messageCell.innerHTML = messageText;
             messageCell.setAttribute("class", item.mode);
             tr.setAttribute("data-agentFrom", item.agentFrom);

@@ -5,16 +5,22 @@ const disallowed = function common_disallowed(browser:boolean):void {
             ? document.createElement("div")
             : null,
         forbidden = function common_disallowed_forbidden():HTMLElement {
-            // eslint-disable-next-line
-            new Error(`Disallowed feature used on: ${this}\n The feature is not supported in this application.`);
+            // eslint-disable-next-line no-new
+            new Error(
+                // eslint-disable-next-line @typescript-eslint/restrict-template-expressions, no-restricted-syntax
+                `Disallowed feature used on: ${this}\n The feature is not supported in this application.`
+            );
             return div;
         },
         forbiddenList = function common_disallowed_forbiddenList():NodeListOf<HTMLElement> {
-            // eslint-disable-next-line
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const list:any = [div];
-            // eslint-disable-next-line
-            new Error(`Disallowed feature used on: ${this}\n The feature is not supported in this application.`);
-            // eslint-disable-next-line
+            // eslint-disable-next-line no-new
+            new Error(
+                // eslint-disable-next-line @typescript-eslint/restrict-template-expressions, no-restricted-syntax
+                `Disallowed feature used on: ${this}\n The feature is not supported in this application.`
+            );
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-return
             return list;
         };
 
@@ -34,11 +40,11 @@ const disallowed = function common_disallowed(browser:boolean):void {
         window.history.replaceState        = forbidden;
 
         // Prevent third party authors from overriding these performance measures
-        // eslint-disable-next-line
+        // eslint-disable-next-line @typescript-eslint/unbound-method
         Object.freeze(document.write);
-        // eslint-disable-next-line
+        // eslint-disable-next-line @typescript-eslint/unbound-method
         Object.freeze(document.querySelector);
-        // eslint-disable-next-line
+        // eslint-disable-next-line @typescript-eslint/unbound-method
         Object.freeze(document.querySelectorAll);
         Object.freeze(Element.prototype);
         Object.freeze(Document);

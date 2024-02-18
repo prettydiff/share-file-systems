@@ -51,7 +51,7 @@ const media:module_media = {
             apply = function browser_content_media_element_apply(fail:HTMLElement, mediaElement:HTMLVideoElement, className:string):void {
                 if (fail === null) {
                     // this set of promise and empty functions is necessary to trap an extraneous DOM error
-                    // eslint-disable-next-line
+                    // eslint-disable-next-line no-restricted-syntax
                     const play:Promise<void> = mediaElement.play();
                     if (play !== undefined) {
                         play.then(function browser_content_media_element_apply_play():void {

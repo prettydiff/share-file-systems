@@ -140,7 +140,7 @@ Traverses a directory in the local file system and generates a list.  If a sourc
 1. `share directory source:"my/directory/path" sort:"file-system-type"`
    - Sort the output according to a supported sorting convention. The argument must begin with 'sort:' followed by a support value that may or may not be quoted.  Supported values are: 'alphabetically-ascending', 'alphabetically-descending', 'file-extension', 'file-modified-ascending', 'file-modified-descending', 'file-system-type', 'size-ascending', 'size-descending'
 
-## firewall
+## firewall_windows
 Opens the firewall for this application.  Currently only supporting Windows Defender Firewall.
 
 ### Examples
@@ -208,7 +208,7 @@ Measure performance aspects of the application.
 1. `share perf socket`
    - Other argument values are interpreted as the type of performance test to run.  Currently the only supported performance test type is 'socket'.
 
-## remove
+## remove_files
 Remove a file or directory tree from the local file system.
 
 ### Examples

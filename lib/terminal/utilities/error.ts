@@ -9,8 +9,8 @@ import vars from "./vars.js";
 
 // uniform error formatting
 const error = function terminal_utilities_error(errText:string[], errObject:node_childProcess_ExecException|node_error, noStack?:boolean):void {
-    // eslint-disable-next-line
-    const logger:(input:string|object) => void = console.log,
+    // eslint-disable-next-line no-console
+    const logger:(input:object|string) => void = console.log,
         bell = function terminal_utilities_error_bell():void {
             humanTime(true);
             if (vars.environment.command === "build" || vars.test.type !== "") {

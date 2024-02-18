@@ -11,8 +11,15 @@ const firewall_windows:application<null, null> = {
     browser: null,
     service: null,
     terminal: {
-        command: "firewall_windows",
-        documentation: null,
+        documentation: {
+            description: "Opens the firewall for this application.  Currently only supporting Windows Defender Firewall.",
+            example: [
+                {
+                    code: `${vars.terminal.command_instruction}firewall_windows`,
+                    defined: "Adds necessary allowances to the Windows Defender firewall specific for this application."
+                }
+            ]
+        },
         io: function application_firewallWindows_io(callback:commandCallback):void {
             vars.settings.verbose = true;
             firewall_windows.terminal.library(callback);

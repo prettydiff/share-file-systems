@@ -54,7 +54,7 @@ const network:module_network = {
                             name: "XHR Error",
                             stack: new Error().stack.replace(/\s+$/, "")
                         };
-                        // eslint-disable-next-line
+                        // eslint-disable-next-line no-console
                         console.error(error);
                     }
                 }
@@ -85,7 +85,7 @@ const network:module_network = {
     /* Receives data from the network */
     receive: function browser_utilities_network_receive(dataString:string):void {
         const error = function browser_utilities_network_receive_error():void {
-                // eslint-disable-next-line
+                // eslint-disable-next-line no-console
                 console.error("Error", socketData.data);
             },
             reload = function browser_utilities_network_receive_reload():void {

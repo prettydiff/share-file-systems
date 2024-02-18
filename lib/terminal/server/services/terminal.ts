@@ -192,12 +192,12 @@ const terminal:module_terminal = {
         }
     },
     kill: function terminal_server_services_terminal_kill(id:string):void {
-        // eslint-disable-next-line
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         const shell:node_childProcess_ChildProcess = (terminal.processes[id] === undefined)
-            // eslint-disable-next-line
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, no-restricted-syntax
             ? (this.stdout === undefined)
                 ? null
-                // eslint-disable-next-line
+                // eslint-disable-next-line no-restricted-syntax
                 : this
             : terminal.processes[id];
         if (shell !== null) {

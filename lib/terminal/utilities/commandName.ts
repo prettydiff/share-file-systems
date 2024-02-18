@@ -47,7 +47,7 @@ const commandName = function terminal_utilities_command(globalName:string):strin
             }
             return false;
         },
-        // eslint-disable-next-line
+        // eslint-disable-next-line no-console
         logger:(input:string) => void = console.log;
 
     if ((process.argv[0] === globalName && test_simulation > 1) || (process.argv[0] !== globalName && test_simulation > 2)) {

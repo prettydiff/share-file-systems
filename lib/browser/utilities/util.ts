@@ -628,7 +628,7 @@ const util:module_util = {
             width: Math.round(output.width),
             x: Math.round(output.x),
             y: Math.round(output.y),
-            // eslint-disable-next-line
+            // eslint-disable-next-line @typescript-eslint/unbound-method, no-restricted-syntax
             toJSON: output.toJSON
         };
     }

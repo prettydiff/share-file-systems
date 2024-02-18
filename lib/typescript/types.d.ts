@@ -55,7 +55,7 @@ type resizeDirection = "b" | "bl" | "br" | "l" | "r" | "t" | "tl" | "tr";
 type searchType = "fragment" | "negation" | "regex";
 type selector = "class" | "id" | "tag";
 type service_error = fileSystem_agents & node_error;
-// eslint-disable-next-line
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type service_log = any[];
 type service_type = "agent-hash" | "agent-management" | "agent-online" | "agent-status" | "copy-list-request" | "copy-list" | "copy-send-file" | "copy" | "cut" | "error" | "file-system-details" | "file-system-status" | "file-system-string" | "file-system" | "GET" | "hash-share" | "import" | "invite" | "log" | "message" | "perf-socket" | "reload" | "response-no-action" | "settings" | "socket-map" | "terminal" | "test-browser";
 type settingsType = agentType | "identity" | "message" | "queue" | "ui";

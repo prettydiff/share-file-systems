@@ -73,7 +73,7 @@ const remote:module_remote = {
     domFailure: false,
 
     /* Report javascript errors as test failures */
-    // eslint-disable-next-line
+    // eslint-disable-next-line max-params
     error: function browser_utilities_remote_error(message:string, source:string, line:number, col:number, error:Error):void {
         remote.sendTest([[false, JSON.stringify({
             file: source,
@@ -320,11 +320,11 @@ const remote:module_remote = {
                 if (name.slice(name.length - 2) === "()") {
                     name = name.slice(0, name.length - 2);
                     // @ts-ignore - prop is some unknown DOM element or element property
-                    // eslint-disable-next-line
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-return
                     return prop[name]();
                 }
                 // @ts-ignore - prop is some unknown DOM element or element property
-                // eslint-disable-next-line
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-return
                 return prop[name];
             },
             property = function browser_utilities_remote_getProperty_property(origin:HTMLElement|Window):primitive {
@@ -399,7 +399,7 @@ const remote:module_remote = {
             if (node[1] === "" || node[1] === null || node[0] === "activeElement" || node[0] === "documentElement" || node[0] === "firstChild" || node[0] === "lastChild" || node[0] === "nextSibling" || node[0] === "parentNode" || node[0] === "previousSibling") {
                 if (fail === "") {
                     // @ts-ignore - TypeScript's DOM types do not understand custom extensions to the Document object
-                    // eslint-disable-next-line
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
                     element = element[node[0]];
                 }
                 str.push(".");
@@ -414,7 +414,7 @@ const remote:module_remote = {
             } else if (node[2] === null || node[0] === "getElementById") {
                 if (fail === "") {
                     // @ts-ignore - TypeScript cannot implicitly walk the DOM by combining data structures and DOM methods
-                    // eslint-disable-next-line
+                    // eslint-disable-next-line  @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
                     element = element[node[0]](node[1]);
                 }
                 str.push(".");
@@ -424,7 +424,7 @@ const remote:module_remote = {
                 str.push("\")");
             } else {
                 // @ts-ignore - TypeScript cannot implicitly walk the DOM by combining data structures and DOM methods
-                // eslint-disable-next-line
+                    // eslint-disable-next-line  @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
                 const el:HTMLElement[] = element[node[0]](node[1]),
                     len:number = (el === null || el.length < 1)
                         ? -1
@@ -473,7 +473,7 @@ const remote:module_remote = {
         if (location.href.indexOf("?test_browser") > 0) {
             const data:service_testBrowser = socketData.data as service_testBrowser;
             if (location.href.indexOf("test_browser_verbose") > 0) {
-                // eslint-disable-next-line
+                // eslint-disable-next-line no-console
                 console.log(`On browser receiving test index ${data.index}`);
             }
             if (data.action === "close") {
@@ -520,7 +520,7 @@ const remote:module_remote = {
             test: null
         };
         if (location.href.indexOf("test_browser_verbose") > 0) {
-            // eslint-disable-next-line
+            // eslint-disable-next-line no-console
             console.log(`On browser sending results for test index ${index}`);
         }
         network.send(test, "test-browser");

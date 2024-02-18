@@ -7,7 +7,7 @@ import vars from "./vars.js";
 const log = function terminal_utilities_log(output:string[], end?:boolean):void {
     const logger:(input:string) => void = function terminal_utilities_log_logger(input:string):void {
             vars.environment.log.push(input);
-            // eslint-disable-next-line
+            // eslint-disable-next-line no-console
             console.log(input);
         },
         command:commands = vars.environment.command;

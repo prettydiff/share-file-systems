@@ -13,14 +13,25 @@ const remove_files:application<string, string[]> = {
     browser: null,
     service: null,
     terminal: {
-        command: "remove_files",
-        documentation: null,
-        io: function application_removeFiles(callback:commandCallback):void {
+        documentation: {
+            description: "Remove a file or directory tree from the local file system.",
+            example: [
+                {
+                    code: `${vars.terminal.command_instruction}remove_files path/to/resource`,
+                    defined: "Removes the specified resource."
+                },
+                {
+                    code: `${vars.terminal.command_instruction}remove_files "C:\\Program Files"`,
+                    defined: "Quote the path if it contains non-alphanumeric characters."
+                }
+            ]
+        },
+        io: function application_removeFiles_interface(callback:commandCallback):void {
             const pathItem:string = node.path.resolve(process.argv[0]);
             if (process.argv.length < 1) {
                 error([
                     "Command remove requires a file path",
-                    `${vars.text.cyan + vars.terminal.command_instruction}remove ../jsFiles${vars.text.none}`
+                    `${vars.text.cyan + vars.terminal.command_instruction}remove_files ../jsFiles${vars.text.none}`
                 ], null);
                 return;
             }
@@ -30,7 +41,7 @@ const remove_files:application<string, string[]> = {
                 }
             }, pathItem, vars.terminal.exclusions);
         },
-        library: function terminal_commands_library_remove(callback:commandCallback, filePath:string, exclusions:string[]):void {
+        library: function application_removeFiles_library(callback:commandCallback, filePath:string, exclusions:string[]):void {
             const numb:remove_count = {
                     dirs: 0,
                     file: 0,

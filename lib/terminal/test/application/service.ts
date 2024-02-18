@@ -148,7 +148,7 @@ const loopback:string = "127.0.0.1",
                 }
                 input.data = result;
             }
-            // eslint-disable-next-line
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
             service.tests[service.index].test = JSON.parse(filePathDecode(null, JSON.stringify(service.tests[service.index].test)) as string);
             testEvaluation({
                 callback: service.complete,
@@ -162,7 +162,7 @@ const loopback:string = "127.0.0.1",
         },
         execute: function terminal_test_application_services_execute(config:config_test_execute):void {
             const test:socketData = service.tests[config.index].command;
-            // eslint-disable-next-line
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
             test.data = JSON.parse(filePathDecode(null, JSON.stringify(test.data)) as string);
             service.index = config.index;
             service.fail = config.fail;

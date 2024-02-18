@@ -378,7 +378,7 @@ const tutorial = function browser_content_tutorial():void {
         dataLength:number = tutorialData.length,
         currentNode = function browser_content_tutorial_currentNode(current:HTMLElement):void {
             current.highlight();
-            // eslint-disable-next-line
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
             action = (current === null || current === undefined)
                 ? null
                 // @ts-ignore - TS cannot resolve a string to a GlobalEventHandlersEventMap object key name
@@ -463,7 +463,7 @@ const tutorial = function browser_content_tutorial():void {
                     if (value[1] === null) {
                         parent = el;
                     } else {
-                        // eslint-disable-next-line
+                        // eslint-disable-next-line no-restricted-syntax
                         el.innerHTML = value[1];
                     }
                 }

@@ -238,7 +238,7 @@ const commands_documentation = function terminal_utility_commandsDocumentation(c
                 }
             ]
         },
-        firewall: {
+        firewall_windows: {
             description: "Opens the firewall for this application.  Currently only supporting Windows Defender Firewall.",
             example: [
                 {
@@ -342,7 +342,7 @@ const commands_documentation = function terminal_utility_commandsDocumentation(c
                 }
             ]
         },
-        remove: {
+        remove_files: {
             description: "Remove a file or directory tree from the local file system.",
             example: [
                 {

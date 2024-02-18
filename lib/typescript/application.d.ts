@@ -79,14 +79,12 @@ interface application_service {
 /** Defines the command line interface details for a given installed application.
  * ```typescript
  * interface application_terminal<Type1, Type2> {
- *     command: string;
  *     documentation: documentation_command_item;
  *     io: commandInterface;
  *     library: (callback:commandCallback, arg1?:Type1, arg2?:Type2) => void;
  * }
  * ``` */
 interface application_terminal<Type1, Type2> {
-    command: string;
     documentation: documentation_command_item;
     io: commandInterface;
     library: (callback:commandCallback, arg1?:Type1, arg2?:Type2) => void;

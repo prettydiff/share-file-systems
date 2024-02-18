@@ -26,7 +26,7 @@ const webSocket:module_browserSocket = {
     sock: (function browser_utilities_socket():websocket_local {
         // A minor security circumvention.
         const socket:websocket_local = WebSocket as websocket_local;
-        // eslint-disable-next-line
+        // eslint-disable-next-line no-global-assign
         WebSocket = null;
         return socket;
     }()),

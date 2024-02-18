@@ -71,7 +71,7 @@ const readStorage = function terminal_utilities_readStorage(fromFile:boolean, ca
                     do {
                         keyLength = keyLength - 1;
                         // @ts-ignore - The following line forces an implicit any, but in this dynamic assignment is lower risk than type analysis
-                        // eslint-disable-next-line
+                        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
                         vars.settings[configs[keyLength]] = settings.ui[configs[keyLength]];
                     } while (keyLength > 0);
                     vars.agents = settings.agents;
@@ -90,10 +90,10 @@ const readStorage = function terminal_utilities_readStorage(fromFile:boolean, ca
                         if (err === null) {
                             const item:settingsType = fileName.replace(".json", "") as settingsType;
                             if (item === "device" || item === "user") {
-                                // eslint-disable-next-line
+                                // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
                                 settings.agents[item] = JSON.parse(fileData);
                             } else {
-                                // eslint-disable-next-line
+                                // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
                                 settings[item] = JSON.parse(fileData);
                             }
                             flag[item] = true;

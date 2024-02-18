@@ -26,9 +26,9 @@ import disallowed from "../common/disallowed.js";
     {
         // intercept console.log in the browser and push its input to the terminal
         (function browser_log():void {
-            // eslint-disable-next-line
+            // eslint-disable-next-line no-console
             const log:(...params:unknown[]) => void = console.log;
-            // eslint-disable-next-line
+            // eslint-disable-next-line no-console
             console.log = function browser_log_logger(...params:unknown[]):void {
                 const error:string = new Error().stack;
                 params.forEach(function browser_low_logger_params(value:unknown, index:number, arr:unknown[]):void {
@@ -271,7 +271,7 @@ import disallowed from "../common/disallowed.js";
                 // log page load performance
                 perform = performance.getEntries()[0] as PerformanceNavigationTiming;
                 browser.pageBody.onload = function browser_init_complete_performanceDelay():void {
-                    // eslint-disable-next-line
+                    // eslint-disable-next-line no-console
                     console.log(`Browser's domComplete measure: ${perform.domComplete.toFixed(2)}ms by means of ${perform.type}.`, null);
                 };
             },

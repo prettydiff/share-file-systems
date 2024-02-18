@@ -331,7 +331,7 @@ const terminal:module_browserTerminal = {
                     if (count > 0) {
                         logItem = logItem + "</span>";
                     }
-                    // eslint-disable-next-line
+                    // eslint-disable-next-line no-restricted-syntax
                     li.innerHTML = logItem;
                     element.appendChild(li);
                 },
