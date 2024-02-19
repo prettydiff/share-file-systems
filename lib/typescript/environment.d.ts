@@ -44,12 +44,12 @@ interface browser {
  * ```typescript
  * interface localNetwork {
  *     addresses: transmit_addresses_IP;
- *     ports: ports;
+ *     port: number;
  * }
  * ``` */
 interface localNetwork {
     addresses: transmit_addresses_IP;
-    ports: ports;
+    port: number;
 }
 
 /**

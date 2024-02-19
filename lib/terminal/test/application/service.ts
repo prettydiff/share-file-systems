@@ -73,12 +73,12 @@ const loopback:string = "127.0.0.1",
                         complete: complete,
                         countBy: "agent",
                         perAgent: function terminal_test_application_services_addServers_servers_perAgent(agentNames:agentNames, counts:agentCounts):void {
-                            const serverCallback = function terminal_test_application_services_addServers_servers_perAgent_serverCallback(output:http_server_output):void {
-                                vars.agents[output.agentType][output.agent].ports = output.ports;
+                            const serverCallback = function terminal_test_application_services_addServers_servers_perAgent_serverCallback(output:service_output):void {
+                                vars.agents[output.agentType][output.agent].port = output.port;
                                 vars.agents[output.agentType][output.agent].ipSelected = loopback;
                                 service.agents[agentNames.agentType][agentNames.agent] = output.server;
                                 if (output.agentType === "device" && output.agent === vars.identity.hashDevice) {
-                                    vars.network.ports.ws = output.ports.ws;
+                                    vars.network.port = output.port;
                                 }
                                 complete(counts);
                             };

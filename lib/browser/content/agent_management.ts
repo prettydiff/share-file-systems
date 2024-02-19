@@ -122,8 +122,8 @@ const agent_management:module_agentManagement = {
                 angryStrong:HTMLElement = document.createElement("strong"),
                 em:HTMLElement = document.createElement("em"),
                 ip:string = (agentInvite.ipSelected.indexOf(":") < 0)
-                    ? `${agentInvite.ipSelected}:${agentInvite.ports.http}`
-                    : `[${agentInvite.ipSelected}]:${agentInvite.ports.http}`,
+                    ? `${agentInvite.ipSelected}:${agentInvite.port}`
+                    : `[${agentInvite.ipSelected}]:${agentInvite.port}`,
                 label:HTMLElement = document.createElement("label"),
                 textarea:HTMLTextAreaElement = document.createElement("textarea");
             let text:HTMLElement = document.createElement("h3");
@@ -476,7 +476,7 @@ const agent_management:module_agentManagement = {
                         ipSelected: "",
                         modal: options.id,
                         nameUser: browser.identity.nameUser,
-                        ports: browser.network.ports,
+                        port: browser.network.port,
                         secret: "",
                         session: "",
                         shares: userData[0]
@@ -488,10 +488,7 @@ const agent_management:module_agentManagement = {
                         ipSelected: ip,
                         modal: "",
                         nameUser: "",
-                        ports: {
-                            http: portNumber,
-                            ws: 0
-                        },
+                        port: portNumber,
                         secret: "",
                         session: "",
                         shares: null

@@ -33,10 +33,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                                 ipAll: null,
                                 ipSelected: "",
                                 name: "test local device",
-                                ports: {
-                                    http: 9999,
-                                    ws: 9999
-                                },
+                                port: 9999,
                                 secret: "",
                                 shares: {
                                     "a89e4ac7eec0c4b557aab68ad7499dd136d21d8eb2e5f51a6973dcf5f854b9a1895bec63f3a9d1b5e6243524e6bb8bc29d34c9741c1fc7fc77a7f0e8a934d153": {
@@ -74,10 +71,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                                 ipAll: null,
                                 ipSelected: "",
                                 name: "test local laptop",
-                                ports: {
-                                    http: 9999,
-                                    ws: 9999
-                                },
+                                port: 9999,
                                 secret: "",
                                 shares: {
                                     "ccd7be8a1603ae4ca8d39f142e538c18fa16b157ce8f315a0f8a66060b3fbe71fa429bc309c964e8b8ce6c7cf699b4802777a99b5c961e8419ae24d6bfaf241b": {
@@ -115,10 +109,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                                 ipAll: null,
                                 ipSelected: "",
                                 name: "test device device",
-                                ports: {
-                                    http: 9999,
-                                    ws: 9999
-                                },
+                                port: 9999,
                                 secret: "",
                                 shares: {
                                     "36b0d1a2ddc81858b0339d3296b4f69513b779a122ec279ea71a1cb50231952e5f5ba9197c6438e91cd3d8bd6b3d5feee78ce4fd0e4386abe3af0487449a02d7": {
@@ -148,10 +139,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                         ipSelected: "",
                         modal: "test-modal-requestor",
                         nameUser: "test local user",
-                        ports: {
-                            http: 9999,
-                            ws: 9999
-                        },
+                        port: 9999,
                         secret: (status === "accepted")
                             ? vars.identity.secretUser
                             : "",
@@ -165,10 +153,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                         ipSelected: "",
                         modal: "test-modal-responder",
                         nameUser: "responding user",
-                        ports: {
-                            http: 9999,
-                            ws: 9999
-                        },
+                        port: 9999,
                         secret: "",
                         session: "",
                         shares: {}
@@ -1401,10 +1386,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                         ipAll: null,
                         ipSelected: "",
                         name: "local device name",
-                        ports: {
-                            http: 443,
-                            ws: 0
-                        },
+                        port: 443,
                         shares: {
                             [vars.identity.hashDevice]: {
                                 execute: false,
@@ -1428,10 +1410,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                         ipAll: null,
                         ipSelected: "",
                         name: "local device name",
-                        ports: {
-                            http: 9999,
-                            ws: 9999
-                        },
+                        port: 9999,
                         shares: {
                             [vars.identity.hashDevice]: {
                                 execute: false,
@@ -1603,10 +1582,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                         ipAll: null,
                         ipSelected: "",
                         name: "remote user name",
-                        ports: {
-                            http: 443,
-                            ws: 0
-                        },
+                        port: 443,
                         shares: {
                             [vars.identity.hashDevice]: {
                                 execute: false,
@@ -1630,10 +1606,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                         ipAll: null,
                         ipSelected: "",
                         name: "remote user name",
-                        ports: {
-                            http: 9999,
-                            ws: 9999
-                        },
+                        port: 9999,
                         shares: {
                             [vars.identity.hashDevice]: {
                                 execute: false,
@@ -1663,10 +1636,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     ipSelected: "",
                     modal: "test-modal-requestor",
                     nameUser: "local user name",
-                    ports: {
-                        http: 443,
-                        ws: 0
-                    },
+                    port: 443,
                     session: "",
                     shares: {}
                 },
@@ -1677,10 +1647,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     ipSelected: "",
                     modal: "",
                     nameUser: "",
-                    ports: {
-                        http: 443,
-                        ws: 0
-                    },
+                    port: 443,
                     session: "",
                     shares: null
                 },
@@ -1702,10 +1669,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     ipSelected: null,
                     modal: "test-modal-requestor",
                     nameUser: "local user name",
-                    ports: {
-                        http: 9999,
-                        ws: 9999
-                    },
+                    port: 9999,
                     session: "",
                     shares: {}
                 },
@@ -1716,10 +1680,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     ipSelected: "",
                     modal: "",
                     nameUser: "",
-                    ports: {
-                        http: 9999,
-                        ws: 9999
-                    },
+                    port: 9999,
                     session: "",
                     shares: null
                 },
@@ -1741,10 +1702,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     ipSelected: "",
                     modal: "test-modal-requestor",
                     nameUser: "local user name",
-                    ports: {
-                        http: 443,
-                        ws: 0
-                    },
+                    port: 443,
                     secret: "",
                     session: "",
                     shares: {}
@@ -1756,10 +1714,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     ipSelected: "",
                     modal: "test-modal-responder",
                     nameUser: "responding user",
-                    ports: {
-                        http: 443,
-                        ws: 0
-                    },
+                    port: 443,
                     secret: "",
                     session: "",
                     shares: null
@@ -1791,10 +1746,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                             ipAll: null,
                             ipSelected: "",
                             name: "test local device",
-                            ports: {
-                                http: 9999,
-                                ws: 9999
-                            },
+                            port: 9999,
                             secret: "",
                             shares: {
                                 "a89e4ac7eec0c4b557aab68ad7499dd136d21d8eb2e5f51a6973dcf5f854b9a1895bec63f3a9d1b5e6243524e6bb8bc29d34c9741c1fc7fc77a7f0e8a934d153": {
@@ -1832,10 +1784,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                             ipAll: null,
                             ipSelected: "",
                             name: "test local laptop",
-                            ports: {
-                                http: 9999,
-                                ws: 9999
-                            },
+                            port: 9999,
                             secret: "",
                             shares: {
                                 "ccd7be8a1603ae4ca8d39f142e538c18fa16b157ce8f315a0f8a66060b3fbe71fa429bc309c964e8b8ce6c7cf699b4802777a99b5c961e8419ae24d6bfaf241b": {
@@ -1873,10 +1822,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                             ipAll: null,
                             ipSelected: "",
                             name: "test device device",
-                            ports: {
-                                http: 9999,
-                                ws: 9999
-                            },
+                            port: 9999,
                             secret: "",
                             shares: {
                                 "36b0d1a2ddc81858b0339d3296b4f69513b779a122ec279ea71a1cb50231952e5f5ba9197c6438e91cd3d8bd6b3d5feee78ce4fd0e4386abe3af0487449a02d7": {
@@ -1906,10 +1852,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     ipSelected: "",
                     modal: "test-modal-requestor",
                     nameUser: "local user name",
-                    ports: {
-                        http: 9999,
-                        ws: 9999
-                    },
+                    port: 9999,
                     secret: "",
                     session: "",
                     shares: {}
@@ -1921,10 +1864,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     ipSelected: "",
                     modal: "test-modal-responder",
                     nameUser: "responding user",
-                    ports: {
-                        http: 9999,
-                        ws: 9999
-                    },
+                    port: 9999,
                     secret: "",
                     session: "",
                     shares: null
@@ -1947,10 +1887,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     ipSelected: "",
                     modal: "test-modal-requestor",
                     nameUser: "test local user",
-                    ports: {
-                        http: 443,
-                        ws: 0
-                    },
+                    port: 443,
                     secret: "",
                     session: "",
                     shares: {}
@@ -1962,10 +1899,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     ipSelected: "",
                     modal: "test-modal-responder",
                     nameUser: "responding user",
-                    ports: {
-                        http: 443,
-                        ws: 0
-                    },
+                    port: 443,
                     secret: "",
                     session: "",
                     shares: {}
@@ -1991,10 +1925,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     ipSelected: "",
                     modal: "test-modal-requestor",
                     nameUser: "test local user",
-                    ports: {
-                        http: 443,
-                        ws: 0
-                    },
+                    port: 443,
                     secret: "",
                     session: "",
                     shares: {}
@@ -2006,10 +1937,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     ipSelected: "",
                     modal: "test-modal-responder",
                     nameUser: "responding user",
-                    ports: {
-                        http: 443,
-                        ws: 0
-                    },
+                    port: 443,
                     secret: "",
                     session: "",
                     shares: {}
@@ -2035,10 +1963,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     ipSelected: "",
                     modal: "test-modal-requestor",
                     nameUser: "test local user",
-                    ports: {
-                        http: 443,
-                        ws: 0
-                    },
+                    port: 443,
                     secret: "",
                     session: "",
                     shares: {}
@@ -2050,10 +1975,7 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     ipSelected: "",
                     modal: "test-modal-responder",
                     nameUser: "responding user",
-                    ports: {
-                        http: 443,
-                        ws: 0
-                    },
+                    port: 443,
                     secret: "",
                     session: "",
                     shares: {}

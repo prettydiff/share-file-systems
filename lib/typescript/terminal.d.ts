@@ -438,32 +438,6 @@ interface hash_output {
 }
 
 /**
- * Parameters for an optional callback function to the agent_http.server method in the cases where other utilities are spawning an http server.
- * ```typescript
- * interface http_server_callback extends agency {
- *     callback: (output:http_server_output) => void;
- * }
- * ``` */
-interface http_server_callback extends agency {
-    callback: (output:http_server_output) => void;
-}
-
-/**
- * The object returned to the optional callback of agent_http.server.
- * ```typescript
- * interface http_server_output extends agency {
- *     log: string[];
- *     ports: ports;
- *     server: node_http_Server;
- * }
- * ``` */
-interface http_server_output extends agency {
-    log: string[];
-    ports: ports;
-    server: node_http_Server;
-}
-
-/**
  * Provides identity to an HTTP socket.
  * ```typescript
  * interface httpSocket_agent {
@@ -525,6 +499,32 @@ interface remove_count {
     file: number;
     link: number;
     size: number;
+}
+
+/**
+ * Parameters for an optional callback function to the service library.
+ * ```typescript
+ * interface service_callback extends agency {
+ *     callback: (output:service_output) => void;
+ * }
+ * ``` */
+interface service_callback extends agency {
+    callback: (output:service_output) => void;
+}
+
+/**
+ * The object returned to the optional callback of agent_http.server.
+ * ```typescript
+ * interface service_output extends agency {
+ *     log: string[];
+ *     port: number;
+ *     server: node_net_Server;
+ * }
+ * ``` */
+interface service_output extends agency {
+    log: string[];
+    port: number;
+    server: node_net_Server;
 }
 
 /**

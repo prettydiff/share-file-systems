@@ -21,7 +21,7 @@ interface agency {
  *     ipAll: transmit_addresses_IP;
  *     ipSelected: string;
  *     name: string;
- *     ports: ports;
+ *     port: number;
  *     secret: string;
  *     shares: agentShares;
  *     status: activityStatus;
@@ -33,7 +33,7 @@ interface agent {
     ipAll: transmit_addresses_IP;
     ipSelected: string;
     name: string;
-    ports: ports;
+    port: number;
     secret: string;
     shares: agentShares;
     status: activityStatus;
@@ -62,7 +62,7 @@ interface agentCounts {
  *     ipSelected: string;
  *     modal: string;
  *     nameUser: string;
- *     ports: ports;
+ *     port: number;
  *     secret: string;
  *     session: string;
  *     shares: agentShares;
@@ -75,7 +75,7 @@ interface agentInvite {
     ipSelected: string;
     modal: string;
     nameUser: string;
-    ports: ports;
+    port: number;
     secret: string;
     session: string;
     shares: agentShares;
@@ -247,19 +247,6 @@ interface identity {
     nameUser    : string;
     secretDevice: string;
     secretUser  : string;
-}
-
-/**
- * A means of packaging port data into a single object.
- * ```typescript
- * interface ports {
- *     http: number;
- *     ws: number;
- * }
- * ``` */
-interface ports {
-    http: number;
-    ws: number;
 }
 
 /**

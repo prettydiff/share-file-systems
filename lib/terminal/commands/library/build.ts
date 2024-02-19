@@ -326,7 +326,7 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                         // remove some compile time reference renaming insanity that occurs when compiling to commonjs
                                         file = file.replace(/_js_\d+/g, "").replace(/\.default/g, "").replace(/const\s*const/g, "const").replace(/;\s*;/g, ";");
                                         // set state for Electron
-                                        file = file.replace(/state = \{\s*addresses: null,\s*settings: null,\s*test: null\s*\}/, `state = {addresses:{"addresses":${JSON.stringify(vars.network.addresses)},"ports":${JSON.stringify(vars.network.ports)}},settings:${JSON.stringify(settingsData).replace(/'/g, "&#39;")},test:${testBrowser}}`);
+                                        file = file.replace(/state = \{\s*addresses: null,\s*settings: null,\s*test: null\s*\}/, `state = {addresses:{"addresses":${JSON.stringify(vars.network.addresses)},"ports":${JSON.stringify(vars.network.port)}},settings:${JSON.stringify(settingsData).replace(/'/g, "&#39;")},test:${testBrowser}}`);
                                     }
                                     node.fs.writeFile(`${filePath}bundle.js`, file, function terminal_commands_library_build_bundleJS_index_read_writeFile(writeError:node_error):void {
                                         if (writeError === null) {

@@ -184,7 +184,7 @@ const agent_management = function terminal_server_services_agentManagement(socke
                         ipAll: userData[1],
                         ipSelected: "",
                         name: vars.identity.nameUser,
-                        ports: vars.network.ports,
+                        port: vars.network.port,
                         secret: vars.identity.secretUser,
                         shares: userData[0],
                         status: "active"

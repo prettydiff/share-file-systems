@@ -83,7 +83,7 @@ const fileCopy:module_fileCopy = {
                                                         : vars.network.addresses.IPv4[0],
                                                     list: lists,
                                                     listData: listData,
-                                                    port: vars.network.ports.http
+                                                    port: vars.network.port
                                                 },
                                                 directoryPlural:string = (listData.dirs === 1)
                                                     ? "y"

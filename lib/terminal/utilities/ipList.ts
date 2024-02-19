@@ -23,9 +23,7 @@ const ipList = function terminal_utilities_ipList(agent:agent, ports:boolean, fo
     addresses("IPv4");
     if (ports === true) {
         output.push("");
-        output.push(`${vars.text.cyan}Ports:${vars.text.none}`);
-        output.push(`${formatting}HTTP - ${vars.network.ports.http}`);
-        output.push(`${formatting}WS   - ${vars.network.ports.ws}`);
+        output.push(`${vars.text.cyan}Port:${vars.network.port + vars.text.none}`);
     }
     return output;
 };

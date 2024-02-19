@@ -312,8 +312,8 @@ interface module_terminal {
  *         addresses   : transmit_addresses_IP;          // ip addresses available to this device
  *         count       : terminalVariables_networkCount; // a count of network transmissions by protocol type and send/receive
  *         domain      : string[];                       // supported domains that resolves to a localhost IP
- *         port_default: number;                         // default port number for the http service
- *         ports       : ports;                          // a list of service port numbers
+ *         port_default: number;                         // desired port for documentation
+ *         port        : number;                         // the port number running the service
  *         size        : terminalVariables_networkCount; // a count of data size transmitted by protocol type and send/receive
  *     };
  *     path: {
@@ -369,7 +369,7 @@ interface module_terminalVariables {
         count       : terminalVariables_networkCount;
         domain      : string[];
         port_default: number;
-        ports       : ports;
+        port        : number;
         size        : terminalVariables_networkCount;
     };
     path: {
@@ -476,10 +476,10 @@ interface module_test_browserApplication {
  *     addServers: (callback:() => void) => void;     // Starts listeners on random ports simulating various connecting agents.
  *     agents: {
  *         device: {
- *             [key:string]: node_http_Server;
+ *             [key:string]: node_net_Server;
  *         };
  *         user: {
- *             [key:string]: node_http_Server;
+ *             [key:string]: node_net_Server;
  *         };
  *     };                                             // Stores simulated agent identities.
  *     complete: commandCallback;                     // Stores an action to perform once all test cases are executed.
@@ -496,10 +496,10 @@ interface module_test_serviceApplication {
     addServers: (callback:() => void) => void;
     agents: {
         device: {
-            [key:string]: node_http_Server;
+            [key:string]: node_net_Server;
         };
         user: {
-            [key:string]: node_http_Server;
+            [key:string]: node_net_Server;
         };
     };
     complete: commandCallback;
@@ -534,7 +534,7 @@ interface module_test_simulationApplication {
  *     request     : (config:config_http_request) => void;                                                 // Send an arbitrary HTTP request.
  *     respond     : (config:config_http_respond, get:boolean, url:string) => void;                        // Formats and sends HTTP response messages.
  *     respondEmpty: (transmit:transmit_type)                                                              // Responds to a request with an empty response payload.
- *     server      : (serverOptions:config_http_server, serverCallback:http_server_callback) => void;      // Creates an HTTP server.
+ *     server      : (serverOptions:config_service, serverCallback:service_callback) => void;              // Creates an HTTP server.
  * }
  * ``` */
 interface module_transmit_http {
@@ -543,7 +543,7 @@ interface module_transmit_http {
     request: (config:config_http_request) => void;
     respond: (config:config_http_respond, get:boolean, url:string) => void;
     respondEmpty: (transmit:transmit_type) => void;
-    server: (serverOptions:config_http_server, serverCallback:http_server_callback) => void;
+    server: (serverOptions:config_service, serverCallback:service_callback) => void;
 }
 
 /**

@@ -182,7 +182,7 @@ const defaultCommand:commands = vars.environment.command,
                                     handler: transmit_ws.clientReceiver,
                                     hash: list[index],
                                     ip: machines[list[index]].ip,
-                                    port: machines[list[index]].port.ws,
+                                    port: machines[list[index]].port,
                                     socketType: "testRemote"
                                 });
                             }
@@ -393,9 +393,9 @@ const defaultCommand:commands = vars.environment.command,
                                     : (process.platform === "win32")
                                         ? "start"
                                         : "xdg-open",
-                                port:string = (vars.network.ports.http === 443)
+                                port:string = (vars.network.port === 443)
                                     ? ""
-                                    : `:${String(vars.network.ports.http)}`,
+                                    : `:${String(vars.network.port)}`,
                                 verboseFlag:string = (browser.args.mode !== "remote" && vars.settings.verbose === true)
                                     ? "test_browser_verbose"
                                     : "test_browser",

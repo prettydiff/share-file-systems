@@ -23,7 +23,7 @@ const agent_hash:module_agentHash = {
                 ipAll: browser.network.addresses,
                 ipSelected: "",
                 name: browser.identity.nameDevice,
-                ports: browser.network.ports,
+                port: browser.network.port,
                 secret: browser.identity.secretDevice,
                 shares: {},
                 status: "idle"

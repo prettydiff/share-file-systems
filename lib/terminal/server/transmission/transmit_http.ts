@@ -58,7 +58,7 @@ const transmit_http:module_transmit_http = {
                         name: vars.environment.name,
                         network: {
                             addresses: vars.network.addresses,
-                            ports: vars.network.ports
+                            port: vars.network.port
                         },
                         settings: settingsData,
                         "socket-map": transmit_ws.socketMap,
@@ -564,7 +564,7 @@ const transmit_http:module_transmit_http = {
                     const protocol:"ws"|"wss" = (vars.settings.secure === true)
                             ? "wss"
                             : "ws",
-                        csp:string = `default-src 'self'; base-uri 'self'; font-src 'self' data:; form-action 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; connect-src 'self' ${protocol}://localhost:${vars.network.ports.ws}/; frame-ancestors 'none'; media-src 'none'; object-src 'none'; worker-src 'none'; manifest-src 'none'`;
+                        csp:string = `default-src 'self'; base-uri 'self'; font-src 'self' data:; form-action 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; connect-src 'self' ${protocol}://localhost:${vars.network.port}/; frame-ancestors 'none'; media-src 'none'; object-src 'none'; worker-src 'none'; manifest-src 'none'`;
                     headers.push(["content-security-policy", csp]);
                 }
                 headers.forEach(function terminal_server_transmission_transmitHttp_respond_headersEach(header:[string, string]):void {
@@ -604,7 +604,7 @@ const transmit_http:module_transmit_http = {
             }, false, "");
         }
     },
-    server: function terminal_server_transmission_transmitHttp_server(serverOptions:config_http_server, serverCallback:http_server_callback):void {
+    server: function terminal_server_transmission_transmitHttp_server(serverOptions:config_service, serverCallback:service_callback):void {
         // at this time the serverCallback argument is only used by test automation and so its availability
         // * locks the server to address ::1 (loopback)
         // * bypasses messaging users on server start up
@@ -634,10 +634,7 @@ const transmit_http:module_transmit_http = {
                         agent: serverCallback.agent,
                         agentType: serverCallback.agentType,
                         log: startupLog,
-                        ports: {
-                            http: portWeb,
-                            ws: portWs
-                        },
+                        port: 0,
                         server: server
                     });
                 }
@@ -776,7 +773,7 @@ const transmit_http:module_transmit_http = {
                                     browser(server, output);
                                 };
                                 portWs = addressInfo.port;
-                                vars.network.ports.ws = addressInfo.port;
+                                vars.network.port = addressInfo.port;
                                 if (vars.test.type === "service" || vars.test.type.indexOf("browser_") === 0) {
                                     logOutput();
                                 } else {
@@ -863,7 +860,7 @@ const transmit_http:module_transmit_http = {
                                                             }
                                                         };
                                                     if (vars.settings.secure === true) {
-                                                        self.ports = vars.network.ports;
+                                                        self.port = vars.network.port;
                                                         list("device");
                                                         list("user");
                                                     }
@@ -879,7 +876,7 @@ const transmit_http:module_transmit_http = {
                                 ? 0
                                 : serverAddress.port + 1
                         });
-                        vars.network.ports.http = serverAddress.port;
+                        vars.network.port = serverAddress.port;
                         portWeb = serverAddress.port;
                         portString = (vars.settings.secure === true)
                             ? (portWeb === 443)

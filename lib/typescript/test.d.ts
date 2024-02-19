@@ -53,7 +53,7 @@ interface test_browserItem {
  * interface test_browserMachines {
  *     [key:string]: {
  *         ip: string;
- *         port: ports;
+ *         port: number;
  *         secure: boolean;
  *     };
  * }
@@ -61,7 +61,7 @@ interface test_browserItem {
 interface test_browserMachines {
     [key:string]: {
         ip: string;
-        port: ports;
+        port: number;
         secure: boolean;
     };
 }

@@ -27,7 +27,7 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                     callback: null,
                     ip: data[agent].ipSelected,
                     payload: payload,
-                    port: data[agent].ports.http,
+                    port: data[agent].port,
                     stream: false
                 };
             if (vars.test.type === "service") {
@@ -52,7 +52,7 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                                 ipAll: data[type].ipAll,
                                 ipSelected: remoteIP,
                                 name: data[type].nameUser,
-                                ports: data[type].ports,
+                                port: data[type].port,
                                 secret: data[type].secret,
                                 shares: data[type].shares,
                                 status: "active"
@@ -189,7 +189,7 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                         if (data.type === "device") {
                             data.agentSource.devices = vars.agents.device;
                             data.agentSource.ipAll = vars.network.addresses;
-                            data.agentSource.ports = vars.network.ports;
+                            data.agentSource.port = vars.network.port;
                             data.agentSource.secret = vars.identity.secretUser;
                             data.agentSource.session = session;
                         } else {
@@ -201,7 +201,7 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                                 ipSelected: data.agentSource.ipSelected,
                                 modal: data.agentSource.modal,
                                 nameUser: vars.identity.nameUser,
-                                ports: vars.network.ports,
+                                port: vars.network.port,
                                 secret: vars.identity.secretUser,
                                 session: session,
                                 shares: userData[0]
@@ -238,7 +238,7 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                                 ipSelected: data.agentRequest.ipSelected,
                                 modal: data.agentRequest.modal,
                                 nameUser: vars.identity.nameUser,
-                                ports: vars.network.ports,
+                                port: vars.network.port,
                                 secret: vars.identity.secretUser,
                                 session: "",
                                 shares: (data.type === "device")

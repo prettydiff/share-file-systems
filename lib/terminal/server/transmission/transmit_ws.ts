@@ -477,7 +477,7 @@ const transmit_ws:module_transmit_ws = {
                         hash: config.agent,
                         handler: transmit_ws.clientReceiver,
                         ip: ip,
-                        port: agent.ports.ws,
+                        port: agent.port,
                         socketType: config.agentType
                     });
                 }

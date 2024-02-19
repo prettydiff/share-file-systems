@@ -160,10 +160,7 @@ const vars:module_terminalVariables = {
             "sharefile.systems"
         ],
         port_default: 443,
-        ports: {
-            http: 0,
-            ws: 0
-        },
+        port: 0,
         size: {
             http: {
                 receive: 0,

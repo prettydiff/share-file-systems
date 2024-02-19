@@ -242,6 +242,23 @@ interface config_copy_status extends fileSystem {
 }
 
 /**
+ * For network.fileRoute of terminal/server/transmission/network
+ * ```typescript
+ * interface config_fileRoute {
+ *     callback:(socketData:socketData) => void;
+ *     destination:agentCopy;
+ *     origination:agentCopy;
+ *     socketData:socketData;
+ * }
+ * ``` */
+interface config_fileRoute {
+    callback:(socketData:socketData) => void;
+    destination:agentCopy;
+    origination:agentCopy;
+    socketData:socketData;
+}
+
+/**
  * For transmit_http.request of terminal/server/transmission/transmit_http.
  * ```typescript
  * interface config_http_request extends agency {
@@ -275,23 +292,6 @@ interface config_http_respond {
     mimeType: mimeType;
     responseType: service_type;
     serverResponse: httpSocket_response;
-}
-
-/**
- * For transmit_http.server of terminal/server/transmission/transmit_http.
- * ```typescript
- * interface config_http_server {
- *     browser: boolean;
- *     host: string;
- *     port: number;
- *     test: boolean;
- * }
- * ``` */
-interface config_http_server {
-    browser: boolean;
-    host: string;
-    port: number;
-    test: boolean;
 }
 
 /**
@@ -477,20 +477,20 @@ interface config_rename {
 }
 
 /**
- * For network.fileRoute of terminal/server/transmission/network
+ * For transmit_http.server of terminal/commands/library/service.
  * ```typescript
- * interface config_fileRoute {
- *     callback:(socketData:socketData) => void;
- *     destination:agentCopy;
- *     origination:agentCopy;
- *     socketData:socketData;
+ * interface config_service {
+ *     browser: boolean;
+ *     host: string;
+ *     port: number;
+ *     test: boolean;
  * }
  * ``` */
-interface config_fileRoute {
-    callback:(socketData:socketData) => void;
-    destination:agentCopy;
-    origination:agentCopy;
-    socketData:socketData;
+interface config_service {
+    browser: boolean;
+    host: string;
+    port: number;
+    test: boolean;
 }
 
 /**

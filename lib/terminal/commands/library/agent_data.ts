@@ -83,7 +83,7 @@ const agentData = function terminal_commands_library_agentData(type:agentType, c
                             text.push(`  ${vars.text.angry}-${vars.text.none} ${vars.text.cyan}ID${vars.text.none}         : ${keys[a][1]}`);
                             ipAll(agents[keys[a][0]][keys[a][1]], text, false);
                             text.push(`  ${vars.text.angry}-${vars.text.none} ${vars.text.cyan}IP Selected${vars.text.none}: ${agents[keys[a][0]][keys[a][1]].ipSelected}`);
-                            text.push(`  ${vars.text.angry}-${vars.text.none} ${vars.text.cyan}Port${vars.text.none}       : ${agents[keys[a][0]][keys[a][1]].ports.http}`);
+                            text.push(`  ${vars.text.angry}-${vars.text.none} ${vars.text.cyan}Port${vars.text.none}       : ${agents[keys[a][0]][keys[a][1]].port}`);
                             if (shareLength < 1) {
                                 text.push(`  ${vars.text.angry}-${vars.text.none} ${vars.text.cyan}Shares${vars.text.none}     : none`);
                             } else {
@@ -124,7 +124,7 @@ const agentData = function terminal_commands_library_agentData(type:agentType, c
                             text.push(`${vars.text.angry}*${vars.text.none} ${vars.text.cyan}ID${vars.text.none}         : ${type}`);
                             ipAll(agents[agentType][type], text, true);
                             text.push(`${vars.text.angry}*${vars.text.none} ${vars.text.cyan}IP Selected${vars.text.none}: ${agents[agentType][type].ipSelected}`);
-                            text.push(`${vars.text.angry}*${vars.text.none} ${vars.text.cyan}Port${vars.text.none}       : ${agents[agentType][type].ports.http}`);
+                            text.push(`${vars.text.angry}*${vars.text.none} ${vars.text.cyan}Port${vars.text.none}       : ${agents[agentType][type].port}`);
                             if (shareLength < 1) {
                                 text.push(`${vars.text.angry}*${vars.text.none} ${vars.text.cyan}Shares${vars.text.none}     : none`);
                             } else {

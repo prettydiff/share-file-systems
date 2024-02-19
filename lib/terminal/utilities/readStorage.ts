@@ -81,7 +81,7 @@ const readStorage = function terminal_utilities_readStorage(fromFile:boolean, ca
                     vars.settings.ui = settings.ui;
                     if (vars.identity.hashDevice !== undefined && vars.identity.hashDevice !== "") {
                         vars.agents.device[vars.identity.hashDevice].ipAll = vars.network.addresses;
-                        vars.agents.device[vars.identity.hashDevice].ports = vars.network.ports;
+                        vars.agents.device[vars.identity.hashDevice].port = vars.network.port;
                     }
                     callback(settings);
                 },

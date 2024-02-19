@@ -74,7 +74,7 @@ const hashAgent = function terminal_server_services_hashAgent(socketData:socketD
                         ipAll: vars.network.addresses,
                         ipSelected: "",
                         name: hashData.device,
-                        ports: vars.network.ports,
+                        port: vars.network.port,
                         secret: vars.identity.secretDevice,
                         shares: {},
                         status: "idle"

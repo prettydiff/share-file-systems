@@ -135,7 +135,7 @@ const share:module_share = {
                 createListItem("Selected IP Address: ", ip);
                 createListItem("IPv4 Addresses: ", agent.ipAll.IPv4);
                 createListItem("IPv6 Addresses: ", agent.ipAll.IPv6);
-                createListItem("Port: ", [`HTTP ${agent.ports.http}`, `WS ${agent.ports.ws}`]);
+                createListItem("Port: ", [String(agent.port)]);
 
                 if (type === "device") {
                     createListItem(`CPU Cores: ${agent.deviceData.cpuCores}`);

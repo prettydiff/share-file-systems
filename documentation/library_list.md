@@ -92,6 +92,7 @@ This is a dynamically compiled list of supporting code files that comprise this 
    - **[../lib/terminal/commands/library/lint.ts](../lib/terminal/commands/library/lint.ts)**                                                           - Executes a TypeScript configured form of ESLint from the application's dev dependencies.
    - **[../lib/terminal/commands/library/mkdir.ts](../lib/terminal/commands/library/mkdir.ts)**                                                         - A utility for recursively creating directories in the file system.
    - **[../lib/terminal/commands/library/perf.ts](../lib/terminal/commands/library/perf.ts)**                                                           - Allows for performance testing of the application.
+   - **[../lib/terminal/commands/library/service.ts](../lib/terminal/commands/library/service.ts)**                                                     - Starts the application with a running server.
    - **[../lib/terminal/commands/library/typescript.ts](../lib/terminal/commands/library/typescript.ts)**                                               - Executes TypeScript type checks.
    - **[../lib/terminal/commands/library/update.ts](../lib/terminal/commands/library/update.ts)**                                                       - A command to update the application from git and then run the build.
 * Directory *[../lib/terminal/server](../lib/terminal/server)*

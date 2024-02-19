@@ -58,7 +58,7 @@ const inviteSend = function terminal_test_application_browserUtilities_inviteSen
                     ["getElementsByClassName", "inviteAgent", 0],
                     ["getElementsByTagName", "input", 3]
                 ],
-                value: machines[to].port.http.toString()
+                value: machines[to].port.toString()
             },
             {
                 event: "click",
