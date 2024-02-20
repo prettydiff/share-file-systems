@@ -96,7 +96,15 @@ const fileSystem:module_fileSystem = {
                                 plural:string = (result.length === 1)
                                     ? ""
                                     : "es";
-                            data.name = `search-${title} "<em>${data.name}</em>" returned <strong>${common.commas(resultLength)}</strong> match${plural} from <em>${data.location[0]}</em>.`;
+                            data.name = `search-${JSON.stringify([
+                                ["", `${title} "`],
+                                ["em", data.name],
+                                ["", "\" returned "],
+                                ["strong", common.commas(resultLength)],
+                                ["", ` match${plural} from `],
+                                ["em", data.location[0]],
+                                ["", "."]
+                            ])}`;
                         }
                         complete(result);
                     }

@@ -440,9 +440,6 @@ const file_browser:module_fileBrowser = {
                     : [data.fileList.failures, Math.min(10, data.fileList.failures.length)],
                 fails:HTMLElement = document.createElement("ul"),
                 search:boolean  = (data.message.indexOf("search-") === 0),
-                searchFragment:string = (search === true)
-                    ? data.message.slice(data.message.indexOf("<em>") + 4, data.message.indexOf("</em>"))
-                    : "",
                 expandTest:boolean = (data.message.indexOf("expand-") === 0),
                 expandLocation:string = data.message.replace("expand-", ""),
                 expand = function browser_content_fileBrowser_status_expand(box:modal):void {
@@ -502,7 +499,7 @@ const file_browser:module_fileBrowser = {
                             // modals that match the data address posix (case sensitive) vs windows (case insensitive)
                             ((modal.text_value.charAt(0) === "/" && modal.text_value === data.agentSource.modalAddress) || (modal.text_value.charAt(0) !== "/" && modal.text_value.toLowerCase() === data.agentSource.modalAddress.toLowerCase())) &&
                             // if the data is a search result then only populate modals containing the specific fragment
-                            (search === false || (search === true && modal.search[0] === modal.text_value && modal.search[1] === searchFragment))
+                            (search === false || (search === true && modal.search[0] === modal.text_value && data.message.includes(`,["em","${modal.search[1]}"],`)))
                         ) {
                             box = document.getElementById(keys[keyLength]);
                             statusBar = box.getElementsByClassName("status-bar")[0] as HTMLElement;
@@ -515,12 +512,28 @@ const file_browser:module_fileBrowser = {
                                 if (expandTest === true) {
                                     expand(box);
                                 } else {
-                                    // eslint-disable-next-line no-restricted-syntax
-                                    p.innerHTML = data.message.replace(/((execute)|(search))-/, "");
-                                    p.setAttribute("aria-live", "polite");
-                                    p.setAttribute("role", "status");
-                                    if (list !== undefined) {
-                                        statusBar.removeChild(list);
+                                    if (data.message.indexOf("search-") === 0) {
+                                        const list:[string, string][] = JSON.parse(data.message.replace("search-", "")),
+                                            len:number = list.length;
+                                        let index:number = 0,
+                                            child:HTMLElement = null;
+                                        do {
+                                            if (list[index][0] === "") {
+                                                p.appendText(list[index][1]);
+                                            } else {
+                                                child = document.createElement(list[index][0]);
+                                                child.appendText(list[index][1]);
+                                                p.appendChild(child);
+                                            }
+                                            index = index + 1;
+                                        } while (index < len);
+                                    } else {
+                                        p.appendText(data.message.replace(/execute-/, ""));
+                                        p.setAttribute("aria-live", "polite");
+                                        p.setAttribute("role", "status");
+                                        if (list !== undefined) {
+                                            statusBar.removeChild(list);
+                                        }
                                     }
                                 }
                             }
