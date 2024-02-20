@@ -224,7 +224,7 @@ const agent_management:module_agentManagement = {
             textInput("IP Address");
 
             // Port
-            textInput("Port (defaults to 443 if blank)");
+            textInput(`Port (defaults to ${browser.network.default.secure} if blank)`);
 
             // Message
             textInput("Invitation Message");
@@ -450,8 +450,8 @@ const agent_management:module_agentManagement = {
                     if (port === undefined || port.replace(/^\s+$/, "") === "") {
                         port = "";
                         portNumber = (location.href.indexOf("https") === 0)
-                            ? 443
-                            : 80;
+                            ? browser.network.default.secure
+                            : browser.network.default.unsecure;
                     } else {
                         portNumber = Number(port);
                         if (isNaN(portNumber) === true || portNumber < 0 || portNumber > 65535) {

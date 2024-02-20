@@ -8,6 +8,7 @@ import common from "../../../common/common.js";
 import error from "../../utilities/error.js";
 import getAddress from "../../utilities/getAddress.js";
 import hash from "../../commands/library/hash.js";
+import http_get from "./http_get.js";
 import log from "../../utilities/log.js";
 import mask from "../../utilities/mask.js";
 import network from "./network.js";
@@ -732,6 +733,7 @@ const transmit_ws:module_transmit_ws = {
                             userAgent:string = null;
                         const dataString:string = data.toString(),
                             testNonce:RegExp = (/^Sec-WebSocket-Protocol:\s*\w+-/),
+                            websocket:boolean = (dataString.toLowerCase().includes("\r\nupgrade: websocket\r\n")),
                             headerList:string[] = dataString.split("\r\n"),
                             flags:flagList = {
                                 hash: false,
@@ -739,6 +741,8 @@ const transmit_ws:module_transmit_ws = {
                                 type: false,
                                 userAgent: false
                             },
+                            reg_method:RegExp = (/^((GET)|(POST)) /),
+                            reg_http:RegExp = (/ HTTP\/\d(\.\d)?$/),
                             headers = function terminal_server_transmission_transmitWs_server_connection_handshake_headers():void {
                                 const clientRespond = function terminal_server_transmission_transmitWs_server_connection_handshake_headers_clientRespond():void {
                                         const headers:string[] = [
@@ -884,7 +888,23 @@ const transmit_ws:module_transmit_ws = {
                                     }
                                 }
                             };
-                        headerList.forEach(headerEach);
+                        if (websocket === true) {
+                            headerList.forEach(headerEach);
+                        // http request
+                        } else if (reg_http.test(headerList[0]) === true) {
+                            // only GET and POST methods are supported
+                            if (reg_method.test(headerList[0]) === true) {
+                                const url:string = headerList[0].replace(reg_method, "").replace(reg_http, "");
+                                // GET method
+                                if (headerList[0].indexOf("GET") === 0) {
+                                    http_get(url, socket);
+                                }
+                            } else {
+                                socket.destroy();
+                            }
+                        } else {
+                            socket.destroy();
+                        }
                     };
                 socket.once("data", handshake);
             },

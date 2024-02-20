@@ -222,7 +222,7 @@ Launches a localhost HTTP service and web sockets so that the web tool is automa
 
 ### Examples
 1. `share service`
-   - Launches the service on default port 443 and web sockets on port 444.
+   - Launches the service on default port 443.
 1. `share service 8080`
    - If a numeric argument is supplied the web service starts on the port specified and web sockets on the following port.
 1. `share service 0`

@@ -13,8 +13,8 @@ const interfaceService = function terminal_commands_interface_service(callback:c
             browser: false,
             host: "",
             port: (vars.settings.secure === true)
-                ? 443
-                : 80,
+                ? vars.network.port_default.secure
+                : vars.network.port_default.unsecure,
             test: false
         },
         serverCallback:service_callback = {

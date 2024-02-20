@@ -159,7 +159,10 @@ const vars:module_terminalVariables = {
             "localhost.prettydiff.com",
             "sharefile.systems"
         ],
-        port_default: 443,
+        port_default: {
+            secure: 443,
+            unsecure: 80
+        },
         port: 0,
         size: {
             http: {

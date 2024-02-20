@@ -1,18 +1,18 @@
 
 /* lib/terminal/test/application/service - A list of service test related utilities. */
 
-import common from "../../../common/common.js";
 import network from "../../server/transmission/network.js";
 import readStorage from "../../utilities/readStorage.js";
-import transmit_http from "../../server/transmission/transmit_http.js";
-import vars from "../../utilities/vars.js";
 
+import common from "../../../common/common.js";
 import filePathDecode from "./browserUtilities/file_path_decode.js";
 import remove_files from "../../../applications/remove_files/index.js";
+import serviceLibrary from "../../commands/library/service.js";
 import testComplete from "./testComplete.js";
 import testEvaluation from "./evaluation.js";
 import tests from "../samples/service.js";
 import transmit_ws from "../../server/transmission/transmit_ws.js";
+import vars from "../../utilities/vars.js";
 
 // cspell:words brotli
 
@@ -82,7 +82,7 @@ const loopback:string = "127.0.0.1",
                                 }
                                 complete(counts);
                             };
-                            transmit_http.server({
+                            serviceLibrary({
                                 browser: false,
                                 host: "",
                                 port: -1,

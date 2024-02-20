@@ -360,7 +360,7 @@ const commands_documentation = function terminal_utility_commandsDocumentation(c
             example: [
                 {
                     code: `${command}service`,
-                    defined: `Launches the service on default port ${vars.network.port_default} and web sockets on port ${vars.network.port_default + 1}.`
+                    defined: `Launches the service on default port. Default secure port is ${vars.network.port_default.secure}. Default unsecure port is ${vars.network.port_default.unsecure}.`
                 },
                 {
                     code: `${command}service 8080`,

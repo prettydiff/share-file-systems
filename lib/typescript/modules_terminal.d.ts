@@ -312,8 +312,8 @@ interface module_terminal {
  *         addresses   : transmit_addresses_IP;          // ip addresses available to this device
  *         count       : terminalVariables_networkCount; // a count of network transmissions by protocol type and send/receive
  *         domain      : string[];                       // supported domains that resolves to a localhost IP
- *         port_default: number;                         // desired port for documentation
  *         port        : number;                         // the port number running the service
+ *         port_default: port_default;                   // desired port to use if a port is not specified.
  *         size        : terminalVariables_networkCount; // a count of data size transmitted by protocol type and send/receive
  *     };
  *     path: {
@@ -368,8 +368,8 @@ interface module_terminalVariables {
         addresses   : transmit_addresses_IP;
         count       : terminalVariables_networkCount;
         domain      : string[];
-        port_default: number;
         port        : number;
+        port_default: port_default;
         size        : terminalVariables_networkCount;
     };
     path: {

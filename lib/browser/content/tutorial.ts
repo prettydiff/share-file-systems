@@ -331,7 +331,7 @@ const tutorial = function browser_content_tutorial():void {
                 description: [
                     ["p", "<strong>Click</strong> on the <strong>Invitation Message input</strong>."],
                     ["p", "A text message is optional, but strongly recommended so the remote user knows who you are."],
-                    ["p", "This tutorial intentionally skipped over the field above for <em>port</em>. That field is the service port the remote user/device is listening on and if blank defaults to 443 or 80."]
+                    ["p", `This tutorial intentionally skipped over the field above for <em>port</em>. That field is the service port the remote user/device is listening on and if blank defaults to ${browser.network.default.secure} or ${browser.network.default.unsecure}.`]
                 ],
                 event: "click",
                 node: [

@@ -71,7 +71,7 @@ This application seeks to be inherently private.  Everything is directly point t
 In almost every case the reason why connections fail is because one of more computers have a firewall blocking traffic.
    1. To verify whether or not firewalls are the problem temporarily disable the firewalls at both ends and try to connect again.
    1. Ensure the firewall contains both an *inbound* and *outbound* rule for the exact version of Node.js.
-   1. These firewall rules must permit TCP traffic for private and public connections for at least the ports used by the application, by default that is 443 and 444.
+   1. These firewall rules must permit TCP traffic for private and public connections for at least the ports used by the application, by default that is 443.
    1. It is also helpful to enable firewall rules for ICMPv6 to test if a remote agent is reachable over the network with a ping test.
    1. Windows users who use Windows Defender Firewall can solve for firewall concerns with this command: `share firewall`
 

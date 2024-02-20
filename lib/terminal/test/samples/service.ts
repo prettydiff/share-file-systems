@@ -1386,7 +1386,9 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                         ipAll: null,
                         ipSelected: "",
                         name: "local device name",
-                        port: 443,
+                        port: (vars.settings.secure === true)
+                            ? vars.network.port_default.secure
+                            : vars.network.port_default.unsecure,
                         shares: {
                             [vars.identity.hashDevice]: {
                                 execute: false,
@@ -1582,7 +1584,9 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                         ipAll: null,
                         ipSelected: "",
                         name: "remote user name",
-                        port: 443,
+                        port: (vars.settings.secure === true)
+                            ? vars.network.port_default.secure
+                            : vars.network.port_default.unsecure,
                         shares: {
                             [vars.identity.hashDevice]: {
                                 execute: false,
@@ -1636,7 +1640,9 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     ipSelected: "",
                     modal: "test-modal-requestor",
                     nameUser: "local user name",
-                    port: 443,
+                    port: (vars.settings.secure === true)
+                        ? vars.network.port_default.secure
+                        : vars.network.port_default.unsecure,
                     session: "",
                     shares: {}
                 },
@@ -1647,7 +1653,9 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     ipSelected: "",
                     modal: "",
                     nameUser: "",
-                    port: 443,
+                    port: (vars.settings.secure === true)
+                        ? vars.network.port_default.secure
+                        : vars.network.port_default.unsecure,
                     session: "",
                     shares: null
                 },
@@ -1702,7 +1710,9 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     ipSelected: "",
                     modal: "test-modal-requestor",
                     nameUser: "local user name",
-                    port: 443,
+                    port: (vars.settings.secure === true)
+                        ? vars.network.port_default.secure
+                        : vars.network.port_default.unsecure,
                     secret: "",
                     session: "",
                     shares: {}
@@ -1714,7 +1724,9 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     ipSelected: "",
                     modal: "test-modal-responder",
                     nameUser: "responding user",
-                    port: 443,
+                    port: (vars.settings.secure === true)
+                        ? vars.network.port_default.secure
+                        : vars.network.port_default.unsecure,
                     secret: "",
                     session: "",
                     shares: null
@@ -1887,7 +1899,9 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     ipSelected: "",
                     modal: "test-modal-requestor",
                     nameUser: "test local user",
-                    port: 443,
+                    port: (vars.settings.secure === true)
+                        ? vars.network.port_default.secure
+                        : vars.network.port_default.unsecure,
                     secret: "",
                     session: "",
                     shares: {}
@@ -1899,7 +1913,9 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     ipSelected: "",
                     modal: "test-modal-responder",
                     nameUser: "responding user",
-                    port: 443,
+                    port: (vars.settings.secure === true)
+                        ? vars.network.port_default.secure
+                        : vars.network.port_default.unsecure,
                     secret: "",
                     session: "",
                     shares: {}
@@ -1925,7 +1941,9 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     ipSelected: "",
                     modal: "test-modal-requestor",
                     nameUser: "test local user",
-                    port: 443,
+                    port: (vars.settings.secure === true)
+                        ? vars.network.port_default.secure
+                        : vars.network.port_default.unsecure,
                     secret: "",
                     session: "",
                     shares: {}
@@ -1937,7 +1955,9 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     ipSelected: "",
                     modal: "test-modal-responder",
                     nameUser: "responding user",
-                    port: 443,
+                    port: (vars.settings.secure === true)
+                        ? vars.network.port_default.secure
+                        : vars.network.port_default.unsecure,
                     secret: "",
                     session: "",
                     shares: {}
@@ -1963,7 +1983,9 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     ipSelected: "",
                     modal: "test-modal-requestor",
                     nameUser: "test local user",
-                    port: 443,
+                    port: (vars.settings.secure === true)
+                        ? vars.network.port_default.secure
+                        : vars.network.port_default.unsecure,
                     secret: "",
                     session: "",
                     shares: {}
@@ -1975,7 +1997,9 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
                     ipSelected: "",
                     modal: "test-modal-responder",
                     nameUser: "responding user",
-                    port: 443,
+                    port: (vars.settings.secure === true)
+                        ? vars.network.port_default.secure
+                        : vars.network.port_default.unsecure,
                     secret: "",
                     session: "",
                     shares: {}

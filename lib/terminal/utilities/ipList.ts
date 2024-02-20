@@ -23,7 +23,7 @@ const ipList = function terminal_utilities_ipList(agent:agent, ports:boolean, fo
     addresses("IPv4");
     if (ports === true) {
         output.push("");
-        output.push(`${vars.text.cyan}Port:${vars.network.port + vars.text.none}`);
+        output.push(`${vars.text.cyan}Port:${String(vars.network.port) + vars.text.none}`);
     }
     return output;
 };

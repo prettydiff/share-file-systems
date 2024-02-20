@@ -58,6 +58,7 @@ const transmit_http:module_transmit_http = {
                         name: vars.environment.name,
                         network: {
                             addresses: vars.network.addresses,
+                            default: vars.network.port_default,
                             port: vars.network.port
                         },
                         settings: settingsData,
@@ -663,8 +664,8 @@ const transmit_http:module_transmit_http = {
                 return (vars.test.type === "service" || vars.test.type === "browser_self" )
                     ? 0
                     : (vars.settings.secure === true)
-                        ? 443
-                        : 80;
+                        ? vars.network.port_default.secure
+                        : vars.network.port_default.unsecure;
             }()),
             start = function terminal_server_transmission_transmitHttp_server_start(server:node_http_Server):void {
                 const serverError = function terminal_server_transmission_transmitHttp_server_start_serverError(errorMessage:NetworkError):void {

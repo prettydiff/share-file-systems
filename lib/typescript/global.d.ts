@@ -250,6 +250,19 @@ interface identity {
 }
 
 /**
+ * Communicates default port numbers.
+ * ```typescript
+ * interface port_default {
+ *     secure: number;
+ *     unsecure: number;
+ * }
+ * ``` */
+interface port_default {
+    secure: number;
+    unsecure: number;
+}
+
+/**
  * The primary data type of all supported services.
  * ```typescript
  * interface socketData {
