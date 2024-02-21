@@ -114,7 +114,7 @@ This is a dynamically compiled list of supporting code files that comprise this 
    - **[../lib/terminal/server/services/settings.ts](../lib/terminal/server/services/settings.ts)**                                                     - A library for writing data to settings.
    - **[../lib/terminal/server/services/terminal.ts](../lib/terminal/server/services/terminal.ts)**                                                     - Processes terminal messaging for remote devices and display to the user in a browser.
 * Directory *[../lib/terminal/server/transmission](../lib/terminal/server/transmission)*
-   - **[../lib/terminal/server/transmission/http_get.ts](../lib/terminal/server/transmission/http_get.ts)**                                             - A library to process HTTP GET responses.
+   - **[../lib/terminal/server/transmission/http.ts](../lib/terminal/server/transmission/http.ts)**                                                     - A library to process HTTP GET responses.
    - **[../lib/terminal/server/transmission/ipResolve.ts](../lib/terminal/server/transmission/ipResolve.ts)**                                           - Tests connectivity to remote agents from among their known IP addresses.
    - **[../lib/terminal/server/transmission/network.ts](../lib/terminal/server/transmission/network.ts)**                                               - Generic transmission tools shared between HTTP and WS libraries.
    - **[../lib/terminal/server/transmission/transmit_http.ts](../lib/terminal/server/transmission/transmit_http.ts)**                                   - This library launches the HTTP service and all supporting service utilities.

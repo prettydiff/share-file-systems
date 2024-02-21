@@ -8,7 +8,7 @@ import common from "../../../common/common.js";
 import error from "../../utilities/error.js";
 import getAddress from "../../utilities/getAddress.js";
 import hash from "../../commands/library/hash.js";
-import http_get from "./http_get.js";
+import http from "./http.js";
 import log from "../../utilities/log.js";
 import mask from "../../utilities/mask.js";
 import network from "./network.js";
@@ -897,7 +897,9 @@ const transmit_ws:module_transmit_ws = {
                                 const url:string = headerList[0].replace(reg_method, "").replace(reg_http, "");
                                 // GET method
                                 if (headerList[0].indexOf("GET") === 0) {
-                                    http_get(url, socket);
+                                    http.get(url, socket);
+                                } else {
+                                    http.post(dataString.split("\r\n\r\n")[1], socket);
                                 }
                             } else {
                                 socket.destroy();

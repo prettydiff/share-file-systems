@@ -232,7 +232,7 @@ body.blush {
 .blush #spaces .fileList li p.selected:hover{background:var(--selected-hover)}
 .blush #spaces .fileList li p.selected.cut:hover{background:var(--cut-selected-hover)}
 .blush #spaces .fileList li p:hover{background:var(--background)}
-.blush #spaces .fileList li.lastType p{border-color:var(--border)}
+.blush #spaces .fileList li.lastType > p{border-color:var(--border)}
 .blush #spaces .fileList li p.selected{background:var(--blue-button-background);outline-color:var(--dragBox-background)}
 .blush #spaces .fileList li p.selected.cut{background:var(--cut-selected);outline-color:var(--cut-selected-outline)}
 .blush #spaces .fileList li p.cut{background:var(--yellow-bright);opacity:0.5;outline-color:var(--yellow-primary)}

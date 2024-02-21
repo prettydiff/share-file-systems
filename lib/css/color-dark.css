@@ -210,7 +210,7 @@ body.dark{
 /* file navigator modal content */
 .dark #spaces .fileList li p{border-color:var(--background)}
 .dark #spaces .fileList li p:hover{background:var(--background)}
-.dark #spaces .fileList li.lastType p{border-color:var(--border)}
+.dark #spaces .fileList li.lastType > p{border-color:var(--border)}
 .dark #spaces .fileList li p.selected{background:var(--blue-background);outline-color:var(--shares-background)}
 .dark #spaces .fileList li p.selected:hover{background:var(--shares-background)}
 .dark #spaces .fileList li p.selected.cut{background:var(--green-background);outline-color:var(--green-text);color:var(--white)}

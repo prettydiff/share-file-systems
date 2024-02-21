@@ -169,6 +169,11 @@ interface module_fileSystem {
     };
 }
 
+interface module_http {
+    get: (url:string, socket:websocket_client) => void;
+    post: (body:string, socket:websocket_client) => void;
+}
+
 /**
  * Methods for processing the various stages of the invitation process.
  * The "invite-complete" step executes as the final step in the terminal at both ends of the transaction.

@@ -499,7 +499,7 @@ const file_browser:module_fileBrowser = {
                             // modals that match the data address posix (case sensitive) vs windows (case insensitive)
                             ((modal.text_value.charAt(0) === "/" && modal.text_value === data.agentSource.modalAddress) || (modal.text_value.charAt(0) !== "/" && modal.text_value.toLowerCase() === data.agentSource.modalAddress.toLowerCase())) &&
                             // if the data is a search result then only populate modals containing the specific fragment
-                            (search === false || (search === true && modal.search[0] === modal.text_value && data.message.includes(`,["em","${modal.search[1]}"],`)))
+                            (search === false || (search === true && modal.search[0] === modal.text_value && data.message.includes(`,["em","${modal.search[1].replace(/\\/g, "\\\\")}"],`)))
                         ) {
                             box = document.getElementById(keys[keyLength]);
                             statusBar = box.getElementsByClassName("status-bar")[0] as HTMLElement;
@@ -512,6 +512,10 @@ const file_browser:module_fileBrowser = {
                                 if (expandTest === true) {
                                     expand(box);
                                 } else {
+                                    p.parentNode.removeChild(p);
+                                    p = document.createElement("p");
+                                    p.setAttribute("aria-live", "polite");
+                                    p.setAttribute("role", "status");
                                     if (data.message.indexOf("search-") === 0) {
                                         const list:[string, string][] = JSON.parse(data.message.replace("search-", "")),
                                             len:number = list.length;
@@ -535,6 +539,7 @@ const file_browser:module_fileBrowser = {
                                             statusBar.removeChild(list);
                                         }
                                     }
+                                    statusBar.appendChild(p);
                                 }
                             }
                             if (data.fileList !== null && expandTest === false) {

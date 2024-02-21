@@ -2800,7 +2800,7 @@ const buildExport = function terminal_test_samples_browserSelf_buildExport():str
         showContextMenu([
             ["getModalsByModalType", "file-navigate", 0],
             ["getElementsByClassName", "fileList", 0],
-            ["getElementsByText", "js", 0],
+            ["getElementsByText", "documentation", 0],
             ["parentNode", null, null]
         ], [], "self"),
 
@@ -2826,7 +2826,7 @@ const buildExport = function terminal_test_samples_browserSelf_buildExport():str
                 }
             ],
             machine: "self",
-            name: "Copy js directory using the context menu",
+            name: "Copy documentation directory using the context menu",
             unit: []
         },
 
@@ -2939,7 +2939,7 @@ const buildExport = function terminal_test_samples_browserSelf_buildExport():str
                 qualifier: "is",
                 target: ["innerHTML"],
                 type: "property",
-                value: "directory - 7 items"
+                value: "directory - 6 items"
             },
             interaction: [
                 {
@@ -2979,7 +2979,7 @@ const buildExport = function terminal_test_samples_browserSelf_buildExport():str
                     qualifier: "ends",
                     target: ["innerHTML"],
                     type: "property",
-                    value: "lib"
+                    value: "screenshots"
                 }
             ]
         },
