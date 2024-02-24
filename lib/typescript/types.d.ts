@@ -18,7 +18,7 @@ type byte = [0|1, 0|1, 0|1, 0|1, 0|1, 0|1, 0|1, 0|1];
 type certArgs = "intermediate-domain"|"intermediate-fileName"|"location"|"organization"|"root-domain"|"root-fileName"|"server-domain"|"server-fileName";
 type certKey = "ca" | "crt" | "key";
 type color = [string, string];
-type commands = "agent_data" | "agent_online" | "base64" | "build" | "certificate" | "commands" | "copy" | "directory" | "get" | "hash" | "lint" | "mkdir" | "perf" | "remove_files" | "service" | "test_browser" | "test_service" | "test_simulation" | "test" | "typescript" | "update" | "version" | "websocket";
+type commands = "agent_data" | "base64" | "build" | "certificate" | "commands" | "copy" | "directory" | "hash" | "lint" | "mkdir" | "perf" | "remove_files" | "service" | "test_browser" | "test_service" | "test_simulation" | "test" | "typescript" | "update" | "version" | "websocket";
 type contextType = "" | "Base64" | "copy" | "cut" | "directory" | "Edit" | "file" | "Hash";
 type directory_item = [string, fileType, string, number, number, directory_data, string];
 type directory_mode = "array" | "hash" | "list" | "read" | "search" | "type";
@@ -57,7 +57,7 @@ type selector = "class" | "id" | "tag";
 type service_error = fileSystem_agents & node_error;
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type service_log = any[];
-type service_type = "agent-hash" | "agent-management" | "agent-online" | "agent-status" | "copy-list-request" | "copy-list" | "copy-send-file" | "copy" | "cut" | "error" | "file-system-details" | "file-system-status" | "file-system-string" | "file-system" | "GET" | "hash-share" | "import" | "invite" | "log" | "message" | "perf-socket" | "reload" | "response-no-action" | "settings" | "socket-map" | "terminal" | "test-browser";
+type service_type = "agent-hash" | "agent-management" | "agent-status" | "copy-list-request" | "copy-list" | "copy-send-file" | "copy" | "cut" | "error" | "file-system-details" | "file-system-status" | "file-system-string" | "file-system" | "GET" | "hash-share" | "import" | "invite" | "log" | "message" | "perf-socket" | "reload" | "response-no-action" | "settings" | "socket-map" | "terminal" | "test-browser";
 type settingsType = agentType | "identity" | "message" | "queue" | "ui";
 type socketDataType = Buffer | service_agentHash | service_agentManagement | service_agentResolve | service_agentStatus | service_copy | service_copy_send_file | service_copy_write | service_cut | service_error | service_fileSystem | service_fileSystem_details | service_fileSystem_status | service_fileSystem_string | service_hashShare | service_invite | service_log | service_message | service_settings | service_terminal | service_testBrowser | socketMap | string;
 type socketStatus = "closed" | "end" | "open" | "pending";

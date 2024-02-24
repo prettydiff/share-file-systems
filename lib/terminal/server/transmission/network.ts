@@ -2,7 +2,6 @@
 
 import agent_hash from "../services/agent_hash.js";
 import agent_management from "../services/agent_management.js";
-import agent_online from "../services/agent_online.js";
 import agent_status from "../services/agent_status.js";
 import browser from "../../test/application/browser.js";
 import browserLog from "../services/browserLog.js";
@@ -126,7 +125,6 @@ const network:module_transmit_network = {
             actions:transmit_receiver = {
                 "agent-hash": agent_hash,
                 "agent-management": agent_management,
-                "agent-online": agent_online,
                 "agent-status": agent_status,
                 "copy": fileCopy.route,
                 "copy-list": fileCopy.route,
@@ -204,7 +202,6 @@ const network:module_transmit_network = {
                     const service_exclusions: service_type[] = [
                         "agent-hash",
                         "agent-management",
-                        "agent-online",
                         "agent-status",
                         "copy-list-request",
                         "copy-list",

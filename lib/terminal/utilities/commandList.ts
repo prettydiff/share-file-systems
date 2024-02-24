@@ -2,7 +2,6 @@
 /* lib/terminal/utilities/commandList - Groups all supported command functions into an object for single point of reference. */
 
 import agent_data from "../commands/interface/agent_data.js";
-import agent_online from "../commands/interface/agent_online.js";
 import base64 from "../commands/interface/base64.js";
 import build from "../commands/interface/build.js";
 import certificate from "../commands/interface/certificate.js";
@@ -10,7 +9,6 @@ import commands from "../commands/interface/commands.js";
 import copy from "../commands/interface/copy.js";
 import directory from "../commands/interface/directory.js";
 import firewall_windows from "../../applications/firewall_windows/index.js";
-import get from "../commands/interface/get.js";
 import hash from "../commands/interface/hash.js";
 import lint from "../commands/interface/lint.js";
 import mkdir from "../commands/interface/mkdir.js";
@@ -31,7 +29,6 @@ import websocket from "../commands/interface/websocket.js";
  * ```typescript
  * interface module_commandList {
  *     agent_data      : (callback:commandCallback) => void; // Lists stored data on one more agents.
- *     agent_online    : (callback:commandCallback) => void; // Allows for testing of connectivity to remote agents.
  *     base64          : (callback:commandCallback) => void; // Generates a base64 string output from a file system artifact or string input.
  *     build           : (callback:commandCallback) => void; // Executes the tasks included in the commands/build.ts file which includes documentation automation and compiling from TypeScript.
  *     certificate     : (callback:commandCallback) => void; // Generates an HTTPS certificate.
@@ -39,7 +36,6 @@ import websocket from "../commands/interface/websocket.js";
  *     copy            : (callback:commandCallback) => void; // Duplications a file system artifact from one location to another.
  *     directory       : (callback:commandCallback) => void; // Walks the file system to build out a representational data structure.
  *     firewall_windows: (callback:commandCallback) => void; // Allows necessary allowances through the firewall specific to this application.
- *     get             : (callback:commandCallback) => void; // Issues an arbitrary HTTP GET request from the terminal.
  *     hash            : (callback:commandCallback) => void; // Generates a hash sequence using OpenSSH for file system artifacts or string input.
  *     lint            : (callback:commandCallback) => void; // Runs ESLint with this application's configuration against any location on the local device.
  *     mkdir           : (callback:commandCallback) => void; // Creates a new directory.
@@ -58,7 +54,6 @@ import websocket from "../commands/interface/websocket.js";
  * ``` */
 const commandList:module_commandList = {
     agent_data: agent_data,
-    agent_online: agent_online,
     base64: base64,
     build: build,
     certificate: certificate,
@@ -66,7 +61,6 @@ const commandList:module_commandList = {
     copy: copy,
     directory: directory,
     firewall_windows: firewall_windows.terminal.io,
-    get: get,
     hash: hash,
     lint: lint,
     mkdir: mkdir,

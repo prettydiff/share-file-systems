@@ -31,31 +31,6 @@ const commands_documentation = function terminal_utility_commandsDocumentation(c
                 }
             ]
         },
-        agent_online: {
-            description: "Allows testing connectivity to remote agents.  Think of this as an alternative to ping where specified port, address, and protocol are tested for the agents specified.",
-            example: [
-                {
-                    code: `${command}agent_online a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e`,
-                    defined: "This will test a connection to the specified agent."
-                },
-                {
-                    code: `${command}agent_online list`,
-                    defined: "Specifying the parameter 'list' will output a list of all agent hashes, names, and IP addresses by agent type."
-                },
-                {
-                    code: `${command}agent_online device`,
-                    defined: "An argument of 'device' will test connectivity on each device agent."
-                },
-                {
-                    code: `${command}agent_online user`,
-                    defined: "An argument of 'user' will test connectivity on each user agent."
-                },
-                {
-                    code: `${command}agent_online all`,
-                    defined: "An argument of 'all' will run connectivity tests on all stored agents."
-                }
-            ]
-        },
         base64: {
             description: "Convert a file or string into a base64 encoding.",
             example: [
@@ -244,19 +219,6 @@ const commands_documentation = function terminal_utility_commandsDocumentation(c
                 {
                     code: `${command}firewall`,
                     defined: "Adds necessary allowances to the firewall specific for this application."
-                }
-            ]
-        },
-        get: {
-            description: "Retrieve a resource via an absolute URI.",
-            example: [
-                {
-                    code: `${command}get http://example.com/file.txt`,
-                    defined: "Gets a resource from the web and prints the output to the shell."
-                },
-                {
-                    code: `${command}get http://example.com/file.txt path/to/file`,
-                    defined: "Get a resource from the web and writes the resource as UTF8 to a file at the specified path."
                 }
             ]
         },

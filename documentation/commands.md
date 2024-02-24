@@ -19,21 +19,6 @@ Lists agent data.
 1. `share agent_data "16f07e8ed7225f07912da48e0d51308e8fbf9dafc89d8accaa58abc1da8a2832a046082bfc2534eb4933a00bd673019cb90437c8a94cc0d0adaf9cff40c5083b"`
    - Outputs data for the matching hash string, if any.  The hash must be composed of 128 characters only composed of only 0-9 and lower case a-f.
 
-## agent_online
-Allows testing connectivity to remote agents.  Think of this as an alternative to ping where specified port, address, and protocol are tested for the agents specified.
-
-### Examples
-1. `share agent_online a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e`
-   - This will test a connection to the specified agent.
-1. `share agent_online list`
-   - Specifying the parameter 'list' will output a list of all agent hashes, names, and IP addresses by agent type.
-1. `share agent_online device`
-   - An argument of 'device' will test connectivity on each device agent.
-1. `share agent_online user`
-   - An argument of 'user' will test connectivity on each user agent.
-1. `share agent_online all`
-   - An argument of 'all' will run connectivity tests on all stored agents.
-
 ## base64
 Convert a file or string into a base64 encoding.
 
@@ -146,15 +131,6 @@ Opens the firewall for this application.  Currently only supporting Windows Defe
 ### Examples
 1. `share firewall`
    - Adds necessary allowances to the firewall specific for this application.
-
-## get
-Retrieve a resource via an absolute URI.
-
-### Examples
-1. `share get http://example.com/file.txt`
-   - Gets a resource from the web and prints the output to the shell.
-1. `share get http://example.com/file.txt path/to/file`
-   - Get a resource from the web and writes the resource as UTF8 to a file at the specified path.
 
 ## hash
 Generate a SHA512 hash of a file or a string.

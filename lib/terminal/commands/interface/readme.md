@@ -5,7 +5,6 @@ The interface files that interpret shell arguments for corresponding libraries l
 <!-- Do not edit below this line.  Contents dynamically populated. -->
 
 * **[agent_data.ts](agent_data.ts)**           - Shell interface for agent_data which forms a report of agent data points.
-* **[agent_online.ts](agent_online.ts)**       - Shell interface for agent_online which is a connectivity tester to remote agents.
 * **[base64.ts](base64.ts)**                   - Shell interface for base64, which provides base64 encoding/decoding.
 * **[build.ts](build.ts)**                     - Shell interface to the build tool.
 * **[certificate.ts](certificate.ts)**         - Shell interface for creating certificates.

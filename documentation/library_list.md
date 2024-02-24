@@ -58,7 +58,6 @@ This is a dynamically compiled list of supporting code files that comprise this 
    - **[../lib/common/uiDefault.ts](../lib/common/uiDefault.ts)**                                                                                       - A storage of an object with default values globally reused.
 * Directory *[../lib/terminal/commands/interface](../lib/terminal/commands/interface)*
    - **[../lib/terminal/commands/interface/agent_data.ts](../lib/terminal/commands/interface/agent_data.ts)**                                           - Shell interface for agent_data which forms a report of agent data points.
-   - **[../lib/terminal/commands/interface/agent_online.ts](../lib/terminal/commands/interface/agent_online.ts)**                                       - Shell interface for agent_online which is a connectivity tester to remote agents.
    - **[../lib/terminal/commands/interface/base64.ts](../lib/terminal/commands/interface/base64.ts)**                                                   - Shell interface for base64, which provides base64 encoding/decoding.
    - **[../lib/terminal/commands/interface/build.ts](../lib/terminal/commands/interface/build.ts)**                                                     - Shell interface to the build tool.
    - **[../lib/terminal/commands/interface/certificate.ts](../lib/terminal/commands/interface/certificate.ts)**                                         - Shell interface for creating certificates.
@@ -80,7 +79,6 @@ This is a dynamically compiled list of supporting code files that comprise this 
    - **[../lib/terminal/commands/interface/websocket.ts](../lib/terminal/commands/interface/websocket.ts)**                                             - Shell interface to start a websocket server from the terminal.
 * Directory *[../lib/terminal/commands/library](../lib/terminal/commands/library)*
    - **[../lib/terminal/commands/library/agent_data.ts](../lib/terminal/commands/library/agent_data.ts)**                                               - Forms a report of agent data.
-   - **[../lib/terminal/commands/library/agent_online.ts](../lib/terminal/commands/library/agent_online.ts)**                                           - A connectivity tester to shared remote agents.
    - **[../lib/terminal/commands/library/base64.ts](../lib/terminal/commands/library/base64.ts)**                                                       - A utility for performing base64 encoding/decoding.
    - **[../lib/terminal/commands/library/build.ts](../lib/terminal/commands/library/build.ts)**                                                         - The library that executes the build and test tasks.
    - **[../lib/terminal/commands/library/certificate.ts](../lib/terminal/commands/library/certificate.ts)**                                             - A command driven utility for creating an HTTPS certificate.
@@ -101,7 +99,6 @@ This is a dynamically compiled list of supporting code files that comprise this 
 * Directory *[../lib/terminal/server/services](../lib/terminal/server/services)*
    - **[../lib/terminal/server/services/agent_hash.ts](../lib/terminal/server/services/agent_hash.ts)**                                                 - A library for creating a new user/device identification.
    - **[../lib/terminal/server/services/agent_management.ts](../lib/terminal/server/services/agent_management.ts)**                                     - Add, delete, and modify agent data.
-   - **[../lib/terminal/server/services/agent_online.ts](../lib/terminal/server/services/agent_online.ts)**                                             - Determines if a remote agent is online and if so gathers their IP addresses and listening port numbers.
    - **[../lib/terminal/server/services/agent_status.ts](../lib/terminal/server/services/agent_status.ts)**                                             - Publishes activity status of agents.
    - **[../lib/terminal/server/services/browserLog.ts](../lib/terminal/server/services/browserLog.ts)**                                                 - This handy utility writes log output to the terminal from the browser's console.log for more direct log visibility.
    - **[../lib/terminal/server/services/fileCopy.ts](../lib/terminal/server/services/fileCopy.ts)**                                                     - A library that stores instructions for copy and cut of file system artifacts.
@@ -115,7 +112,6 @@ This is a dynamically compiled list of supporting code files that comprise this 
    - **[../lib/terminal/server/services/terminal.ts](../lib/terminal/server/services/terminal.ts)**                                                     - Processes terminal messaging for remote devices and display to the user in a browser.
 * Directory *[../lib/terminal/server/transmission](../lib/terminal/server/transmission)*
    - **[../lib/terminal/server/transmission/http.ts](../lib/terminal/server/transmission/http.ts)**                                                     - A library to process HTTP GET responses.
-   - **[../lib/terminal/server/transmission/ipResolve.ts](../lib/terminal/server/transmission/ipResolve.ts)**                                           - Tests connectivity to remote agents from among their known IP addresses.
    - **[../lib/terminal/server/transmission/network.ts](../lib/terminal/server/transmission/network.ts)**                                               - Generic transmission tools shared between HTTP and WS libraries.
    - **[../lib/terminal/server/transmission/transmit_http.ts](../lib/terminal/server/transmission/transmit_http.ts)**                                   - This library launches the HTTP service and all supporting service utilities.
    - **[../lib/terminal/server/transmission/transmit_ws.ts](../lib/terminal/server/transmission/transmit_ws.ts)**                                       - A command utility for creating a websocket server or client.

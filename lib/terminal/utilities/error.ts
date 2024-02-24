@@ -3,7 +3,6 @@
 
 import common from "../../common/common.js";
 import humanTime from "./humanTime.js";
-import network from "../server/transmission/network.js";
 import node from "./node.js";
 import vars from "./vars.js";
 
@@ -24,27 +23,6 @@ const error = function terminal_utilities_error(errText:string[], errObject:node
                 stackTrace:string[] = (stack === undefined)
                     ? null
                     : stack.replace(/^Error/, "").replace(/\s+at\s/g, "splitMe").replace(/error\.js:\d+:\d+\)\r?\n/, "splitMe").split("splitMe").slice(3);
-            if (vars.environment.command === "service") {
-                const server:node_error = {
-                        message: errText.join("\n"),
-                        name: "Terminal Error",
-                        stack: stackTrace.join("")
-                    },
-                    agent:fileAgent = {
-                        device: vars.identity.hashDevice,
-                        modalAddress: "",
-                        share: "",
-                        user: vars.identity.hashUser
-                    };
-                network.send({
-                    data: Object.assign({
-                        agentRequest: agent,
-                        agentSource: agent,
-                        agentWrite: null
-                    }, server),
-                    service: "error"
-                }, "browser");
-            }
             if (noStack !== true && stackTrace !== null) {
                 const stackMessage:string = `${vars.text.cyan}Stack trace${vars.text.none + node.os.EOL}-----------${node.os.EOL}`;
                 vars.test.flags.error = true;

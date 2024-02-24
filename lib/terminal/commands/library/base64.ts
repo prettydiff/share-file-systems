@@ -2,15 +2,12 @@
 /* lib/terminal/commands/library/base64 - A utility for performing base64 encoding/decoding. */
 
 import error from "../../utilities/error.js";
-import get from "./get.js";
 import node from "../../utilities/node.js";
-import remove_files from "../../../applications/remove_files/index.js";
 import vars from "../../utilities/vars.js";
 
 // simple base64 encode/decode
 const base64 = function terminal_commands_library_base64(input:config_command_base64):void {
-        let http:boolean = false,
-            path:string = input.source;
+        let path:string = input.source;
         const title:string = `Base64 ${input.direction.charAt(0).toUpperCase() + input.direction.slice(1)}`,
             fromString = function terminal_commands_library_base64_fromString(getTitle:string, message:Buffer|string):void {
                 const outputString:string = (input.direction === "decode")
@@ -29,22 +26,12 @@ const base64 = function terminal_commands_library_base64(input:config_command_ba
                             node.fs.open(filePath, "r", function terminal_commands_library_base64_fileWrapper_stat_file_open(ero:node_error, fd:number):void {
                                 const buff:Buffer = Buffer.alloc(Number(stat.size));
                                 if (ero !== null) {
-                                    if (http === true) {
-                                        remove_files.terminal.library(function terminal_commands_library_base64_fileWrapper_stat_file_open_removeCallback():void {
-                                            return;
-                                        }, filePath, []);
-                                    }
                                     error([`Error opening ${filePath}`], ero);
                                     if (vars.environment.command !== "service") {
                                         return;
                                     }
                                 }
                                 node.fs.read(fd, buff, 0, stat.size, 0, function terminal_commands_library_base64_fileWrapper_stat_file_open_read(err:node_error, bytes:number, buffer:Buffer):number {
-                                    if (http === true) {
-                                        remove_files.terminal.library(function terminal_commands_library_base64_fileWrapper_stat_file_open_read_callback():void {
-                                            return;
-                                        }, filePath, []);
-                                    }
                                     if (err !== null) {
                                         error([`Error reading file stream on ${filePath}`], err);
                                         if (vars.environment.command !== "service") {
@@ -63,11 +50,6 @@ const base64 = function terminal_commands_library_base64(input:config_command_ba
                             });
                         };
                     if (er !== null) {
-                        if (http === true) {
-                            remove_files.terminal.library(function terminal_commands_library_base64_fileWrapper_stat_removeHttp1():void {
-                                return;
-                            }, filePath, []);
-                        }
                         if (er.toString().indexOf("no such file or directory") > 0) {
                             error([angryPath], er);
                             if (vars.environment.command !== "service") {
@@ -80,11 +62,6 @@ const base64 = function terminal_commands_library_base64(input:config_command_ba
                         }
                     }
                     if (stat === undefined) {
-                        if (http === true) {
-                            remove_files.terminal.library(function terminal_commands_library_base64_fileWrapper_stat_removeHttp2():void {
-                                return;
-                            }, filePath, []);
-                        }
                         error([angryPath], null);
                         if (vars.environment.command !== "service") {
                             return;
@@ -109,12 +86,7 @@ const base64 = function terminal_commands_library_base64(input:config_command_ba
             fromString("", path);
             return;
         }
-        if ((/https?:\/\//).test(path) === true) {
-            http = true;
-            get(path, fromString);
-        } else {
-            fileWrapper(path);
-        }
+        fileWrapper(path);
     };
 
 export default base64;

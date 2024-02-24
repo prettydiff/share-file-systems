@@ -47,7 +47,6 @@ interface module_buildPhaseList {
  * ```typescript
  * interface module_commandList {
  *     agent_data      : commandInterface; // Lists stored data on one more agents.
- *     agent_online    : commandInterface; // Allows for testing of connectivity to remote agents.
  *     base64          : commandInterface; // Generates a base64 string output from a file system artifact or string input.
  *     build           : commandInterface; // Executes the tasks included in the commands/build.ts file which includes documentation automation and compiling from TypeScript.
  *     certificate     : commandInterface; // Generates an HTTPS certificate.
@@ -55,7 +54,6 @@ interface module_buildPhaseList {
  *     copy            : commandInterface; // Duplications a file system artifact from one location to another.
  *     directory       : commandInterface; // Walks the file system to build out a representational data structure.
  *     firewall_windows: commandInterface; // Allows necessary allowances through the firewall specific to this application.
- *     get             : commandInterface; // Issues an arbitrary HTTP GET request from the terminal.
  *     hash            : commandInterface; // Generates a hash sequence using OpenSSH for file system artifacts or string input.
  *     lint            : commandInterface; // Runs ESLint with this application's configuration against any location on the local device.
  *     mkdir           : commandInterface; // Creates a new directory.
@@ -74,7 +72,6 @@ interface module_buildPhaseList {
  * ``` */
 interface module_commandList {
     agent_data: commandInterface;
-    agent_online: commandInterface;
     base64: commandInterface;
     build: commandInterface;
     certificate: commandInterface;
@@ -82,7 +79,6 @@ interface module_commandList {
     copy: commandInterface;
     directory: commandInterface;
     firewall_windows: commandInterface;
-    get: commandInterface;
     hash: commandInterface;
     lint: commandInterface;
     mkdir: commandInterface;
