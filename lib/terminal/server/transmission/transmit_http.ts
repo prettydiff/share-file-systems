@@ -12,6 +12,7 @@ import network from "./network.js";
 import node from "../../utilities/node.js";
 import readCerts from "../readCerts.js";
 import readStorage from "../../utilities/readStorage.js";
+import receiver from "./receiver.js";
 import transmit_ws from "./transmit_ws.js";
 import vars from "../../utilities/vars.js";
 
@@ -290,7 +291,7 @@ const transmit_http:module_transmit_http = {
                             request.socket.destroy();
                             serverResponse.socket.destroy();
                         } else {
-                            network.receiver(socketData, {
+                            receiver(socketData, {
                                 socket: response,
                                 type: "http"
                             });
@@ -431,11 +432,9 @@ const transmit_http:module_transmit_http = {
                     path: "/",
                     port: config.port,
                     rejectUnauthorized: false,
-                    timeout: (config.payload.service === "agent-online")
-                        ? 1000
-                        : (config.payload.service.indexOf("copy") === 0)
-                            ? 7200000
-                            : 5000
+                    timeout: (config.payload.service.indexOf("copy") === 0)
+                        ? 7200000
+                        : 5000
                 },
                 errorMessage = function terminal_sever_transmission_transmitHttp_request_errorMessage(type:"request"|"response", errorItem:node_error):string[] {
                     const agent:agent = vars.agents[config.agentType][config.agent],

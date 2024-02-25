@@ -2,11 +2,6 @@
 /* lib/browser/utilities/util - Miscellaneous tools for the browser environment. */
 import audio from "./audio.js";
 import browser from "./browser.js";
-import context from "../content/context.js";
-import file_browser from "../content/file_browser.js";
-import modal_configuration from "./modal_configurations.js";
-import network from "./network.js";
-import share from "../content/share.js";
 
 /**
  * A list of common tools that only apply to the browser side of the application.
@@ -51,6 +46,14 @@ const util:module_util = {
             source.connect(audioContext.destination);
             source.start(0, 0, audio[name].seconds);
         });
+    },
+
+    /* removes the context menu */
+    contextMenuRemove: function browser_utilities_util_contextMenuRemove():void {
+        const menu:HTMLElement = document.getElementById("contextMenu");
+        if (menu !== null) {
+            menu.parentNode.removeChild(menu);
+        }
     },
 
     /* Create a div element with a spinner and class name of 'delay'. */
@@ -189,7 +192,6 @@ const util:module_util = {
                     document.onmousemove = null;
                     document.onmouseup   = null;
                 }
-                network.configuration();
                 e.preventDefault();
                 setTimeout(function browser_utilities_util_dragBox_drop_scroll():void {
                     body.scrollLeft = bodyScrollLeft;
@@ -335,19 +337,19 @@ const util:module_util = {
             if (last !== null) {
                 if (first === last) {
                     if (control === true) {
-                        file_browser.dragFlag = "control";
+                        browser.dragFlag = "control";
                         li[a].getElementsByTagName("p")[0].click();
-                        file_browser.dragFlag = "";
+                        browser.dragFlag = "";
                     } else if (shift === true) {
-                        file_browser.dragFlag = "shift";
+                        browser.dragFlag = "shift";
                         li[a].getElementsByTagName("p")[0].click();
-                        file_browser.dragFlag = "";
+                        browser.dragFlag = "";
                     } else {
                         li[a].getElementsByTagName("p")[0].click();
                     }
                 } else {
                     if (control === true) {
-                        file_browser.dragFlag = "control";
+                        browser.dragFlag = "control";
                         a = first;
                         last = last + 1;
                         do {
@@ -359,10 +361,10 @@ const util:module_util = {
                             li[first].getElementsByTagName("p")[0].click();
                         }
                         li[first].getElementsByTagName("p")[0].click();
-                        file_browser.dragFlag = "shift";
+                        browser.dragFlag = "shift";
                         li[last].getElementsByTagName("p")[0].click();
                     }
-                    file_browser.dragFlag = "";
+                    browser.dragFlag = "";
                 }
             }
         }
@@ -452,118 +454,6 @@ const util:module_util = {
             agent = ancestor.dataset.hash;
         }
         return [agent, browser.ui.modals[id].read_only, browser.ui.modals[id].agentType];
-    },
-
-    /* Executes shortcut key combinations. */
-    keys: function browser_utilities_util_keys(event:KeyboardEvent):void {
-        const key:string = event.key.toLowerCase(),
-            windowEvent:KeyboardEvent = window.event as KeyboardEvent,
-            target:HTMLElement = event.target,
-            element:HTMLElement = (function browser_utilities_util_keys_element():HTMLElement {
-                const el:HTMLElement = document.activeElement,
-                    name:string = el.lowName();
-                if (el.parentNode === null || name === "li" || name === "ul") {
-                    return el;
-                }
-                return el.getAncestor("li", "tag");
-            }()),
-            input:HTMLInputElement = event.target as HTMLInputElement,
-            elementName:string = element.lowName(),
-            p:HTMLElement = element.getElementsByTagName("p")[0];
-        if (key === "f5" || (windowEvent.ctrlKey === true && key === "r")) {
-            location.reload();
-        }
-        if ((target.lowName() === "input" && input.type === "text") || element.parentNode === null || document.activeElement === document.getElementById("newFileItem")) {
-            return;
-        }
-        if (key === "enter" && elementName === "li" && (element.getAttribute("class") === "directory" || element.getAttribute("class") === "directory lastType" || element.getAttribute("class") === "directory selected") && p.getAttribute("class") === "selected" && file_browser.tools.selectedAddresses(element, "directory").length === 1) {
-            file_browser.events.directory(event);
-            return;
-        }
-        event.preventDefault();
-        if (elementName !== "ul") {
-            event.stopPropagation();
-        }
-        if (key === "delete" || key === "del") {
-            context.element = element;
-            context.events.destroy(event);
-        } else if (windowEvent.altKey === true && windowEvent.ctrlKey === true) {
-            if (key === "b" && elementName === "li") {
-                // key b, base64
-                context.element = element;
-                context.type = "Base64";
-                modal_configuration.modals["file-edit"](event);
-            } else if (key === "d") {
-                // key d, new directory
-                context.element = element;
-                context.type = "directory";
-                context.events.fsNew(event);
-            } else if (key === "e") {
-                // key e, edit file
-                context.element = element;
-                context.type = "Edit";
-                modal_configuration.modals["file-edit"](event);
-            } else if (key === "f") {
-                // key f, new file
-                context.element = element;
-                context.type = "file";
-                context.events.fsNew(event);
-            } else if (key === "h" && elementName === "li") {
-                // key h, hash
-                context.element = element;
-                context.type = "Hash";
-                modal_configuration.modals["file-edit"](event);
-            } else if (key === "r" && elementName === "li") {
-                // key r, rename
-                file_browser.events.rename(event);
-            } else if (key === "s") {
-                // key s, share
-                context.element = element;
-                share.events.context(event);
-            } else if (key === "t") {
-                // key t, details
-                modal_configuration.modals.details(event);
-            }
-        } else if (windowEvent.ctrlKey === true) {
-            if (key === "a") {
-                // key a, select all
-                const list:HTMLElement = (elementName === "ul")
-                        ? element
-                        : element.parentNode,
-                    items:HTMLCollectionOf<Element> = list.getElementsByTagName("li"),
-                    length:number = items.length;
-                let a:number = 0,
-                    classy:string;
-                do {
-                    classy = items[a].getAttribute("class");
-                    if (classy !== null && classy.indexOf("cut") > -1) {
-                        items[a].setAttribute("class", "selected cut");
-                    } else {
-                        items[a].setAttribute("class", "selected");
-                    }
-                    items[a].getElementsByTagName("input")[0].checked = true;
-                    a = a + 1;
-                } while (a < length);
-            } else if (key === "c") {
-                // key c, copy
-                context.element = element;
-                context.type = "copy";
-                context.events.copy(event);
-            } else if (key === "d" && elementName === "li") {
-                // key d, destroy
-                context.element = element;
-                context.events.destroy(event);
-            } else if (key === "v") {
-                // key v, paste
-                context.element = element;
-                context.events.paste(event);
-            } else if (key === "x") {
-                // key x, cut
-                context.element = element;
-                context.type = "cut";
-                context.events.copy(event);
-            }
-        }
     },
 
     /* Creates HTML radio button inside a list item. */

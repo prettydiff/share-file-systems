@@ -4,9 +4,9 @@
 import browser from "../utilities/browser.js";
 import file_browser from "./file_browser.js";
 import modal_configuration from "../utilities/modal_configurations.js";
-import network from "../utilities/network.js";
 import share from "./share.js";
 import util from "../utilities/util.js";
+import webSocket from "../utilities/webSocket.js";
 
 // cspell:words agenttype
 
@@ -221,12 +221,12 @@ const context:module_context = {
             menuTop:number = null,
             reverse:boolean = false,
             a:number = 0;
-        context.element = element;
-        context.events.contextMenuRemove();
+        browser.contextElement = element;
+        util.contextMenuRemove();
         event.preventDefault();
         event.stopPropagation();
         menu.setAttribute("id", "contextMenu");
-        menu.onclick = context.events.contextMenuRemove;
+        menu.onclick = util.contextMenuRemove;
         if (nodeName === "ul") {
             functions.details();
             if (agentType === "device" || readOnly === false) {
@@ -309,26 +309,15 @@ const context:module_context = {
         return menu;
     },
 
-    /* Stores an element for reference between event and menu action */
-    element: null,
-
     events: {
-
-        /* Removes the file system context menu from the DOM */
-        contextMenuRemove: function browser_content_context_contextMenuRemove():void {
-            const menu:HTMLElement = document.getElementById("contextMenu");
-            if (menu !== null) {
-                menu.parentNode.removeChild(menu);
-            }
-        },
 
         /* Handler for file system artifact copy */
         copy: function browser_content_context_copy(event:Event):void {
             const addresses:string[] = [],
-                tagName:string = context.element.lowName(),
+                tagName:string = browser.contextElement.lowName(),
                 element:HTMLElement = (tagName === "li" || tagName === "ul")
-                    ? context.element
-                    : context.element.getAncestor("li", "tag"),
+                    ? browser.contextElement
+                    : browser.contextElement.getAncestor("li", "tag"),
                 menu:HTMLElement = document.getElementById("contextMenu"),
                 box:modal = element.getAncestor("box", "class"),
                 contextElement:HTMLElement = event.target as HTMLElement,
@@ -364,7 +353,7 @@ const context:module_context = {
                 }
             }
             context.clipboard = JSON.stringify(clipData);
-            context.element = null;
+            browser.contextElement = null;
             context.type = "";
             if (menu !== null) {
                 menu.parentNode.removeChild(menu);
@@ -373,9 +362,9 @@ const context:module_context = {
     
         /* Handler for removing file system artifacts via context menu */
         destroy: function browser_content_context_destroy():void {
-            const element:HTMLElement = (context.element.lowName() === "li")
-                    ? context.element
-                    : context.element.getAncestor("li", "tag"),
+            const element:HTMLElement = (browser.contextElement.lowName() === "li")
+                    ? browser.contextElement
+                    : browser.contextElement.getAncestor("li", "tag"),
                 box:modal = element.getAncestor("box", "class"),
                 menu:HTMLElement = document.getElementById("contextMenu"),
                 agents:[fileAgent, fileAgent, fileAgent] = util.fileAgent(box, null),
@@ -396,8 +385,8 @@ const context:module_context = {
                     payload.location.push(value[0]);
                 });
             }
-            network.send(payload, "file-system");
-            context.element = null;
+            webSocket.send(payload, "file-system");
+            browser.contextElement = null;
             if (menu !== null) {
                 menu.parentNode.removeChild(menu);
             }
@@ -436,7 +425,7 @@ const context:module_context = {
                             actionElement.onkeyup = null;
                             actionElement.onblur = null;
                             actionParent.appendText(payload.location[0], true);
-                            network.send(payload, "file-system");
+                            webSocket.send(payload, "file-system");
                         }
                     } else {
                         if (actionEvent.key === "Escape") {
@@ -467,7 +456,7 @@ const context:module_context = {
                             actionElement.onkeyup = null;
                             actionElement.onblur = null;
                             actionParent.appendText(payload.location[0], true);
-                            network.send(payload, "file-system");
+                            webSocket.send(payload, "file-system");
                         }
                     }
                 },
@@ -479,9 +468,9 @@ const context:module_context = {
                         text:HTMLElement = document.createElement("label"),
                         p:HTMLElement = document.createElement("p"),
                         spanInfo:HTMLElement = document.createElement("span"),
-                        parent:HTMLElement = (context.element === null)
+                        parent:HTMLElement = (browser.contextElement === null)
                             ? null
-                            : context.element.parentNode,
+                            : browser.contextElement.parentNode,
                         box:modal = (parent === null)
                             ? null
                             : parent.getAncestor("box", "class"),
@@ -535,10 +524,10 @@ const context:module_context = {
                     li.oncontextmenu = context.events.menu;
                     li.appendChild(label);
                     li.onclick = file_browser.events.select;
-                    if (context.element.lowName() === "ul") {
-                        context.element.appendChild(li);
+                    if (browser.contextElement.lowName() === "ul") {
+                        browser.contextElement.appendChild(li);
                     } else {
-                        context.element.parentNode.appendChild(li);
+                        browser.contextElement.parentNode.appendChild(li);
                     }
                     field.focus();
                 };
@@ -546,7 +535,7 @@ const context:module_context = {
                 return;
             }
             build();
-            context.element = null;
+            browser.contextElement = null;
             context.type = "";
             if (menu !== null) {
                 menu.parentNode.removeChild(menu);
@@ -560,7 +549,7 @@ const context:module_context = {
     
         /* Prepare the network action to write files */
         paste: function browser_content_context_paste():void {
-            const box:modal = context.element.getAncestor("box", "class"),
+            const box:modal = browser.contextElement.getAncestor("box", "class"),
                 clipData:context_clipboard = (context.clipboard === "")
                     ? null
                     : JSON.parse(context.clipboard) as context_clipboard,
@@ -579,10 +568,10 @@ const context:module_context = {
             if (context.clipboard === "" || box === document.documentElement) {
                 return;
             }
-            network.send(payload, "copy");
+            webSocket.send(payload, "copy");
             context.clipboard = "";
             file_browser.tools.selectNone(document.getElementById(clipData.id));
-            context.element = null;
+            browser.contextElement = null;
             if (menu !== null) {
                 menu.parentNode.removeChild(menu);
             }

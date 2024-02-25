@@ -1,20 +1,18 @@
 
 /* lib/browser/index - The base JavaScript code that initiates the application in the browser. */
 
-import agent_hash from "./utilities/agent_hash.js";
 import agent_management from "./content/agent_management.js";
 import agent_status from "./utilities/agent_status.js";
 import browser from "./utilities/browser.js";
 import configuration from "./content/configuration.js";
-import context from "./content/context.js";
 import dom from "./utilities/dom.js";
 import message from "./content/message.js";
 import modal_configuration from "./utilities/modal_configurations.js";
 import modal from "./utilities/modal.js";
-import network from "./utilities/network.js";
 import remote from "./utilities/remote.js";
 import tutorial from "./content/tutorial.js";
 import uiDefault from "../common/uiDefault.js";
+import util from "./utilities/util.js";
 import webSocket from "./utilities/webSocket.js";
 
 import disallowed from "../common/disallowed.js";
@@ -54,7 +52,7 @@ import disallowed from "../common/disallowed.js";
                         params[0].toString().indexOf("On browser sending results for test index ") !== 0
                     )
                 ) {
-                    network.send(params, "log");
+                    webSocket.send(params, "log");
                 }
             };
         }());
@@ -97,7 +95,19 @@ import disallowed from "../common/disallowed.js";
                         } else if (nameDevice.value.replace(/\s+/, "") === "") {
                             nameDevice.focus();
                         } else {
-                            agent_hash.send(nameDevice, nameUser);
+                            if (nameUser.value.replace(/\s+/, "") === "") {
+                                nameUser.focus();
+                            } else if (nameDevice.value.replace(/\s+/, "") === "") {
+                                nameDevice.focus();
+                            } else {
+                                browser.identity.nameUser = nameUser.value;
+                                browser.identity.nameDevice = nameDevice.value;
+                                webSocket.send({
+                                    device: browser.identity.nameDevice,
+                                    deviceData: null,
+                                    user: browser.identity.nameUser
+                                }, "agent-hash");
+                            }
                         }
                     },
                     handlerKeyboard = function browser_init_applyLogin_handleKeyboard(event:KeyboardEvent):void {
@@ -174,7 +184,7 @@ import disallowed from "../common/disallowed.js";
                             a = a + 1;
                         } while (a < length);
                         browser.ui.minimizeAll = false;
-                        network.configuration();
+                        webSocket.configuration();
                     },
                     visibility = function browser_init_complete_visibility():void {
                         if (document.visibilityState === "visible") {
@@ -186,7 +196,7 @@ import disallowed from "../common/disallowed.js";
 
                 // create menu buttons from modal type names and associated icons/text
                 {
-                    const buttons:string[] = Object.keys(modal_configuration.titles),
+                    const buttons:string[] = Object.keys(browser.modal_titles),
                         buttonLength:number = buttons.length,
                         menu:HTMLElement = document.getElementById("menu"),
                         menuBlur = function browser_init_complete_menuBlur():void {
@@ -197,15 +207,15 @@ import disallowed from "../common/disallowed.js";
                         li:HTMLElement = null,
                         span:HTMLElement = null;
                     do {
-                        if (modal_configuration.titles[buttons[index]].menu === true) {
+                        if (browser.modal_titles[buttons[index]].menu === true) {
                             button = document.createElement("button");
                             li = document.createElement("li");
                             span = document.createElement("span");
-                            span.appendText(modal_configuration.titles[buttons[index]].icon);
+                            span.appendText(browser.modal_titles[buttons[index]].icon);
                             button.setAttribute("class", buttons[index]);
                             button.setAttribute("type", "button");
                             button.appendChild(span);
-                            button.appendText(` ${modal_configuration.titles[buttons[index]].text}`);
+                            button.appendText(` ${browser.modal_titles[buttons[index]].text}`);
                             button.onblur = menuBlur;
                             button.onclick = modal_configuration.modals[buttons[index] as modalType];
                             li.appendChild(button);
@@ -221,7 +231,7 @@ import disallowed from "../common/disallowed.js";
                 }
 
                 // assign key default events
-                browser.content.onclick                             = context.events.contextMenuRemove;
+                browser.content.onclick                             = util.contextMenuRemove;
                 document.getElementById("menuToggle").onclick       = menuAction;
                 allShares.onclick                                   = modal_configuration.modals.shares;
                 allDevice.onclick                                   = modal_configuration.modals.shares;

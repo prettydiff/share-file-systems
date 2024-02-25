@@ -8,9 +8,18 @@
  * interface browser {
  *     agents: agentData;
  *     content: HTMLElement;
+ *     contextElement: HTMLElement;
+ *     dragFlag: dragFlag;
  *     loading: boolean;
  *     loadQueue: socketData[];
  *     message: service_message;
+ *     modal_titles: {
+ *         [key:string]: {
+ *             icon: string;
+ *             menu: boolean;
+ *             text: string;
+ *         };
+ *     };
  *     pageBody: HTMLElement;
  *     scrollbar: number;
  *     socket: WebSocket;
@@ -24,10 +33,19 @@
 interface browser {
     agents: agentData;
     content: HTMLElement;
+    contextElement: HTMLElement;
+    dragFlag: dragFlag;
     identity: identity;
     loading: boolean;
     loadQueue: socketData[];
     message: service_message;
+    modal_titles: {
+        [key:string]: {
+            icon: string;
+            menu: boolean;
+            text: string;
+        };
+    };
     network: localNetwork;
     pageBody: HTMLElement;
     scrollbar: number;
@@ -44,11 +62,19 @@ interface browser {
  * ```typescript
  * interface localNetwork {
  *     addresses: transmit_addresses_IP;
+ *     default: {
+ *         secure: number;
+ *         unsecure: number;
+ *     };
  *     port: number;
  * }
  * ``` */
 interface localNetwork {
     addresses: transmit_addresses_IP;
+    default: {
+        secure: number;
+        unsecure: number;
+    };
     port: number;
 }
 

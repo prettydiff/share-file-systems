@@ -44,19 +44,6 @@ interface TouchEvent {
 }
 
 /**
- * Manages population of agent hash from the login form
- * ```typescript
- * interface module_agentHash {
- *     receive: (socketData:socketData) => void;
- *     send: (nameDevice:HTMLInputElement, nameUser:HTMLInputElement) => void;
- * }
- * ``` */
-interface module_agentHash {
-    receive: (socketData:socketData) => void;
-    send: (nameDevice:HTMLInputElement, nameUser:HTMLInputElement) => void;
-}
-
-/**
  * Manages agent data in the browser.
  * ```typescript
  * interface module_agentManagement {
@@ -130,7 +117,6 @@ interface module_agentManagement {
  *     active    : (event:KeyboardEvent|MouseEvent|TouchEvent) => void; // Converts local agent status to "active".
  *     idle      : () => void;                                          // Converts local agent status to "idle".
  *     idleDelay : NodeJS.Timeout                                       // Stores the current delay timer.
- *     receive   : (socketData:socketData) => void;                     // Receives status data from remote agents.
  *     selfStatus: service_agentStatus;                                 // Stores the configuration for a network transmission.
  *     start     : () => void;                                          // Initiates local agent status timer on page load.
  * }
@@ -139,7 +125,6 @@ interface module_agentStatus {
     active: (event:KeyboardEvent|MouseEvent|TouchEvent) => void;
     idle: () => void;
     idleDelay: NodeJS.Timeout;
-    receive: (socketData:socketData) => void;
     selfStatus: service_agentStatus;
     start: () => void;
 }
@@ -148,18 +133,20 @@ interface module_agentStatus {
  * Module definition for browser-side websocket handling.
  * ```typescript
  * interface module_browserSocket {
- *     error: () => void;                                                          // An error handling method.
- *     hash : string;                                                              // Stores a hash value used to authenticate a client hash tunnel at the server.
- *     send : (data:socketData) => void;                                           // Packages micro-service data for transmission in the application's micro-service format.
- *     sock : websocket_local;                                                     // Provides a web socket object in a way that allows for explicit type declarations, reuse, and without angering the TypeScript gods.
- *     start: (callback: () => void, hashDevice:string, type:string) => WebSocket; // Initiates a web socket client from the browser.
- *     type : string;                                                              // Stores the submitted type value.
+ *     configuration: () => void;                                                  // a convenience function for sending UI updates to state storage
+ *     error        : () => void;                                                          // An error handling method.
+ *     hash         : string;                                                              // Stores a hash value used to authenticate a client hash tunnel at the server.
+ *     send         : (data:socketDataType, service:service_type) => void;                 // Packages micro-service data for transmission in the application's micro-service format.
+ *     sock         : websocket_local;                                                     // Provides a web socket object in a way that allows for explicit type declarations, reuse, and without angering the TypeScript gods.
+ *     start        : (callback: () => void, hashDevice:string, type:string) => WebSocket; // Initiates a web socket client from the browser.
+ *     type         : string;                                                              // Stores the submitted type value.
  * }
  * ``` */
 interface module_browserSocket {
+    configuration: () => void;
     error: () => void;
     hash: string;
-    send: (data:socketData) => void;
+    send: (data:socketDataType, service:service_type) => void;
     sock: websocket_local;
     start: (callback: () => void, hashDevice:string, type:string) => WebSocket;
     type: string;
@@ -275,9 +262,7 @@ interface module_configuration {
  * interface module_context {
  *     clipboard: string;                          // Stores a file copy state pending a paste or cut action.
  *     content: (event:MouseEvent) => HTMLElement; // Creates the HTML content of the context menu.
- *     element: HTMLElement;                       // Stores a reference to the element.target associated with a given menu item.
  *     events: {
- *         contextMenuRemove: () => void;            // Removes the file system context menu from the DOM
  *         copy             : (event:Event) => void; // Handler for the *Copy* menu button, which stores file system address information in the application's clipboard.
  *         destroy          : (event:Event) => void; // Handler for the *Destroy* menu button, which is responsible for deleting file system artifacts.
  *         fsNew            : (event:Event) => void; // Handler for the *New Directory* and *New File* menu buttons.
@@ -291,9 +276,7 @@ interface module_configuration {
 interface module_context {
     clipboard: string;
     content:(event:MouseEvent) => HTMLElement;
-    element: HTMLElement;
     events: {
-        contextMenuRemove: () => void;
         copy: (event:Event) => void;
         destroy: (event:Event) => void;
         fsNew: (event:Event) => void;
@@ -315,7 +298,6 @@ interface module_context {
  *         list           : (location:string, dirs:directory_response, message:string) => HTMLElement; // Generates the contents of a file system list for population into a file navigate modal.
  *         status         : (socketData:socketData) => void; // Translates messaging into file system lists for the appropriate modals.
  *     };
- *     dragFlag: dragFlag; // Allows the drag handler to identify whether the shift or control/command keys are pressed while selecting items from the file list.
  *     events: {
  *         back       : (event:MouseEvent) => void;               // Handler for the back button, which steps back to the prior file system location of the given agent stored in the modal's navigation history.
  *         directory  : (event:KeyboardEvent|MouseEvent) => void; // Handler for navigation into a directory by means of double click.
@@ -333,14 +315,14 @@ interface module_context {
  *         text       : (event:FocusEvent|KeyboardEvent|MouseEvent) => void; // Allows changing file system location by changing the text address of the current location.
  *     };
  *     tools: {
- *         listFail         : (count:number, box:modal) => void; // Display status information when the Operating system locks files from access.
- *         listItem         : (item:directory_item, extraClass:string) => HTMLElement; // Generates the HTML content for a single file system artifacts that populates a file system list.
+ *         keys             : (event:KeyboardEvent) => void;                                      // Executes shortcut key combinations.
+ *         listFail         : (count:number, box:modal) => void;                                  // Display status information when the Operating system locks files from access.
+ *         listItem         : (item:directory_item, extraClass:string) => HTMLElement;            // Generates the HTML content for a single file system artifacts that populates a file system list.
  *         modalAddress     : (event:FocusEvent|KeyboardEvent|MouseEvent, config:config_modal_history) => void; // Updates the file system address of the current file navigate modal in response to navigating to different locations.
  *         selectedAddresses: (element:HTMLElement, type:string) => [string, fileType, string][]; // Gather the selected addresses and types of file system artifacts in a fileNavigator modal.
- *         selectNone       : (element:HTMLElement) => void;                     // Remove selections of file system artifacts in a given fileNavigator modal.
+ *         selectNone       : (element:HTMLElement) => void;                                      // Remove selections of file system artifacts in a given fileNavigator modal.
  *     };
  * }
- * type dragFlag = "" | "control" | "shift";
  * ``` */
 interface module_fileBrowser {
     content: {
@@ -351,7 +333,6 @@ interface module_fileBrowser {
         list: (location:string, dirs:directory_response, message:string) => HTMLElement;
         status: (socketData:socketData) => void;
     };
-    dragFlag: dragFlag;
     events: {
         back: (event:MouseEvent) => void;
         directory: (event:KeyboardEvent|MouseEvent) => void;
@@ -369,6 +350,7 @@ interface module_fileBrowser {
         text: (event:FocusEvent|KeyboardEvent|MouseEvent) => void;
     };
     tools: {
+        keys: (event:KeyboardEvent) => void;
         listFail: (count:number, box:modal) => void;
         listItem: (item:directory_item, location:string, extraClass:string) => HTMLElement;
         modalAddress: (event:FocusEvent|KeyboardEvent|MouseEvent, config:config_modal_history) => void;
@@ -539,30 +521,6 @@ interface module_modalConfiguration {
         "terminal": modal_open;
         "text-pad": modal_open;
     };
-    titles: {
-        [key:string]: {
-            icon: string;
-            menu: boolean;
-            text: string;
-        };
-    };
-}
-
-/**
- * Builds HTTP request bodies for transfer to the terminal.
- * ```typescript
- * interface module_network {
- *     configuration: () => void;                                         // A convenience method for setting state changes to a file.
- *     http         : (socketData:socketData) => void;                    // Prepares XHR and manages response text.
- *     receive      : (dataString:string) => void;                        // Receives data from the network.
- *     send         : (data:socketDataType, service:service_type) => void; // Provides a means for allowing arbitrary HTTP requests.
- * }
- * ``` */
-interface module_network {
-    configuration: () => void;
-    http: (socketData:socketData) => void;
-    receive: (dataString:string) => void;
-    send: (data:socketDataType, service:service_type) => void;
 }
 
 /**
@@ -640,13 +598,13 @@ interface module_share {
  * ```typescript
  * interface module_util {
  *     audio            : (name:string) => void;                             // Plays audio in the browser.
+ *     contextMenuRemove: () => void;                                        // Removes the file system context menu from the DOM
  *     delay            : () => HTMLElement;                                 // Create a div element with a spinner and class name of 'delay'.
  *     dragBox          : (event:MouseEvent|TouchEvent, callback:(event:MouseEvent, dragBox:HTMLElement) => void) => void; // Draw a selection box to capture a collection of items into a selection.
  *     dragList         : (event:MouseEvent, dragBox:HTMLElement) => void;   // Selects list items in response to drawing a drag box.
  *     fileAgent        : (element:HTMLElement, copyElement:HTMLElement, address?:string) => [fileAgent, fileAgent, fileAgent]; // Produces fileAgent objects for service_fileSystem and service_copy.
  *     formKeys         : (event:KeyboardEvent, submit:() => void) => void;  // Provides form execution on key down of 'Enter' key to input fields not in a form.
  *     getAgent         : (element:HTMLElement) => agentId;                  // Get the agent of a given modal.
- *     keys             : (event:KeyboardEvent) => void;                     // Executes shortcut key combinations.
  *     radioListItem    : (config:config_radioListItem) => void) => Element; // Creates a radio button inside a list item element.
  *     sanitizeHTML     : (input:string) => string;                          // Make a string safe to inject via innerHTML.
  *     screenPosition   : (node:HTMLElement) => DOMRect;                     // Gathers the view port position of an element.
@@ -656,13 +614,13 @@ interface module_share {
  * ``` */
 interface module_util {
     audio: (name:string) => void;
+    contextMenuRemove: () => void;
     delay: () => HTMLElement;
     dragBox: (event:MouseEvent|TouchEvent, callback:(event:MouseEvent, dragBox:HTMLElement) => void) => void;
     dragList: (event:MouseEvent, dragBox:HTMLElement) => void;
     fileAgent: (element:HTMLElement, copyElement:HTMLElement, address?:string) => [fileAgent, fileAgent, fileAgent];
     formKeys: (event:KeyboardEvent, submit:() => void) => void;
     getAgent: (element:HTMLElement) => agentId;
-    keys: (event:KeyboardEvent) => void;
     radioListItem: (config:config_radioListItem) => HTMLElement;
     sanitizeHTML: (input:string) => string;
     screenPosition: (node:HTMLElement) => DOMRect;

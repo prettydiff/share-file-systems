@@ -6,9 +6,9 @@ import common from "../../common/common.js";
 import configuration from "./configuration.js";
 import modal from "../utilities/modal.js";
 import modal_configuration from "../utilities/modal_configurations.js";
-import network from "../utilities/network.js";
 import share from "./share.js";
 import util from "../utilities/util.js";
+import webSocket from "../utilities/webSocket.js";
 
 // cspell:words agenttype
 
@@ -167,7 +167,7 @@ const agent_management:module_agentManagement = {
                         textArea:HTMLTextAreaElement = box.getElementsByTagName("textarea")[0];
                     agent_management.events.invitePortValidation(focusEvent);
                     browser.ui.modals[id].text_value = inputs[0].value + separator + inputs[1].value + separator + textArea.value;
-                    network.configuration();
+                    webSocket.configuration();
                 },
                 textInput = function browser_content_agentManagement_inviteStart_textInput(labelText:string):void {
                     const label:HTMLElement = document.createElement("label"),
@@ -498,7 +498,7 @@ const agent_management:module_agentManagement = {
                     type: type
                 };
             options.text_value = JSON.stringify(saved);
-            network.configuration();
+            webSocket.configuration();
             if (input !== null) {
                 const p:HTMLElement = input.parentNode.parentNode,
                     warning:HTMLElement = document.createElement("p"),
@@ -516,7 +516,7 @@ const agent_management:module_agentManagement = {
                 content.removeChild(content.getElementsByClassName("error")[0]);
             }
             body.appendChild(util.delay());
-            network.send(invitation, "invite");
+            webSocket.send(invitation, "invite");
         },
 
         /* Handle confirmation of changes to agent data. */
@@ -574,8 +574,8 @@ const agent_management:module_agentManagement = {
                 }
             } while (len > 0);
             if (flags.user === true || flags.device === true) {
-                network.send(modifyService, "agent-management");
-                network.configuration();
+                webSocket.send(modifyService, "agent-management");
+                webSocket.configuration();
             }
         },
 
@@ -636,7 +636,7 @@ const agent_management:module_agentManagement = {
             }
             share.tools.update(box.getAttribute("id"));
             manage.agents.device[agent] = browser.agents.device[agent];
-            network.send(manage, "agent-management");
+            webSocket.send(manage, "agent-management");
         },
 
         /* Changes visual state of items in the agent delete list as they are checked or unchecked. */
@@ -675,7 +675,7 @@ const agent_management:module_agentManagement = {
                 invitation:service_invite = JSON.parse(inviteBody.dataset.invitation) as service_invite;
             invitation.action = "invite-answer";
             invitation.status = "declined";
-            network.send(invitation, "invite");
+            webSocket.send(invitation, "invite");
             modal.events.close(event);
         },
 
@@ -765,9 +765,9 @@ const agent_management:module_agentManagement = {
                         heading = configuration.colorDefaults[browser.ui.color][1];
                         browser.ui.colors[input.type][input.hash] = [body, heading];
                         if (input.callback === undefined) {
-                            network.configuration();
+                            webSocket.configuration();
                         } else {
-                            network.send({
+                            webSocket.send({
                                 settings: browser.ui,
                                 type: "ui"
                             }, "settings");
@@ -864,9 +864,9 @@ const agent_management:module_agentManagement = {
             if (count < 1) {
                 return;
             }
-            network.send(manage, "agent-management");
+            webSocket.send(manage, "agent-management");
             share.tools.update("");
-            network.configuration();
+            webSocket.configuration();
         },
 
         /* Removes an agent from the browser interface */
@@ -930,9 +930,9 @@ const agent_management:module_agentManagement = {
             if (invitation.type === "device") {
                 browser.identity.hashUser = invitation.agentRequest.hashUser;
                 browser.identity.nameUser = invitation.agentRequest.nameUser;
-                network.configuration();
+                webSocket.configuration();
             }
-            network.send(invitation, "invite");
+            webSocket.send(invitation, "invite");
         },
 
         /* Handles final status of an invitation completion */

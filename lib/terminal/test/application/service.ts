@@ -1,11 +1,10 @@
 
 /* lib/terminal/test/application/service - A list of service test related utilities. */
 
-import network from "../../server/transmission/network.js";
-import readStorage from "../../utilities/readStorage.js";
-
 import common from "../../../common/common.js";
 import filePathDecode from "./browserUtilities/file_path_decode.js";
+import readStorage from "../../utilities/readStorage.js";
+import receiver from "../../server/transmission/receiver.js";
 import remove_files from "../../../applications/remove_files/index.js";
 import serviceLibrary from "../../commands/library/service.js";
 import testComplete from "./testComplete.js";
@@ -166,7 +165,7 @@ const loopback:string = "127.0.0.1",
             test.data = JSON.parse(filePathDecode(null, JSON.stringify(test.data)) as string);
             service.index = config.index;
             service.fail = config.fail;
-            network.receiver(test, {
+            receiver(test, {
                 socket: transmit_ws.socketStore.device[vars.identity.hashDevice],
                 type: "ws"
             });

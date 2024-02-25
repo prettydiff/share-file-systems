@@ -1,7 +1,7 @@
 
 /* lib/browser/utilities/webSocket - Handles web socket events and associated errors. This where most communications from outside the browser are processed. */
 import browser from "./browser.js";
-import network from "./network.js";
+import receiver from "./receiver.js";
 
 /**
  * Module definition for browser-side websocket handling.
@@ -16,6 +16,15 @@ import network from "./network.js";
  * }
  * ``` */
 const webSocket:module_browserSocket = {
+    /* A convenience method for updating state */
+    configuration: function browser_utilities_socketConfiguration():void {
+        if (browser.loading === false) {
+            webSocket.send({
+                settings: browser.ui,
+                type: "ui"
+            }, "settings");
+        }
+    },
     error: function browser_utilities_socketError():void {
         setTimeout(function browser_utilities_socketError_delay():void {
             webSocket.start(null, webSocket.hash, webSocket.type);
@@ -44,7 +53,7 @@ const webSocket:module_browserSocket = {
                     if (type === "primary") {
                         const messageDelay = function browser_init_complete_messageDelay():void {
                             if (browser.loadQueue.length > 0) {
-                                network.send(browser.loadQueue[0].data, browser.loadQueue[0].service);
+                                webSocket.send(browser.loadQueue[0].data, browser.loadQueue[0].service);
                                 browser.loadQueue.splice(0, 1);
                                 if (browser.loadQueue.length > 0) {
                                     setTimeout(browser_init_complete_messageDelay, 5);
@@ -85,7 +94,7 @@ const webSocket:module_browserSocket = {
                 if (typeof event.data !== "string") {
                     return;
                 }
-                network.receive(event.data);
+                receiver(event.data);
             };
         webSocket.hash = hashDevice;
         webSocket.type = type;
@@ -100,16 +109,18 @@ const webSocket:module_browserSocket = {
 
         // do not put a console.log in this function without first removing the log service from /lib/browser/index.ts
         // otherwise this will produce a race condition with feedback loop
-        webSocket.send = function browser_utilities_webSocket_sendWrapper(data:socketData):void {
+        webSocket.send = function browser_utilities_webSocket_sendWrapper(data:socketDataType, service:service_type):void {
+            const socketData:socketData = {
+                data: data,
+                service: service
+            };
             // connecting
-            if (browser.socket.readyState === 0) {
+            if (browser.socket.readyState === 0 || browser.loading === true || browser.socket === null) {
                 setTimeout(function browser_utilities_webSocket_sendWrapper_delay():void {
-                    browser_utilities_webSocket_sendWrapper(data);
+                    browser_utilities_webSocket_sendWrapper(data, service);
                 }, 10);
-            }
-            // open
-            if (browser.socket.readyState === 1) {
-                browser.socket.send(JSON.stringify(data));
+            } else if (browser.socket.readyState === 1) {
+                browser.socket.send(JSON.stringify(socketData));
             }
         };
         return browser.socket;

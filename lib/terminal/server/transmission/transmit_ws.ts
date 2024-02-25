@@ -13,6 +13,7 @@ import log from "../../utilities/log.js";
 import mask from "../../utilities/mask.js";
 import network from "./network.js";
 import node from "../../utilities/node.js";
+import receiver from "./receiver.js";
 import settings from "../services/settings.js";
 import vars from "../../utilities/vars.js";
 
@@ -82,7 +83,7 @@ const transmit_ws:module_transmit_ws = {
 
         // prevent parsing errors in the case of malformed or empty payloads
         if (result.charAt(0) === "{" && result.charAt(result.length - 1) === "}" && result.indexOf("\"data\":") > 0 && result.indexOf("\"service\":") > 0) {
-            network.receiver(JSON.parse(result) as socketData, {
+            receiver(JSON.parse(result) as socketData, {
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, no-restricted-syntax
                 socket: this,
                 type: "ws"

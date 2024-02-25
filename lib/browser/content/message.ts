@@ -6,8 +6,8 @@ import common from "../../common/common.js";
 import configuration from "./configuration.js";
 import modal from "../utilities/modal.js";
 import modal_configuration from "../utilities/modal_configurations.js";
-import network from "../utilities/network.js";
 import util from "../utilities/util.js";
+import webSocket from "../utilities/webSocket.js";
 
 // cspell:words agenttype, arrowdown, arrowup
 
@@ -209,7 +209,7 @@ const message:module_message = {
                 textarea.onkeyup = message.events.keySubmit;
             }
             textarea.setAttribute("class", value);
-            network.configuration();
+            webSocket.configuration();
         },
 
         /* Generate a message modal from a share button */
@@ -275,7 +275,7 @@ const message:module_message = {
                 payload.agentTo = "";
             }
             message.tools.post(payload, "agentTo", box.getAttribute("id"));
-            network.send([payload], "message");
+            webSocket.send([payload], "message");
             textArea.value = "";
         }
     },

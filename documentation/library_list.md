@@ -41,14 +41,14 @@ This is a dynamically compiled list of supporting code files that comprise this 
    - **[../lib/browser/content/terminal.ts](../lib/browser/content/terminal.ts)**                                                                       - A library to process command terminal output in the browser.
    - **[../lib/browser/content/tutorial.ts](../lib/browser/content/tutorial.ts)**                                                                       - An interactive tutorial explaining the application.
 * Directory *[../lib/browser/utilities](../lib/browser/utilities)*
-   - **[../lib/browser/utilities/agent_hash.ts](../lib/browser/utilities/agent_hash.ts)**                                                               - Generates a local user identity.
    - **[../lib/browser/utilities/agent_status.ts](../lib/browser/utilities/agent_status.ts)**                                                           - Receive and process agent activity status notifications from the network.
    - **[../lib/browser/utilities/audio.ts](../lib/browser/utilities/audio.ts)**                                                                         - A storage of audio samples encoded in Base64 with respective metadata.
    - **[../lib/browser/utilities/browser.ts](../lib/browser/utilities/browser.ts)**                                                                     - A list of declared variables globally available to the browser instance of the application.
    - **[../lib/browser/utilities/dom.ts](../lib/browser/utilities/dom.ts)**                                                                             - Extensions to the DOM to provide navigational functionality not present from the standard methods
    - **[../lib/browser/utilities/modal.ts](../lib/browser/utilities/modal.ts)**                                                                         - A collection of utilities for generating and manipulating modals/windows in the browser.
    - **[../lib/browser/utilities/modal_configuration.ts](../lib/browser/utilities/modal_configuration.ts)**                                             - A single location for storing all modal content configurations by modal type.
-   - **[../lib/browser/utilities/network.ts](../lib/browser/utilities/network.ts)**                                                                     - The methods that execute data requests to the local terminal instance of the application.
+   - **[../lib/browser/utilities/modal_titles.ts](../lib/browser/utilities/modal_titles.ts)**                                                           - Stores reusable title data for modals by modal type.
+   - **[../lib/browser/utilities/receiver.ts](../lib/browser/utilities/receiver.ts)**                                                                   - Routes network messages to the respective browser library.
    - **[../lib/browser/utilities/remote.ts](../lib/browser/utilities/remote.ts)**                                                                       - A collection of instructions to allow event execution from outside the browser, like a remote control.
    - **[../lib/browser/utilities/util.ts](../lib/browser/utilities/util.ts)**                                                                           - Miscellaneous tools for the browser environment.
    - **[../lib/browser/utilities/webSocket.ts](../lib/browser/utilities/webSocket.ts)**                                                                 - Handles web socket events and associated errors. This where most communications from outside the browser are processed.
@@ -113,6 +113,7 @@ This is a dynamically compiled list of supporting code files that comprise this 
 * Directory *[../lib/terminal/server/transmission](../lib/terminal/server/transmission)*
    - **[../lib/terminal/server/transmission/http.ts](../lib/terminal/server/transmission/http.ts)**                                                     - A library to process HTTP GET responses.
    - **[../lib/terminal/server/transmission/network.ts](../lib/terminal/server/transmission/network.ts)**                                               - Generic transmission tools shared between HTTP and WS libraries.
+   - **[../lib/terminal/server/transmission/receiver.ts](../lib/terminal/server/transmission/receiver.ts)**                                             - Routes incoming messages from the network to the respective libraries.
    - **[../lib/terminal/server/transmission/transmit_http.ts](../lib/terminal/server/transmission/transmit_http.ts)**                                   - This library launches the HTTP service and all supporting service utilities.
    - **[../lib/terminal/server/transmission/transmit_ws.ts](../lib/terminal/server/transmission/transmit_ws.ts)**                                       - A command utility for creating a websocket server or client.
 * Directory *[../lib/terminal/test/application](../lib/terminal/test/application)*

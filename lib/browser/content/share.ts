@@ -5,11 +5,10 @@ import common from "../../common/common.js";
 
 import agent_management from "./agent_management.js";
 import browser from "../utilities/browser.js";
-import context from "./context.js";
 import file_browser from "./file_browser.js";
 import message from "./message.js";
 import modal_configuration from "../utilities/modal_configurations.js";
-import network from "../utilities/network.js";
+import webSocket from "../utilities/webSocket.js";
 
 /**
  * Populates the various agent modals, device details, and share data lists.
@@ -351,7 +350,7 @@ const share:module_share = {
 
         /* Share utility for the "adding a share" context menu list */
         context: function browser_content_share_context():void {
-            const element:HTMLElement = context.element,
+            const element:HTMLElement = browser.contextElement,
                 addresses:[string, fileType, string][] = file_browser.tools.selectedAddresses(element, "share"),
                 deviceData:agentShares = browser.agents.device[addresses[0][2]].shares,
                 shares:string[] = Object.keys(deviceData),
@@ -360,7 +359,7 @@ const share:module_share = {
                 menu:HTMLElement = document.getElementById("contextMenu");
             let a:number = 0,
                 b:number = 0;
-            context.element = null;
+            browser.contextElement = null;
             // check to see if this share already exists
             if (shareLength > 0) {
                 do {
@@ -372,7 +371,7 @@ const share:module_share = {
                         b = b + 1;
                     } while (b < shareLength);
                     if (b === shareLength) {
-                        network.send({
+                        webSocket.send({
                             device: addresses[a][2],
                             hash: "",
                             share: addresses[a][0],
@@ -383,7 +382,7 @@ const share:module_share = {
                 } while (a < addressesLength);
             } else {
                 do {
-                    network.send({
+                    webSocket.send({
                         device: addresses[a][2],
                         hash: "",
                         share: addresses[a][0],
@@ -428,7 +427,7 @@ const share:module_share = {
                 item.readOnly = true;
             }
             manage.agents.device[hashDevice] = browser.agents.device[hashDevice];
-            network.send(manage, "agent-management");
+            webSocket.send(manage, "agent-management");
             share.tools.update("");
         }
     },
@@ -458,7 +457,7 @@ const share:module_share = {
             // update any share modals
             share.tools.update("");
             // inform other agents of the share
-            network.send(management, "agent-management");
+            webSocket.send(management, "agent-management");
         },
 
         /* Updates the contents of share modals */

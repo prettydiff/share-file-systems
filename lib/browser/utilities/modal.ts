@@ -6,8 +6,6 @@ import browser from "./browser.js";
 import common from "../../common/common.js";
 import file_browser from "../content/file_browser.js";
 import media from "../content/media.js";
-import modal_configuration from "./modal_configurations.js";
-import network from "./network.js";
 import webSocket from "./webSocket.js";
 
 // cspell:words agenttype
@@ -143,14 +141,14 @@ const modal:module_modal = {
                     }
                 }
             } else {
-                text.push(modal_configuration.titles[options.type].text);
+                text.push(browser.modal_titles[options.type].text);
                 if (options.title_supplement !== "" && options.title_supplement !== null && options.title_supplement !== undefined) {
                     text.push(options.title_supplement);
                 }
                 if (options.agentIdentity === true) {
                     text.push(`- ${common.capitalize(options.agentType)}, ${browser.agents[options.agentType][options.agent].name}`);
                 }
-                span.appendText(modal_configuration.titles[options.type].icon);
+                span.appendText(browser.modal_titles[options.type].icon);
             }
             titleButton.setAttribute("class", options.type);
             titleButton.appendChild(span);
@@ -434,7 +432,7 @@ const modal:module_modal = {
                 box.style.display = "none";
             }
             if (browser.loading === false) {
-                network.configuration();
+                webSocket.configuration();
             }
             if (options.callback !== undefined) {
                 options.callback();
@@ -476,7 +474,7 @@ const modal:module_modal = {
                 if (invitation.status === "invited") {
                     invitation.action = "invite-answer";
                     invitation.status = "ignored";
-                    network.send(invitation, "invite");
+                    webSocket.send(invitation, "invite");
                 }
             } else if (type === "media") {
                 media.tools.kill(browser.ui.modals[id]);
@@ -506,7 +504,7 @@ const modal:module_modal = {
     
             // remove from state and send to storage
             delete browser.ui.modals[id];
-            network.configuration();
+            webSocket.configuration();
         },
     
         /* Modal types that are enduring are hidden, not destroyed, when closed */
@@ -518,7 +516,7 @@ const modal:module_modal = {
                 // this must remain separated from modal identity as more than one thing users it
                 browser.ui.modals[box.getAttribute("id")].status = "hidden";
             }
-            network.configuration();
+            webSocket.configuration();
         },
     
         /* Event handler for the modal's "Confirm" button */
@@ -572,7 +570,7 @@ const modal:module_modal = {
                 button:HTMLButtonElement = document.getElementsByClassName("cancel")[0] as HTMLButtonElement,
                 textArea:HTMLTextAreaElement = box.getElementsByTagName("textarea")[0];
             button.click();
-            network.send(textArea.value, "import");
+            webSocket.send(textArea.value, "import");
         },
     
         /* The given modal consumes the entire view port of the content area */
@@ -641,7 +639,7 @@ const modal:module_modal = {
                 }());
             }
             if (browser.loading === false) {
-                network.configuration();
+                webSocket.configuration();
             }
             if (callback !== undefined) {
                 callback();
@@ -714,7 +712,7 @@ const modal:module_modal = {
                 browser.ui.modals[id].status = "minimized";
             }
             if (browser.loading === false) {
-                network.configuration();
+                webSocket.configuration();
             }
             if (callback !== undefined) {
                 callback();
@@ -772,7 +770,7 @@ const modal:module_modal = {
                     box.style.height   = "auto";
                     settings.top = boxTop;
                     settings.left = boxLeft;
-                    network.configuration();
+                    webSocket.configuration();
                     dropEvent.preventDefault();
                     return false;
                 },
@@ -892,7 +890,7 @@ const modal:module_modal = {
                     if (settings.type === "media") {
                         body.appendChild(media.content(settings.text_value as mediaType, settings.height, settings.width));
                     }
-                    network.configuration();
+                    webSocket.configuration();
                 },
                 compute = function browser_utilities_modal_resize_compute(leftTest:boolean, topTest:boolean, values:[number, number]):void {
                     if (values[0] > -10) {
@@ -1014,7 +1012,7 @@ const modal:module_modal = {
                 window.clearTimeout(box.timer);
             }
             data.text_value = element.value;
-            network.configuration();
+            webSocket.configuration();
         },
     
         /* An idle delay is a good time to save written notes */
@@ -1029,7 +1027,7 @@ const modal:module_modal = {
                 window.clearTimeout(box.timer);
                 if (data.text_value !== element.value) {
                     data.text_value = element.value;
-                    network.configuration();
+                    webSocket.configuration();
                 }
             }, browser.ui.statusTime);
         },

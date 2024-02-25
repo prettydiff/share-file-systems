@@ -4,8 +4,10 @@ import browser from "../utilities/browser.js";
 import common from "../../common/common.js";
 import context from "./context.js";
 import modal from "../utilities/modal.js";
-import network from "../utilities/network.js";
+import modal_configuration from "../utilities/modal_configurations.js";
+import share from "./share.js";
 import util from "../utilities/util.js";
+import webSocket from "../utilities/webSocket.js";
 
 /**
  * Generates the user experience associated with file system interaction.
@@ -74,15 +76,15 @@ const file_browser:module_fileBrowser = {
                 heading.style.width = `${(body.clientWidth - 50) / 18}em`;
                 a = a + 1;
             } while (a < length);
-            network.configuration();
+            webSocket.configuration();
         },
 
         /* Initiates a network request for file system details */
         detailsContent: function browser_content_fileBrowser_detailsContent(id:string):void {
-            const name:string = context.element.lowName(),
+            const name:string = browser.contextElement.lowName(),
                 element:HTMLElement = (name === "li" || name === "ul")
-                    ? context.element
-                    : context.element.getAncestor("li", "tag"),
+                    ? browser.contextElement
+                    : browser.contextElement.getAncestor("li", "tag"),
                 box:modal = element.getAncestor("box", "class"),
                 menu:HTMLElement = document.getElementById("contextMenu"),
                 addressField:HTMLInputElement = box.getElementsByClassName("fileAddress")[0].getElementsByTagName("input")[0],
@@ -113,9 +115,9 @@ const file_browser:module_fileBrowser = {
                 return;
             }
             browser.ui.modals[id].text_value = JSON.stringify(payloadNetwork.location);
-            network.send(payloadNetwork, "file-system");
-            network.configuration();
-            context.element = null;
+            webSocket.send(payloadNetwork, "file-system");
+            webSocket.configuration();
+            browser.contextElement = null;
             if (menu !== null) {
                 menu.parentNode.removeChild(menu);
             }
@@ -422,7 +424,7 @@ const file_browser:module_fileBrowser = {
                 output.appendChild(li);
             }
             output.oncontextmenu = context.events.menu;
-            output.onkeydown = util.keys;
+            output.onkeydown = file_browser.tools.keys;
             output.onclick = file_browser.events.listFocus;
             output.onmousedown = function browser_file_browser_list_dragSelect(event:MouseEvent):void {
                 util.dragBox(event, util.dragList);
@@ -580,7 +582,7 @@ const file_browser:module_fileBrowser = {
                 history.pop();
                 address.value = history[history.length - 1];
                 file_browser.events.text(event);
-                network.configuration();
+                webSocket.configuration();
             }
         },
 
@@ -733,7 +735,7 @@ const file_browser:module_fileBrowser = {
                     if (target === "") {
                         return;
                     }
-                    network.send(payload, "copy");
+                    webSocket.send(payload, "copy");
                 },
                 move = function browser_content_fileBrowser_drag_move(moveEvent:MouseEvent|TouchEvent):boolean {
                     const touchMove:TouchEvent = (touch === true)
@@ -830,7 +832,7 @@ const file_browser:module_fileBrowser = {
                     name: ""
                 };
             file_browser.tools.selectNone(box);
-            network.send(payload, "file-system");
+            webSocket.send(payload, "file-system");
             file_browser.events.select(event);
             event.stopPropagation();
         },
@@ -857,7 +859,7 @@ const file_browser:module_fileBrowser = {
                 button.appendText("-", true);
                 button.appendChild(span);
                 button.setAttribute("title", "Collapse this folder");
-                network.send(payload, "file-system");
+                webSocket.send(payload, "file-system");
             } else {
                 const ul:HTMLCollectionOf<HTMLUListElement> = li.getElementsByTagName("ul"),
                     span:HTMLElement = document.createElement("span");
@@ -938,9 +940,9 @@ const file_browser:module_fileBrowser = {
     
         /* The front-side of renaming a file system object */
         rename: function browser_content_fileBrowser_rename(event:KeyboardEvent|MouseEvent):void {
-            const element:HTMLElement = (context.element === null)
+            const element:HTMLElement = (browser.contextElement === null)
                     ? event.target
-                    : context.element,
+                    : browser.contextElement,
                 box:modal = element.getAncestor("box", "class"),
                 input:HTMLInputElement = document.createElement("input"),
                 li:HTMLElement = element.getAncestor("li", "tag"),
@@ -975,7 +977,7 @@ const file_browser:module_fileBrowser = {
                                     name: field.value
                                 };
                             actionComplete(field, label.innerHTML + field.value);
-                            network.send(payload, "file-system");
+                            webSocket.send(payload, "file-system");
                         }
                     } else if (action.type === "keyup") {
                         field.value = field.value.replace(/\?|<|>|"|\||\*|:|\\|\/|\u0000/g, "");
@@ -1001,7 +1003,7 @@ const file_browser:module_fileBrowser = {
             label.appendText(dir);
             label.appendChild(input);
             input.focus();
-            context.element = null;
+            browser.contextElement = null;
             if (menu !== null) {
                 menu.parentNode.removeChild(menu);
             }
@@ -1024,7 +1026,7 @@ const file_browser:module_fileBrowser = {
                     location: [location[location.length - 1]],
                     name: content
                 };
-            network.send(payload, "file-system");
+            webSocket.send(payload, "file-system");
         },
     
         /* Search for file system artifacts from a modal's current location */
@@ -1044,7 +1046,7 @@ const file_browser:module_fileBrowser = {
                 searchParent.style.width = "12.5%";
                 addressLabel.style.width = "87.5%";
                 browser.ui.modals[id].search = [address, value];
-                network.configuration();
+                webSocket.configuration();
             }
             if (event === null || (event.type === "keyup" && keyboardEvent.key === "Enter")) {
                 const body:HTMLElement = box.getElementsByClassName("body")[0] as HTMLElement,
@@ -1064,15 +1066,15 @@ const file_browser:module_fileBrowser = {
                     file_browser.events.text(event);
                     element.focus();
                     browser.ui.modals[id].search = [address, ""];
-                    network.configuration();
+                    webSocket.configuration();
                     return;
                 }
                 if (browser.loading === false) {
                     browser.ui.modals[id].search = [address, value];
                     browser.ui.modals[id].selection = {};
-                    network.configuration();
+                    webSocket.configuration();
                 }
-                network.send(payload, "file-system");
+                webSocket.send(payload, "file-system");
             }
         },
     
@@ -1089,7 +1091,7 @@ const file_browser:module_fileBrowser = {
         /* Select a file system item for an action */
         select: function browser_content_fileBrowser_select(event:KeyboardEvent|MouseEvent):void {
             event.preventDefault();
-            context.events.contextMenuRemove();
+            util.contextMenuRemove();
             const keyboardEvent:KeyboardEvent = event as KeyboardEvent,
                 element:HTMLElement = (function browser_content_fileBrowser_select_element():HTMLElement {
                     const el:HTMLElement = event.target;
@@ -1127,7 +1129,7 @@ const file_browser:module_fileBrowser = {
                 box:modal,
                 modalData:config_modal;
             if (document.getElementById("newFileItem") === null) {
-                if (file_browser.dragFlag !== "") {
+                if (browser.dragFlag !== "") {
                     event.preventDefault();
                     event.stopPropagation();
                 }
@@ -1141,9 +1143,9 @@ const file_browser:module_fileBrowser = {
                     return;
                 }
 
-                if (keyboardEvent.ctrlKey === true || file_browser.dragFlag === "control") {
+                if (keyboardEvent.ctrlKey === true || browser.dragFlag === "control") {
                     setClasses(p, classy, state);
-                } else if (keyboardEvent.shiftKey === true || file_browser.dragFlag === "shift") {
+                } else if (keyboardEvent.shiftKey === true || browser.dragFlag === "shift") {
                     const liList:HTMLCollectionOf<HTMLElement> = body.getElementsByTagName("p"),
                         shift = function browser_content_fileBrowser_select_shift(index:number, end:number):void {
                             let liClassy:string;
@@ -1220,7 +1222,7 @@ const file_browser:module_fileBrowser = {
                     }
                 }
                 modalData.focus = p;
-                network.configuration();
+                webSocket.configuration();
             }
         },
     
@@ -1270,10 +1272,119 @@ const file_browser:module_fileBrowser = {
         }
     },
 
-    /* Stores whether Control or Shift keys were pressed when drag initiated */
-    dragFlag: "",
-
     tools: {
+
+        /* Executes shortcut key combinations. */
+        keys: function browser_utilities_util_keys(event:KeyboardEvent):void {
+            const key:string = event.key.toLowerCase(),
+                windowEvent:KeyboardEvent = window.event as KeyboardEvent,
+                target:HTMLElement = event.target,
+                element:HTMLElement = (function browser_utilities_util_keys_element():HTMLElement {
+                    const el:HTMLElement = document.activeElement,
+                        name:string = el.lowName();
+                    if (el.parentNode === null || name === "li" || name === "ul") {
+                        return el;
+                    }
+                    return el.getAncestor("li", "tag");
+                }()),
+                input:HTMLInputElement = event.target as HTMLInputElement,
+                elementName:string = element.lowName(),
+                p:HTMLElement = element.getElementsByTagName("p")[0];
+            if (key === "f5" || (windowEvent.ctrlKey === true && key === "r")) {
+                location.reload();
+            }
+            if ((target.lowName() === "input" && input.type === "text") || element.parentNode === null || document.activeElement === document.getElementById("newFileItem")) {
+                return;
+            }
+            if (key === "enter" && elementName === "li" && (element.getAttribute("class") === "directory" || element.getAttribute("class") === "directory lastType" || element.getAttribute("class") === "directory selected") && p.getAttribute("class") === "selected" && file_browser.tools.selectedAddresses(element, "directory").length === 1) {
+                file_browser.events.directory(event);
+                return;
+            }
+            event.preventDefault();
+            if (elementName !== "ul") {
+                event.stopPropagation();
+            }
+            if (key === "delete" || key === "del") {
+                browser.contextElement = element;
+                context.events.destroy(event);
+            } else if (windowEvent.altKey === true && windowEvent.ctrlKey === true) {
+                if (key === "b" && elementName === "li") {
+                    // key b, base64
+                    browser.contextElement = element;
+                    context.type = "Base64";
+                    modal_configuration.modals["file-edit"](event);
+                } else if (key === "d") {
+                    // key d, new directory
+                    browser.contextElement = element;
+                    context.type = "directory";
+                    context.events.fsNew(event);
+                } else if (key === "e") {
+                    // key e, edit file
+                    browser.contextElement = element;
+                    context.type = "Edit";
+                    modal_configuration.modals["file-edit"](event);
+                } else if (key === "f") {
+                    // key f, new file
+                    browser.contextElement = element;
+                    context.type = "file";
+                    context.events.fsNew(event);
+                } else if (key === "h" && elementName === "li") {
+                    // key h, hash
+                    browser.contextElement = element;
+                    context.type = "Hash";
+                    modal_configuration.modals["file-edit"](event);
+                } else if (key === "r" && elementName === "li") {
+                    // key r, rename
+                    file_browser.events.rename(event);
+                } else if (key === "s") {
+                    // key s, share
+                    browser.contextElement = element;
+                    share.events.context(event);
+                } else if (key === "t") {
+                    // key t, details
+                    modal_configuration.modals.details(event);
+                }
+            } else if (windowEvent.ctrlKey === true) {
+                if (key === "a") {
+                    // key a, select all
+                    const list:HTMLElement = (elementName === "ul")
+                            ? element
+                            : element.parentNode,
+                        items:HTMLCollectionOf<Element> = list.getElementsByTagName("li"),
+                        length:number = items.length;
+                    let a:number = 0,
+                        classy:string;
+                    do {
+                        classy = items[a].getAttribute("class");
+                        if (classy !== null && classy.indexOf("cut") > -1) {
+                            items[a].setAttribute("class", "selected cut");
+                        } else {
+                            items[a].setAttribute("class", "selected");
+                        }
+                        items[a].getElementsByTagName("input")[0].checked = true;
+                        a = a + 1;
+                    } while (a < length);
+                } else if (key === "c") {
+                    // key c, copy
+                    browser.contextElement = element;
+                    context.type = "copy";
+                    context.events.copy(event);
+                } else if (key === "d" && elementName === "li") {
+                    // key d, destroy
+                    browser.contextElement = element;
+                    context.events.destroy(event);
+                } else if (key === "v") {
+                    // key v, paste
+                    browser.contextElement = element;
+                    context.events.paste(event);
+                } else if (key === "x") {
+                    // key x, cut
+                    browser.contextElement = element;
+                    context.type = "cut";
+                    context.events.copy(event);
+                }
+            }
+        },
     
         /* Display status information when the Operating system locks files from access */
         listFail: function browser_content_fileBrowser_listFail(count:number, box:modal):void {
@@ -1379,8 +1490,8 @@ const file_browser:module_fileBrowser = {
     
             // prepare the descriptive text
             p.oncontextmenu = context.events.menu;
+            p.onkeydown = file_browser.tools.keys;
             p.onclick = file_browser.events.select;
-            p.onkeydown = util.keys; // key combinations
             p.appendChild(span);
             li.appendChild(p);
     
@@ -1450,10 +1561,10 @@ const file_browser:module_fileBrowser = {
 
             // request new file system data for the new address
             if (config.payload !== null) {
-                network.send(config.payload, "file-system");
+                webSocket.send(config.payload, "file-system");
 
                 // save state
-                network.configuration();
+                webSocket.configuration();
             }
 
             // change the value in the html

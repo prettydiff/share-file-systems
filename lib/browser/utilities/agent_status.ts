@@ -2,7 +2,6 @@
 /* lib/browser/utilities/agent_status - Receive and process agent activity status notifications from the network. */
 
 import browser from "./browser.js";
-import network from "./network.js";
 import webSocket from "./webSocket.js";
 
     /**
@@ -22,7 +21,7 @@ const agent_status:module_agentStatus = {
             const socket = function browser_utilities_agentStatus_active_socket():void {
                     agent_status.idleDelay = setTimeout(agent_status.idle, browser.ui.statusTime);
                     if (active === false) {
-                        network.send(agent_status.selfStatus, "agent-status");
+                        webSocket.send(agent_status.selfStatus, "agent-status");
                     }
                 },
                 active:boolean = (agent_status.selfStatus.status === "active"),
@@ -54,19 +53,10 @@ const agent_status:module_agentStatus = {
             if (currentStatus === "active" && localDevice !== null) {
                 localDevice.setAttribute("class", "idle");
                 agent_status.selfStatus.status = "idle";
-                network.send(agent_status.selfStatus, "agent-status");
+                webSocket.send(agent_status.selfStatus, "agent-status");
             }
         },
         idleDelay: null,
-        receive: function browser_utilities_agentStatus_receive(socketData:socketData):void {
-            const data:service_agentStatus = socketData.data as service_agentStatus;
-
-            // do not receive local agent status from a remote agent
-            if (browser.agents[data.agentType][data.agent] !== undefined && (data.agentType !== "device" || (data.agentType === "device" && data.agent !== browser.identity.hashDevice))) {
-                const agent:HTMLElement = document.getElementById(data.agent);
-                agent.setAttribute("class", data.status);
-            }
-        },
         selfStatus: {
             agent: "",
             agentType: "device",

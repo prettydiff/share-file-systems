@@ -10,10 +10,10 @@ import file_browser from "../content/file_browser.js";
 import media from "../content/media.js";
 import message from "../content/message.js";
 import modal from "./modal.js";
-import network from "./network.js";
 import share from "../content/share.js";
 import terminal from "../content/terminal.js";
 import util from "./util.js";
+import webSocket from "./webSocket.js";
 
 // cspell:words agenttype
 
@@ -63,7 +63,7 @@ const modal_configuration:module_modalConfiguration = {
                     type: "agent-management",
                     width: 750
                 };
-                network.configuration();
+                webSocket.configuration();
             } else {
                 config.agent = browser.identity.hashDevice;
                 config.agentIdentity = false;
@@ -117,11 +117,11 @@ const modal_configuration:module_modalConfiguration = {
 
         "details": function browser_utilities_modalConfiguration__details(event:Event, config?:config_modal):modal {
             if (config === null || config === undefined) {
-                const name:string = context.element.lowName(),
+                const name:string = browser.contextElement.lowName(),
                     mouseEvent:MouseEvent = event as MouseEvent,
                     element:HTMLElement = (name === "li" || name === "ul")
-                        ? context.element
-                        : context.element.getAncestor("li", "tag"),
+                        ? browser.contextElement
+                        : browser.contextElement.getAncestor("li", "tag"),
                     div:HTMLElement = util.delay(),
                     box:modal = element.getAncestor("box", "class"),
                     agency:agentId = util.getAgent(box),
@@ -166,7 +166,7 @@ const modal_configuration:module_modalConfiguration = {
                     location: JSON.parse(config.text_value) as string[],
                     name: config.id
                 };
-            network.send(payloadNetwork, "file-system");
+            webSocket.send(payloadNetwork, "file-system");
             return modalInstance;
         },
 
@@ -230,7 +230,7 @@ const modal_configuration:module_modalConfiguration = {
             modalItem =  modal.content(payload_modal);
             id = modalItem.getAttribute("id");
             payloadNetwork.location.push(`${id}:export-settings`);
-            network.send(payloadNetwork, "file-system");
+            webSocket.send(payloadNetwork, "file-system");
             return modalItem;
         },
 
@@ -248,9 +248,9 @@ const modal_configuration:module_modalConfiguration = {
                     name: ""
                 };
             if (config === null || config === undefined) {
-                const element:HTMLElement = (context.element.lowName() === "li")
-                        ? context.element
-                        : context.element.getAncestor("li", "tag"),
+                const element:HTMLElement = (browser.contextElement.lowName() === "li")
+                        ? browser.contextElement
+                        : browser.contextElement.getAncestor("li", "tag"),
                     mouseEvent:MouseEvent = event as MouseEvent,
                     contextElement:HTMLElement = event.target as HTMLElement,
                     type:contextType = (context.type !== "")
@@ -299,8 +299,8 @@ const modal_configuration:module_modalConfiguration = {
                     }
                     a = a + 1;
                 } while (a < length);
-                network.send(payloadNetwork, "file-system");
-                context.element = null;
+                webSocket.send(payloadNetwork, "file-system");
+                browser.contextElement = null;
                 context.type = "";
                 if (menu !== null) {
                     menu.parentNode.removeChild(menu);
@@ -330,8 +330,8 @@ const modal_configuration:module_modalConfiguration = {
                     : config.agent
             };
             payloadNetwork.location = [`${modalInstance.getAttribute("id")}:${config.text_value}`];
-            network.send(payloadNetwork, "file-system");
-            context.element = null;
+            webSocket.send(payloadNetwork, "file-system");
+            browser.contextElement = null;
             context.type = "";
             if (menu !== null) {
                 menu.parentNode.removeChild(menu);
@@ -429,7 +429,7 @@ const modal_configuration:module_modalConfiguration = {
             payloadModal.footer = file_browser.content.footer();
             payloadModal.text_event = file_browser.events.text;
             document.getElementById("menu").style.display = "none";
-            network.send(payloadNetwork, "file-system");
+            webSocket.send(payloadNetwork, "file-system");
             return modal.content(payloadModal);
         },
 
@@ -588,7 +588,7 @@ const modal_configuration:module_modalConfiguration = {
                 conf.style.display = "block";
             }
             data.status = "normal";
-            network.configuration();
+            webSocket.configuration();
         },
 
         "terminal": function browser_utilities_modalConfiguration_terminal(event:Event, config?:config_modal):modal {
@@ -686,79 +686,7 @@ const modal_configuration:module_modalConfiguration = {
             box.getElementsByClassName("body")[0].getElementsByTagName("textarea")[0].onkeyup = modal.events.textTimer;
             return box;
         }
-    },
-    titles: {
-        "agent-management": {
-            icon: "❤",
-            menu: true,
-            text: "Agent Management"
-        },
-        "configuration": {
-            icon: "⚙",
-            menu: true,
-            text: "Configuration"
-        },
-        "details": {
-            icon: "📂",
-            menu: false,
-            text: "Document"
-        },
-        "document": {
-            icon: "🗎",
-            menu: false,
-            text: "Document"
-        },
-        "export": {
-            icon: "⎆",
-            menu: true,
-            text: "Import/Export Settings"
-        },
-        "file-edit": {
-            icon: "✎",
-            menu: false,
-            text: "File"
-        },
-        "file-navigate": {
-            icon: "⌹",
-            menu: true,
-            text: "File Navigate"
-        },
-        "invite-ask": {
-            icon: "❧",
-            menu: false,
-            text: "Invitation from"
-        },
-        "media": {
-            icon: "💬",
-            menu: false,
-            text: "Message to"
-        },
-        "message": {
-            icon: "☎",
-            menu: false,
-            text: "Text Message to"
-        },
-        "shares": {
-            icon: "",
-            menu: false,
-            text: ""
-        },
-        "socket-map": {
-            icon: "🖧",
-            menu: false,
-            text: "Open Sockets"
-        },
-        "terminal": {
-            icon: "›",
-            menu: true,
-            text: "Command Terminal"
-        },
-        "text-pad": {
-            icon: "¶",
-            menu: true,
-            text: "Text Pad"
-        }
-    },
+    }
 };
 
 export default modal_configuration;
