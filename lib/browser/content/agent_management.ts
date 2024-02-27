@@ -761,8 +761,8 @@ const agent_management:module_agentManagement = {
                     let body:string,
                         heading:string;
                     if (browser.ui.colors[input.type][input.hash] === undefined) {
-                        body = configuration.colorDefaults[browser.ui.color][0];
-                        heading = configuration.colorDefaults[browser.ui.color][1];
+                        body = browser.colorDefaults[browser.ui.color][0];
+                        heading = browser.colorDefaults[browser.ui.color][1];
                         browser.ui.colors[input.type][input.hash] = [body, heading];
                         if (input.callback === undefined) {
                             webSocket.configuration();

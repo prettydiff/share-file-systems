@@ -8,6 +8,11 @@ const browser:browser = {
         device: {},
         user: {}
     },
+    colorDefaults: {                                    // colorDefaults - default color definitions for the various supported color scheme
+        "blush": ["fff", "fee"],
+        "dark": ["222", "333"],
+        "default": ["fff", "eee"]
+    },
     content: document.getElementById("content-area"),   // content - stores a reference to the content area of the page
     contextElement: null,                               // contextElement - stores the element where the context menu is activated
     dragFlag: "",                                       // dragFlag - Stores whether a drag action is modified with shift or control key

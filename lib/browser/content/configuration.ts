@@ -33,17 +33,10 @@ import webSocket from "../utilities/webSocket.js";
  * ``` */
 const configuration:module_configuration = {
 
-    /* Default color definitions for the various supported color schemes */
-    colorDefaults: {
-        "blush": ["fff", "fee"],
-        "dark": ["222", "333"],
-        "default": ["fff", "eee"]
-    },
-
     content: function browser_content_configuration_content():HTMLElement {
         const configurationBody:HTMLElement = document.createElement("div"),
             random:string = Math.random().toString(),
-            keys:string[] = Object.keys(configuration.colorDefaults),
+            keys:string[] = Object.keys(browser.colorDefaults),
             createSection = function browser_content_configuration_content_createSection(title:string):HTMLElement {
                 const container:HTMLElement = document.createElement("div"),
                     h3:HTMLElement = document.createElement("h3");
@@ -166,7 +159,7 @@ const configuration:module_configuration = {
             textPara: null,
             title: "🖌 Color Theme",
             type: "radio",
-            value: (configuration.colorDefaults[browser.ui.color] === undefined)
+            value: (browser.colorDefaults[browser.ui.color] === undefined)
                 ? "default"
                 : browser.ui.color
         });
@@ -337,7 +330,7 @@ const configuration:module_configuration = {
         /* Change the color scheme */
         colorScheme: function browser_content_configuration_colorScheme(event:MouseEvent):void {
             const element:HTMLInputElement = event.target as HTMLInputElement,
-                oldScheme:string = (configuration.colorDefaults[browser.ui.color] === undefined)
+                oldScheme:string = (browser.colorDefaults[browser.ui.color] === undefined)
                     ? "default"
                     : browser.ui.color,
                 complete = function browser_content_configuration_colorScheme_complete(counts:agentCounts):void {
@@ -370,9 +363,9 @@ const configuration:module_configuration = {
                         swatch1:HTMLElement,
                         swatch2:HTMLElement,
                         inputs:HTMLCollectionOf<HTMLInputElement>;
-                    if (color[0] === configuration.colorDefaults[oldScheme][0] && color[1] === configuration.colorDefaults[oldScheme][1]) {
-                        color[0] = configuration.colorDefaults[element.value][0];
-                        color[1] = configuration.colorDefaults[element.value][1];
+                    if (color[0] === browser.colorDefaults[oldScheme][0] && color[1] === browser.colorDefaults[oldScheme][1]) {
+                        color[0] = browser.colorDefaults[element.value][0];
+                        color[1] = browser.colorDefaults[element.value][1];
                     }
                     configuration.tools.applyAgentColors(agent, agentType, [color[0], color[1]]);
                     if (agentLength > 0) {
@@ -509,7 +502,7 @@ const configuration:module_configuration = {
             if (scheme === null) {
                 scheme = "default";
             }
-            if (colors[0] === configuration.colorDefaults[scheme][0] && colors[1] === configuration.colorDefaults[scheme][1]) {
+            if (colors[0] === browser.colorDefaults[scheme][0] && colors[1] === browser.colorDefaults[scheme][1]) {
                 // colors are defaults for the current scheme
                 styleText.colors = ["", ""];
                 configuration.tools.styleText(styleText);

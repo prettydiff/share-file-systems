@@ -216,7 +216,6 @@ interface module_common {
  * Methods for generating the configuration modal and its interactions.
  * ```typescript
  * interface module_configuration {
- *     colorDefaults: browser_colorList; // An object associating color information to color scheme names.
  *     content      : () => HTMLElement; // Generates the configuration modal content to populate into the configuration modal.
  *     events: {
  *         agentColor       : (event:Event) => void;         // Specify custom agent color configurations.
@@ -237,7 +236,6 @@ interface module_common {
  * }
  * ``` */
 interface module_configuration {
-    colorDefaults: browser_colorList;
     content: () => HTMLElement;
     events: {
         agentColor: (event:Event) => void;

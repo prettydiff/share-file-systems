@@ -31,7 +31,22 @@ const webSocket:module_browserSocket = {
         }, browser.ui.statusTime);
     },
     hash: "",
-    send: null,
+    // do not put a console.log in this function without first removing the log service from /lib/browser/index.ts
+    // otherwise this will produce a race condition with feedback loop
+    send: function browser_utilities_webSocket_sendWrapper(data:socketDataType, service:service_type):void {
+        const socketData:socketData = {
+            data: data,
+            service: service
+        };
+        // connecting
+        if (browser.socket === null || browser.socket.readyState === 0 || browser.loading === true) {
+            setTimeout(function browser_utilities_webSocket_sendWrapper_delay():void {
+                browser_utilities_webSocket_sendWrapper(data, service);
+            }, 10);
+        } else if (browser.socket.readyState === 1) {
+            browser.socket.send(JSON.stringify(socketData));
+        }
+    },
     sock: (function browser_utilities_socket():websocket_local {
         // A minor security circumvention.
         const socket:websocket_local = WebSocket as websocket_local;
@@ -84,7 +99,6 @@ const webSocket:module_browserSocket = {
                     browser.socket = null;
                     title.setAttribute("class", "title offline");
                     title.getElementsByTagName("h1")[0].appendText("Disconnected.", true);
-                    webSocket.send = null;
                     if (device !== null) {
                         device.setAttribute("class", "offline");
                     }
@@ -105,23 +119,6 @@ const webSocket:module_browserSocket = {
         socket.onclose = close;
         socket.onerror = function browser_utilities_webSocket_error():void {
             webSocket.error();
-        };
-
-        // do not put a console.log in this function without first removing the log service from /lib/browser/index.ts
-        // otherwise this will produce a race condition with feedback loop
-        webSocket.send = function browser_utilities_webSocket_sendWrapper(data:socketDataType, service:service_type):void {
-            const socketData:socketData = {
-                data: data,
-                service: service
-            };
-            // connecting
-            if (browser.socket.readyState === 0 || browser.loading === true || browser.socket === null) {
-                setTimeout(function browser_utilities_webSocket_sendWrapper_delay():void {
-                    browser_utilities_webSocket_sendWrapper(data, service);
-                }, 10);
-            } else if (browser.socket.readyState === 1) {
-                browser.socket.send(JSON.stringify(socketData));
-            }
         };
         return browser.socket;
     },

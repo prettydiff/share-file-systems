@@ -7,6 +7,7 @@
  * ```typescript
  * interface browser {
  *     agents: agentData;
+ *     colorDefaults: browser_colorList;
  *     content: HTMLElement;
  *     contextElement: HTMLElement;
  *     dragFlag: dragFlag;
@@ -32,6 +33,7 @@
  * ``` */
 interface browser {
     agents: agentData;
+    colorDefaults: browser_colorList;
     content: HTMLElement;
     contextElement: HTMLElement;
     dragFlag: dragFlag;
