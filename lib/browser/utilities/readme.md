@@ -5,6 +5,7 @@ Tools and assistive functions for the browser environment associated more with a
 <!-- Do not edit below this line.  Contents dynamically populated. -->
 
 * **[addAgent.ts](addAgent.ts)**                       - Populates agents into the browser UI.
+* **[agent_change.ts](agent_change.ts)**               - Modifies agent related data in share modals.
 * **[agent_status.ts](agent_status.ts)**               - Receive and process agent activity status notifications from the network.
 * **[audio.ts](audio.ts)**                             - A storage of audio samples encoded in Base64 with respective metadata.
 * **[browser.ts](browser.ts)**                         - A list of declared variables globally available to the browser instance of the application.

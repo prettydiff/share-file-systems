@@ -48,18 +48,14 @@ interface TouchEvent {
  * ```typescript
  * interface module_agentManagement {
  *     content: {
- *         deleteAgents: () => HTMLElement;
  *         inviteRemote: (invitation:service_invite, name:string) => HTMLElement;
  *         inviteStart: () => HTMLElement;
  *         menu: (view:"delete"|"edit_names"|"invite") => HTMLElement;
- *         modifyAgents: () => HTMLElement;
  *     };
  *     events: {
  *         confirm: (event:MouseEvent) => void;
  *         confirmInvite: (event:MouseEvent, options:config_modal) => void;
  *         confirmModify: (event:MouseEvent) => void;
- *         deleteShare: (event:MouseEvent) => void;
- *         deleteToggle: (event:MouseEvent) => void;
  *         displayIP: (event:MouseEvent) => void;
  *         inviteDecline: (event:MouseEvent) => void;
  *         invitePortValidation: (event:Event) => void;
@@ -80,18 +76,14 @@ interface TouchEvent {
  * ``` */
 interface module_agentManagement {
     content: {
-        deleteAgents: () => HTMLElement;
         inviteRemote: (invitation:service_invite, name:string) => HTMLElement;
         inviteStart: () => HTMLElement;
         menu: (view:"delete"|"edit_names"|"invite") => HTMLElement;
-        modifyAgents: () => HTMLElement;
     };
     events: {
         confirm: (event:MouseEvent) => void;
         confirmInvite: (event:MouseEvent, options:config_modal) => void;
         confirmModify: (event:MouseEvent) => void;
-        deleteShare: (event:MouseEvent) => void;
-        deleteToggle: (event:MouseEvent) => void;
         displayIP: (event:MouseEvent) => void;
         inviteDecline: (event:MouseEvent) => void;
         invitePortValidation: (event:Event) => void;

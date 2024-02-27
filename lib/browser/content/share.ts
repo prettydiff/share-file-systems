@@ -3,7 +3,7 @@
 
 import common from "../../common/common.js";
 
-import agent_management from "./agent_management.js";
+import agent_change from "../utilities/agent_change.js";
 import browser from "../utilities/browser.js";
 import file_browser from "./file_browser.js";
 import message from "./message.js";
@@ -271,7 +271,65 @@ const share:module_share = {
                     status:HTMLElement = document.createElement("strong"),
                     span:HTMLElement = document.createElement("span"),
                     shareItem:agentShare = browser.agents[agentNames.agentType][agentNames.agent].shares[agentNames.share],
-                    shareType:string = shareItem.type;
+                    shareType:string = shareItem.type,
+                    deleteToggle = function browser_content_share_content_perShare_deleteToggle(event:MouseEvent):void {
+                        const element:HTMLElement = event.target,
+                            parent:HTMLElement = element.parentNode,
+                            box:modal = parent.getAncestor("box", "class"),
+                            agent:string = (function browser_content_share_content_perShare_deleteToggle_agency():string {
+                                let agentNode:HTMLElement = parent;
+                                do {
+                                    agentNode = agentNode.parentNode;
+                                } while (agentNode.getAttribute("class") !== "device" && agentNode.getAttribute("class") !== "user");
+                                return agentNode.dataset.hash;
+                            }()),
+                            address:string = parent.getElementsByClassName("read-only-status")[0].previousSibling.textContent,
+                            shares:agentShares = (agent === null)
+                                ? null
+                                : browser.agents.device[agent].shares,
+                            keys:string[] = (agent === null)
+                                ? null
+                                : Object.keys(shares),
+                            length:number = (agent === null)
+                                ? 0
+                                : keys.length,
+                            manage:service_agentManagement = {
+                                action: "modify",
+                                agentFrom: browser.identity.hashDevice,
+                                agents: {
+                                    device: {},
+                                    user: {}
+                                },
+                                identity: null
+                            };
+                        let a:number = 0;
+                        if (length < 1) {
+                            return;
+                        }
+                        do {
+                            if (shares[keys[a]].name === address) {
+                                delete shares[keys[a]];
+                                break;
+                            }
+                            a = a + 1;
+                        } while (a < length);
+                        if (length === 1) {
+                            const p:HTMLElement = document.createElement("p"),
+                                granny:HTMLElement = parent.parentNode,
+                                em:HTMLElement = document.createElement("em");
+                            em.appendText(browser.agents.device[agent].name);
+                            p.appendText("Device ");
+                            p.appendChild(em);
+                            p.appendText(" has no shares.");
+                            granny.parentNode.insertBefore(p, granny);
+                            granny.parentNode.removeChild(granny);
+                        } else {
+                            parent.parentNode.removeChild(parent);
+                        }
+                        share.tools.update(box.getAttribute("id"));
+                        manage.agents.device[agent] = browser.agents.device[agent];
+                        browser.send(manage, "agent-management");
+                    };
                 button.setAttribute("class", `${agentNames.agentType}-share`);
                 span.appendText(shareItem.name);
                 button.appendChild(span);
@@ -307,7 +365,7 @@ const share:module_share = {
                     del.appendText("\u2718");
                     del.appendChild(span1);
                     del.setAttribute("type", "button");
-                    del.onclick = agent_management.events.deleteShare;
+                    del.onclick = deleteToggle;
                     span.setAttribute("class", "clear");
                     li.appendChild(del);
                     li.appendChild(button);
@@ -490,8 +548,8 @@ const share:module_share = {
                         modal = document.getElementById(modals[a]).getElementsByClassName("body")[0].getElementsByClassName("agent-management")[0] as HTMLElement;
                         modal.removeChild(modal.getElementsByClassName("modify-agents")[0]);
                         modal.removeChild(modal.getElementsByClassName("delete-agents")[0]);
-                        modal.appendChild(agent_management.content.modifyAgents());
-                        modal.appendChild(agent_management.content.deleteAgents());
+                        modal.appendChild(agent_change.modify());
+                        modal.appendChild(agent_change.delete());
                     }
                 }
                 a = a + 1;

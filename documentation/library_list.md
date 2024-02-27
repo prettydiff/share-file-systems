@@ -43,6 +43,7 @@ This is a dynamically compiled list of supporting code files that comprise this 
    - **[../lib/browser/content/tutorial.ts](../lib/browser/content/tutorial.ts)**                                                                       - An interactive tutorial explaining the application.
 * Directory *[../lib/browser/utilities](../lib/browser/utilities)*
    - **[../lib/browser/utilities/addAgent.ts](../lib/browser/utilities/addAgent.ts)**                                                                   - Populates agents into the browser UI.
+   - **[../lib/browser/utilities/agent_change.ts](../lib/browser/utilities/agent_change.ts)**                                                           - Modifies agent related data in share modals.
    - **[../lib/browser/utilities/agent_status.ts](../lib/browser/utilities/agent_status.ts)**                                                           - Receive and process agent activity status notifications from the network.
    - **[../lib/browser/utilities/audio.ts](../lib/browser/utilities/audio.ts)**                                                                         - A storage of audio samples encoded in Base64 with respective metadata.
    - **[../lib/browser/utilities/browser.ts](../lib/browser/utilities/browser.ts)**                                                                     - A list of declared variables globally available to the browser instance of the application.
