@@ -4,7 +4,6 @@ import browser from "../utilities/browser.js";
 import modal from "../utilities/modal.js";
 import modal_configuration from "../utilities/modal_configurations.js";
 import remote from "../utilities/remote.js";
-import webSocket from "../utilities/webSocket.js";
 
 const tutorial = function browser_content_tutorial():void {
     let index:number = 0,
@@ -400,7 +399,7 @@ const tutorial = function browser_content_tutorial():void {
         },
         nextStep = function browser_content_tutorial_nextStep(node:HTMLElement):void {
             index = index + 1;
-            webSocket.configuration();
+            browser.configuration();
             body.appendText("", true);
             if (node !== undefined && node !== null && node.nodeType === 1) {
                 node.removeHighlight();

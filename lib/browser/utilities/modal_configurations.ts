@@ -13,7 +13,6 @@ import modal from "./modal.js";
 import share from "../content/share.js";
 import terminal from "../content/terminal.js";
 import util from "./util.js";
-import webSocket from "./webSocket.js";
 
 // cspell:words agenttype
 
@@ -63,7 +62,7 @@ const modal_configuration:module_modalConfiguration = {
                     type: "agent-management",
                     width: 750
                 };
-                webSocket.configuration();
+                browser.configuration();
             } else {
                 config.agent = browser.identity.hashDevice;
                 config.agentIdentity = false;
@@ -166,7 +165,7 @@ const modal_configuration:module_modalConfiguration = {
                     location: JSON.parse(config.text_value) as string[],
                     name: config.id
                 };
-            webSocket.send(payloadNetwork, "file-system");
+            browser.send(payloadNetwork, "file-system");
             return modalInstance;
         },
 
@@ -230,7 +229,7 @@ const modal_configuration:module_modalConfiguration = {
             modalItem =  modal.content(payload_modal);
             id = modalItem.getAttribute("id");
             payloadNetwork.location.push(`${id}:export-settings`);
-            webSocket.send(payloadNetwork, "file-system");
+            browser.send(payloadNetwork, "file-system");
             return modalItem;
         },
 
@@ -299,7 +298,7 @@ const modal_configuration:module_modalConfiguration = {
                     }
                     a = a + 1;
                 } while (a < length);
-                webSocket.send(payloadNetwork, "file-system");
+                browser.send(payloadNetwork, "file-system");
                 browser.contextElement = null;
                 context.type = "";
                 if (menu !== null) {
@@ -330,7 +329,7 @@ const modal_configuration:module_modalConfiguration = {
                     : config.agent
             };
             payloadNetwork.location = [`${modalInstance.getAttribute("id")}:${config.text_value}`];
-            webSocket.send(payloadNetwork, "file-system");
+            browser.send(payloadNetwork, "file-system");
             browser.contextElement = null;
             context.type = "";
             if (menu !== null) {
@@ -429,7 +428,7 @@ const modal_configuration:module_modalConfiguration = {
             payloadModal.footer = file_browser.content.footer();
             payloadModal.text_event = file_browser.events.text;
             document.getElementById("menu").style.display = "none";
-            webSocket.send(payloadNetwork, "file-system");
+            browser.send(payloadNetwork, "file-system");
             return modal.content(payloadModal);
         },
 
@@ -588,7 +587,7 @@ const modal_configuration:module_modalConfiguration = {
                 conf.style.display = "block";
             }
             data.status = "normal";
-            webSocket.configuration();
+            browser.configuration();
         },
 
         "terminal": function browser_utilities_modalConfiguration_terminal(event:Event, config?:config_modal):modal {

@@ -3,6 +3,8 @@
 
 import browser from "../utilities/browser.js";
 
+// cspell: words colspan
+
 const socketMap = function browser_content_socketMap(socketData:socketData):void {
     const list:socketMap = socketData.data as socketMap,
         keys:string[] = Object.keys(list),

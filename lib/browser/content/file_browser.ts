@@ -7,7 +7,6 @@ import modal from "../utilities/modal.js";
 import modal_configuration from "../utilities/modal_configurations.js";
 import share from "./share.js";
 import util from "../utilities/util.js";
-import webSocket from "../utilities/webSocket.js";
 
 /**
  * Generates the user experience associated with file system interaction.
@@ -76,7 +75,7 @@ const file_browser:module_fileBrowser = {
                 heading.style.width = `${(body.clientWidth - 50) / 18}em`;
                 a = a + 1;
             } while (a < length);
-            webSocket.configuration();
+            browser.configuration();
         },
 
         /* Initiates a network request for file system details */
@@ -115,8 +114,8 @@ const file_browser:module_fileBrowser = {
                 return;
             }
             browser.ui.modals[id].text_value = JSON.stringify(payloadNetwork.location);
-            webSocket.send(payloadNetwork, "file-system");
-            webSocket.configuration();
+            browser.send(payloadNetwork, "file-system");
+            browser.configuration();
             browser.contextElement = null;
             if (menu !== null) {
                 menu.parentNode.removeChild(menu);
@@ -582,7 +581,7 @@ const file_browser:module_fileBrowser = {
                 history.pop();
                 address.value = history[history.length - 1];
                 file_browser.events.text(event);
-                webSocket.configuration();
+                browser.configuration();
             }
         },
 
@@ -735,7 +734,7 @@ const file_browser:module_fileBrowser = {
                     if (target === "") {
                         return;
                     }
-                    webSocket.send(payload, "copy");
+                    browser.send(payload, "copy");
                 },
                 move = function browser_content_fileBrowser_drag_move(moveEvent:MouseEvent|TouchEvent):boolean {
                     const touchMove:TouchEvent = (touch === true)
@@ -832,7 +831,7 @@ const file_browser:module_fileBrowser = {
                     name: ""
                 };
             file_browser.tools.selectNone(box);
-            webSocket.send(payload, "file-system");
+            browser.send(payload, "file-system");
             file_browser.events.select(event);
             event.stopPropagation();
         },
@@ -859,7 +858,7 @@ const file_browser:module_fileBrowser = {
                 button.appendText("-", true);
                 button.appendChild(span);
                 button.setAttribute("title", "Collapse this folder");
-                webSocket.send(payload, "file-system");
+                browser.send(payload, "file-system");
             } else {
                 const ul:HTMLCollectionOf<HTMLUListElement> = li.getElementsByTagName("ul"),
                     span:HTMLElement = document.createElement("span");
@@ -977,7 +976,7 @@ const file_browser:module_fileBrowser = {
                                     name: field.value
                                 };
                             actionComplete(field, label.innerHTML + field.value);
-                            webSocket.send(payload, "file-system");
+                            browser.send(payload, "file-system");
                         }
                     } else if (action.type === "keyup") {
                         field.value = field.value.replace(/\?|<|>|"|\||\*|:|\\|\/|\u0000/g, "");
@@ -1026,7 +1025,7 @@ const file_browser:module_fileBrowser = {
                     location: [location[location.length - 1]],
                     name: content
                 };
-            webSocket.send(payload, "file-system");
+            browser.send(payload, "file-system");
         },
     
         /* Search for file system artifacts from a modal's current location */
@@ -1046,7 +1045,7 @@ const file_browser:module_fileBrowser = {
                 searchParent.style.width = "12.5%";
                 addressLabel.style.width = "87.5%";
                 browser.ui.modals[id].search = [address, value];
-                webSocket.configuration();
+                browser.configuration();
             }
             if (event === null || (event.type === "keyup" && keyboardEvent.key === "Enter")) {
                 const body:HTMLElement = box.getElementsByClassName("body")[0] as HTMLElement,
@@ -1066,15 +1065,15 @@ const file_browser:module_fileBrowser = {
                     file_browser.events.text(event);
                     element.focus();
                     browser.ui.modals[id].search = [address, ""];
-                    webSocket.configuration();
+                    browser.configuration();
                     return;
                 }
                 if (browser.loading === false) {
                     browser.ui.modals[id].search = [address, value];
                     browser.ui.modals[id].selection = {};
-                    webSocket.configuration();
+                    browser.configuration();
                 }
-                webSocket.send(payload, "file-system");
+                browser.send(payload, "file-system");
             }
         },
     
@@ -1222,7 +1221,7 @@ const file_browser:module_fileBrowser = {
                     }
                 }
                 modalData.focus = p;
-                webSocket.configuration();
+                browser.configuration();
             }
         },
     
@@ -1561,10 +1560,10 @@ const file_browser:module_fileBrowser = {
 
             // request new file system data for the new address
             if (config.payload !== null) {
-                webSocket.send(config.payload, "file-system");
+                browser.send(config.payload, "file-system");
 
                 // save state
-                webSocket.configuration();
+                browser.configuration();
             }
 
             // change the value in the html

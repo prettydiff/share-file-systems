@@ -16,37 +16,12 @@ import receiver from "./receiver.js";
  * }
  * ``` */
 const webSocket:module_browserSocket = {
-    /* A convenience method for updating state */
-    configuration: function browser_utilities_socketConfiguration():void {
-        if (browser.loading === false) {
-            webSocket.send({
-                settings: browser.ui,
-                type: "ui"
-            }, "settings");
-        }
-    },
     error: function browser_utilities_socketError():void {
         setTimeout(function browser_utilities_socketError_delay():void {
             webSocket.start(null, webSocket.hash, webSocket.type);
         }, browser.ui.statusTime);
     },
     hash: "",
-    // do not put a console.log in this function without first removing the log service from /lib/browser/index.ts
-    // otherwise this will produce a race condition with feedback loop
-    send: function browser_utilities_webSocket_sendWrapper(data:socketDataType, service:service_type):void {
-        const socketData:socketData = {
-            data: data,
-            service: service
-        };
-        // connecting
-        if (browser.socket === null || browser.socket.readyState === 0 || browser.loading === true) {
-            setTimeout(function browser_utilities_webSocket_sendWrapper_delay():void {
-                browser_utilities_webSocket_sendWrapper(data, service);
-            }, 10);
-        } else if (browser.socket.readyState === 1) {
-            browser.socket.send(JSON.stringify(socketData));
-        }
-    },
     sock: (function browser_utilities_socket():websocket_local {
         // A minor security circumvention.
         const socket:websocket_local = WebSocket as websocket_local;
@@ -68,7 +43,7 @@ const webSocket:module_browserSocket = {
                     if (type === "primary") {
                         const messageDelay = function browser_init_complete_messageDelay():void {
                             if (browser.loadQueue.length > 0) {
-                                webSocket.send(browser.loadQueue[0].data, browser.loadQueue[0].service);
+                                browser.send(browser.loadQueue[0].data, browser.loadQueue[0].service);
                                 browser.loadQueue.splice(0, 1);
                                 if (browser.loadQueue.length > 0) {
                                     setTimeout(browser_init_complete_messageDelay, 5);
@@ -103,19 +78,13 @@ const webSocket:module_browserSocket = {
                         device.setAttribute("class", "offline");
                     }
                 }
-            },
-            message = function browser_utilities_webSocket_message(event:websocket_event):void {
-                if (typeof event.data !== "string") {
-                    return;
-                }
-                receiver(event.data);
             };
         webSocket.hash = hashDevice;
         webSocket.type = type;
 
         /* Handle Web Socket responses */
         socket.onopen = open;
-        socket.onmessage = message;
+        socket.onmessage = receiver;
         socket.onclose = close;
         socket.onerror = function browser_utilities_webSocket_error():void {
             webSocket.error();

@@ -4,7 +4,6 @@
 import browser from "../utilities/browser.js";
 import modal from "../utilities/modal.js";
 import util from "../utilities/util.js";
-import webSocket from "../utilities/webSocket.js";
 
 // cspell:words agenttype, arrowdown, arrowup, pagedown, pageup
 
@@ -74,7 +73,7 @@ const terminal:module_browserTerminal = {
                     browser.ui.modals[id].text_value = "";
                     browser.ui.modals[id].historyIndex = browser.ui.modals[id].history.length;
                     target.value = "";
-                    webSocket.configuration();
+                    browser.configuration();
                 },
                 tab:boolean = (box.dataset.tab === "true")
                     ? true
@@ -139,7 +138,7 @@ const terminal:module_browserTerminal = {
                     index = index - 1;
                     target.value = history[index];
                     browser.ui.modals[id].historyIndex = index;
-                    webSocket.configuration();
+                    browser.configuration();
                 }
                 return;
             }
@@ -152,7 +151,7 @@ const terminal:module_browserTerminal = {
                         target.value = history[index];
                     }
                     browser.ui.modals[id].historyIndex = index;
-                    webSocket.configuration();
+                    browser.configuration();
                 }
                 return;
             }
@@ -176,7 +175,7 @@ const terminal:module_browserTerminal = {
                             browser.ui.modals[data.id].text_placeholder = data.directory;
                         }
                         cwd.appendText(data.directory, true);
-                        webSocket.configuration();
+                        browser.configuration();
                     }
                 };
             if (data.id === "all") {
@@ -379,7 +378,7 @@ const terminal:module_browserTerminal = {
                     logs: [],
                     target: "agentSource"
                 };
-            webSocket.send(payload, "terminal");
+            browser.send(payload, "terminal");
         }
     }
 };

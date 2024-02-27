@@ -7,6 +7,8 @@ import configuration from "../content/configuration";
 import modal_configuration from "./modal_configurations";
 import share from "../content/share.js";
 
+// cspell: words agentType
+
 const addAgent = function browser_content_agentManagement_addAgent(input:agentManagement_addAgent):void {
     const li:HTMLLIElement = document.createElement("li"),
         button:HTMLElement = document.createElement("button"),

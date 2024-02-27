@@ -133,20 +133,16 @@ interface module_agentStatus {
  * Module definition for browser-side websocket handling.
  * ```typescript
  * interface module_browserSocket {
- *     configuration: () => void;                                                  // a convenience function for sending UI updates to state storage
  *     error        : () => void;                                                          // An error handling method.
  *     hash         : string;                                                              // Stores a hash value used to authenticate a client hash tunnel at the server.
- *     send         : (data:socketDataType, service:service_type) => void;                 // Packages micro-service data for transmission in the application's micro-service format.
  *     sock         : websocket_local;                                                     // Provides a web socket object in a way that allows for explicit type declarations, reuse, and without angering the TypeScript gods.
  *     start        : (callback: () => void, hashDevice:string, type:string) => WebSocket; // Initiates a web socket client from the browser.
  *     type         : string;                                                              // Stores the submitted type value.
  * }
  * ``` */
 interface module_browserSocket {
-    configuration: () => void;
     error: () => void;
     hash: string;
-    send: (data:socketDataType, service:service_type) => void;
     sock: websocket_local;
     start: (callback: () => void, hashDevice:string, type:string) => WebSocket;
     type: string;

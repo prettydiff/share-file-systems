@@ -6,7 +6,6 @@ import file_browser from "./file_browser.js";
 import modal_configuration from "../utilities/modal_configurations.js";
 import share from "./share.js";
 import util from "../utilities/util.js";
-import webSocket from "../utilities/webSocket.js";
 
 // cspell:words agenttype
 
@@ -385,7 +384,7 @@ const context:module_context = {
                     payload.location.push(value[0]);
                 });
             }
-            webSocket.send(payload, "file-system");
+            browser.send(payload, "file-system");
             browser.contextElement = null;
             if (menu !== null) {
                 menu.parentNode.removeChild(menu);
@@ -425,7 +424,7 @@ const context:module_context = {
                             actionElement.onkeyup = null;
                             actionElement.onblur = null;
                             actionParent.appendText(payload.location[0], true);
-                            webSocket.send(payload, "file-system");
+                            browser.send(payload, "file-system");
                         }
                     } else {
                         if (actionEvent.key === "Escape") {
@@ -456,7 +455,7 @@ const context:module_context = {
                             actionElement.onkeyup = null;
                             actionElement.onblur = null;
                             actionParent.appendText(payload.location[0], true);
-                            webSocket.send(payload, "file-system");
+                            browser.send(payload, "file-system");
                         }
                     }
                 },
@@ -568,7 +567,7 @@ const context:module_context = {
             if (context.clipboard === "" || box === document.documentElement) {
                 return;
             }
-            webSocket.send(payload, "copy");
+            browser.send(payload, "copy");
             context.clipboard = "";
             file_browser.tools.selectNone(document.getElementById(clipData.id));
             browser.contextElement = null;

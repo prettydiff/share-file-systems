@@ -10,8 +10,11 @@ import remote from "./remote.js";
 import share from "../content/share.js";
 import terminal from "../content/terminal.js";
 
-const receiver = function browser_utilities_receiver(dataString:string):void {
-    const error = function browser_utilities_receiver_error():void {
+const receiver = function browser_utilities_receiver(event:websocket_event):void {
+    const dataString:string = (typeof event.data === "string")
+            ? event.data
+            : null,
+        error = function browser_utilities_receiver_error():void {
             // eslint-disable-next-line no-console
             console.error("Error", socketData.data);
         },
@@ -68,7 +71,9 @@ const receiver = function browser_utilities_receiver(dataString:string):void {
         },
         socketData:socketData = JSON.parse(dataString) as socketData,
         type:service_type = socketData.service;
-    actions[type](socketData);
+    if (dataString !== null) {
+        actions[type](socketData);
+    }
 };
 
 export default receiver;

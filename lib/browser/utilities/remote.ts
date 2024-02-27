@@ -2,7 +2,6 @@
 /* lib/browser/utilities/remote - A collection of instructions to allow event execution from outside the browser, like a remote control. */
 
 import browser from "./browser.js";
-import webSocket from "./webSocket.js";
 
 /**
  * A browser remote control interface used for browser test automation.
@@ -523,7 +522,7 @@ const remote:module_remote = {
             // eslint-disable-next-line no-console
             console.log(`On browser sending results for test index ${index}`);
         }
-        webSocket.send(test, "test-browser");
+        browser.send(test, "test-browser");
     },
 
     /* Converts a primitive of any type into a string for presentation */

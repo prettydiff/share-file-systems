@@ -8,7 +8,6 @@ import browser from "../utilities/browser.js";
 import file_browser from "./file_browser.js";
 import message from "./message.js";
 import modal_configuration from "../utilities/modal_configurations.js";
-import webSocket from "../utilities/webSocket.js";
 
 /**
  * Populates the various agent modals, device details, and share data lists.
@@ -371,7 +370,7 @@ const share:module_share = {
                         b = b + 1;
                     } while (b < shareLength);
                     if (b === shareLength) {
-                        webSocket.send({
+                        browser.send({
                             device: addresses[a][2],
                             hash: "",
                             share: addresses[a][0],
@@ -382,7 +381,7 @@ const share:module_share = {
                 } while (a < addressesLength);
             } else {
                 do {
-                    webSocket.send({
+                    browser.send({
                         device: addresses[a][2],
                         hash: "",
                         share: addresses[a][0],
@@ -427,7 +426,7 @@ const share:module_share = {
                 item.readOnly = true;
             }
             manage.agents.device[hashDevice] = browser.agents.device[hashDevice];
-            webSocket.send(manage, "agent-management");
+            browser.send(manage, "agent-management");
             share.tools.update("");
         }
     },
@@ -457,7 +456,7 @@ const share:module_share = {
             // update any share modals
             share.tools.update("");
             // inform other agents of the share
-            webSocket.send(management, "agent-management");
+            browser.send(management, "agent-management");
         },
 
         /* Updates the contents of share modals */

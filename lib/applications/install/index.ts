@@ -9,6 +9,8 @@ import remove_files from "../remove_files/index.js";
 import typescript from "../../terminal/commands/library/typescript.js";
 import vars from "../../terminal/utilities/vars.js";
 
+// cspell: words applist
+
 const install:application<string, null> = {
     browser: null,
     service: null,

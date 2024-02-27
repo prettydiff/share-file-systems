@@ -21,7 +21,7 @@ const agent_status:module_agentStatus = {
             const socket = function browser_utilities_agentStatus_active_socket():void {
                     agent_status.idleDelay = setTimeout(agent_status.idle, browser.ui.statusTime);
                     if (active === false) {
-                        webSocket.send(agent_status.selfStatus, "agent-status");
+                        browser.send(agent_status.selfStatus, "agent-status");
                     }
                 },
                 active:boolean = (agent_status.selfStatus.status === "active"),
@@ -53,7 +53,7 @@ const agent_status:module_agentStatus = {
             if (currentStatus === "active" && localDevice !== null) {
                 localDevice.setAttribute("class", "idle");
                 agent_status.selfStatus.status = "idle";
-                webSocket.send(agent_status.selfStatus, "agent-status");
+                browser.send(agent_status.selfStatus, "agent-status");
             }
         },
         idleDelay: null,

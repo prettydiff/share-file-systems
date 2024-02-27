@@ -432,7 +432,7 @@ const modal:module_modal = {
                 box.style.display = "none";
             }
             if (browser.loading === false) {
-                webSocket.configuration();
+                browser.configuration();
             }
             if (options.callback !== undefined) {
                 options.callback();
@@ -474,7 +474,7 @@ const modal:module_modal = {
                 if (invitation.status === "invited") {
                     invitation.action = "invite-answer";
                     invitation.status = "ignored";
-                    webSocket.send(invitation, "invite");
+                    browser.send(invitation, "invite");
                 }
             } else if (type === "media") {
                 media.tools.kill(browser.ui.modals[id]);
@@ -504,7 +504,7 @@ const modal:module_modal = {
     
             // remove from state and send to storage
             delete browser.ui.modals[id];
-            webSocket.configuration();
+            browser.configuration();
         },
     
         /* Modal types that are enduring are hidden, not destroyed, when closed */
@@ -516,7 +516,7 @@ const modal:module_modal = {
                 // this must remain separated from modal identity as more than one thing users it
                 browser.ui.modals[box.getAttribute("id")].status = "hidden";
             }
-            webSocket.configuration();
+            browser.configuration();
         },
     
         /* Event handler for the modal's "Confirm" button */
@@ -570,7 +570,7 @@ const modal:module_modal = {
                 button:HTMLButtonElement = document.getElementsByClassName("cancel")[0] as HTMLButtonElement,
                 textArea:HTMLTextAreaElement = box.getElementsByTagName("textarea")[0];
             button.click();
-            webSocket.send(textArea.value, "import");
+            browser.send(textArea.value, "import");
         },
     
         /* The given modal consumes the entire view port of the content area */
@@ -639,7 +639,7 @@ const modal:module_modal = {
                 }());
             }
             if (browser.loading === false) {
-                webSocket.configuration();
+                browser.configuration();
             }
             if (callback !== undefined) {
                 callback();
@@ -712,7 +712,7 @@ const modal:module_modal = {
                 browser.ui.modals[id].status = "minimized";
             }
             if (browser.loading === false) {
-                webSocket.configuration();
+                browser.configuration();
             }
             if (callback !== undefined) {
                 callback();
@@ -770,7 +770,7 @@ const modal:module_modal = {
                     box.style.height   = "auto";
                     settings.top = boxTop;
                     settings.left = boxLeft;
-                    webSocket.configuration();
+                    browser.configuration();
                     dropEvent.preventDefault();
                     return false;
                 },
@@ -890,7 +890,7 @@ const modal:module_modal = {
                     if (settings.type === "media") {
                         body.appendChild(media.content(settings.text_value as mediaType, settings.height, settings.width));
                     }
-                    webSocket.configuration();
+                    browser.configuration();
                 },
                 compute = function browser_utilities_modal_resize_compute(leftTest:boolean, topTest:boolean, values:[number, number]):void {
                     if (values[0] > -10) {
@@ -1012,7 +1012,7 @@ const modal:module_modal = {
                 window.clearTimeout(box.timer);
             }
             data.text_value = element.value;
-            webSocket.configuration();
+            browser.configuration();
         },
     
         /* An idle delay is a good time to save written notes */
@@ -1027,7 +1027,7 @@ const modal:module_modal = {
                 window.clearTimeout(box.timer);
                 if (data.text_value !== element.value) {
                     data.text_value = element.value;
-                    webSocket.configuration();
+                    browser.configuration();
                 }
             }, browser.ui.statusTime);
         },

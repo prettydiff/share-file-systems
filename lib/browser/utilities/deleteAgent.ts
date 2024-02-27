@@ -4,6 +4,8 @@
 import browser from "./browser.js";
 import configuration from "../content/configuration.js";
 
+// cspell: words agentType
+
 const deleteAgent = function browser_utilities_deleteAgent(agent:string, agentType:agentType):void {
     const userColors:HTMLCollectionOf<HTMLElement> = document.getElementById("configuration-modal").getElementsByClassName(`${agentType}-color-list`)[0].getElementsByTagName("li"),
         shareModals:HTMLElement[] = document.getModalsByModalType("shares"),

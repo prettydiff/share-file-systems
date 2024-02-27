@@ -5,7 +5,6 @@
 import browser from "../utilities/browser.js";
 import common from "../../common/common.js";
 import util from "../utilities/util.js";
-import webSocket from "../utilities/webSocket.js";
 
 /**
  * Methods for generating the configuration modal and its interactions.
@@ -275,7 +274,7 @@ const configuration:module_configuration = {
                         configuration.tools.applyAgentColors(agent, type, [browser.ui.colors[type][agent][0], color]);
                     }
                     swatch.style.background = `#${color}`;
-                    webSocket.configuration();
+                    browser.configuration();
                 } else if (event.type === "keyup") {
                     const span:HTMLElement = parent.getElementsByTagName("span")[0];
                     span.style.background = color;
@@ -293,7 +292,7 @@ const configuration:module_configuration = {
             }
             configuration.tools.radio(element);
             if (browser.loading === false) {
-                webSocket.configuration();
+                browser.configuration();
             }
         },
 
@@ -319,7 +318,7 @@ const configuration:module_configuration = {
                     if (existingCSS[css].indexOf(indexMap[index]) === 0) {
                         existingCSS[css] = newProperty;
                         browser.ui.colorBackgrounds[color][index] = value;
-                        webSocket.configuration();
+                        browser.configuration();
                         browser.style.appendText(existingCSS.join("\n"), true);
                         return;
                     }
@@ -338,7 +337,7 @@ const configuration:module_configuration = {
                     if (counts.count === agentsTotal) {
                         browser.ui.color = element.value;
                         if (browser.loading === false) {
-                            webSocket.configuration();
+                            browser.configuration();
                         }
                     }
                 };
@@ -421,7 +420,7 @@ const configuration:module_configuration = {
                 } else if (parentText.indexOf("file sort") > -1) {
                     browser.ui.fileSort = element.value as fileSort;
                 }
-                webSocket.configuration();
+                browser.configuration();
             }
         },
 

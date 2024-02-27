@@ -52,7 +52,7 @@ import disallowed from "../common/disallowed.js";
                         params[0].toString().indexOf("On browser sending results for test index ") !== 0
                     )
                 ) {
-                    webSocket.send(params, "log");
+                    browser.send(params, "log");
                 }
             };
         }());
@@ -102,7 +102,7 @@ import disallowed from "../common/disallowed.js";
                             } else {
                                 browser.identity.nameUser = nameUser.value;
                                 browser.identity.nameDevice = nameDevice.value;
-                                webSocket.send({
+                                browser.send({
                                     device: browser.identity.nameDevice,
                                     deviceData: null,
                                     user: browser.identity.nameUser
@@ -184,7 +184,7 @@ import disallowed from "../common/disallowed.js";
                             a = a + 1;
                         } while (a < length);
                         browser.ui.minimizeAll = false;
-                        webSocket.configuration();
+                        browser.configuration();
                     },
                     visibility = function browser_init_complete_visibility():void {
                         if (document.visibilityState === "visible") {

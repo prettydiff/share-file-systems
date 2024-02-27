@@ -8,6 +8,7 @@
  * interface browser {
  *     agents: agentData;
  *     colorDefaults: browser_colorList;
+ *     configuration: () => void;
  *     content: HTMLElement;
  *     contextElement: HTMLElement;
  *     dragFlag: dragFlag;
@@ -23,6 +24,7 @@
  *     };
  *     pageBody: HTMLElement;
  *     scrollbar: number;
+ *     send: (ata:socketDataType, service:service_type) => void;
  *     socket: WebSocket;
  *     style: HTMLStyleElement;
  *     testBrowser: service_testBrowser;
@@ -34,6 +36,7 @@
 interface browser {
     agents: agentData;
     colorDefaults: browser_colorList;
+    configuration: () => void;
     content: HTMLElement;
     contextElement: HTMLElement;
     dragFlag: dragFlag;
@@ -51,6 +54,7 @@ interface browser {
     network: localNetwork;
     pageBody: HTMLElement;
     scrollbar: number;
+    send: (ata:socketDataType, service:service_type) => void;
     socket: WebSocket;
     style: HTMLStyleElement;
     testBrowser: service_testBrowser;
