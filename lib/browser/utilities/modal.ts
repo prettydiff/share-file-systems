@@ -7,6 +7,7 @@ import common from "../../common/common.js";
 import file_browser from "../content/file_browser.js";
 import media from "../content/media.js";
 import webSocket from "./webSocket.js";
+import zTop from "./zTop.js";
 
 // cspell:words agenttype
 
@@ -168,7 +169,7 @@ const modal:module_modal = {
         browser.ui.modals[id] = options;
         box.socket = socket;
         box.setAttribute("id", id);
-        box.onmousedown = modal.events.zTop;
+        box.onmousedown = zTop;
         box.setAttribute("class", "box");
         box.setAttribute("data-agent", options.agent);
         box.setAttribute("data-agenttype", options.agentType);
@@ -1030,22 +1031,6 @@ const modal:module_modal = {
                     browser.configuration();
                 }
             }, browser.ui.statusTime);
-        },
-
-        /* Manages z-index of modals and moves a modal to the top on interaction */
-        zTop: function browser_utilities_modal_zTop(event:KeyboardEvent|MouseEvent, elementInput?:HTMLElement):void {
-            const element:HTMLElement = (event !== null && elementInput === undefined)
-                    ? event.target
-                    : elementInput,
-                parent:HTMLElement = element.parentNode,
-                grandParent:HTMLElement = parent.parentNode,
-                box:modal = element.getAncestor("box", "class");
-            if ((parent.getAttribute("class") === "fileList" || grandParent.getAttribute("class") === "fileList") && event.shiftKey === true) {
-                event.preventDefault();
-            }
-            browser.ui.zIndex = browser.ui.zIndex + 1;
-            browser.ui.modals[box.getAttribute("id")].zIndex = browser.ui.zIndex;
-            box.style.zIndex = browser.ui.zIndex.toString();
         }
     },
 

@@ -249,11 +249,13 @@ interface module_configuration {
  *     clipboard: string;                          // Stores a file copy state pending a paste or cut action.
  *     content: (event:MouseEvent) => HTMLElement; // Creates the HTML content of the context menu.
  *     events: {
- *         copy             : (event:Event) => void; // Handler for the *Copy* menu button, which stores file system address information in the application's clipboard.
- *         destroy          : (event:Event) => void; // Handler for the *Destroy* menu button, which is responsible for deleting file system artifacts.
- *         fsNew            : (event:Event) => void; // Handler for the *New Directory* and *New File* menu buttons.
- *         menu             : (event:Event) => void; // Generates the context menu which populates with different menu items depending upon event.target of the right click.
- *         paste            : (event:Event) => void; // Handler for the *Paste* menu item which performs the file copy operation over the network.
+ *         copy    : (event:Event) => void; // Handler for the *Copy* menu button, which stores file system address information in the application's clipboard.
+ *         destroy : (event:Event) => void; // Handler for the *Destroy* menu button, which is responsible for deleting file system artifacts.
+ *         fsNew   : (event:Event) => void; // Handler for the *New Directory* and *New File* menu buttons.
+ *         keys    : (event:KeyboardEvent) => void; // Executes shortcut key combinations.
+ *         menu    : (event:Event) => void; // Generates the context menu which populates with different menu items depending upon event.target of the right click.
+ *         paste   : (event:Event) => void; // Handler for the *Paste* menu item which performs the file copy operation over the network.
+ *         rename  : (event:KeyboardEvent|MouseEvent) => void; // Converts a file system item text into a text input field so that the artifact can be renamed.
  *     };
  *     type: contextType; // Stores a context action type for awareness to the context action event handler.
  * }
@@ -266,8 +268,10 @@ interface module_context {
         copy: (event:Event) => void;
         destroy: (event:Event) => void;
         fsNew: (event:Event) => void;
+        keys: (event:KeyboardEvent) => void;
         menu: (event:Event) => void;
         paste: (event:Event) => void;
+        rename: (event:KeyboardEvent|MouseEvent) => void;
     };
     type: contextType;
 }
@@ -286,27 +290,20 @@ interface module_context {
  *     };
  *     events: {
  *         back       : (event:MouseEvent) => void;               // Handler for the back button, which steps back to the prior file system location of the given agent stored in the modal's navigation history.
- *         directory  : (event:KeyboardEvent|MouseEvent) => void; // Handler for navigation into a directory by means of double click.
  *         drag       : (event:MouseEvent|TouchEvent) => void;    // Move file system artifacts from one location to another by means of double click.
  *         execute    : (event:KeyboardEvent|MouseEvent) => void; // Allows operating system execution of a file by double click interaction.
  *         expand     : (event:MouseEvent) => void;               // Opens a directory into a child list without changing the location of the current modal.
  *         keyExecute : (event:KeyboardEvent) => void;            // Allows file execution by keyboard control, such as pressing the *Enter* key.
  *         listFocus  : (event:MouseEvent) => void;               // When clicking on a file list give focus to an input field in that list so that the list can receive focus.
  *         parent     : (event:MouseEvent) => void;               // Handler to navigate into the parent directory by click the parent navigate button.
- *         rename     : (event:KeyboardEvent|MouseEvent) => void; // Converts a file system item text into a text input field so that the artifact can be renamed.
  *         saveFile   : (event:MouseEvent) => void;               // A handler for an interaction that allows writing file changes to the file system.
  *         search     : (event?:FocusEvent|KeyboardEvent|MouseEvent, searchElement?:HTMLInputElement, callback?:(event:Event, callback:(event:MouseEvent, dragBox:HTMLElement) => void) => void) => void; // Sends a search query in order to receive a filtered list of file system artifacts.
  *         searchFocus: (event:FocusEvent) => void;               // Provides an interaction that enlarges and reduces the width of the search field.
- *         select     : (event:KeyboardEvent|MouseEvent) => void; // Select a file system item for interaction by click.
  *         text       : (event:FocusEvent|KeyboardEvent|MouseEvent) => void; // Allows changing file system location by changing the text address of the current location.
  *     };
  *     tools: {
- *         keys             : (event:KeyboardEvent) => void;                                      // Executes shortcut key combinations.
  *         listFail         : (count:number, box:modal) => void;                                  // Display status information when the Operating system locks files from access.
  *         listItem         : (item:directory_item, extraClass:string) => HTMLElement;            // Generates the HTML content for a single file system artifacts that populates a file system list.
- *         modalAddress     : (event:FocusEvent|KeyboardEvent|MouseEvent, config:config_modal_history) => void; // Updates the file system address of the current file navigate modal in response to navigating to different locations.
- *         selectedAddresses: (element:HTMLElement, type:string) => [string, fileType, string][]; // Gather the selected addresses and types of file system artifacts in a fileNavigator modal.
- *         selectNone       : (element:HTMLElement) => void;                                      // Remove selections of file system artifacts in a given fileNavigator modal.
  *     };
  * }
  * ``` */
@@ -321,27 +318,20 @@ interface module_fileBrowser {
     };
     events: {
         back: (event:MouseEvent) => void;
-        directory: (event:KeyboardEvent|MouseEvent) => void;
         drag: (event:MouseEvent|TouchEvent) => void;
         execute: (event:KeyboardEvent|MouseEvent) => void;
         expand: (event:MouseEvent) => void;
         keyExecute: (event:KeyboardEvent) => void;
         listFocus: (event:MouseEvent) => void;
         parent: (event:MouseEvent) => void;
-        rename: (event:KeyboardEvent|MouseEvent) => void;
         saveFile: (event:MouseEvent) => void;
         search: (event?:FocusEvent|KeyboardEvent|MouseEvent, searchElement?:HTMLInputElement, callback?:(event:Event, callback:(event:MouseEvent, dragBox:HTMLElement) => void) => void) => void;
         searchFocus: (event:FocusEvent) => void;
-        select: (event:KeyboardEvent|MouseEvent) => void;
         text: (event:FocusEvent|KeyboardEvent|MouseEvent) => void;
     };
     tools: {
-        keys: (event:KeyboardEvent) => void;
         listFail: (count:number, box:modal) => void;
         listItem: (item:directory_item, location:string, extraClass:string) => HTMLElement;
-        modalAddress: (event:FocusEvent|KeyboardEvent|MouseEvent, config:config_modal_history) => void;
-        selectedAddresses: (element:HTMLElement, type:string) => [string, fileType, string][];
-        selectNone: (element:HTMLElement) => void;
     };
 }
 
@@ -429,7 +419,6 @@ interface module_message {
  *         resize        : (event:MouseEvent|TouchEvent, boxElement?:modal) => void; // Resizes a modal respective to the event target, which could be any of 4 corners or 4 sides.
  *         textSave      : (event:Event) => void;                                    // Handler to push the text content of a text-pad modal into settings so that it is saved.
  *         textTimer     : (event:KeyboardEvent) => void;                            // A timing event so that contents of a text-pad modal are automatically save after a brief duration of focus blur.
- *         zTop          : (event:KeyboardEvent|MouseEvent, elementInput?:HTMLElement) => void; // Processes visual overlapping or depth of modals.
  *     };
  *     tools: {
  *         dynamicWidth : (box:modal, width:number, buttonCount:number) => [number, number]; // uniformly calculates widths for modal headings and status bars.
@@ -452,7 +441,6 @@ interface module_modal {
         resize: (event:MouseEvent|TouchEvent, boxElement?:modal) => void;
         textSave: (event:Event) => void;
         textTimer: (event:KeyboardEvent) => void;
-        zTop: (event:KeyboardEvent|MouseEvent, elementInput?:HTMLElement) => void;
     };
     tools: {
         dynamicWidth: (box:modal, width:number, buttonCount:number) => [number, number];

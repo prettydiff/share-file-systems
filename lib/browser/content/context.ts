@@ -2,7 +2,10 @@
 /* lib/browser/content/context - A collection of event handlers associated with the right click context menu. */
 
 import browser from "../utilities/browser.js";
-import file_browser from "./file_browser.js";
+import file_directory from "../utilities/file_directory.js";
+import file_select from "../utilities/file_select.js";
+import file_select_addresses from "../utilities/file_select_addresses.js";
+import file_select_none from "../utilities/files_select_none.js";
 import modal_configuration from "../utilities/modal_configurations.js";
 import share from "./share.js";
 import util from "../utilities/util.js";
@@ -191,7 +194,7 @@ const context:module_context = {
                     if (root === true) {
                         button.disabled = true;
                     } else {
-                        button.onclick = file_browser.events.rename;
+                        button.onclick = context.events.rename;
                     }
                     item.appendChild(button);
                     itemList.push(item);
@@ -325,7 +328,7 @@ const context:module_context = {
                     : (contextElement.innerHTML.indexOf("Copy") === 0)
                         ? "copy"
                         : "cut",
-                selected:[string, fileType, string][] = file_browser.tools.selectedAddresses(element, type),
+                selected:[string, fileType, string][] = file_select_addresses(element, type),
                 agency:agentId = util.getAgent(box),
                 id:string = box.getAttribute("id"),
                 clipData:context_clipboard = {
@@ -348,7 +351,7 @@ const context:module_context = {
             }
             if (clipStore !== null) {
                 if (clipStore.id !== box.getAttribute("id") || type !== "cut") {
-                    file_browser.tools.selectNone(document.getElementById(clipStore.id));
+                    file_select_none(document.getElementById(clipStore.id));
                 }
             }
             context.clipboard = JSON.stringify(clipData);
@@ -376,7 +379,7 @@ const context:module_context = {
                     location: [],
                     name: box.getElementsByClassName("header")[0].getElementsByTagName("input")[0].value
                 },
-                selected:[string, fileType, string][] = file_browser.tools.selectedAddresses(element, "destroy");
+                selected:[string, fileType, string][] = file_select_addresses(element, "destroy");
             if (selected.length < 1) {
                 payload.location.push(element.dataset.path);
             } else {
@@ -488,7 +491,7 @@ const context:module_context = {
     
                     li.setAttribute("class", type);
                     if (type === "directory") {
-                        li.ondblclick = file_browser.events.directory;
+                        li.ondblclick = file_directory;
                     }
                     path = box.getElementsByTagName("input")[0].value;
                     if (path.indexOf("/") < 0 || (path.indexOf("\\") < path.indexOf("/") && path.indexOf("\\") > -1 && path.indexOf("/") > -1)) {
@@ -508,7 +511,7 @@ const context:module_context = {
                         : "directory - 0 items");
                     p.appendChild(spanInfo);
                     text.oncontextmenu = context.events.menu;
-                    text.onclick = file_browser.events.select;
+                    text.onclick = file_select;
                     text.appendText(path);
                     field.onkeyup = actionKeyboard;
                     field.onblur = actionBlur;
@@ -517,12 +520,12 @@ const context:module_context = {
                     field.setAttribute("data-location", path);
                     text.appendChild(field);
                     li.appendChild(p);
-                    span.onclick = file_browser.events.select;
+                    span.onclick = file_select;
                     span.oncontextmenu = context.events.menu;
                     li.appendChild(span);
                     li.oncontextmenu = context.events.menu;
                     li.appendChild(label);
-                    li.onclick = file_browser.events.select;
+                    li.onclick = file_select;
                     if (browser.contextElement.lowName() === "ul") {
                         browser.contextElement.appendChild(li);
                     } else {
@@ -540,12 +543,124 @@ const context:module_context = {
                 menu.parentNode.removeChild(menu);
             }
         },
-    
+
+        /* Executes shortcut key combinations. */
+        keys: function browser_content_context_keys(event:KeyboardEvent):void {
+            const key:string = event.key.toLowerCase(),
+                windowEvent:KeyboardEvent = window.event as KeyboardEvent,
+                target:HTMLElement = event.target,
+                element:HTMLElement = (function browser_content_context_keys_element():HTMLElement {
+                    const el:HTMLElement = document.activeElement,
+                        name:string = el.lowName();
+                    if (el.parentNode === null || name === "li" || name === "ul") {
+                        return el;
+                    }
+                    return el.getAncestor("li", "tag");
+                }()),
+                input:HTMLInputElement = event.target as HTMLInputElement,
+                elementName:string = element.lowName(),
+                p:HTMLElement = element.getElementsByTagName("p")[0];
+            if (key === "f5" || (windowEvent.ctrlKey === true && key === "r")) {
+                location.reload();
+            }
+            if ((target.lowName() === "input" && input.type === "text") || element.parentNode === null || document.activeElement === document.getElementById("newFileItem")) {
+                return;
+            }
+            if (key === "enter" && elementName === "li" && (element.getAttribute("class") === "directory" || element.getAttribute("class") === "directory lastType" || element.getAttribute("class") === "directory selected") && p.getAttribute("class") === "selected" && file_select_addresses(element, "directory").length === 1) {
+                file_directory(event);
+                return;
+            }
+            event.preventDefault();
+            if (elementName !== "ul") {
+                event.stopPropagation();
+            }
+            if (key === "delete" || key === "del") {
+                browser.contextElement = element;
+                context.events.destroy(event);
+            } else if (windowEvent.altKey === true && windowEvent.ctrlKey === true) {
+                if (key === "b" && elementName === "li") {
+                    // key b, base64
+                    browser.contextElement = element;
+                    context.type = "Base64";
+                    modal_configuration.modals["file-edit"](event);
+                } else if (key === "d") {
+                    // key d, new directory
+                    browser.contextElement = element;
+                    context.type = "directory";
+                    context.events.fsNew(event);
+                } else if (key === "e") {
+                    // key e, edit file
+                    browser.contextElement = element;
+                    context.type = "Edit";
+                    modal_configuration.modals["file-edit"](event);
+                } else if (key === "f") {
+                    // key f, new file
+                    browser.contextElement = element;
+                    context.type = "file";
+                    context.events.fsNew(event);
+                } else if (key === "h" && elementName === "li") {
+                    // key h, hash
+                    browser.contextElement = element;
+                    context.type = "Hash";
+                    modal_configuration.modals["file-edit"](event);
+                } else if (key === "r" && elementName === "li") {
+                    // key r, rename
+                    context.events.rename(event);
+                } else if (key === "s") {
+                    // key s, share
+                    browser.contextElement = element;
+                    share.events.context(event);
+                } else if (key === "t") {
+                    // key t, details
+                    modal_configuration.modals.details(event);
+                }
+            } else if (windowEvent.ctrlKey === true) {
+                if (key === "a") {
+                    // key a, select all
+                    const list:HTMLElement = (elementName === "ul")
+                            ? element
+                            : element.parentNode,
+                        items:HTMLCollectionOf<Element> = list.getElementsByTagName("li"),
+                        length:number = items.length;
+                    let a:number = 0,
+                        classy:string;
+                    do {
+                        classy = items[a].getAttribute("class");
+                        if (classy !== null && classy.indexOf("cut") > -1) {
+                            items[a].setAttribute("class", "selected cut");
+                        } else {
+                            items[a].setAttribute("class", "selected");
+                        }
+                        items[a].getElementsByTagName("input")[0].checked = true;
+                        a = a + 1;
+                    } while (a < length);
+                } else if (key === "c") {
+                    // key c, copy
+                    browser.contextElement = element;
+                    context.type = "copy";
+                    context.events.copy(event);
+                } else if (key === "d" && elementName === "li") {
+                    // key d, destroy
+                    browser.contextElement = element;
+                    context.events.destroy(event);
+                } else if (key === "v") {
+                    // key v, paste
+                    browser.contextElement = element;
+                    context.events.paste(event);
+                } else if (key === "x") {
+                    // key x, cut
+                    browser.contextElement = element;
+                    context.type = "cut";
+                    context.events.copy(event);
+                }
+            }
+        },
+
         /* Creates context menu */
         menu: function browser_content_context_menu(event:Event):void {
             browser.content.parentNode.appendChild(context.content(event as MouseEvent));
         },
-    
+
         /* Prepare the network action to write files */
         paste: function browser_content_context_paste():void {
             const box:modal = browser.contextElement.getAncestor("box", "class"),
@@ -569,12 +684,83 @@ const context:module_context = {
             }
             browser.send(payload, "copy");
             context.clipboard = "";
-            file_browser.tools.selectNone(document.getElementById(clipData.id));
+            file_select_none(document.getElementById(clipData.id));
             browser.contextElement = null;
             if (menu !== null) {
                 menu.parentNode.removeChild(menu);
             }
         },
+
+        /* The front-side of renaming a file system object */
+        rename: function browser_content_fileBrowser_rename(event:KeyboardEvent|MouseEvent):void {
+            const element:HTMLElement = (browser.contextElement === null)
+                    ? event.target
+                    : browser.contextElement,
+                box:modal = element.getAncestor("box", "class"),
+                input:HTMLInputElement = document.createElement("input"),
+                li:HTMLElement = element.getAncestor("li", "tag"),
+                menu:HTMLElement = document.getElementById("contextMenu"),
+                actionComplete = function browser_content_fileBrowser_rename_actionComplete(field:HTMLInputElement, labelValue:string):void {
+                    const liParent:HTMLElement = field.getAncestor("li", "tag");
+                    liParent.onkeydown = context.events.keys;
+                    field.onblur = null;
+                    field.onkeyup = null;
+                    label.removeChild(field);
+                    label.appendText(labelValue);
+                },
+                action = function browser_content_fileBrowser_rename_action(action:KeyboardEvent):void {
+                    const field:HTMLInputElement = action.target as HTMLInputElement;
+                    if (action.type === "keyup" && action.key === "Escape") {
+                        actionComplete(field, text);
+                        return;
+                    }
+                    if (action.type === "blur" || (action.type === "keyup" && action.key === "Enter")) {
+                        field.value = field.value.replace(/(\s+|\.)$/, "");
+                        if (dir + field.value === text) {
+                            label.appendText(text);
+                        } else {
+                            const agents:[fileAgent, fileAgent, fileAgent] = util.fileAgent(box, null),
+                                payload:service_fileSystem = {
+                                    action: "fs-rename",
+                                    agentRequest: agents[0],
+                                    agentSource: agents[1],
+                                    agentWrite: null,
+                                    depth: 1,
+                                    location: [text.replace(/\\/g, "\\\\")],
+                                    name: field.value
+                                };
+                            actionComplete(field, label.innerHTML + field.value);
+                            browser.send(payload, "file-system");
+                        }
+                    } else if (action.type === "keyup") {
+                        field.value = field.value.replace(/\?|<|>|"|\||\*|:|\\|\/|\u0000/g, "");
+                    }
+                },
+                label:HTMLElement = li.getElementsByTagName("label")[0],
+                text:string = label.innerHTML,
+                slash:"/" | "\\" = (text.indexOf("/") < 0 || (text.indexOf("\\") < text.indexOf("/") && text.indexOf("\\") > -1 && text.indexOf("/") > -1))
+                    ? "\\"
+                    : "/",
+                dirs:string[] = text.split(slash),
+                last:string = dirs.pop(),
+                dir:string = dirs.join(slash) + slash;
+            if (document.getElementById("fsRename") !== null) {
+                return;
+            }
+            li.onkeydown = null;
+            input.setAttribute("id", "fsRename");
+            input.type = "text";
+            input.value = last;
+            input.onblur = action as (event:Event) => void;
+            input.onkeyup = action;
+            label.appendText(dir);
+            label.appendChild(input);
+            input.focus();
+            browser.contextElement = null;
+            if (menu !== null) {
+                menu.parentNode.removeChild(menu);
+            }
+        }
     },
 
     /* Stores a context action type for awareness to the context action event handler */

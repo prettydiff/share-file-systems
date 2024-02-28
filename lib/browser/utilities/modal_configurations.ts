@@ -7,12 +7,14 @@ import configuration from "../content/configuration.js";
 import common from "../../common/common.js";
 import context from "../content/context.js";
 import file_browser from "../content/file_browser.js";
+import file_select_addresses from "../utilities/file_select_addresses.js";
 import media from "../content/media.js";
 import message from "../content/message.js";
 import modal from "./modal.js";
 import share from "../content/share.js";
 import terminal from "../content/terminal.js";
 import util from "./util.js";
+import zTop from "./zTop.js";
 
 // cspell:words agenttype
 
@@ -106,7 +108,7 @@ const modal_configuration:module_modalConfiguration = {
             }
             const conf:HTMLElement = document.getElementById("configuration-modal"),
                 data:config_modal = browser.ui.modals["configuration-modal"];
-            modal.events.zTop(event as MouseEvent, conf);
+            zTop(event as MouseEvent, conf);
             if (data.status === "hidden") {
                 conf.style.display = "block";
             }
@@ -124,7 +126,7 @@ const modal_configuration:module_modalConfiguration = {
                     div:HTMLElement = util.delay(),
                     box:modal = element.getAncestor("box", "class"),
                     agency:agentId = util.getAgent(box),
-                    addresses:[string, fileType, string][] = file_browser.tools.selectedAddresses(element, "details"),
+                    addresses:[string, fileType, string][] = file_select_addresses(element, "details"),
                     plural:string = (addresses.length === 1)
                         ? ""
                         : "s",
@@ -259,7 +261,7 @@ const modal_configuration:module_modalConfiguration = {
                             : (contextElement.innerHTML.indexOf("File as Text") > 0)
                                 ? "Edit"
                                 : "Hash",
-                    addresses:[string, fileType, string][] = file_browser.tools.selectedAddresses(element, "file-edit"),
+                    addresses:[string, fileType, string][] = file_select_addresses(element, "file-edit"),
                     box:modal = element.getAncestor("box", "class"),
                     length:number = addresses.length,
                     agency:agentId = util.getAgent(box);
@@ -582,7 +584,7 @@ const modal_configuration:module_modalConfiguration = {
             }
             const conf:HTMLElement = document.getElementById("socketMap-modal"),
                 data:config_modal = browser.ui.modals["socketMap-modal"];
-            modal.events.zTop(event as MouseEvent, conf);
+            zTop(event as MouseEvent, conf);
             if (data.status === "hidden") {
                 conf.style.display = "block";
             }

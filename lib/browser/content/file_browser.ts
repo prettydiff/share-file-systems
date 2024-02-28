@@ -3,9 +3,11 @@
 import browser from "../utilities/browser.js";
 import common from "../../common/common.js";
 import context from "./context.js";
-import modal from "../utilities/modal.js";
-import modal_configuration from "../utilities/modal_configurations.js";
-import share from "./share.js";
+import file_address from "../utilities/file_address.js";
+import file_directory from "../utilities/file_directory.js";
+import file_select from "../utilities/file_select.js";
+import file_select_addresses from "../utilities/file_select_addresses.js";
+import file_select_none from "../utilities/files_select_none.js";
 import util from "../utilities/util.js";
 
 /**
@@ -87,7 +89,7 @@ const file_browser:module_fileBrowser = {
                 box:modal = element.getAncestor("box", "class"),
                 menu:HTMLElement = document.getElementById("contextMenu"),
                 addressField:HTMLInputElement = box.getElementsByClassName("fileAddress")[0].getElementsByTagName("input")[0],
-                addresses:[string, fileType, string][] = file_browser.tools.selectedAddresses(element, "details"),
+                addresses:[string, fileType, string][] = file_select_addresses(element, "details"),
                 agents:[fileAgent, fileAgent, fileAgent] = util.fileAgent(box, null),
                 payloadNetwork:service_fileSystem = {
                     action: "fs-details",
@@ -423,7 +425,7 @@ const file_browser:module_fileBrowser = {
                 output.appendChild(li);
             }
             output.oncontextmenu = context.events.menu;
-            output.onkeydown = file_browser.tools.keys;
+            output.onkeydown = context.events.keys;
             output.onclick = file_browser.events.listFocus;
             output.onmousedown = function browser_file_browser_list_dragSelect(event:MouseEvent):void {
                 util.dragBox(event, util.dragList);
@@ -552,7 +554,7 @@ const file_browser:module_fileBrowser = {
                                     if (Array.isArray(data.fileList) === true && search === false) {
                                         // ensures modal address matches the addressed returned from the file system
                                         // **root** pseudo address is converted to actual system address 
-                                        file_browser.tools.modalAddress(null, {
+                                        file_address(null, {
                                             address: data.fileList[0][0],
                                             history: false,
                                             id: keys[keyLength],
@@ -583,35 +585,6 @@ const file_browser:module_fileBrowser = {
                 file_browser.events.text(event);
                 browser.configuration();
             }
-        },
-
-        /* navigate into a directory by double click */
-        directory: function browser_content_fileBrowser_directory(event:KeyboardEvent|MouseEvent):void {
-            const element:HTMLInputElement = event.target as HTMLInputElement,
-                li:HTMLElement = (element.lowName() === "li")
-                    ? element
-                    : element.getAncestor("li", "tag"),
-                body:HTMLElement = li.getAncestor("body", "class"),
-                box:modal = body.parentNode.parentNode,
-                path:string = li.dataset.path,
-                id:string = box.getAttribute("id"),
-                agents:[fileAgent, fileAgent, fileAgent] = util.fileAgent(box, null, path),
-                payload:service_fileSystem = {
-                    action: "fs-directory",
-                    agentRequest: agents[0],
-                    agentSource: agents[1],
-                    agentWrite: null,
-                    depth: 2,
-                    location: [path],
-                    name: ""
-                };
-            event.preventDefault();
-            file_browser.tools.modalAddress(event, {
-                address: path,
-                id: id,
-                history: true,
-                payload: payload
-            });
         },
     
         /* drag and drop of selected list items */
@@ -830,9 +803,9 @@ const file_browser:module_fileBrowser = {
                     location: [path],
                     name: ""
                 };
-            file_browser.tools.selectNone(box);
+            file_select_none(box);
             browser.send(payload, "file-system");
-            file_browser.events.select(event);
+            file_select(event);
             event.stopPropagation();
         },
     
@@ -929,83 +902,12 @@ const file_browser:module_fileBrowser = {
             if (value === "\\" || value === "/") {
                 return false;
             }
-            file_browser.tools.modalAddress(event, {
+            file_address(event, {
                 address: newAddress,
                 history: true,
                 id: id,
                 payload: payload
             });
-        },
-    
-        /* The front-side of renaming a file system object */
-        rename: function browser_content_fileBrowser_rename(event:KeyboardEvent|MouseEvent):void {
-            const element:HTMLElement = (browser.contextElement === null)
-                    ? event.target
-                    : browser.contextElement,
-                box:modal = element.getAncestor("box", "class"),
-                input:HTMLInputElement = document.createElement("input"),
-                li:HTMLElement = element.getAncestor("li", "tag"),
-                menu:HTMLElement = document.getElementById("contextMenu"),
-                actionComplete = function browser_content_fileBrowser_rename_actionComplete(field:HTMLInputElement, labelValue:string):void {
-                    const liParent:HTMLElement = field.getAncestor("li", "tag");
-                    liParent.onkeydown = file_browser.events.keyExecute;
-                    field.onblur = null;
-                    field.onkeyup = null;
-                    label.removeChild(field);
-                    label.appendText(labelValue);
-                },
-                action = function browser_content_fileBrowser_rename_action(action:KeyboardEvent):void {
-                    const field:HTMLInputElement = action.target as HTMLInputElement;
-                    if (action.type === "keyup" && action.key === "Escape") {
-                        actionComplete(field, text);
-                        return;
-                    }
-                    if (action.type === "blur" || (action.type === "keyup" && action.key === "Enter")) {
-                        field.value = field.value.replace(/(\s+|\.)$/, "");
-                        if (dir + field.value === text) {
-                            label.appendText(text);
-                        } else {
-                            const agents:[fileAgent, fileAgent, fileAgent] = util.fileAgent(box, null),
-                                payload:service_fileSystem = {
-                                    action: "fs-rename",
-                                    agentRequest: agents[0],
-                                    agentSource: agents[1],
-                                    agentWrite: null,
-                                    depth: 1,
-                                    location: [text.replace(/\\/g, "\\\\")],
-                                    name: field.value
-                                };
-                            actionComplete(field, label.innerHTML + field.value);
-                            browser.send(payload, "file-system");
-                        }
-                    } else if (action.type === "keyup") {
-                        field.value = field.value.replace(/\?|<|>|"|\||\*|:|\\|\/|\u0000/g, "");
-                    }
-                },
-                label:HTMLElement = li.getElementsByTagName("label")[0],
-                text:string = label.innerHTML,
-                slash:"/" | "\\" = (text.indexOf("/") < 0 || (text.indexOf("\\") < text.indexOf("/") && text.indexOf("\\") > -1 && text.indexOf("/") > -1))
-                    ? "\\"
-                    : "/",
-                dirs:string[] = text.split(slash),
-                last:string = dirs.pop(),
-                dir:string = dirs.join(slash) + slash;
-            if (document.getElementById("fsRename") !== null) {
-                return;
-            }
-            li.onkeydown = null;
-            input.setAttribute("id", "fsRename");
-            input.type = "text";
-            input.value = last;
-            input.onblur = action as (event:Event) => void;
-            input.onkeyup = action;
-            label.appendText(dir);
-            label.appendChild(input);
-            input.focus();
-            browser.contextElement = null;
-            if (menu !== null) {
-                menu.parentNode.removeChild(menu);
-            }
         },
     
         /* A service to write file changes to the file system */
@@ -1087,144 +989,6 @@ const file_browser:module_fileBrowser = {
             address.style.width = "40%";
         },
     
-        /* Select a file system item for an action */
-        select: function browser_content_fileBrowser_select(event:KeyboardEvent|MouseEvent):void {
-            event.preventDefault();
-            util.contextMenuRemove();
-            const keyboardEvent:KeyboardEvent = event as KeyboardEvent,
-                element:HTMLElement = (function browser_content_fileBrowser_select_element():HTMLElement {
-                    const el:HTMLElement = event.target;
-                    if (el.lowName() === "li") {
-                        return el;
-                    }
-                    return el.getAncestor("li", "tag");
-                }()),
-                setClasses = function browser_content_fileBrowser_select_setClasses(el:HTMLElement, className:string, selectState:boolean):void {
-                    const parent:HTMLElement = el.parentNode;
-                    if (selectState === true) {
-                        if (className !== null && className.indexOf("cut") > -1) {
-                            el.setAttribute("class", "cut");
-                        } else {
-                            el.removeAttribute("class");
-                        }
-                        parent.getElementsByTagName("input")[0].checked = false;
-                        delete modalData.selection[el.getElementsByTagName("label")[0].innerHTML];
-                    } else {
-                        if (className !== null && className.indexOf("cut") > -1) {
-                            el.setAttribute("class", "selected cut");
-                        } else {
-                            el.setAttribute("class", "selected");
-                        }
-                        parent.getElementsByTagName("input")[0].checked = true;
-                        modalData.selection[el.getElementsByTagName("label")[0].innerHTML] = "selected";
-                    }
-                },
-                p:HTMLElement = element.getElementsByTagName("p")[0],
-                classy:string = p.getAttribute("class"),
-                parent:HTMLElement = p.parentNode,
-                input:HTMLInputElement = parent.getElementsByTagName("input")[0],
-                state:boolean = input.checked;
-            let body:HTMLElement = p,
-                box:modal,
-                modalData:config_modal;
-            if (document.getElementById("newFileItem") === null) {
-                if (browser.dragFlag !== "") {
-                    event.preventDefault();
-                    event.stopPropagation();
-                }
-                input.focus();
-                modal.events.zTop(keyboardEvent);
-                body = body.getAncestor("body", "class");
-                box = body.parentNode.parentNode;
-                modalData = browser.ui.modals[box.getAttribute("id")];
-
-                if (document.getElementById("dragBox") !== null) {
-                    return;
-                }
-
-                if (keyboardEvent.ctrlKey === true || browser.dragFlag === "control") {
-                    setClasses(p, classy, state);
-                } else if (keyboardEvent.shiftKey === true || browser.dragFlag === "shift") {
-                    const liList:HTMLCollectionOf<HTMLElement> = body.getElementsByTagName("p"),
-                        shift = function browser_content_fileBrowser_select_shift(index:number, end:number):void {
-                            let liClassy:string;
-                            if (state === true) {
-                                do {
-                                    liClassy = liList[index].getAttribute("class");
-                                    setClasses(liList[index], liClassy, state);
-                                    index = index + 1;
-                                } while (index < end);
-                            } else {
-                                do {
-                                    liClassy = liList[index].getAttribute("class");
-                                    setClasses(liList[index], liClassy, state);
-                                    index = index + 1;
-                                } while (index < end);
-                            }
-                        },
-                        listLength:number = liList.length;
-                    let a:number = 0,
-                        focus:HTMLElement = browser.ui.modals[box.getAttribute("id")].focus,
-                        elementIndex:number = -1,
-                        focusIndex:number = -1;
-                    if (focus === null || focus === undefined) {
-                        browser.ui.modals[box.getAttribute("id")].focus = liList[0];
-                        focus = liList[0];
-                    }
-                    do {
-                        if (liList[a] === p) {
-                            elementIndex = a;
-                            if (focusIndex > -1) {
-                                break;
-                            }
-                        } else if (liList[a] === focus) {
-                            focusIndex = a;
-                            if (elementIndex > -1) {
-                                break;
-                            }
-                        }
-                        a = a + 1;
-                    } while (a < listLength);
-                    if (focusIndex === elementIndex) {
-                        setClasses(p, classy, state);
-                        if (state === true) {
-                            input.checked = false;
-                        } else {
-                            input.checked = true;
-                        }
-                    } else if (focusIndex > elementIndex) {
-                        shift(elementIndex, focusIndex);
-                    } else {
-                        shift(focusIndex + 1, elementIndex + 1);
-                    }
-                } else {
-                    const inputs:HTMLCollectionOf<HTMLInputElement> = body.getElementsByTagName("input"),
-                        inputsLength:number = inputs.length,
-                        selected:boolean = (p.getAttribute("class") !== null && p.getAttribute("class").indexOf("selected") > -1);
-                    let a:number = 0,
-                        item:HTMLElement,
-                        itemClass:string,
-                        itemParent:HTMLElement;
-                    do {
-                        if (inputs[a].checked === true) {
-                            itemParent = inputs[a].parentNode.parentNode;
-                            item = itemParent.getElementsByTagName("p")[0];
-                            itemClass = item.getAttribute("class");
-                            setClasses(item, itemClass, true);
-                        }
-                        a = a + 1;
-                    } while (a < inputsLength);
-                    input.checked = true;
-                    if (selected === false) {
-                        setClasses(p, classy, false);
-                        modalData.selection = {};
-                    }
-                }
-                modalData.focus = p;
-                browser.configuration();
-            }
-        },
-    
         /* Requests file system data from a text field, such as manually typing an address */
         text: function browser_content_fileBrowser_text(event:FocusEvent|KeyboardEvent|MouseEvent):boolean {
             let box:modal,
@@ -1260,7 +1024,7 @@ const file_browser:module_fileBrowser = {
                         location: [address],
                         name: ""
                     };
-                file_browser.tools.modalAddress(event, {
+                file_address(event, {
                     address: address,
                     id: id,
                     history: history,
@@ -1272,118 +1036,6 @@ const file_browser:module_fileBrowser = {
     },
 
     tools: {
-
-        /* Executes shortcut key combinations. */
-        keys: function browser_utilities_util_keys(event:KeyboardEvent):void {
-            const key:string = event.key.toLowerCase(),
-                windowEvent:KeyboardEvent = window.event as KeyboardEvent,
-                target:HTMLElement = event.target,
-                element:HTMLElement = (function browser_utilities_util_keys_element():HTMLElement {
-                    const el:HTMLElement = document.activeElement,
-                        name:string = el.lowName();
-                    if (el.parentNode === null || name === "li" || name === "ul") {
-                        return el;
-                    }
-                    return el.getAncestor("li", "tag");
-                }()),
-                input:HTMLInputElement = event.target as HTMLInputElement,
-                elementName:string = element.lowName(),
-                p:HTMLElement = element.getElementsByTagName("p")[0];
-            if (key === "f5" || (windowEvent.ctrlKey === true && key === "r")) {
-                location.reload();
-            }
-            if ((target.lowName() === "input" && input.type === "text") || element.parentNode === null || document.activeElement === document.getElementById("newFileItem")) {
-                return;
-            }
-            if (key === "enter" && elementName === "li" && (element.getAttribute("class") === "directory" || element.getAttribute("class") === "directory lastType" || element.getAttribute("class") === "directory selected") && p.getAttribute("class") === "selected" && file_browser.tools.selectedAddresses(element, "directory").length === 1) {
-                file_browser.events.directory(event);
-                return;
-            }
-            event.preventDefault();
-            if (elementName !== "ul") {
-                event.stopPropagation();
-            }
-            if (key === "delete" || key === "del") {
-                browser.contextElement = element;
-                context.events.destroy(event);
-            } else if (windowEvent.altKey === true && windowEvent.ctrlKey === true) {
-                if (key === "b" && elementName === "li") {
-                    // key b, base64
-                    browser.contextElement = element;
-                    context.type = "Base64";
-                    modal_configuration.modals["file-edit"](event);
-                } else if (key === "d") {
-                    // key d, new directory
-                    browser.contextElement = element;
-                    context.type = "directory";
-                    context.events.fsNew(event);
-                } else if (key === "e") {
-                    // key e, edit file
-                    browser.contextElement = element;
-                    context.type = "Edit";
-                    modal_configuration.modals["file-edit"](event);
-                } else if (key === "f") {
-                    // key f, new file
-                    browser.contextElement = element;
-                    context.type = "file";
-                    context.events.fsNew(event);
-                } else if (key === "h" && elementName === "li") {
-                    // key h, hash
-                    browser.contextElement = element;
-                    context.type = "Hash";
-                    modal_configuration.modals["file-edit"](event);
-                } else if (key === "r" && elementName === "li") {
-                    // key r, rename
-                    file_browser.events.rename(event);
-                } else if (key === "s") {
-                    // key s, share
-                    browser.contextElement = element;
-                    share.events.context(event);
-                } else if (key === "t") {
-                    // key t, details
-                    modal_configuration.modals.details(event);
-                }
-            } else if (windowEvent.ctrlKey === true) {
-                if (key === "a") {
-                    // key a, select all
-                    const list:HTMLElement = (elementName === "ul")
-                            ? element
-                            : element.parentNode,
-                        items:HTMLCollectionOf<Element> = list.getElementsByTagName("li"),
-                        length:number = items.length;
-                    let a:number = 0,
-                        classy:string;
-                    do {
-                        classy = items[a].getAttribute("class");
-                        if (classy !== null && classy.indexOf("cut") > -1) {
-                            items[a].setAttribute("class", "selected cut");
-                        } else {
-                            items[a].setAttribute("class", "selected");
-                        }
-                        items[a].getElementsByTagName("input")[0].checked = true;
-                        a = a + 1;
-                    } while (a < length);
-                } else if (key === "c") {
-                    // key c, copy
-                    browser.contextElement = element;
-                    context.type = "copy";
-                    context.events.copy(event);
-                } else if (key === "d" && elementName === "li") {
-                    // key d, destroy
-                    browser.contextElement = element;
-                    context.events.destroy(event);
-                } else if (key === "v") {
-                    // key v, paste
-                    browser.contextElement = element;
-                    context.events.paste(event);
-                } else if (key === "x") {
-                    // key x, cut
-                    browser.contextElement = element;
-                    context.type = "cut";
-                    context.events.copy(event);
-                }
-            }
-        },
     
         /* Display status information when the Operating system locks files from access */
         listFail: function browser_content_fileBrowser_listFail(count:number, box:modal):void {
@@ -1459,13 +1111,13 @@ const file_browser:module_fileBrowser = {
                     plural = "s";
                 }
                 span.textContent = `directory - ${common.commas(item[4])} item${plural}`;
-                li.ondblclick = file_browser.events.directory;
+                li.ondblclick = file_directory;
                 li.setAttribute("data-path", item[0]);
             } else {
                 // symbolic link
                 span = document.createElement("span");
                 if (className === "link-directory") {
-                    li.ondblclick = file_browser.events.directory;
+                    li.ondblclick = file_directory;
                 } else {
                     li.ondblclick = file_browser.events.execute;
                     li.onkeydown = file_browser.events.keyExecute;
@@ -1489,8 +1141,8 @@ const file_browser:module_fileBrowser = {
     
             // prepare the descriptive text
             p.oncontextmenu = context.events.menu;
-            p.onkeydown = file_browser.tools.keys;
-            p.onclick = file_browser.events.select;
+            p.onkeydown = context.events.keys;
+            p.onclick = file_select;
             p.appendChild(span);
             li.appendChild(p);
     
@@ -1512,147 +1164,6 @@ const file_browser:module_fileBrowser = {
             li.onmouseover = mouseOver;
             li.ontouchstart = file_browser.events.drag;
             return li;
-        },
-
-        /* Updates the address of a file-navigate modal in both UI and state */
-        modalAddress: function browser_content_fileBrowser_modalAddress(event:FocusEvent|KeyboardEvent|MouseEvent, config:config_modal_history):void {
-            const modalData:config_modal = browser.ui.modals[config.id],
-                modalItem:HTMLElement = document.getElementById(config.id),
-                lastHistory:string = (modalData.history.length > 1)
-                    ? modalData.history[modalData.history.length - 1]
-                    : "",
-                windows:boolean = ((/^\w:/).test(config.address.replace(/\s+/, "")) || config.address === "\\");
-
-            // if at root use the proper directory slash
-            if (config.address === "**root**") {
-                const fileList:HTMLElement = modalItem.getElementsByClassName("fileList")[0] as HTMLElement,
-                    listItem:HTMLElement = (fileList === undefined)
-                        ? undefined
-                        : fileList.getElementsByTagName("li")[0];
-                if (listItem === undefined || listItem.getAttribute("class") === "empty-list") {
-                    config.address = modalData.text_value;
-                } else {
-                    const file:string = listItem.getElementsByTagName("p")[0].getElementsByTagName("label")[0].innerHTML;
-                    if (file.charAt(0) === "/") {
-                        config.address = "/";
-                    } else {
-                        config.address = "\\";
-                    }
-                }
-                if (config.payload !== null) {
-                    config.payload.agentSource.modalAddress = config.address;
-                    if (config.payload.action === "fs-directory" && config.payload.name !== "expand" && config.payload.location[0] === "**root**") {
-                        config.payload.location[0] = config.address;
-                    }
-                }
-            }
-
-            // change the value in the modal settings
-            modalData.text_value = config.address;
-            if (event === null || event.target.getAttribute("class") !== "reloadDirectory") {
-                modalData.search[0] = "";
-            }
-
-            // change the value in modal history
-            if (config.history === true && ((config.address !== lastHistory && windows === false) || (config.address.toLowerCase() !== lastHistory.toLowerCase() && windows === true))) {
-                modalData.history.push(config.address);
-            }
-
-            // request new file system data for the new address
-            if (config.payload !== null) {
-                browser.send(config.payload, "file-system");
-
-                // save state
-                browser.configuration();
-            }
-
-            // change the value in the html
-            modalItem.getElementsByClassName("fileAddress")[0].getElementsByTagName("input")[0].value = config.address;
-        },
-
-        /* Gather the selected addresses and types of file system artifacts in a fileNavigator modal. */
-        selectedAddresses: function browser_utilities_util_selectedAddresses(element:HTMLElement, type:string):[string, fileType, string][] {
-            const output:[string, fileType, string][] = [],
-                agent:string = util.getAgent(element)[0],
-                parent:HTMLElement = element.parentNode,
-                drag:boolean = (parent.getAttribute("id") === "file-list-drag"),
-                box:modal = element.getAncestor("box", "class"),
-                dataModal:config_modal = browser.ui.modals[box.getAttribute("id")],
-                attribute = function browser_utilities_util_attribute(item:HTMLElement):void {
-                    const p:HTMLElement = item.getElementsByTagName("p")[0],
-                        classy:string = p.getAttribute("class"),
-                        path:string = item.dataset.path;
-                    output.push([path, item.getAttribute("class").replace(" lastType", "") as fileType, agent]);
-                    if (type === "cut") {
-                        if (classy !== null && classy.indexOf("selected") > -1) {
-                            p.setAttribute("class", "selected cut");
-                        } else {
-                            p.setAttribute("class", "cut");
-                        }
-                        dataModal.selection[path] = p.getAttribute("class");
-                    }
-                },
-                itemList:HTMLCollectionOf<HTMLElement> = (drag === true)
-                    ? parent.getElementsByTagName("li")
-                    : box.getElementsByClassName("fileList")[0].getElementsByTagName("li"),
-                len:number = itemList.length;
-            let a:number = 0,
-                p:HTMLElement = null;
-            if (element.lowName() !== "li") {
-                element = element.parentNode;
-            }
-            if (dataModal.selection === undefined) {
-                dataModal.selection = {};
-            }
-            do {
-                p = itemList[a].getElementsByTagName("p")[0];
-                if (itemList[a].getElementsByTagName("input")[0].checked === true) {
-                    attribute(itemList[a]);
-                } else {
-                    p.removeAttribute("class");
-                    if (dataModal.selection[itemList[a].dataset.path] !== undefined) {
-                        delete dataModal.selection[itemList[a].dataset.path];
-                    }
-                }
-                a = a + 1;
-            } while (a < len);
-            if (output.length > 0) {
-                return output;
-            }
-            // if nothing is selected, act on the one record interacted
-            attribute(element);
-            return output;
-        },
-
-        /* Remove selections of file system artifacts in a given fileNavigator modal. */
-        selectNone: function browser_utilities_util_selectNone(element:HTMLElement):void {
-            const box:modal = element.getAncestor("box", "class"),
-                fileList:HTMLElement = box.getElementsByClassName("fileList")[0] as HTMLElement,
-                child:HTMLElement = (fileList === undefined)
-                    ? null
-                    : fileList.firstChild as HTMLElement,
-                inputs:HTMLCollectionOf<HTMLInputElement> = (fileList === undefined)
-                    ? null
-                    : fileList.getElementsByTagName("input"),
-                inputLength:number = (fileList === undefined)
-                    ? 0
-                    : inputs.length,
-                p:HTMLCollectionOf<Element> = (fileList === undefined)
-                    ? null
-                    : fileList.getElementsByTagName("p");
-            let a:number = 0;
-            if (fileList === undefined || document.getElementById("newFileItem") !== null || child.getAttribute("class") === "empty-list") {
-                return;
-            }
-            if (inputLength > 0) {
-                do {
-                    if (inputs[a].type === "checkbox") {
-                        inputs[a].checked = false;
-                        p[a].removeAttribute("class");
-                    }
-                    a = a + 1;
-                } while (a < inputLength);
-            }
         }
     }
 
