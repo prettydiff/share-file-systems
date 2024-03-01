@@ -11,6 +11,7 @@
  *     configuration: () => void;
  *     content: HTMLElement;
  *     contextElement: HTMLElement;
+ *     contextType: contextType;
  *     dragFlag: dragFlag;
  *     loading: boolean;
  *     loadQueue: socketData[];
@@ -39,6 +40,7 @@ interface browser {
     configuration: () => void;
     content: HTMLElement;
     contextElement: HTMLElement;
+    contextType: contextType;
     dragFlag: dragFlag;
     identity: identity;
     loading: boolean;

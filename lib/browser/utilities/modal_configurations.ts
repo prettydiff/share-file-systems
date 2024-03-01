@@ -5,7 +5,6 @@ import agent_management from "../content/agent_management.js";
 import browser from "./browser.js";
 import configuration from "../content/configuration.js";
 import common from "../../common/common.js";
-import context from "../content/context.js";
 import file_browser from "../content/file_browser.js";
 import file_select_addresses from "../utilities/file_select_addresses.js";
 import media from "../content/media.js";
@@ -254,8 +253,8 @@ const modal_configuration:module_modalConfiguration = {
                         : browser.contextElement.getAncestor("li", "tag"),
                     mouseEvent:MouseEvent = event as MouseEvent,
                     contextElement:HTMLElement = event.target as HTMLElement,
-                    type:contextType = (context.type !== "")
-                        ? context.type
+                    type:contextType = (browser.contextType !== "")
+                        ? browser.contextType
                         : (contextElement.innerHTML.indexOf("Base64") === 0)
                             ? "Base64"
                             : (contextElement.innerHTML.indexOf("File as Text") > 0)
@@ -302,7 +301,7 @@ const modal_configuration:module_modalConfiguration = {
                 } while (a < length);
                 browser.send(payloadNetwork, "file-system");
                 browser.contextElement = null;
-                context.type = "";
+                browser.contextType = "";
                 if (menu !== null) {
                     menu.parentNode.removeChild(menu);
                 }
@@ -333,7 +332,7 @@ const modal_configuration:module_modalConfiguration = {
             payloadNetwork.location = [`${modalInstance.getAttribute("id")}:${config.text_value}`];
             browser.send(payloadNetwork, "file-system");
             browser.contextElement = null;
-            context.type = "";
+            browser.contextType = "";
             if (menu !== null) {
                 menu.parentNode.removeChild(menu);
             }

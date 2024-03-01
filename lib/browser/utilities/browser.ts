@@ -23,6 +23,7 @@ const browser:browser = {
         }
     },
     contextElement: null,                               // contextElement - stores the element where the context menu is activated
+    contextType: "",                                    // contextType - stores a context action type
     dragFlag: "",                                       // dragFlag - Stores whether a drag action is modified with shift or control key
     identity: {                                         // identity - stores identifiers for the given user/device
         hashDevice: "",

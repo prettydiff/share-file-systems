@@ -323,8 +323,8 @@ const context:module_context = {
                 menu:HTMLElement = document.getElementById("contextMenu"),
                 box:modal = element.getAncestor("box", "class"),
                 contextElement:HTMLElement = event.target as HTMLElement,
-                type:contextType = (context.type !== "")
-                    ? context.type
+                type:contextType = (browser.contextType !== "")
+                    ? browser.contextType
                     : (contextElement.innerHTML.indexOf("Copy") === 0)
                         ? "copy"
                         : "cut",
@@ -356,7 +356,7 @@ const context:module_context = {
             }
             context.clipboard = JSON.stringify(clipData);
             browser.contextElement = null;
-            context.type = "";
+            browser.contextType = "";
             if (menu !== null) {
                 menu.parentNode.removeChild(menu);
             }
@@ -476,8 +476,8 @@ const context:module_context = {
                         box:modal = (parent === null)
                             ? null
                             : parent.getAncestor("box", "class"),
-                        type:contextType = (context.type !== "")
-                            ? context.type
+                        type:contextType = (browser.contextType !== "")
+                            ? browser.contextType
                             : (element.innerHTML.indexOf("New File") === 0)
                                 ? "file"
                                 : "directory",
@@ -538,7 +538,7 @@ const context:module_context = {
             }
             build();
             browser.contextElement = null;
-            context.type = "";
+            browser.contextType = "";
             if (menu !== null) {
                 menu.parentNode.removeChild(menu);
             }
@@ -581,27 +581,27 @@ const context:module_context = {
                 if (key === "b" && elementName === "li") {
                     // key b, base64
                     browser.contextElement = element;
-                    context.type = "Base64";
+                    browser.contextType = "Base64";
                     modal_configuration.modals["file-edit"](event);
                 } else if (key === "d") {
                     // key d, new directory
                     browser.contextElement = element;
-                    context.type = "directory";
+                    browser.contextType = "directory";
                     context.events.fsNew(event);
                 } else if (key === "e") {
                     // key e, edit file
                     browser.contextElement = element;
-                    context.type = "Edit";
+                    browser.contextType = "Edit";
                     modal_configuration.modals["file-edit"](event);
                 } else if (key === "f") {
                     // key f, new file
                     browser.contextElement = element;
-                    context.type = "file";
+                    browser.contextType = "file";
                     context.events.fsNew(event);
                 } else if (key === "h" && elementName === "li") {
                     // key h, hash
                     browser.contextElement = element;
-                    context.type = "Hash";
+                    browser.contextType = "Hash";
                     modal_configuration.modals["file-edit"](event);
                 } else if (key === "r" && elementName === "li") {
                     // key r, rename
@@ -637,7 +637,7 @@ const context:module_context = {
                 } else if (key === "c") {
                     // key c, copy
                     browser.contextElement = element;
-                    context.type = "copy";
+                    browser.contextType = "copy";
                     context.events.copy(event);
                 } else if (key === "d" && elementName === "li") {
                     // key d, destroy
@@ -650,7 +650,7 @@ const context:module_context = {
                 } else if (key === "x") {
                     // key x, cut
                     browser.contextElement = element;
-                    context.type = "cut";
+                    browser.contextType = "cut";
                     context.events.copy(event);
                 }
             }
@@ -761,11 +761,7 @@ const context:module_context = {
                 menu.parentNode.removeChild(menu);
             }
         }
-    },
-
-    /* Stores a context action type for awareness to the context action event handler */
-    type: ""
-
+    }
 };
 
 export default context;

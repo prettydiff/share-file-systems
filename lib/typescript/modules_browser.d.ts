@@ -257,7 +257,6 @@ interface module_configuration {
  *         paste   : (event:Event) => void; // Handler for the *Paste* menu item which performs the file copy operation over the network.
  *         rename  : (event:KeyboardEvent|MouseEvent) => void; // Converts a file system item text into a text input field so that the artifact can be renamed.
  *     };
- *     type: contextType; // Stores a context action type for awareness to the context action event handler.
  * }
  * type contextType = "" | "Base64" | "copy" | "cut" | "directory" | "Edit" | "file" | "Hash";
  * ``` */
@@ -273,7 +272,6 @@ interface module_context {
         paste: (event:Event) => void;
         rename: (event:KeyboardEvent|MouseEvent) => void;
     };
-    type: contextType;
 }
 
 /**
