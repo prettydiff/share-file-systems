@@ -701,8 +701,6 @@ const context:module_context = {
                 li:HTMLElement = element.getAncestor("li", "tag"),
                 menu:HTMLElement = document.getElementById("contextMenu"),
                 actionComplete = function browser_content_fileBrowser_rename_actionComplete(field:HTMLInputElement, labelValue:string):void {
-                    const liParent:HTMLElement = field.getAncestor("li", "tag");
-                    liParent.onkeydown = context.events.keys;
                     field.onblur = null;
                     field.onkeyup = null;
                     label.removeChild(field);
@@ -716,44 +714,36 @@ const context:module_context = {
                     }
                     if (action.type === "blur" || (action.type === "keyup" && action.key === "Enter")) {
                         field.value = field.value.replace(/(\s+|\.)$/, "");
-                        if (dir + field.value === text) {
-                            label.appendText(text);
-                        } else {
-                            const agents:[fileAgent, fileAgent, fileAgent] = util.fileAgent(box, null),
-                                payload:service_fileSystem = {
-                                    action: "fs-rename",
-                                    agentRequest: agents[0],
-                                    agentSource: agents[1],
-                                    agentWrite: null,
-                                    depth: 1,
-                                    location: [text.replace(/\\/g, "\\\\")],
-                                    name: field.value
-                                };
-                            actionComplete(field, label.innerHTML + field.value);
-                            browser.send(payload, "file-system");
-                        }
+                        const agents:[fileAgent, fileAgent, fileAgent] = util.fileAgent(box, null),
+                            slash:"/" | "\\" = (text.indexOf("/") < 0 || (text.indexOf("\\") < text.indexOf("/") && text.indexOf("\\") > -1 && text.indexOf("/") > -1))
+                                ? "\\"
+                                : "/",
+                            payload:service_fileSystem = {
+                                action: "fs-rename",
+                                agentRequest: agents[0],
+                                agentSource: agents[1],
+                                agentWrite: null,
+                                depth: 1,
+                                location: [agents[1].modalAddress + slash + text],
+                                name: field.value
+                            };
+                        actionComplete(field, field.value);
+                        browser.send(payload, "file-system");
                     } else if (action.type === "keyup") {
                         field.value = field.value.replace(/\?|<|>|"|\||\*|:|\\|\/|\u0000/g, "");
                     }
                 },
                 label:HTMLElement = li.getElementsByTagName("label")[0],
-                text:string = label.innerHTML,
-                slash:"/" | "\\" = (text.indexOf("/") < 0 || (text.indexOf("\\") < text.indexOf("/") && text.indexOf("\\") > -1 && text.indexOf("/") > -1))
-                    ? "\\"
-                    : "/",
-                dirs:string[] = text.split(slash),
-                last:string = dirs.pop(),
-                dir:string = dirs.join(slash) + slash;
+                text:string = label.textContent;
             if (document.getElementById("fsRename") !== null) {
                 return;
             }
-            li.onkeydown = null;
             input.setAttribute("id", "fsRename");
             input.type = "text";
-            input.value = last;
+            input.value = text;
             input.onblur = action as (event:Event) => void;
             input.onkeyup = action;
-            label.appendText(dir);
+            label.removeChild(label.firstChild);
             label.appendChild(input);
             input.focus();
             browser.contextElement = null;
