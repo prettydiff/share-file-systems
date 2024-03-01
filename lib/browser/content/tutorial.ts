@@ -1,7 +1,7 @@
 /* lib/browser/content/tutorial - An interactive tutorial explaining the application. */
 
 import browser from "../utilities/browser.js";
-import modal from "../utilities/modal.js";
+import modal_close from "../utilities/modal_close.js";
 import modal_configuration from "../utilities/modal_configurations.js";
 import remote from "../utilities/remote.js";
 
@@ -500,7 +500,7 @@ const tutorial = function browser_content_tutorial():void {
             // @ts-ignore - TS cannot resolve a string to a GlobalEventHandlersEventMap object key name
             node[eventName] = action;
         }
-        modal.events.close(event);
+        modal_close(event);
     };
     browser.pageBody.onkeydown = activate;
     currentNode(remote.node(tutorialData[0].node, null));

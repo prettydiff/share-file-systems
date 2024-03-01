@@ -3,6 +3,7 @@
 
 import browser from "../utilities/browser.js";
 import modal from "../utilities/modal.js";
+import modal_close from "../utilities/modal_close.js";
 import util from "../utilities/util.js";
 
 // cspell:words agenttype, arrowdown, arrowup, pagedown, pageup
@@ -61,7 +62,7 @@ const terminal:module_browserTerminal = {
         close: function browser_content_terminal_close(event:MouseEvent):void {
             const box:modal = event.target.getAncestor("box", "class");
             terminal.tools.send(box, "close-modal", false);
-            modal.events.close(event);
+            modal_close(event);
         },
         command: function browser_content_terminal_command(event:KeyboardEvent):void {
             const key:string = event.key.toLowerCase(),

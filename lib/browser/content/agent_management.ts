@@ -5,9 +5,11 @@ import agent_change from "../utilities/agent_change.js";
 import browser from "../utilities/browser.js";
 import common from "../../common/common.js";
 import configuration from "./configuration.js";
-import modal from "../utilities/modal.js";
-import modal_configuration from "../utilities/modal_configurations.js";
-import share from "./share.js";
+import invite_decline from "../utilities/invite_decline.js";
+import modal_inviteAsk from "../utilities/modal_inviteAsk.js";
+import modal_shares from "../utilities/modal_shares.js";
+import share_content from "../utilities/share_content.js";
+import share_update from "../utilities/share_update.js";
 import util from "../utilities/util.js";
 
 // cspell:words agenttype
@@ -49,47 +51,6 @@ import util from "../utilities/util.js";
  * ``` */
 const agent_management:module_agentManagement = {
     content: {
-
-        /* Modal content for invitation notification on remote agents. */
-        inviteRemote: function browser_content_agentManagement_inviteRemote(invitation:service_invite, name:string):HTMLElement {
-            const div:HTMLElement = document.createElement("div"),
-                agentInvite:agentInvite = invitation.agentRequest,
-                strong:HTMLElement = document.createElement("strong"),
-                angryStrong:HTMLElement = document.createElement("strong"),
-                em:HTMLElement = document.createElement("em"),
-                ip:string = (agentInvite.ipSelected.indexOf(":") < 0)
-                    ? `${agentInvite.ipSelected}:${agentInvite.port}`
-                    : `[${agentInvite.ipSelected}]:${agentInvite.port}`,
-                label:HTMLElement = document.createElement("label"),
-                textarea:HTMLTextAreaElement = document.createElement("textarea");
-            let text:HTMLElement = document.createElement("h3");
-
-            div.setAttribute("class", "agentInvitation");
-            div.setAttribute("data-agenttype", invitation.type);
-            strong.appendText(name);
-            text.appendText("User ");
-            text.appendChild(strong);
-            text.appendText(` from ${ip} is inviting you to share of type `);
-            angryStrong.appendText(common.capitalize(invitation.type));
-            angryStrong.setAttribute("class", "warning");
-            text.appendChild(angryStrong);
-            text.appendText(".");
-            div.appendChild(text);
-            text = document.createElement("p");
-            label.appendText(`${name} said:`);
-            textarea.value = invitation.message;
-            label.appendChild(textarea);
-            text.appendChild(label);
-            div.appendChild(text);
-            text = document.createElement("p");
-            em.appendText("Confirm");
-            text.appendText("Press the ");
-            text.appendChild(em);
-            text.appendText(" button to accept the invitation or close this modal to ignore it.");
-            div.appendChild(text);
-            div.setAttribute("data-invitation", JSON.stringify(invitation));
-            return div;
-        },
 
         /* Modal content for the invite agents fields. */
         inviteStart: function browser_content_agentManagement_inviteStart():HTMLElement {
@@ -426,18 +387,6 @@ const agent_management:module_agentManagement = {
             }
         },
 
-        /* Handler for declining an invitation request */
-        inviteDecline: function browser_content_invite_decline(event:MouseEvent):void {
-            const element:HTMLElement = event.target,
-                boxLocal:HTMLElement = element.getAncestor("box", "class"),
-                inviteBody:HTMLElement = boxLocal.getElementsByClassName("agentInvitation")[0] as HTMLElement,
-                invitation:service_invite = JSON.parse(inviteBody.dataset.invitation) as service_invite;
-            invitation.action = "invite-answer";
-            invitation.status = "declined";
-            browser.send(invitation, "invite");
-            modal.events.close(event);
-        },
-
         /* Basic form validation on the port field */
         invitePortValidation: function browser_content_agentManagement_invitePortValidation(event:Event):void {
             const portElement:HTMLInputElement = event.target as HTMLInputElement,
@@ -566,13 +515,13 @@ const agent_management:module_agentManagement = {
             button.setAttribute("id", input.hash);
             button.setAttribute("data-agenttype", input.type);
             button.setAttribute("type", "button");
-            button.onclick = modal_configuration.modals.shares;
+            button.onclick = modal_shares;
             li.appendChild(button);
             document.getElementById(input.type).getElementsByTagName("ul")[0].appendChild(li);
             addStyle();
             configuration.tools.addUserColor(input.hash, input.type);
             if (browser.loading === false) {
-                share.tools.update("");
+                share_update("");
             }
         },
 
@@ -624,7 +573,7 @@ const agent_management:module_agentManagement = {
                 return;
             }
             browser.send(manage, "agent-management");
-            share.tools.update("");
+            share_update("");
             browser.configuration();
         },
 
@@ -740,7 +689,7 @@ const agent_management:module_agentManagement = {
                     agent: browser.identity.hashDevice,
                     agentIdentity: false,
                     agentType: "device",
-                    closeHandler: agent_management.events.inviteDecline,
+                    closeHandler: invite_decline,
                     content: null,
                     height: 300,
                     id: invitation.agentRequest.modal,
@@ -752,7 +701,7 @@ const agent_management:module_agentManagement = {
                     type: "invite-ask",
                     width: 500
                 };
-            modal_configuration.modals["invite-ask"](null, config);
+            modal_inviteAsk(null, config);
             util.audio("invite");
         },
 
@@ -829,7 +778,7 @@ const agent_management:module_agentManagement = {
                                 if ((shareModals[shareLength].dataset.agent === agentName && shareModals[shareLength].dataset.agenttype === agentType) || (agentType === "" && shareModals[shareLength].getElementsByTagName("button")[0].firstChild.textContent === "⌘ All Shares")) {
                                     body = shareModals[shareLength].getElementsByClassName("body")[0] as HTMLElement;
                                     body.appendText("", true);
-                                    body.appendChild(share.content(agentName, agentType));
+                                    body.appendChild(share_content(agentName, agentType));
                                 }
                             } while (shareLength > 0);
                         }

@@ -4,9 +4,13 @@
 import agent_management from "../content/agent_management.js";
 import browser from "./browser.js";
 import common from "../../common/common.js";
-import file_browser from "../content/file_browser.js";
+import file_address from "./file_address.js";
+import file_text from "./file_text.js";
+import invite_decline from "./invite_decline.js";
 import media from "../content/media.js";
-import webSocket from "./webSocket.js";
+import media_kill from "./media_kill.js";
+import modal_close from "./modal_close.js";
+import util from "./util.js";
 import zTop from "./zTop.js";
 
 // cspell:words agenttype
@@ -70,10 +74,7 @@ const modal:module_modal = {
                 el.setAttribute("title", config.title);
                 el.onclick = config.event;
                 config.parent.appendChild(el);
-            },
-            socket:WebSocket = (options.socket === true)
-                ? webSocket.start(null, browser.identity.hashDevice, options.type)
-                : null;
+            };
         // Uniqueness constraints
         if (browser.ui.modalTypes.indexOf(options.type) > -1) {
             if (options.single === true) {
@@ -167,7 +168,6 @@ const modal:module_modal = {
 
         // Box universal definitions
         browser.ui.modals[id] = options;
-        box.socket = socket;
         box.setAttribute("id", id);
         box.onmousedown = zTop;
         box.setAttribute("class", "box");
@@ -239,11 +239,119 @@ const modal:module_modal = {
                 if (options.type === "file-navigate") {
                     const searchLabel:HTMLElement = document.createElement("label"),
                         search:HTMLInputElement = document.createElement("input"),
-                        span:HTMLElement = document.createElement("span");
+                        span:HTMLElement = document.createElement("span"),
+                        back = function browser_utilities_modal_content_back(event:MouseEvent):void {
+                            const element:HTMLElement = event.target,
+                                box:modal = element.getAncestor("box", "class"),
+                                id:string = box.getAttribute("id"),
+                                address:HTMLInputElement = box.getElementsByClassName("fileAddress")[0].getElementsByTagName("input")[0],
+                                history:string[] = browser.ui.modals[id].history;
+                            if (history.length > 1) {
+                                history.pop();
+                                address.value = history[history.length - 1];
+                                file_text(event);
+                                browser.configuration();
+                            }
+                        },
+                        parent = function browser_utilities_modal_content_parent(event:MouseEvent):boolean {
+                            const element:HTMLElement = event.target as HTMLInputElement,
+                                header:HTMLElement = element.parentNode,
+                                input:HTMLInputElement = header.getElementsByTagName("input")[0],
+                                slash:string = (input.value.indexOf("/") > -1 && (input.value.indexOf("\\") < 0 || input.value.indexOf("\\") > input.value.indexOf("/")))
+                                    ? "/"
+                                    : "\\",
+                                value:string = input.value,
+                                bodyParent:HTMLElement = element.parentNode.parentNode,
+                                box:modal = bodyParent.parentNode,
+                                id:string = box.getAttribute("id"),
+                                newAddress:string = (function browser_utilities_modal_content_parent_newAddress():string {
+                                    if ((/^\w:\\$/).test(value) === true) {
+                                        return "\\";
+                                    }
+                                    if (value.indexOf(slash) === value.lastIndexOf(slash)) {
+                                        return value.slice(0, value.lastIndexOf(slash) + 1);
+                                    }
+                                    return value.slice(0, value.lastIndexOf(slash));
+                                }()),
+                                agents:[fileAgent, fileAgent, fileAgent] = util.fileAgent(box, null, newAddress),
+                                payload:service_fileSystem = {
+                                    action: "fs-directory",
+                                    agentRequest: agents[0],
+                                    agentSource: agents[1],
+                                    agentWrite: null,
+                                    depth: 2,
+                                    location: [newAddress],
+                                    name: ""
+                                };
+                            if (value === "\\" || value === "/") {
+                                return false;
+                            }
+                            file_address(event, {
+                                address: newAddress,
+                                history: true,
+                                id: id,
+                                payload: payload
+                            });
+                        },
+                        searchHandler = function browser_utilities_modal_content_searchHandler(event?:FocusEvent|KeyboardEvent|MouseEvent, searchElement?:HTMLInputElement):void {
+                            const keyboardEvent:KeyboardEvent = event as KeyboardEvent,
+                                element:HTMLInputElement = (searchElement === undefined)
+                                    ? event.target as HTMLInputElement
+                                    : searchElement,
+                                value:string = element.value,
+                                box:modal = element.getAncestor("box", "class"),
+                                id:string = box.getAttribute("id"),
+                                addressLabel:HTMLElement = element.parentNode.previousSibling as HTMLElement,
+                                addressElement:HTMLInputElement = addressLabel.getElementsByTagName("input")[0],
+                                address:string = addressElement.value;
+                            if (event !== null && event.type === "blur") {
+                                const searchParent:HTMLElement = element.parentNode;
+                                searchParent.style.width = "12.5%";
+                                addressLabel.style.width = "87.5%";
+                                browser.ui.modals[id].search = [address, value];
+                                browser.configuration();
+                            }
+                            if (event === null || (event.type === "keyup" && keyboardEvent.key === "Enter")) {
+                                const body:HTMLElement = box.getElementsByClassName("body")[0] as HTMLElement,
+                                    agents:[fileAgent, fileAgent, fileAgent] = util.fileAgent(box, null),
+                                    payload:service_fileSystem = {
+                                        action: "fs-search",
+                                        agentRequest: agents[0],
+                                        agentSource: agents[1],
+                                        agentWrite: null,
+                                        depth: 0,
+                                        location: [address],
+                                        name: value
+                                    };
+                                body.appendText("", true);
+                                body.append(util.delay());
+                                if (element.value.replace(/\s+/, "") === "") {
+                                    file_text(event);
+                                    element.focus();
+                                    browser.ui.modals[id].search = [address, ""];
+                                    browser.configuration();
+                                    return;
+                                }
+                                if (browser.loading === false) {
+                                    browser.ui.modals[id].search = [address, value];
+                                    browser.ui.modals[id].selection = {};
+                                    browser.configuration();
+                                }
+                                browser.send(payload, "file-system");
+                            }
+                        },
+                        searchFocus = function browser_utilities_modal_content_searchFocus(event:FocusEvent):void {
+                            const search:HTMLElement = event.target,
+                                searchParent:HTMLElement = search.parentNode,
+                                address:HTMLElement = searchParent.previousSibling as HTMLElement;
+                            search.focus();
+                            searchParent.style.width = "60%";
+                            address.style.width = "40%";
+                        };
                     extra.style.paddingLeft = "15em";
                     button({
                         class: "backDirectory",
-                        event: file_browser.events.back,
+                        event: back,
                         parent: extra,
                         spanText: "Previous address",
                         text: "◀ ",
@@ -251,7 +359,7 @@ const modal:module_modal = {
                     });
                     button({
                         class: "reloadDirectory",
-                        event: file_browser.events.text,
+                        event: file_text,
                         parent: extra,
                         spanText: "Reload",
                         text: "↺ ",
@@ -259,7 +367,7 @@ const modal:module_modal = {
                     });
                     button({
                         class: "parentDirectory",
-                        event: file_browser.events.parent,
+                        event: parent,
                         parent: extra,
                         spanText: "Parent directory",
                         text: "▲ ",
@@ -267,10 +375,10 @@ const modal:module_modal = {
                     });
                     search.type = "text";
                     search.placeholder = "⌕ Search";
-                    search.onblur = file_browser.events.search;
-                    search.onclick = file_browser.events.searchFocus;
-                    search.onfocus = file_browser.events.searchFocus;
-                    search.onkeyup = file_browser.events.search;
+                    search.onblur = searchHandler;
+                    search.onclick = searchFocus;
+                    search.onfocus = searchFocus;
+                    search.onkeyup = searchHandler;
                     search.value = options.search[1];
                     span.appendText("Search for file system artifacts from this location. Searches starting with ! are negation searches and regular expressions are supported if the search starts and ends with a forward slash.");
                     searchLabel.appendChild(span);
@@ -306,7 +414,7 @@ const modal:module_modal = {
             class: "close",
             event: (typeof options.closeHandler === "function")
                 ? options.closeHandler
-                : modal.events.close,
+                : modal_close,
             parent: section,
             spanText: "Close",
             text: "⨯ ",
@@ -343,9 +451,27 @@ const modal:module_modal = {
             extra = document.createElement("p");
             extra.setAttribute("class", "footer-buttons");
             if (options.inputs.indexOf("save") > -1) {
+                const saveFile = function browser_content_fileBrowser_saveFile(event:MouseEvent):void {
+                    const element:HTMLElement = event.target,
+                        box:modal = element.getAncestor("box", "class"),
+                        content:string = box.getElementsByClassName("body")[0].getElementsByTagName("textarea")[0].value,
+                        title:HTMLElement = box.getElementsByTagName("h2")[0].getElementsByTagName("button")[0],
+                        location:string[] = title.innerHTML.split(" - "),
+                        agents:[fileAgent, fileAgent, fileAgent] = util.fileAgent(box, null, ""),
+                        payload:service_fileSystem = {
+                            action: "fs-write",
+                            agentRequest: agents[0],
+                            agentSource: agents[1],
+                            agentWrite: null,
+                            depth: 1,
+                            location: [location[location.length - 1]],
+                            name: content
+                        };
+                    browser.send(payload, "file-system");
+                };
                 button({
                     class: "save",
-                    event: file_browser.events.saveFile,
+                    event: saveFile,
                     parent: extra,
                     spanText: null,
                     text: "🖫 Save File",
@@ -366,8 +492,8 @@ const modal:module_modal = {
                 button({
                     class: "cancel",
                     event: (options.type === "invite-ask")
-                        ? agent_management.events.inviteDecline
-                        : modal.events.close,
+                        ? invite_decline
+                        : modal_close,
                     parent: extra,
                     spanText: null,
                     text: "🗙 Cancel",
@@ -449,64 +575,6 @@ const modal:module_modal = {
     },
 
     events: {
-
-        /* Removes a modal from the DOM for garbage collection */
-        close: function browser_utilities_modal_close(event:MouseEvent):void {
-            const element:HTMLElement = event.target,
-                keys:string[] = Object.keys(browser.ui.modals),
-                keyLength:number = keys.length,
-                box:modal = element.getAncestor("box", "class"),
-                id:string = box.getAttribute("id"),
-                type:modalType = (browser.ui.modals[id] === undefined)
-                    ? null
-                    : browser.ui.modals[id].type;
-            let a:number = 0,
-                count:number = 0;
-            
-            // box is off the DOM, so don't worry about it
-            if (box.parentNode === null || type === null) {
-                return;
-            }
-    
-            // modal type specific instructions
-            if (type === "invite-ask") {
-                const inviteBody:HTMLElement = box.getElementsByClassName("agentInvitation")[0] as HTMLElement,
-                    invitation:service_invite = JSON.parse(inviteBody.dataset.invitation) as service_invite;
-                if (invitation.status === "invited") {
-                    invitation.action = "invite-answer";
-                    invitation.status = "ignored";
-                    browser.send(invitation, "invite");
-                }
-            } else if (type === "media") {
-                media.tools.kill(browser.ui.modals[id]);
-            }
-
-            if (box.socket !== null && box.socket !== undefined) {
-                box.socket.close();
-            }
-    
-            // remove the box
-            box.onclick = null;
-            box.parentNode.removeChild(box);
-    
-            // remove from modal type list if the last of respective modal types open
-            do {
-                if (browser.ui.modals[keys[a]].type === type) {
-                    count = count + 1;
-                    if (count > 1) {
-                        break;
-                    }
-                }
-                a = a + 1;
-            } while (a < keyLength);
-            if (count === 1) {
-                browser.ui.modalTypes.splice(browser.ui.modalTypes.indexOf(type), 1);
-            }
-    
-            // remove from state and send to storage
-            delete browser.ui.modals[id];
-            browser.configuration();
-        },
     
         /* Modal types that are enduring are hidden, not destroyed, when closed */
         closeEnduring: function browser_utilities_modal_closeEnduring(event:MouseEvent):void {
@@ -545,7 +613,7 @@ const modal:module_modal = {
                     return;
                 }
             }
-            modal.events.close(event);
+            modal_close(event);
         },
     
         /* If a resizable textarea element is present in the modal outside the body this ensures the body is the correct size. */
@@ -887,7 +955,7 @@ const modal:module_modal = {
                     clientHeight = body.clientHeight;
                     settings.width = clientWidth - offsetWidth;
                     settings.height = clientHeight - offsetHeight;
-                    media.tools.kill(settings);
+                    media_kill(settings);
                     if (settings.type === "media") {
                         body.appendChild(media.content(settings.text_value as mediaType, settings.height, settings.width));
                     }

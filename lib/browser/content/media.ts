@@ -2,7 +2,8 @@
 /* lib/browser/content/media - A library for executing audio/video calls. */
 
 import browser from "../utilities/browser.js";
-import modal from "../utilities/modal.js";
+import media_kill from "../utilities/media_kill.js";
+import modal_close from "../utilities/modal_close.js";
 
 /**
  * Provides audio/video access from browser APIs and all associated interactions.
@@ -102,8 +103,8 @@ const media:module_media = {
         close: function browser_content_media_close(event:MouseEvent):void {
             const box:modal = event.target.getAncestor("box", "class"),
                 id:string = box.getAttribute("id");
-            media.tools.kill(browser.ui.modals[id]);
-            modal.events.close(event);
+            media_kill(browser.ui.modals[id]);
+            modal_close(event);
         },
 
         /* Event handler for dragging the self-video thumbnail around */
@@ -161,38 +162,6 @@ const media:module_media = {
                 document.ontouchend = stop;
             } else {
                 document.onmouseup = stop;
-            }
-        }
-    },
-
-    tools: {
-
-        /* Kills a media element and its stream */
-        kill: function browser_content_media_kill(modal:config_modal):void {
-            if (modal !== undefined && modal.type === "media") {
-                const body:HTMLElement = document.getElementById(modal.id).getElementsByClassName("body")[0] as HTMLElement,
-                    media:HTMLCollectionOf<HTMLVideoElement> = body.getElementsByTagName(modal.text_value) as HTMLCollectionOf<HTMLVideoElement>,
-                    mediaLength:number = media.length,
-                    stopTracks = function browser_content_media_kill_stopTracks(index:number):void {
-                        const stream:MediaStream = media[index].srcObject as MediaStream;
-                        if (stream !== null) {
-                            stream.getTracks().forEach(function browser_content_media_kill_stopTracks_each(item:MediaStreamTrack) {
-                                item.stop();
-                            });
-                        }
-                    };
-                if (mediaLength > 0) {
-                    stopTracks(0);
-                    media[0].src = "";
-                    media[0].pause();
-                    if (mediaLength > 1) {
-                        stopTracks(1);
-                        media[1].src = "";
-                        media[1].pause();
-                    }
-                }
-                body.onclick = null;
-                body.removeChild(body.firstChild);
             }
         }
     }

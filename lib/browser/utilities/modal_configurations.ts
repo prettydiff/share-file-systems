@@ -4,14 +4,14 @@
 import agent_management from "../content/agent_management.js";
 import browser from "./browser.js";
 import configuration from "../content/configuration.js";
-import common from "../../common/common.js";
-import file_browser from "../content/file_browser.js";
 import file_select_addresses from "../utilities/file_select_addresses.js";
 import media from "../content/media.js";
-import message from "../content/message.js";
 import modal from "./modal.js";
-import share from "../content/share.js";
-import terminal from "../content/terminal.js";
+import modal_fileNavigate from "./modal_fileNavigate.js";
+import modal_inviteAsk from "./modal_inviteAsk.js";
+import modal_message from "./modal_message.js";
+import modal_shares from "./modal_shares.js";
+import modal_terminal from "./modal_terminal.js";
 import util from "./util.js";
 import zTop from "./zTop.js";
 
@@ -147,8 +147,43 @@ const modal_configuration:module_modalConfiguration = {
                         type: "details",
                         width: 500
                     },
-                    modalInstance:modal = modal.content(payloadModal);
-                file_browser.content.detailsContent(modalInstance.getAttribute("id"));
+                    modalInstance:modal = modal.content(payloadModal),
+                    id:string = modalInstance.getAttribute("id"),
+                    nameContext:string = browser.contextElement.lowName(),
+                    menu:HTMLElement = document.getElementById("contextMenu"),
+                    addressField:HTMLInputElement = box.getElementsByClassName("fileAddress")[0].getElementsByTagName("input")[0],
+                    agents:[fileAgent, fileAgent, fileAgent] = util.fileAgent(box, null),
+                    payloadNetwork:service_fileSystem = {
+                        action: "fs-details",
+                        agentRequest: agents[0],
+                        agentSource: agents[1],
+                        agentWrite: null,
+                        depth: 0,
+                        location: (function browser_content_context_details_addressList():string[] {
+                            const output:string[] = [],
+                                length:number = addresses.length;
+                            let a:number = 0;
+                            if (nameContext === "ul") {
+                                return [addressField.value];
+                            }
+                            do {
+                                output.push(addresses[a][0]);
+                                a = a + 1;
+                            } while (a < length);
+                            return output;
+                        }()),
+                        name: id
+                    };
+                if (browser.loading === true) {
+                    return;
+                }
+                browser.ui.modals[id].text_value = JSON.stringify(payloadNetwork.location);
+                browser.send(payloadNetwork, "file-system");
+                browser.configuration();
+                browser.contextElement = null;
+                if (menu !== null) {
+                    menu.parentNode.removeChild(menu);
+                }
                 return modalInstance;
             }
             let modalInstance:modal = null;
@@ -339,123 +374,9 @@ const modal_configuration:module_modalConfiguration = {
             return modalInstance;
         },
 
-        "file-navigate": function browser_utilities_modalConfiguration_fileNavigate(event:Event, config?:config_modal):modal {
-            const element:HTMLElement = (event === null)
-                    ? null
-                    : (event as MouseEvent).target,
-                box:HTMLElement = (element === null)
-                    ? null
-                    : element.getAncestor("box", "class"),
-                div:HTMLElement = (element === null)
-                    ? null
-                    : element.getAncestor("div", "tag"),
-                agentName:string = (config === null || config === undefined || config.agent === undefined)
-                    ? (box !== document.documentElement)
-                        ? (box.dataset.agent === undefined || box.dataset.agent === "")
-                            ? div.dataset.hash                       // multi-agent share modals not bound to one agent
-                            : box.dataset.agent                      // modals bound to an agent
-                        : browser.identity.hashDevice                // when not coming from a modal (assume local device)
-                    : config.agent,                                  // state restoration
-                agentType:agentType = (config === null || config === undefined || config.agentType === undefined)
-                    ? (box !== document.documentElement)
-                        ? (box.dataset.agent === undefined || box.dataset.agent === "")
-                            ? div.getAttribute("class") as agentType // multi-agent share modals not bound to one agent
-                            : box.dataset.agenttype as agentType     // modals bound to an agent
-                        : "device"                                   // when not coming from a modal (assume local device)
-                    : config.agentType,                              // state restoration
-                location:string = (config !== null && config !== undefined && typeof config.text_value === "string")
-                    ? config.text_value
-                    : "**root**",
-                share:string = (config === null || config === undefined || config.share === undefined)
-                    ? ""
-                    : config.share,
-                readOnly:boolean = (agentName !== browser.identity.hashDevice && config !== undefined && config.read_only === true),
-                readOnlyString:string = (readOnly === true && agentType === "user")
-                    ? "(Read Only)"
-                    : "",
-                // agents not abstracted in order to make use of a config object for state restoration
-                payloadNetwork:service_fileSystem = {
-                    action: "fs-directory",
-                    agentRequest: {
-                        device: browser.identity.hashDevice,
-                        modalAddress: "",
-                        share: "",
-                        user: browser.identity.hashUser
-                    },
-                    agentSource: {
-                        device: (agentType === "device")
-                            ? agentName
-                            : "",
-                        modalAddress: location,
-                        share: share,
-                        user: (agentType === "device")
-                            ? browser.identity.hashUser
-                            : agentName
-                    },
-                    agentWrite: null,
-                    depth: 2,
-                    location: [location],
-                    name: "navigate"
-                },
-                payloadModal:config_modal = (config === null || config === undefined)
-                    ? {
-                        agent: agentName,
-                        agentIdentity: true,
-                        agentType: agentType,
-                        content: null,
-                        footer: null,
-                        read_only: readOnly,
-                        selection: {},
-                        share: share,
-                        text_event: file_browser.events.text,
-                        text_placeholder: "Optionally type a file system address here.",
-                        text_value: location,
-                        title_supplement: readOnlyString,
-                        type: "file-navigate",
-                        width: 800
-                    }
-                    : config;
-            if (payloadModal.history === undefined || payloadModal.history === null || payloadModal.history.length < 1) {
-                payloadModal.history = [location];
-            }
-            if (payloadModal.search === undefined || payloadModal.search === null) {
-                payloadModal.search = ["", ""];
-            }
-            if (payloadModal.selection === undefined || payloadModal.selection === null) {
-                payloadModal.selection = {};
-            }
-            payloadModal.inputs = ["close", "maximize", "minimize", "text"];
-            payloadModal.content = util.delay();
-            payloadModal.footer = file_browser.content.footer();
-            payloadModal.text_event = file_browser.events.text;
-            document.getElementById("menu").style.display = "none";
-            browser.send(payloadNetwork, "file-system");
-            return modal.content(payloadModal);
-        },
+        "file-navigate": modal_fileNavigate,
 
-        "invite-ask": function browser_utilities_modalConfiguration_inviteAsk(event:Event, config?:config_modal):modal {
-            const invitation:service_invite = JSON.parse(config.text_value) as service_invite,
-                agentInvite:agentInvite = invitation.agentRequest,
-                inviteName:string = invitation.agentRequest.nameUser;
-            if (config === null || config === undefined) {
-                config = {
-                    agent: browser.identity.hashDevice,
-                    agentIdentity: false,
-                    agentType: "device",
-                    closeHandler: agent_management.events.inviteDecline,
-                    content: null,
-                    height: 300,
-                    inputs: ["cancel", "confirm", "close"],
-                    read_only: false,
-                    share: browser.identity.hashDevice,
-                    title_supplement: `User ${agentInvite.nameUser}`,
-                    type: "invite-ask",
-                    width: 500
-                };
-            }
-            config.content = agent_management.content.inviteRemote(invitation, inviteName);
-            return modal.content(config);
-        },
+        "invite-ask": modal_inviteAsk,
 
         "media": function browser_utilities_modalConfiguration_media(event:Event):modal {
             const element:HTMLElement = event.target as HTMLElement,
@@ -476,78 +397,9 @@ const modal_configuration:module_modalConfiguration = {
             });
         },
 
-        "message": function browser_utilities_modalConfiguration_message(event:Event, config?:config_modal):modal {
-            const text:string = (config === null)
-                    ? ""
-                    : config.text_value,
-                placeholder:string = (config === null)
-                    ? "text"
-                    : config.text_placeholder,
-                content:[HTMLElement, HTMLElement] = message.content.modal(text, placeholder);
-            if (config === null) {
-                const element:HTMLElement = event.target as HTMLElement,
-                    div:HTMLElement = element.getAncestor("div", "tag"),
-                    agent:string = div.dataset.hash,
-                    agentType:agentType = div.getAttribute("class") as agentType,
-                    identity:boolean = (agent === browser.identity.hashDevice || agent === "");
-                if (identity === true && browser.agents[agentType][agent] === undefined) {
-                    return null;
-                }
-                config = {
-                    agent: agent,
-                    agentIdentity: identity,
-                    agentType: agentType,
-                    content: null,
-                    footer: null,
-                    inputs: ["close", "maximize", "minimize"],
-                    read_only: false,
-                    text_placeholder: "text",
-                    text_value: "",
-                    title_supplement: (identity === true)
-                        ? `all ${agentType}s`
-                        : `${common.capitalize(agentType)} ${browser.agents[agentType][agent].name}`,
-                    type: "message",
-                    width: 800
-                };
-            }
-            config.content = content[0];
-            config.footer = content[1];
-            return modal.content(config);
-        },
+        "message": modal_message,
 
-        "shares": function browser_utilities_modalConfiguration_modal(event:Event, config?:config_modal):modal {
-            if (config === null || config === undefined) {
-                const element:HTMLElement = event.target as HTMLElement,
-                    classy:string = element.getAttribute("class"),
-                    agent:string = (classy === null || classy === "device-all-shares" || classy === "user-all-shares")
-                        ? ""
-                        : element.getAttribute("id"),
-                    agentType:agentType|"" = (classy === null)
-                        ? ""
-                        : (classy === "device-all-shares")
-                            ? "device"
-                            : (classy === "user-all-shares")
-                                ? "user"
-                                : element.dataset.agenttype as agentType;
-                config = {
-                    agent: agent,
-                    agentIdentity: true,
-                    agentType: agentType as agentType,
-                    content: share.content(agent, agentType),
-                    inputs: ["close", "maximize", "minimize"],
-                    read_only: false,
-                    type: "shares",
-                    width: 800
-                };
-            } else {
-                config.content = (config.agentType === "user" && config.agent === "")
-                    ? share.content("", "user")
-                    : share.content(config.agent, config.agentType);
-                config.type = "shares";
-                config.inputs = ["close", "maximize", "minimize"];
-            }
-            return modal.content(config);
-        },
+        "shares": modal_shares,
 
         "socket-map": function browser_utilities_modalConfiguration_socketMap(event:Event, config?:config_modal):modal {
             // building configuration modal
@@ -591,66 +443,7 @@ const modal_configuration:module_modalConfiguration = {
             browser.configuration();
         },
 
-        "terminal": function browser_utilities_modalConfiguration_terminal(event:Event, config?:config_modal):modal {
-            let box:modal = null;
-            const content:[HTMLElement, HTMLElement] = terminal.content(),
-                element:HTMLElement = (event === null)
-                    ? null
-                    : event.target as HTMLElement,
-                ancestor:HTMLElement = (element === null)
-                    ? null
-                    : element.getAncestor("div", "tag"),
-                shareAgent:string = (ancestor === null)
-                    ? null
-                    : ancestor.dataset.hash,
-                agentName:string = (config === undefined)
-                    ? (shareAgent === undefined || shareAgent === null)
-                        ? browser.identity.hashDevice
-                        : shareAgent
-                    : config.agent,
-                agentType:agentType = (config === undefined)
-                    ? (shareAgent === undefined || shareAgent === null)
-                        ? "device"
-                        : ancestor.getAttribute("class") as agentType
-                    : config.agentType,
-                payloadModal:config_modal = (config === undefined)
-                    ? {
-                        agent: agentName,
-                        agentIdentity: true,
-                        agentType: agentType,
-                        content: content[0],
-                        footer: content[1],
-                        id: (config === undefined)
-                            ? null
-                            : config.id,
-                        inputs: ["close", "maximize", "minimize"],
-                        read_only: false,
-                        socket: true,
-                        string_store: [],
-                        text_value: "",
-                        type: "terminal",
-                        width: 800
-                    }
-                    : config,
-                textArea:HTMLTextAreaElement = content[1].getElementsByTagName("textarea")[0];
-            if (config !== undefined) {
-                textArea.value = config.text_value;
-                config.content = content[0];
-                config.footer = content[1];
-                if (typeof config.text_placeholder === "string" && config.text_placeholder !== "") {
-                    config.footer.getElementsByClassName("terminal-cwd")[0].appendText(config.text_placeholder, true);
-                }
-            }
-            document.getElementById("menu").style.display = "none";
-            textArea.placeholder = "Type a command here. Press 'tab' key for file system auto-completion. Press 'shift + tab' or 'tab, tab' to shift focus.";
-            box = modal.content(payloadModal);
-            if (config === undefined) {
-                terminal.tools.send(box, "", false);
-            } else {
-                terminal.tools.populate(box, config.string_store, true);
-            }
-            return box;
-        },
+        "terminal": modal_terminal,
 
         "text-pad": function browser_utilities_modalConfiguration_textPad(event:Event, config?:config_modal):modal {
             const element:HTMLElement = (event === null)

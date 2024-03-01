@@ -5,7 +5,7 @@ import browser from "./browser.js";
 import common from "../../common/common.js";
 import configuration from "../content/configuration";
 import modal_configuration from "./modal_configurations";
-import share from "../content/share.js";
+import share_update from "./share_update.js";
 
 // cspell: words agentType
 
@@ -62,7 +62,7 @@ const addAgent = function browser_content_agentManagement_addAgent(input:agentMa
     addStyle();
     configuration.tools.addUserColor(input.hash, input.type);
     if (browser.loading === false) {
-        share.tools.update("");
+        share_update("");
     }
 };
 

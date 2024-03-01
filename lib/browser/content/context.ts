@@ -7,7 +7,6 @@ import file_select from "../utilities/file_select.js";
 import file_select_addresses from "../utilities/file_select_addresses.js";
 import file_select_none from "../utilities/files_select_none.js";
 import modal_configuration from "../utilities/modal_configurations.js";
-import share from "./share.js";
 import util from "../utilities/util.js";
 
 // cspell:words agenttype
@@ -207,7 +206,7 @@ const context:module_context = {
                     button.appendText("Share ");
                     button.appendChild(em);
                     button.setAttribute("type", "button");
-                    button.onclick = share.events.context;
+                    button.onclick = context.events.share;
                     item.appendChild(button);
                     itemList.push(item);
                 }
@@ -609,7 +608,7 @@ const context:module_context = {
                 } else if (key === "s") {
                     // key s, share
                     browser.contextElement = element;
-                    share.events.context(event);
+                    context.events.share(event);
                 } else if (key === "t") {
                     // key t, details
                     modal_configuration.modals.details(event);
@@ -692,7 +691,7 @@ const context:module_context = {
         },
 
         /* The front-side of renaming a file system object */
-        rename: function browser_content_fileBrowser_rename(event:KeyboardEvent|MouseEvent):void {
+        rename: function browser_content_context_rename(event:KeyboardEvent|MouseEvent):void {
             const element:HTMLElement = (browser.contextElement === null)
                     ? event.target
                     : browser.contextElement,
@@ -700,7 +699,7 @@ const context:module_context = {
                 input:HTMLInputElement = document.createElement("input"),
                 li:HTMLElement = element.getAncestor("li", "tag"),
                 menu:HTMLElement = document.getElementById("contextMenu"),
-                actionComplete = function browser_content_fileBrowser_rename_actionComplete(field:HTMLInputElement, labelValue:string):void {
+                actionComplete = function browser_content_context_rename_actionComplete(field:HTMLInputElement, labelValue:string):void {
                     field.onblur = null;
                     field.onkeyup = null;
                     label.removeChild(field);
@@ -747,6 +746,54 @@ const context:module_context = {
             label.appendChild(input);
             input.focus();
             browser.contextElement = null;
+            if (menu !== null) {
+                menu.parentNode.removeChild(menu);
+            }
+        },
+
+        share: function browser_content_context_share():void {
+            const element:HTMLElement = browser.contextElement,
+                addresses:[string, fileType, string][] = file_select_addresses(element, "share"),
+                deviceData:agentShares = browser.agents.device[addresses[0][2]].shares,
+                shares:string[] = Object.keys(deviceData),
+                shareLength:number = shares.length,
+                addressesLength:number = addresses.length,
+                menu:HTMLElement = document.getElementById("contextMenu");
+            let a:number = 0,
+                b:number = 0;
+            browser.contextElement = null;
+            // check to see if this share already exists
+            if (shareLength > 0) {
+                do {
+                    b = 0;
+                    do {
+                        if (addresses[a][0] === deviceData[shares[b]].name && addresses[a][1] === deviceData[shares[b]].type) {
+                            break;
+                        }
+                        b = b + 1;
+                    } while (b < shareLength);
+                    if (b === shareLength) {
+                        browser.send({
+                            device: addresses[a][2],
+                            hash: "",
+                            share: addresses[a][0],
+                            type: addresses[a][1]
+                        }, "hash-share");
+                    }
+                    a = a + 1;
+                } while (a < addressesLength);
+            } else {
+                do {
+                    browser.send({
+                        device: addresses[a][2],
+                        hash: "",
+                        share: addresses[a][0],
+                        type: addresses[a][1]
+                    }, "hash-share");
+                    a = a + 1;
+                } while (a < addressesLength);
+            }
+            file_select_none(element);
             if (menu !== null) {
                 menu.parentNode.removeChild(menu);
             }

@@ -48,7 +48,6 @@ interface TouchEvent {
  * ```typescript
  * interface module_agentManagement {
  *     content: {
- *         inviteRemote: (invitation:service_invite, name:string) => HTMLElement;
  *         inviteStart: () => HTMLElement;
  *         menu: (view:"delete"|"edit_names"|"invite") => HTMLElement;
  *     };
@@ -57,7 +56,6 @@ interface TouchEvent {
  *         confirmInvite: (event:MouseEvent, options:config_modal) => void;
  *         confirmModify: (event:MouseEvent) => void;
  *         displayIP: (event:MouseEvent) => void;
- *         inviteDecline: (event:MouseEvent) => void;
  *         invitePortValidation: (event:Event) => void;
  *         inviteTypeToggle: (event:MouseEvent) => void;
  *         modeToggle: (event:MouseEvent) => void;
@@ -76,7 +74,6 @@ interface TouchEvent {
  * ``` */
 interface module_agentManagement {
     content: {
-        inviteRemote: (invitation:service_invite, name:string) => HTMLElement;
         inviteStart: () => HTMLElement;
         menu: (view:"delete"|"edit_names"|"invite") => HTMLElement;
     };
@@ -85,7 +82,6 @@ interface module_agentManagement {
         confirmInvite: (event:MouseEvent, options:config_modal) => void;
         confirmModify: (event:MouseEvent) => void;
         displayIP: (event:MouseEvent) => void;
-        inviteDecline: (event:MouseEvent) => void;
         invitePortValidation: (event:Event) => void;
         inviteTypeToggle: (event:MouseEvent) => void;
         modeToggle: (event:MouseEvent) => void;
@@ -256,6 +252,7 @@ interface module_configuration {
  *         menu    : (event:Event) => void; // Generates the context menu which populates with different menu items depending upon event.target of the right click.
  *         paste   : (event:Event) => void; // Handler for the *Paste* menu item which performs the file copy operation over the network.
  *         rename  : (event:KeyboardEvent|MouseEvent) => void; // Converts a file system item text into a text input field so that the artifact can be renamed.
+ *         share   : (event:Event) => void; // Handler for sharing a resource.
  *     };
  * }
  * type contextType = "" | "Base64" | "copy" | "cut" | "directory" | "Edit" | "file" | "Hash";
@@ -271,6 +268,7 @@ interface module_context {
         menu: (event:Event) => void;
         paste: (event:Event) => void;
         rename: (event:KeyboardEvent|MouseEvent) => void;
+        share: (event:Event) => void;
     };
 }
 
@@ -279,25 +277,16 @@ interface module_context {
  * ```typescript
  * interface module_fileBrowser {
  *     content: {
- *         dataString     : (socketData:socketData) => void; // Populate content into modals for string output operations, such as: Base64, Hash, File Read.
- *         detailsContent : (id:string) => void;             // Generates the initial content and network request for file system details.
- *         detailsResponse: (socketData:socketData) => void; // Generates the contents of a details type modal from file system data.
  *         footer         : () => HTMLElement;               // Generates the status bar content for the file browser modal.
  *         list           : (location:string, dirs:directory_response, message:string) => HTMLElement; // Generates the contents of a file system list for population into a file navigate modal.
  *         status         : (socketData:socketData) => void; // Translates messaging into file system lists for the appropriate modals.
  *     };
  *     events: {
- *         back       : (event:MouseEvent) => void;               // Handler for the back button, which steps back to the prior file system location of the given agent stored in the modal's navigation history.
  *         drag       : (event:MouseEvent|TouchEvent) => void;    // Move file system artifacts from one location to another by means of double click.
  *         execute    : (event:KeyboardEvent|MouseEvent) => void; // Allows operating system execution of a file by double click interaction.
  *         expand     : (event:MouseEvent) => void;               // Opens a directory into a child list without changing the location of the current modal.
  *         keyExecute : (event:KeyboardEvent) => void;            // Allows file execution by keyboard control, such as pressing the *Enter* key.
  *         listFocus  : (event:MouseEvent) => void;               // When clicking on a file list give focus to an input field in that list so that the list can receive focus.
- *         parent     : (event:MouseEvent) => void;               // Handler to navigate into the parent directory by click the parent navigate button.
- *         saveFile   : (event:MouseEvent) => void;               // A handler for an interaction that allows writing file changes to the file system.
- *         search     : (event?:FocusEvent|KeyboardEvent|MouseEvent, searchElement?:HTMLInputElement, callback?:(event:Event, callback:(event:MouseEvent, dragBox:HTMLElement) => void) => void) => void; // Sends a search query in order to receive a filtered list of file system artifacts.
- *         searchFocus: (event:FocusEvent) => void;               // Provides an interaction that enlarges and reduces the width of the search field.
- *         text       : (event:FocusEvent|KeyboardEvent|MouseEvent) => void; // Allows changing file system location by changing the text address of the current location.
  *     };
  *     tools: {
  *         listFail         : (count:number, box:modal) => void;                                  // Display status information when the Operating system locks files from access.
@@ -307,25 +296,16 @@ interface module_context {
  * ``` */
 interface module_fileBrowser {
     content: {
-        dataString: (socketData:socketData) => void;
-        detailsContent: (id:string) => void;
-        detailsResponse: (socketData:socketData) => void;
         footer: () => HTMLElement;
         list: (location:string, dirs:directory_response, message:string) => HTMLElement;
         status: (socketData:socketData) => void;
     };
     events: {
-        back: (event:MouseEvent) => void;
         drag: (event:MouseEvent|TouchEvent) => void;
         execute: (event:KeyboardEvent|MouseEvent) => void;
         expand: (event:MouseEvent) => void;
         keyExecute: (event:KeyboardEvent) => void;
         listFocus: (event:MouseEvent) => void;
-        parent: (event:MouseEvent) => void;
-        saveFile: (event:MouseEvent) => void;
-        search: (event?:FocusEvent|KeyboardEvent|MouseEvent, searchElement?:HTMLInputElement, callback?:(event:Event, callback:(event:MouseEvent, dragBox:HTMLElement) => void) => void) => void;
-        searchFocus: (event:FocusEvent) => void;
-        text: (event:FocusEvent|KeyboardEvent|MouseEvent) => void;
     };
     tools: {
         listFail: (count:number, box:modal) => void;
@@ -342,9 +322,6 @@ interface module_fileBrowser {
  *         close      : (event:MouseEvent) => void;            // Kill any media stream when closing the modal
  *         selfDrag   : (event:MouseEvent|TouchEvent) => void; // Allows dragging a thumbnail of local webcam video from one corner of a video modal to another.
  *     };
- *     tools: {
- *         kill : (modal:config_modal) => void;             // Destroys a media stream to the local hardware and closes the corresponding modal.
- *     };
  * }
  * type mediaType = "audio" | "video";
  * ``` */
@@ -353,9 +330,6 @@ interface module_media {
     events: {
         close: (event:MouseEvent) => void;
         selfDrag: (event:MouseEvent|TouchEvent) => void;
-    };
-    tools: {
-        kill: (modal:config_modal) => void;
     };
 }
 
@@ -406,7 +380,6 @@ interface module_message {
  * interface module_modal {
  *     content: (options:config_modal) => modal; // Creates a new modal.
  *     events: {
- *         close         : (event:MouseEvent) => void;                               // Closes a modal by removing it from the DOM, removing it from state, and killing any associated media.
  *         closeEnduring : (event:MouseEvent) => void;                               // Modal types that are enduring are hidden, not destroyed, when closed.
  *         confirm       : (event:MouseEvent) => void;                               // Handling for an optional confirmation button.
  *         footerResize  : (event:MouseEvent) => void;                               // If a resizable textarea element is present in the modal outside the body this ensures the body is the correct size.
@@ -428,7 +401,6 @@ interface module_message {
 interface module_modal {
     content: (options:config_modal) => modal;
     events: {
-        close: (event:MouseEvent) => void;
         closeEnduring: (event:MouseEvent) => void;
         confirm: (event:MouseEvent) => void;
         footerResize: (event:MouseEvent) => void;
@@ -536,33 +508,6 @@ interface module_remote {
     report: (test:test_browserTest[], index:number) => void;
     sendTest: (payload:[boolean, string, string][], index:number, task:test_browserAction) => void;
     stringify: (primitive:primitive) => string;
-}
-
-/**
- * Populates the various agent modals, device details, and share data lists.
- * ```typescript
- * interface module_share {
- *     content: (agent:string, agentType:agentType|"") => HTMLElement; // Generates the content of the share modal.
- *     events: {
- *         context : (event:Event) => void;      // Handler for the File Navigate context menu item *Add a Share*.
- *         readOnly: (event:MouseEvent) => void; // Toggle a share between read only and full access.
- *     }
- *     tools: {
- *         hash    : (socketData) => void;       // Generates a hash identifier for a new share
- *         update  : (exclusion:string) => void; // Updates the content of device shares in response to messaging from the network and local user interaction.
- *     }
- * }
- * ``` */
-interface module_share {
-    content: (agent:string, agentType:agentType|"") => HTMLElement;
-    events: {
-        context: (event:Event) => void;
-        readOnly: (event:MouseEvent) => void;
-    };
-    tools: {
-        hash: (socketData:socketData) => void;
-        update: (exclusion:string) => void;
-    };
 }
 
 /**
