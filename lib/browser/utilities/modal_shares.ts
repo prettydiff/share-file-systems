@@ -4,6 +4,8 @@
 import share_content from "./share_content.js";
 import modal from "./modal.js";
 
+// cspell: words agentType
+
 const modal_shares = function browser_utilities_modalConfiguration_modal(event:Event, config?:config_modal):modal {
     if (config === null || config === undefined) {
         const element:HTMLElement = event.target as HTMLElement,

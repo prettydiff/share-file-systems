@@ -2,9 +2,12 @@
 /* lib/browser/content/agent_management - Provide control of agent data: delete, invite, and edit. */
 
 import agent_change from "../utilities/agent_change.js";
+import agent_delete from "../utilities/agent_delete";
 import browser from "../utilities/browser.js";
 import common from "../../common/common.js";
 import configuration from "./configuration.js";
+import configuration_radio from "../utilities/configuration_radio.js";
+import configuration_styleText from "../utilities/configuration_styleText.js";
 import invite_decline from "../utilities/invite_decline.js";
 import modal_inviteAsk from "../utilities/modal_inviteAsk.js";
 import modal_shares from "../utilities/modal_shares.js";
@@ -168,207 +171,6 @@ const agent_management:module_agentManagement = {
         }
     },
     events: {
-        /* Handles the confirmation button for the agent management modal type. */
-        confirm: function browser_content_agentManagement_confirm(event:MouseEvent):void {
-            const target:HTMLElement = event.target,
-                box:modal = target.getAncestor("box", "class"),
-                firstInput:HTMLElement = box.getElementsByTagName("input")[0],
-                type:string = (function browser_content_agentManagement_confirm_type():string {
-                    const radios:NodeListOf<HTMLInputElement> = document.getElementsByName(firstInput.getAttribute("name")) as NodeListOf<HTMLInputElement>;
-                    let len:number = radios.length;
-                    do {
-                        len = len - 1;
-                        if (radios[len].checked === true) {
-                            return radios[len].value;
-                        }
-                    } while (len > 0);
-                    return null;
-                }());
-            if (type === "invite") {
-                agent_management.events.confirmInvite(event, browser.ui.modals[box.getAttribute("id")]);
-            } else if (type === "edit_names") {
-                agent_management.events.confirmModify(event);
-            } else if (type === "delete") {
-                agent_management.tools.confirmDelete(box);
-            }
-        },
-
-        /* Send the invite request to the network */
-        confirmInvite: function browser_content_agentManagement_confirmInvite(event:MouseEvent, options:config_modal):void {
-            let type:agentType,
-                ip:string,
-                port:string,
-                portNumber:number;
-            const element:HTMLButtonElement = event.target as HTMLButtonElement,
-                box:modal = element.getAncestor("box", "class"),
-                body:HTMLElement = box.getElementsByClassName("body")[0] as HTMLElement,
-                content:HTMLElement = body.getElementsByClassName("inviteAgent")[0] as HTMLElement,
-                input:HTMLElement = (function browser_content_agentManagement_confirmInvite_input():HTMLElement {
-                    // value attainment and form validation
-                    const inputs:HTMLCollectionOf<HTMLInputElement> = content.getElementsByTagName("input"),
-                        length:number = inputs.length,
-                        indexes:invite_indexes = {
-                            type: -1,
-                            ip: -1,
-                            port: -1
-                        };
-                    let a:number = 0,
-                        parentNode:HTMLElement;
-                    do {
-                        parentNode = inputs[a].parentNode;
-                        if (inputs[a].value === "device" || inputs[a].value === "user") {
-                            if (inputs[a].value === "device") {
-                                indexes.type = a;
-                            }
-                            if (inputs[a].checked === true) {
-                                type = inputs[a].value as agentType;
-                            }
-                        } else if (parentNode.innerHTML.indexOf("IP Address") === 0) {
-                            indexes.ip = a;
-                            ip = inputs[a].value;
-                        } else if (parentNode.innerHTML.indexOf("Port") === 0) {
-                            indexes.port = a;
-                            port = inputs[a].value;
-                        }
-                        a = a + 1;
-                    } while (a < length);
-                    if (type === undefined) {
-                        return inputs[indexes.type];
-                    }
-                    if (ip === undefined || ip.replace(/\s+/, "") === "" || ((/(\d{1,3}\.){3}\d{1,3}/).test(ip) === false && (/([a-f0-9]{4}:)+/).test(ip) === false)) {
-                        return inputs[indexes.ip];
-                    }
-                    if (port === undefined || port.replace(/^\s+$/, "") === "") {
-                        port = "";
-                        portNumber = (location.href.indexOf("https") === 0)
-                            ? browser.network.default.secure
-                            : browser.network.default.unsecure;
-                    } else {
-                        portNumber = Number(port);
-                        if (isNaN(portNumber) === true || portNumber < 0 || portNumber > 65535) {
-                            return inputs[indexes.port];
-                        }
-                    }
-                    return null;
-                }()),
-                saved:invite_saved = {
-                    ip: ip,
-                    message: content.getElementsByTagName("textarea")[0].value.replace(/"/g, "\\\""),
-                    port: port,
-                    type: type
-                },
-                userData:userData = common.userData(browser.agents.device, type, browser.identity.hashDevice),
-                invitation:service_invite = {
-                    action: "invite-start",
-                    agentRequest: {
-                        devices: null,
-                        hashUser: "",
-                        ipAll: userData[1],
-                        ipSelected: "",
-                        modal: options.id,
-                        nameUser: browser.identity.nameUser,
-                        port: browser.network.port,
-                        secret: "",
-                        session: "",
-                        shares: userData[0]
-                    },
-                    agentSource: {
-                        devices: null,
-                        hashUser: "",
-                        ipAll: null,
-                        ipSelected: ip,
-                        modal: "",
-                        nameUser: "",
-                        port: portNumber,
-                        secret: "",
-                        session: "",
-                        shares: null
-                    },
-                    message: saved.message,
-                    status: "invited",
-                    type: type
-                };
-            options.text_value = JSON.stringify(saved);
-            browser.configuration();
-            if (input !== null) {
-                const p:HTMLElement = input.parentNode.parentNode,
-                    warning:HTMLElement = document.createElement("p"),
-                    strong:HTMLElement = document.createElement("strong");
-                p.setAttribute("class", "warning");
-                input.focus();
-                strong.appendText("Please select an invitation type.");
-                warning.appendChild(strong);
-                warning.setAttribute("class", "inviteWarning");
-                p.parentNode.appendChild(warning);
-                return;
-            }
-            content.style.display = "none";
-            if (content.getElementsByClassName("error").length > 0) {
-                content.removeChild(content.getElementsByClassName("error")[0]);
-            }
-            body.appendChild(util.delay());
-            browser.send(invitation, "invite");
-        },
-
-        /* Handle confirmation of changes to agent data. */
-        confirmModify: function browser_content_agentManagement_confirmModify(event:MouseEvent):void {
-            const target:HTMLElement = event.target,
-                box:modal = target.getAncestor("box", "class"),
-                boxes:HTMLCollectionOf<HTMLDivElement> = document.getElementsByClassName("box") as HTMLCollectionOf<HTMLDivElement>,
-                modify:HTMLElement = box.getElementsByClassName("modify-agents")[0] as HTMLElement,
-                inputs:HTMLCollectionOf<HTMLInputElement> = modify.getElementsByTagName("input"),
-                flags:flagList = {
-                    device: false,
-                    user: false
-                },
-                modifyService:service_agentManagement = {
-                    action: "rename",
-                    agents: {
-                        device: {},
-                        user: {}
-                    },
-                    agentFrom: browser.identity.hashDevice,
-                    identity: null
-                },
-                modifyModals = function browser_content_agentManagement_confirmModify_modifyModals(agent:string, type:agentType, name:string):void {
-                    const typeString:string = `${common.capitalize(type)}, `;
-                    let boxLen:number = boxes.length,
-                        button:HTMLElement = null,
-                        text:string = "";
-                    do {
-                        boxLen = boxLen - 1;
-                        if (boxes[boxLen].dataset.agent === agent && boxes[boxLen].dataset.agenttype === type) {
-                            button = boxes[boxLen].getElementsByTagName("button")[0];
-                            text = button.innerHTML;
-                            text = text.slice(0, text.indexOf(typeString) + typeString.length) + name;
-                            button.appendText(text);
-                        }
-                    } while (boxLen > 0);
-                };
-            let len:number = inputs.length,
-                agent:string = "",
-                name:string = "",
-                type:agentType = null,
-                value:string = "";
-            do {
-                len = len - 1;
-                agent = inputs[len].dataset.agent;
-                type = inputs[len].dataset.type as agentType;
-                name = browser.agents[type][agent].name;
-                value = inputs[len].value;
-                if (value !== name) {
-                    flags[type] = true;
-                    browser.agents[type][agent].name = value;
-                    document.getElementById(agent).lastChild.textContent = ` ${value}`;
-                    modifyModals(agent, type, value);
-                    modifyService.agents[type][agent] = browser.agents[type][agent];
-                }
-            } while (len > 0);
-            if (flags.user === true || flags.device === true) {
-                browser.send(modifyService, "agent-management");
-                browser.configuration();
-            }
-        },
 
         /* Shows and hides IP address information from the Modify view of agent management */
         displayIP: function browser_content_agentManagement_displayIP(event:MouseEvent):void {
@@ -432,7 +234,7 @@ const agent_management:module_agentManagement = {
                 description.appendText("Including a user allows sharing with a different person and the devices they make available.", true);
             }
             description.style.display = "block";
-            configuration.tools.radio(element);
+            configuration_radio(element);
         },
 
         /* Changes the content between invite, delete, edit of agent data */
@@ -486,7 +288,7 @@ const agent_management:module_agentManagement = {
                         heading = browser.ui.colors[input.type][input.hash][1];
                     }
                     if (browser.loading === false) {
-                        configuration.tools.styleText({
+                        configuration_styleText({
                             agent: input.hash,
                             agentType: input.type,
                             colors: [body, heading],
@@ -523,124 +325,6 @@ const agent_management:module_agentManagement = {
             if (browser.loading === false) {
                 share_update("");
             }
-        },
-
-        /* Processes agent termination from a delete-agents content of agent-management */
-        confirmDelete: function browser_content_agentManagement_confirmDelete(box:modal):void {
-            const body:HTMLElement = box.getElementsByClassName("body")[0] as HTMLElement,
-                list:HTMLCollectionOf<Element> = body.getElementsByClassName("delete-agents")[0].getElementsByTagName("li"),
-                manage:service_agentManagement = {
-                    action: "delete",
-                    agentFrom: browser.identity.hashDevice,
-                    agents: {
-                        device: {},
-                        user: {}
-                    },
-                    identity: null
-                };
-            let a:number = list.length,
-                count:number = 0,
-                input:HTMLInputElement,
-                type:agentType,
-                subtitle:HTMLElement,
-                hash:string,
-                parent:HTMLElement;
-
-            // put the deleted agents into a list
-            do {
-                a = a - 1;
-                input = list[a].getElementsByTagName("input")[0];
-                if (input.checked === true) {
-                    hash = input.value;
-                    type = input.dataset.type as agentType;
-                    parent = document.getElementById(hash).parentNode;
-                    if (list[a].parentNode.childNodes.length < 2) {
-                        subtitle = document.createElement("p");
-                        subtitle.appendText(`No ${type}s to delete.`);
-                        subtitle.setAttribute("class", "summary");
-                        list[a].parentNode.parentNode.insertBefore(subtitle, list[a].parentNode);
-                        list[a].parentNode.parentNode.removeChild(list[a].parentNode);
-                    } else {
-                        list[a].parentNode.removeChild(list[a]);
-                    }
-                    manage.agents[type][hash] = browser.agents[type][hash];
-                    parent.parentNode.removeChild(parent);
-                    agent_management.tools.deleteAgent(hash, type);
-                    count = count + 1;
-                }
-            } while (a > 0);
-            if (count < 1) {
-                return;
-            }
-            browser.send(manage, "agent-management");
-            share_update("");
-            browser.configuration();
-        },
-
-        /* Removes an agent from the browser interface */
-        deleteAgent: function browser_content_agentManagement_deleteAgent(agent:string, agentType:agentType):void {
-            const userColors:HTMLCollectionOf<HTMLElement> = document.getElementById("configuration-modal").getElementsByClassName(`${agentType}-color-list`)[0].getElementsByTagName("li"),
-                shareModals:HTMLElement[] = document.getModalsByModalType("shares"),
-                colorLength:number = userColors.length,
-                button:HTMLElement = document.getElementById(agent),
-                parent:HTMLElement = (button === null)
-                    ? null
-                    : button.parentNode;
-            let a:number = 0,
-                shareLength:number = shareModals.length,
-                closeButton:HTMLButtonElement = null;
-    
-            // loop through the color swatches in the settings modal to remove the agent's colors
-            if (colorLength > 0) {
-                do {
-                    if (userColors[a].dataset.agent === agent) {
-                        userColors[a].parentNode.removeChild(userColors[a]);
-                        configuration.tools.styleText({
-                            agent: agent,
-                            agentType: agentType,
-                            colors: ["", ""],
-                            replace: true
-                        });
-                        break;
-                    }
-                    a = a + 1;
-                } while (a < colorLength);
-            }
-    
-            // remove the agent from the data structures
-            delete browser.agents[agentType][agent];
-            delete browser.ui.colors[agentType][agent];
-    
-            // remove agent associated share modals
-            if (shareLength > 0) {
-                do {
-                    shareLength = shareLength - 1;
-                    if (shareModals[shareLength].dataset.agent === agent && shareModals[shareLength].dataset.agenttype === agentType) {
-                        closeButton = shareModals[shareLength].getElementsByClassName("close")[0] as HTMLButtonElement;
-                        closeButton.click();
-                    }
-                } while (shareLength > 0);
-            }
-    
-            // remove the named button for the agent
-            if (parent !== null && button.dataset.agenttype === agentType) {
-                parent.parentNode.removeChild(parent);
-            }
-        },
-
-        /* Accept an invitation, handler on a modal's confirm button */
-        inviteAccept: function browser_content_agentManagement_inviteAccept(box:modal):void {
-            const div:HTMLElement = box.getElementsByClassName("agentInvitation")[0] as HTMLElement,
-                invitation:service_invite = JSON.parse(div.dataset.invitation) as service_invite;
-            invitation.action = "invite-answer";
-            invitation.message = `Invite accepted: ${common.dateFormat(new Date())}`;
-            invitation.status = "accepted";
-            if (invitation.type === "device") {
-                browser.identity.hashUser = invitation.agentRequest.hashUser;
-                browser.identity.nameUser = invitation.agentRequest.nameUser;
-                browser.configuration();
-            }
-            browser.send(invitation, "invite");
         },
 
         /* Handles final status of an invitation completion */
@@ -690,6 +374,7 @@ const agent_management:module_agentManagement = {
                     agentIdentity: false,
                     agentType: "device",
                     closeHandler: invite_decline,
+                    // confirmHandler = 
                     content: null,
                     height: 300,
                     id: invitation.agentRequest.modal,
@@ -757,9 +442,9 @@ const agent_management:module_agentManagement = {
                         let a:number = 0;
                         do {
                             if (keys[a] === browser.identity[property]) {
-                                agent_management.tools.deleteAgent(data.agentFrom, agentType);
+                                agent_delete(data.agentFrom, agentType);
                             } else {
-                                agent_management.tools.deleteAgent(keys[a], agentType);
+                                agent_delete(keys[a], agentType);
                             }
                             a = a + 1;
                         } while (a < keyLength);

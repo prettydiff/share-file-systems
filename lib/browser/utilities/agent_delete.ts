@@ -1,12 +1,12 @@
 
-/* lib/browser/utilities/deleteAgents - Removes agents. */
+/* lib/browser/utilities/agent_delete - Removes an agent from the UI. */
 
 import browser from "./browser.js";
 import configuration_styleText from "./configuration_styleText.js";
 
-// cspell: words agentType
+// cspell: words agenttype
 
-const deleteAgent = function browser_utilities_deleteAgent(agent:string, agentType:agentType):void {
+const agent_delete = function browser_utilities_agentDelete(agent:string, agentType:agentType):void {
     const userColors:HTMLCollectionOf<HTMLElement> = document.getElementById("configuration-modal").getElementsByClassName(`${agentType}-color-list`)[0].getElementsByTagName("li"),
         shareModals:HTMLElement[] = document.getModalsByModalType("shares"),
         colorLength:number = userColors.length,
@@ -56,4 +56,4 @@ const deleteAgent = function browser_utilities_deleteAgent(agent:string, agentTy
     }
 };
 
-export default deleteAgent;
+export default agent_delete;

@@ -4,6 +4,8 @@
 // cspell: words colspan
 import browser from "../utilities/browser.js";
 import common from "../../common/common.js";
+import configuration_radio from "../utilities/configuration_radio.js";
+import configuration_styleText from "../utilities/configuration_styleText.js";
 import util from "../utilities/util.js";
 
 /**
@@ -290,7 +292,7 @@ const configuration:module_configuration = {
             } else {
                 browser.ui.audio = false;
             }
-            configuration.tools.radio(element);
+            configuration_radio(element);
             if (browser.loading === false) {
                 browser.configuration();
             }
@@ -396,7 +398,7 @@ const configuration:module_configuration = {
                 },
                 source: browser
             });
-            configuration.tools.radio(element);
+            configuration_radio(element);
         },
 
         /* Process various settings by text input or select list */
@@ -504,31 +506,17 @@ const configuration:module_configuration = {
             if (colors[0] === browser.colorDefaults[scheme][0] && colors[1] === browser.colorDefaults[scheme][1]) {
                 // colors are defaults for the current scheme
                 styleText.colors = ["", ""];
-                configuration.tools.styleText(styleText);
+                configuration_styleText(styleText);
             } else if (style.indexOf(prefix) > -1) {
                 // replace changed colors in the style tag if present
-                configuration.tools.styleText(styleText);
+                configuration_styleText(styleText);
             } else {
                 // add new styles if not present
                 styleText.replace = false;
-                configuration.tools.styleText(styleText);
+                configuration_styleText(styleText);
             }
             browser.ui.colors[type][agent][0] = colors[0];
             browser.ui.colors[type][agent][1] = colors[1];
-        },
-
-        /* Sets a class on a grandparent element to apply style changes to the corresponding label */
-        radio: function browser_content_configuration_radio(element:HTMLElement):void {
-            const parent:HTMLElement = element.parentNode,
-                grandParent:HTMLElement = parent.parentNode,
-                labels:HTMLCollectionOf<Element> = grandParent.getElementsByTagName("label"),
-                length:number = labels.length;
-            let a:number = 0;
-            do {
-                labels[a].setAttribute("class", "radio");
-                a = a + 1;
-            } while (a < length);
-            parent.setAttribute("class", "radio-checked");
         },
 
         socketMap: function browser_content_configuration_socketMap(socketData:socketData):void {
@@ -629,50 +617,8 @@ const configuration:module_configuration = {
             p.setAttribute("class", "socket-map");
             p.appendText("No open sockets.");
             body.appendChild(p);
-        },
-
-        /* Applies agent color definitions */
-        styleText: function browser_content_configuration_styleText(input:configuration_styleText):void {
-            const template:string[] = [
-                `#spaces .box[data-agent="${input.agent}"] .body,`,
-                `#spaces #${input.agentType} button[data-agent="${input.agent}"]:hover{background-color:#`,
-                browser.ui.colors[input.agentType][input.agent][0],
-                "}",
-                `#spaces #${input.agentType} button[data-agent="${input.agent}"],`,
-                `#spaces .box[data-agent="${input.agent}"] .status-bar,`,
-                `#spaces .box[data-agent="${input.agent}"] .footer,`,
-                `#spaces .box[data-agent="${input.agent}"] h2.heading{background-color:#`,
-                browser.ui.colors[input.agentType][input.agent][1],
-                "}"
-            ];
-            if (input.replace === true) {
-                if (input.colors[0] === "" && input.colors[1] === "") {
-                    // removes an agent's colors
-                    browser.style.appendText(browser.style.innerHTML.replace(template.join(""), ""), true);
-                } else {
-                    const old:string = template.join("");
-                    if (input.colors[0] !== "") {
-                        template[2] = input.colors[0];
-                    }
-                    if (input.colors[1] !== "") {
-                        template[8] = input.colors[1];
-                    }
-                    // updates an agent's colors
-                    browser.style.appendText(browser.style.innerHTML.replace(old, template.join("")), true);
-                }
-            } else {
-                if (input.colors[0] !== "") {
-                    template[2] = input.colors[0];
-                }
-                if (input.colors[1] !== "") {
-                    template[8] = input.colors[1];
-                }
-                // adds an agent's colors
-                browser.style.appendText(browser.style.innerHTML + template.join(""), true);
-            }
         }
     }
-
 };
 
 export default configuration;

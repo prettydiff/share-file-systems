@@ -1,7 +1,6 @@
 
 /* lib/browser/utilities/modal - A collection of utilities for generating and manipulating modals/windows in the browser. */
 
-import agent_management from "../content/agent_management.js";
 import browser from "./browser.js";
 import common from "../../common/common.js";
 import file_address from "./file_address.js";
@@ -481,7 +480,7 @@ const modal:module_modal = {
             if (options.inputs.indexOf("confirm") > -1) {
                 button({
                     class: "confirm",
-                    event: modal.events.confirm,
+                    event: options.confirmHandler,
                     parent: extra,
                     spanText: null,
                     text: "✓ Confirm",
@@ -588,34 +587,6 @@ const modal:module_modal = {
             browser.configuration();
         },
     
-        /* Event handler for the modal's "Confirm" button */
-        confirm: function browser_utilities_modal_confirm(event:MouseEvent):void {
-            const element:HTMLElement = event.target,
-                box:modal = element.getAncestor("box", "class"),
-                id:string = box.getAttribute("id"),
-                options:config_modal = browser.ui.modals[id];
-            if (options.type === "export") {
-                modal.events.importSettings(event);
-            } else if (options.type === "invite-ask") {
-                agent_management.tools.inviteAccept(box);
-            } else if (options.type === "agent-management") {
-                const section:HTMLElement = box.getElementsByClassName("section")[0] as HTMLElement,
-                    inputs:HTMLCollectionOf<HTMLInputElement> = section.getElementsByTagName("input");
-                let a:number = inputs.length;
-                do {
-                    a = a - 1;
-                    if (inputs[a].value === "invite") {
-                        break;
-                    }
-                } while (a > 0);
-                agent_management.events.confirm(event);
-                if (inputs[a].value === "invite" && inputs[a].checked === true) {
-                    return;
-                }
-            }
-            modal_close(event);
-        },
-    
         /* If a resizable textarea element is present in the modal outside the body this ensures the body is the correct size. */
         footerResize: function browser_utilities_modal_footerResize(event:MouseEvent):void {
             const element:HTMLElement = event.target,
@@ -630,16 +601,6 @@ const modal:module_modal = {
             top.style.width = `${width}em`;
             title.style.width = `${(box.clientWidth - 17) / 10}em`;
             element.style.width = "100%";
-        },
-
-        /* Modifies saved settings from an imported JSON string then reloads the page */
-        importSettings: function browser_utilities_modal_importSettings(event:MouseEvent):void {
-            const element:HTMLElement = event.target,
-                box:modal = element.getAncestor("box", "class"),
-                button:HTMLButtonElement = document.getElementsByClassName("cancel")[0] as HTMLButtonElement,
-                textArea:HTMLTextAreaElement = box.getElementsByTagName("textarea")[0];
-            button.click();
-            browser.send(textArea.value, "import");
         },
     
         /* The given modal consumes the entire view port of the content area */

@@ -320,6 +320,7 @@ interface config_list {
  *     agentIdentity: boolean;
  *     callback?: () => void;
  *     closeHandler?: (event:MouseEvent) => void;
+ *     confirmHandler?: (event:MouseEvent) => void;
  *     content: HTMLElement;
  *     focus?: HTMLElement;
  *     footer?: HTMLElement;
@@ -356,6 +357,7 @@ interface config_modal extends agency {
     agentIdentity: boolean;
     callback?: () => void;
     closeHandler?: (event:MouseEvent) => void;
+    confirmHandler?: (event:MouseEvent) => void;
     content: HTMLElement;
     focus?: HTMLElement;
     footer?: HTMLElement;

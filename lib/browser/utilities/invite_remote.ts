@@ -3,6 +3,8 @@
 
 import common from "../../common/common.js";
 
+// cspell: words agentType
+
 const invite_remote = function browser_utilities_inviteRemote(invitation:service_invite, name:string):HTMLElement {
     const div:HTMLElement = document.createElement("div"),
         agentInvite:agentInvite = invitation.agentRequest,

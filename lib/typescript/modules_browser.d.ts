@@ -52,9 +52,6 @@ interface TouchEvent {
  *         menu: (view:"delete"|"edit_names"|"invite") => HTMLElement;
  *     };
  *     events: {
- *         confirm: (event:MouseEvent) => void;
- *         confirmInvite: (event:MouseEvent, options:config_modal) => void;
- *         confirmModify: (event:MouseEvent) => void;
  *         displayIP: (event:MouseEvent) => void;
  *         invitePortValidation: (event:Event) => void;
  *         inviteTypeToggle: (event:MouseEvent) => void;
@@ -62,9 +59,6 @@ interface TouchEvent {
  *     };
  *     tools: {
  *         addAgent: (input:agentManagement_addAgent) => void;
- *         confirmDelete: (box:modal) => void;
- *         deleteAgent: (agent:string, agentType:agentType) => void;
- *         inviteAccept: (box:modal) => void;
  *         inviteComplete: (invitation:service_invite, modal:HTMLElement) => void;
  *         inviteReceive: (invitation:service_invite) => void;
  *         inviteTransmissionReceipt: (socketData:socketData) => void;
@@ -78,9 +72,6 @@ interface module_agentManagement {
         menu: (view:"delete"|"edit_names"|"invite") => HTMLElement;
     };
     events: {
-        confirm: (event:MouseEvent) => void;
-        confirmInvite: (event:MouseEvent, options:config_modal) => void;
-        confirmModify: (event:MouseEvent) => void;
         displayIP: (event:MouseEvent) => void;
         invitePortValidation: (event:Event) => void;
         inviteTypeToggle: (event:MouseEvent) => void;
@@ -88,9 +79,6 @@ interface module_agentManagement {
     };
     tools: {
         addAgent: (input:agentManagement_addAgent) => void;
-        confirmDelete: (box:modal) => void;
-        deleteAgent: (agent:string, agentType:agentType) => void;
-        inviteAccept: (box:modal) => void;
         inviteComplete: (invitation:service_invite, modal:HTMLElement) => void;
         inviteReceive: (invitation:service_invite) => void;
         inviteTransmissionReceipt: (socketData:socketData) => void;
@@ -213,9 +201,7 @@ interface module_common {
  *     tools: {
  *         addUserColor    : (agent:string, type:agentType, configElement?:HTMLElement)) => void; // Add agent color options to the configuration modal content.
  *         applyAgentColors: (agent:string, type:agentType, colors:[string, string]) => void;     // Update the specified color information against the default colors of the current color scheme.
- *         radio           : (element:HTMLElement) => void;                                       // Sets a class on a grandparent element to apply style changes to the corresponding label.
  *         socketMap       : (socketData:socketData) => void;                                     // Receives a service message and produces a content update for the socket list modal.
- *         styleText       : (input:configuration_styleText) => void;                             // Generates the CSS code for an agent specific style change and populates it into an HTML style tag.
  *     };
  * }
  * ``` */
@@ -232,9 +218,7 @@ interface module_configuration {
     tools: {
         addUserColor: (agent:string, type:agentType, configElement?:HTMLElement) => void;
         applyAgentColors: (agent:string, type:agentType, colors:[string, string]) => void;
-        radio: (element:HTMLElement) => void;
         socketMap: (socketData:socketData) => void;
-        styleText: (input:configuration_styleText) => void;
     };
 }
 
@@ -339,17 +323,12 @@ interface module_media {
  * interface module_message {
  *     content: {
  *         footer: (mode:messageMode, value:string) => HTMLElement;                 // Called from modal.create to supply the footer area modal content.
- *         modal : (text:string, placeholder:string) => [HTMLElement, HTMLElement]; // Generates a message modal.
  *     };
  *     events: {
- *         keySubmit  : (event:KeyboardEvent) => void;            // Submits a text message on key press, such as pressing the 'Enter' key.
- *         modeToggle : (event:MouseEvent) => void;               // Toggles between code type input and text type input.
  *         shareButton: (event:MouseEvent) => void;               // Creates a message button for the *share* modals.
- *         submit     : (event:KeyboardEvent|MouseEvent) => void; // Submit event handler to take message text into a data object for transmission across a network.
  *     };
  *     tools: {
  *         populate:(modalId:string) => void;                                           // Populate stored messages into message modals.
- *         post    : (item:message_item, target:messageTarget, modalId:string) => void; // Visually display the submitted and received messages as modal content.
  *         receive : (socketData:socketData) => void;                                   // Receives message updates from the network.
  *     };
  * }
@@ -359,17 +338,12 @@ interface module_media {
 interface module_message {
     content: {
         footer: (mode:messageMode, value:string) => HTMLElement;
-        modal: (text:string, placeholder:string) => [HTMLElement, HTMLElement];
     };
     events: {
-        keySubmit: (event:KeyboardEvent) => void;
-        modeToggle: (event:MouseEvent) => void;
         shareButton: (event:MouseEvent) => void;
-        submit: (event:KeyboardEvent|MouseEvent) => void;
     };
     tools: {
         populate:(modalId:string) => void;
-        post: (item:message_item, target:messageTarget, modalId:string) => void;
         receive: (socketData:socketData) => void;
     };
 }
@@ -381,9 +355,7 @@ interface module_message {
  *     content: (options:config_modal) => modal; // Creates a new modal.
  *     events: {
  *         closeEnduring : (event:MouseEvent) => void;                               // Modal types that are enduring are hidden, not destroyed, when closed.
- *         confirm       : (event:MouseEvent) => void;                               // Handling for an optional confirmation button.
  *         footerResize  : (event:MouseEvent) => void;                               // If a resizable textarea element is present in the modal outside the body this ensures the body is the correct size.
- *         importSettings: (event:MouseEvent) => void;                               // Handler for import/export modals that modify saved settings from an imported JSON string then reloads the page.
  *         maximize      : (event:MouseEvent, callback?:() => void, target?:HTMLElement) => void; // Maximizes a modal to fill the view port.
  *         minimize      : (event:MouseEvent, callback?:() => void, target?:HTMLElement) => void; // Minimizes a modal to the tray at the bottom of the page.
  *         move          : (event:MouseEvent|TouchEvent) => void;                    // Allows dragging a modal around the screen.
@@ -402,9 +374,7 @@ interface module_modal {
     content: (options:config_modal) => modal;
     events: {
         closeEnduring: (event:MouseEvent) => void;
-        confirm: (event:MouseEvent) => void;
         footerResize: (event:MouseEvent) => void;
-        importSettings: (event:MouseEvent) => void;
         maximize: (event:MouseEvent, callback?:() => void, target?:HTMLElement) => void;
         minimize: (event:MouseEvent, callback?:() => void, target?:HTMLElement) => void;
         move: (event:MouseEvent|TouchEvent) => void;

@@ -4,6 +4,7 @@
 import browser from "./browser.js";
 import common from "../../common/common.js";
 import configuration from "../content/configuration";
+import configuration_styleText from "./configuration_styleText.js";
 import modal_configuration from "./modal_configurations";
 import share_update from "./share_update.js";
 
@@ -27,7 +28,7 @@ const addAgent = function browser_content_agentManagement_addAgent(input:agentMa
                 heading = browser.ui.colors[input.type][input.hash][1];
             }
             if (browser.loading === false) {
-                configuration.tools.styleText({
+                configuration_styleText({
                     agent: input.hash,
                     agentType: input.type,
                     colors: [body, heading],

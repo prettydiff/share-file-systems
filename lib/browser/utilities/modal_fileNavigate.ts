@@ -7,6 +7,8 @@ import file_text from "./file_text.js";
 import modal from "./modal.js";
 import util from "./util.js";
 
+// cspell: words agentType
+
 const modal_fileNavigate = function browser_utilities_ModalFileNavigate(event:Event, config?:config_modal):modal {
     const element:HTMLElement = (event === null)
             ? null
