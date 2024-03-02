@@ -7,7 +7,6 @@ The code libraries that execute in the web browser.
 * **[agent_management.ts](agent_management.ts)** - Provide control of agent data: delete, invite, and edit.
 * **[configuration.ts](configuration.ts)** - A collection of utilities and event handlers associated with processing the application state and system configuration.
 * **[context.ts](context.ts)**             - A collection of event handlers associated with the right click context menu.
-* **[file_browser.ts](file_browser.ts)**   - A collection of utilities for handling file system related tasks in the browser.
 * **[media.ts](media.ts)**                 - A library for executing audio/video calls.
 * **[message.ts](message.ts)**             - A library for executing the text messaging application.
 * **[socketMap.ts](socketMap.ts)**         - Updates socket map content.

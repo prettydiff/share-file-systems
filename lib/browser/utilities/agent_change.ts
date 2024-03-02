@@ -4,7 +4,7 @@
 import browser from "./browser.js";
 import common from "../../common/common.js";
 
-const agent_change = {
+const agent_change:modal_agentChange = {
     delete: function browser_utilities_agentChange_delete():HTMLElement {
         const content:HTMLElement = document.createElement("div"),
             h3:HTMLElement = document.createElement("h3"),

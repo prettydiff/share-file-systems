@@ -20,6 +20,7 @@ Tools and assistive functions for the browser environment associated more with a
 * **[file_select_addresses.ts](file_select_addresses.ts)**     - Gathers all items from a file list in a selected state.
 * **[file_select_none.ts](file_select_none.ts)**               - Event handler for the address field of the file navigate modals.
 * **[file_select_none.ts](file_select_none.ts)**               - Ensures all items in a file list display and function in an unselected state.
+* **[file_status.ts](file_status.ts)**                         - File navigate modal type contents.
 * **[invite_ask.ts](invite_ask.ts)**                           - Modal configuration for invitations from remote agents.
 * **[invite_decline.ts](invite_decline.ts)**                   - An event handler associated with closing invitation modals which require sending feedback.
 * **[invite_remote.ts](invite_remote.ts)**                     - Modal content for invitations from remote agents.

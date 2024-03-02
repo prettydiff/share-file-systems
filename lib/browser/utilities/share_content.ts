@@ -292,7 +292,6 @@ const share_content = function browser_utilities_shareContent(agentName:string, 
                 deleteToggle = function browser_utilities_shareContent_perShare_deleteToggle(event:MouseEvent):void {
                     const element:HTMLElement = event.target,
                         parent:HTMLElement = element.parentNode,
-                        box:modal = parent.getAncestor("box", "class"),
                         agent:string = (function browser_utilities_shareContent_perShare_deleteToggle_agency():string {
                             let agentNode:HTMLElement = parent;
                             do {

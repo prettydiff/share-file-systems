@@ -5,7 +5,7 @@ import browser from "./browser.js";
 import agent_management from "../content/agent_management.js";
 import common from "../../common/common.js";
 import configuration from "../content/configuration.js";
-import file_browser from "../content/file_browser.js";
+import file_status from "./file_status.js";
 import message from "../content/message.js";
 import remote from "./remote.js";
 import share_update from "./share_update.js";
@@ -277,7 +277,7 @@ const receiver = function browser_utilities_receiver(event:websocket_event):void
                 body.appendText("", true);
                 body.appendChild(output);
             },
-            "file-system-status": file_browser.content.status,
+            "file-system-status": file_status,
             "file-system-string": function browser_utilities_receiver_dataString(socketData:socketData):void {
                 const data:service_fileSystem_string = socketData.data as service_fileSystem_string,
                     length:number = data.files.length;

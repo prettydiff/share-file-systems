@@ -44,6 +44,19 @@ interface TouchEvent {
 }
 
 /**
+ * Stores two methods for modifying and deleting agents in the UI.
+ * ```typescript
+ * interface modal_agentChange {
+ *     delete: () => HTMLElement;
+ *     modify: () => HTMLElement;
+ * }
+ * ``` */
+interface modal_agentChange {
+    delete: () => HTMLElement;
+    modify: () => HTMLElement;
+}
+
+/**
  * Manages agent data in the browser.
  * ```typescript
  * interface module_agentManagement {
@@ -253,47 +266,6 @@ interface module_context {
         paste: (event:Event) => void;
         rename: (event:KeyboardEvent|MouseEvent) => void;
         share: (event:Event) => void;
-    };
-}
-
-/**
- * Generates the user experience associated with file system interaction.
- * ```typescript
- * interface module_fileBrowser {
- *     content: {
- *         footer         : () => HTMLElement;               // Generates the status bar content for the file browser modal.
- *         list           : (location:string, dirs:directory_response, message:string) => HTMLElement; // Generates the contents of a file system list for population into a file navigate modal.
- *         status         : (socketData:socketData) => void; // Translates messaging into file system lists for the appropriate modals.
- *     };
- *     events: {
- *         drag       : (event:MouseEvent|TouchEvent) => void;    // Move file system artifacts from one location to another by means of double click.
- *         execute    : (event:KeyboardEvent|MouseEvent) => void; // Allows operating system execution of a file by double click interaction.
- *         expand     : (event:MouseEvent) => void;               // Opens a directory into a child list without changing the location of the current modal.
- *         keyExecute : (event:KeyboardEvent) => void;            // Allows file execution by keyboard control, such as pressing the *Enter* key.
- *         listFocus  : (event:MouseEvent) => void;               // When clicking on a file list give focus to an input field in that list so that the list can receive focus.
- *     };
- *     tools: {
- *         listFail         : (count:number, box:modal) => void;                                  // Display status information when the Operating system locks files from access.
- *         listItem         : (item:directory_item, extraClass:string) => HTMLElement;            // Generates the HTML content for a single file system artifacts that populates a file system list.
- *     };
- * }
- * ``` */
-interface module_fileBrowser {
-    content: {
-        footer: () => HTMLElement;
-        list: (location:string, dirs:directory_response, message:string) => HTMLElement;
-        status: (socketData:socketData) => void;
-    };
-    events: {
-        drag: (event:MouseEvent|TouchEvent) => void;
-        execute: (event:KeyboardEvent|MouseEvent) => void;
-        expand: (event:MouseEvent) => void;
-        keyExecute: (event:KeyboardEvent) => void;
-        listFocus: (event:MouseEvent) => void;
-    };
-    tools: {
-        listFail: (count:number, box:modal) => void;
-        listItem: (item:directory_item, location:string, extraClass:string) => HTMLElement;
     };
 }
 

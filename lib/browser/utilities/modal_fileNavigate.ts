@@ -2,7 +2,6 @@
 /* lib/browser/utilities/modal_fileNavigate - Modal configuration for file navigate modals. */
 
 import browser from "./browser.js";
-import file_browser from "../content/file_browser.js";
 import file_text from "./file_text.js";
 import modal from "./modal.js";
 import util from "./util.js";
@@ -84,7 +83,9 @@ const modal_fileNavigate = function browser_utilities_ModalFileNavigate(event:Ev
                 type: "file-navigate",
                 width: 800
             }
-            : config;
+            : config,
+        footer:HTMLElement = document.createElement("div"),
+        extra:HTMLElement = document.createElement("p");
     if (payloadModal.history === undefined || payloadModal.history === null || payloadModal.history.length < 1) {
         payloadModal.history = [location];
     }
@@ -96,7 +97,11 @@ const modal_fileNavigate = function browser_utilities_ModalFileNavigate(event:Ev
     }
     payloadModal.inputs = ["close", "maximize", "minimize", "text"];
     payloadModal.content = util.delay();
-    payloadModal.footer = file_browser.content.footer();
+    footer.setAttribute("class", "status-bar");
+    extra.setAttribute("aria-live", "polite");
+    extra.setAttribute("role", "status");
+    footer.appendChild(extra);
+    payloadModal.footer = footer;
     payloadModal.text_event = file_text;
     document.getElementById("menu").style.display = "none";
     browser.send(payloadNetwork, "file-system");
