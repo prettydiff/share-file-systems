@@ -4,7 +4,7 @@ Tools and assistive functions for the browser environment associated more with a
 ## Files
 <!-- Do not edit below this line.  Contents dynamically populated. -->
 
-* **[addAgent.ts](addAgent.ts)**                               - Populates agents into the browser UI.
+* **[agent_add.ts](agent_add.ts)**                             - Populates agents into the browser UI.
 * **[agent_change.ts](agent_change.ts)**                       - Modifies agent related data in share modals.
 * **[agent_delete.ts](agent_delete.ts)**                       - Removes an agent from the UI.
 * **[agent_status.ts](agent_status.ts)**                       - Receive and process agent activity status notifications from the network.
@@ -12,24 +12,33 @@ Tools and assistive functions for the browser environment associated more with a
 * **[browser.ts](browser.ts)**                                 - A list of declared variables globally available to the browser instance of the application.
 * **[configuration_radio.ts](configuration_radio.ts)**         - A tool to dynamically organize a list of input elements into a collection of radio buttons.
 * **[configuration_styleText.ts](configuration_styleText.ts)** - Modifies a dynamically populated stylesheet with user specified colors.
+* **[context_copy.ts](context_copy.ts)**                       - File system copy function from the context menu.
+* **[context_destroy.ts](context_destroy.ts)**                 - File system destroy function from the context menu.
+* **[context_keys.ts](context_keys.ts)**                       - Shortcut key handling for context menu operations.
+* **[context_menu.ts](context_menu.ts)**                       - Displays the context menu.
+* **[context_paste.ts](context_paste.ts)**                     - File system paste function from the context menu.
+* **[context_rename.ts](context_rename.ts)**                   - File system rename function from the context menu.
+* **[context_share.ts](context_share.ts)**                     - File system share function from the context menu.
 * **[deleteAgents.ts](deleteAgents.ts)**                       - Removes agents.
 * **[dom.ts](dom.ts)**                                         - Extensions to the DOM to provide navigational functionality not present from the standard methods
 * **[file_address.ts](file_address.ts)**                       - Ensures all functionality is enforced with the address change of a file navigate modal.
 * **[file_directory.ts](file_directory.ts)**                   - Event handler for navigating directories in a file navigate modal.
+* **[file_new.ts](file_new.ts)**                               - File system new artifact function from the context menu.
 * **[file_select.ts](file_select.ts)**                         - Changes a file list item to a selected state.
 * **[file_select_addresses.ts](file_select_addresses.ts)**     - Gathers all items from a file list in a selected state.
-* **[file_select_none.ts](file_select_none.ts)**               - Event handler for the address field of the file navigate modals.
 * **[file_select_none.ts](file_select_none.ts)**               - Ensures all items in a file list display and function in an unselected state.
+* **[file_select_none.ts](file_select_none.ts)**               - Event handler for the address field of the file navigate modals.
 * **[file_status.ts](file_status.ts)**                         - File navigate modal type contents.
 * **[invite_ask.ts](invite_ask.ts)**                           - Modal configuration for invitations from remote agents.
 * **[invite_decline.ts](invite_decline.ts)**                   - An event handler associated with closing invitation modals which require sending feedback.
 * **[invite_remote.ts](invite_remote.ts)**                     - Modal content for invitations from remote agents.
 * **[media_kill.ts](media_kill.ts)**                           - Closes a media modal and closes all associated streams.
 * **[message_post.ts](message_post.ts)**                       - A utility to process and text messages for transport and display in the UI.
-* **[message_submit.ts](message_submit.ts)**                   - Event handler to submit text messages by key press.
 * **[modal.ts](modal.ts)**                                     - A collection of utilities for generating and manipulating modals/windows in the browser.
 * **[modal_close.ts](modal_close.ts)**                         - An event handler associated with closing modals.
 * **[modal_configuration.ts](modal_configuration.ts)**         - A single location for storing all modal content configurations by modal type.
+* **[modal_fileDetails.ts](modal_fileDetails.ts)**             - Modal content configuration for details modal type.
+* **[modal_fileEdit.ts](modal_fileEdit.ts)**                   - Configuration details for edit modal type.
 * **[modal_fileNavigate.ts](modal_fileNavigate.ts)**           - Modal configuration for file navigate modals.
 * **[modal_message.ts](modal_message.ts)**                     - Modal configuration for message modals.
 * **[modal_shares.ts](modal_shares.ts)**                       - Modal configuration for share type modals.

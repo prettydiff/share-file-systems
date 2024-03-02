@@ -71,11 +71,9 @@ interface modal_agentChange {
  *         modeToggle: (event:MouseEvent) => void;
  *     };
  *     tools: {
- *         addAgent: (input:agentManagement_addAgent) => void;
  *         inviteComplete: (invitation:service_invite, modal:HTMLElement) => void;
  *         inviteReceive: (invitation:service_invite) => void;
  *         inviteTransmissionReceipt: (socketData:socketData) => void;
- *         modifyReceive: (socketData:socketData) => void;
  *     };
  * }
  * ``` */
@@ -91,11 +89,9 @@ interface module_agentManagement {
         modeToggle: (event:MouseEvent) => void;
     };
     tools: {
-        addAgent: (input:agentManagement_addAgent) => void;
         inviteComplete: (invitation:service_invite, modal:HTMLElement) => void;
         inviteReceive: (invitation:service_invite) => void;
         inviteTransmissionReceipt: (socketData:socketData) => void;
-        modifyReceive: (socketData:socketData) => void;
     };
 }
 
@@ -236,40 +232,6 @@ interface module_configuration {
 }
 
 /**
- * Creates and populates the right click context menu for the file navigate modal types.
- * ```typescript
- * interface module_context {
- *     clipboard: string;                          // Stores a file copy state pending a paste or cut action.
- *     content: (event:MouseEvent) => HTMLElement; // Creates the HTML content of the context menu.
- *     events: {
- *         copy    : (event:Event) => void; // Handler for the *Copy* menu button, which stores file system address information in the application's clipboard.
- *         destroy : (event:Event) => void; // Handler for the *Destroy* menu button, which is responsible for deleting file system artifacts.
- *         fsNew   : (event:Event) => void; // Handler for the *New Directory* and *New File* menu buttons.
- *         keys    : (event:KeyboardEvent) => void; // Executes shortcut key combinations.
- *         menu    : (event:Event) => void; // Generates the context menu which populates with different menu items depending upon event.target of the right click.
- *         paste   : (event:Event) => void; // Handler for the *Paste* menu item which performs the file copy operation over the network.
- *         rename  : (event:KeyboardEvent|MouseEvent) => void; // Converts a file system item text into a text input field so that the artifact can be renamed.
- *         share   : (event:Event) => void; // Handler for sharing a resource.
- *     };
- * }
- * type contextType = "" | "Base64" | "copy" | "cut" | "directory" | "Edit" | "file" | "Hash";
- * ``` */
-interface module_context {
-    clipboard: string;
-    content:(event:MouseEvent) => HTMLElement;
-    events: {
-        copy: (event:Event) => void;
-        destroy: (event:Event) => void;
-        fsNew: (event:Event) => void;
-        keys: (event:KeyboardEvent) => void;
-        menu: (event:Event) => void;
-        paste: (event:Event) => void;
-        rename: (event:KeyboardEvent|MouseEvent) => void;
-        share: (event:Event) => void;
-    };
-}
-
-/**
  * Provides audio/video access from browser APIs and all associated interactions.
  * ```typescript
  * interface module_media {
@@ -293,30 +255,22 @@ interface module_media {
  * Generates text message modals and all associated interactions.
  * ```typescript
  * interface module_message {
- *     content: {
- *         footer: (mode:messageMode, value:string) => HTMLElement;                 // Called from modal.create to supply the footer area modal content.
- *     };
  *     events: {
  *         shareButton: (event:MouseEvent) => void;               // Creates a message button for the *share* modals.
  *     };
  *     tools: {
- *         populate:(modalId:string) => void;                                           // Populate stored messages into message modals.
- *         receive : (socketData:socketData) => void;                                   // Receives message updates from the network.
+ *         populate:(modal:modal) => void;                                           // Populate stored messages into message modals.
  *     };
  * }
  * type messageMode = "code" | "text";
  * type messageTarget = "agentFrom" | "agentTo";
  * ``` */
 interface module_message {
-    content: {
-        footer: (mode:messageMode, value:string) => HTMLElement;
-    };
     events: {
         shareButton: (event:MouseEvent) => void;
     };
     tools: {
-        populate:(modalId:string) => void;
-        receive: (socketData:socketData) => void;
+        populate:(modal:modal) => void;
     };
 }
 

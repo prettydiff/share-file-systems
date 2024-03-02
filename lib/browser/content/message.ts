@@ -3,8 +3,6 @@
 
 import browser from "../utilities/browser.js";
 import message_post from "../utilities/message_post.js";
-import message_submit from "../utilities/message_submit.js";
-import modal from "../utilities/modal.js";
 import modal_message from "../utilities/modal_message.js";
 
 // cspell:words agenttype, arrowdown, arrowup
@@ -33,48 +31,6 @@ import modal_message from "../utilities/modal_message.js";
  * type messageTarget = "agentFrom" | "agentTo";
  * ``` */
 const message:module_message = {
-
-    /* Render a message modal */
-    content: {
-
-        /* Called from modal.create to supply the footer area modal content */
-        footer: function browser_content_message_footer(mode:messageMode, value:string):HTMLElement {
-            const textArea:HTMLTextAreaElement = document.createElement("textarea"),
-                label:HTMLElement = document.createElement("label"),
-                span:HTMLElement = document.createElement("span"),
-                button:HTMLElement = document.createElement("button"),
-                paragraph:HTMLElement = document.createElement("p"),
-                footer:HTMLElement = document.createElement("div"),
-                clear:HTMLElement = document.createElement("span");
-            textArea.onmouseup = modal.events.footerResize;
-            textArea.onblur = modal.events.textSave;
-            textArea.onkeyup = modal.events.textTimer;
-            textArea.placeholder = "Write a message.";
-            textArea.value = value;
-            textArea.setAttribute("class", mode);
-            if (mode === "code") {
-                textArea.onkeyup = null;
-            } else {
-                textArea.onkeyup = message_submit;
-            }
-            label.setAttribute("class", "text-pad");
-            span.appendText("Write a message.");
-            label.appendChild(span);
-            label.appendChild(textArea);
-            button.appendText("✉ Send Message");
-            button.setAttribute("class", "confirm");
-            button.setAttribute("type", "button");
-            button.onclick = message_submit;
-            paragraph.appendChild(button);
-            paragraph.setAttribute("class", "footer-buttons");
-            footer.setAttribute("class", "footer");
-            footer.appendChild(label);
-            footer.appendChild(paragraph);
-            clear.setAttribute("class", "clear");
-            footer.appendChild(clear);
-            return footer;
-        }
-    },
 
     events: {
 
@@ -111,61 +67,72 @@ const message:module_message = {
                 } while (a > 0);
             }
             messageModal = modal_message(event, null);
-            message.tools.populate(messageModal.getAttribute("id"));
+            message.tools.populate(messageModal);
         }
     },
 
     tools: {
     
         /* Populate stored messages into message modals */
-        populate: function browser_content_message_populate(modalId:string):void {
+        populate: function browser_content_message_populate(modal:modal):void {
             if (browser.message.length > 0) {
-                const messageLength:number = browser.message.length;
+                const modalMatch = function browser_content_message_populate_modalMatch(direction:"agentFrom"|"agentTo"):void {
+                        let modalItem:modal = modal;
+                        if (modalItem === null) {
+                            const modals:modal[] = document.getModalsByModalType("message");
+                            let len:number = modals.length,
+                                modalTest:boolean = false,
+                                id:string = "";
+                            do {
+                                len = len - 1;
+                                id = modals[len].getAttribute("id");
+                                if (browser.message[messageIndex].agentType === browser.ui.modals[id].agentType && browser.message[messageIndex][direction] === browser.ui.modals[id].agent) {
+                                    message_post(browser.message[messageIndex], direction, modals[len]);
+                                    modalTest = true;
+                                }
+                            } while (len > 0);
+                            if (modalTest === false) {
+                                const identity:boolean = (browser.message[messageIndex].agentFrom !== browser.identity.hashDevice),
+                                    modalNew:modal = modal_message(null, {
+                                        agent: browser.message[messageIndex][direction],
+                                        agentIdentity: identity,
+                                        agentType: browser.message[messageIndex].agentType,
+                                        content: null,
+                                        footer: null,
+                                        inputs: ["close", "maximize", "minimize"],
+                                        read_only: false,
+                                        text_placeholder: "text",
+                                        text_value: "",
+                                        title_supplement: (identity === true)
+                                            ? null
+                                            : `all ${browser.message[messageIndex].agentType}s`,
+                                        type: "message",
+                                        width: 800
+                                    });
+                                message_post(browser.message[messageIndex], direction, modalNew);
+                            }
+                        } else {
+                            message_post(browser.message[messageIndex], direction, modal);
+                        }
+                    },
+                    messageLength:number = browser.message.length;
                 let messageIndex:number = 0;
                 do {
                     if (browser.message[messageIndex].agentType === "device") {
                         if (browser.message[messageIndex].agentTo === browser.identity.hashDevice) {
-                            message_post(browser.message[messageIndex], "agentFrom", modalId);
+                            modalMatch("agentFrom");
                         } else {
-                            message_post(browser.message[messageIndex], "agentTo", modalId);
+                            modalMatch("agentTo");
                         }
                     } else if (browser.message[messageIndex].agentType === "user") {
                         if (browser.message[messageIndex].agentTo === browser.identity.hashUser) {
-                            message_post(browser.message[messageIndex], "agentFrom", modalId);
+                            modalMatch("agentFrom");
                         } else {
-                            message_post(browser.message[messageIndex], "agentTo", modalId);
+                            modalMatch("agentTo");
                         }
                     }
                     messageIndex = messageIndex + 1;
                 } while (messageIndex < messageLength);
-            }
-        },
-    
-        /* Receives messages from the network */
-        receive: function browser_content_message_receive(socketData:socketData):void {
-            const messageData:service_message = socketData.data as service_message,
-                agentFrom:string = messageData[0].agentFrom,
-                agentType:agentType = messageData[0].agentType,
-                target:messageTarget = ((agentType === "user" && agentFrom === browser.identity.hashUser) || (agentType === "device" && agentFrom === browser.identity.hashDevice))
-                    ? "agentTo"
-                    : "agentFrom";
-            document.getElementById("message-update").appendText(messageData[0].message, true);
-            messageData.forEach(function browser_socketMessage_messagePost_each(item:message_item):void {
-                message_post(item, target, "");
-            });
-            if (browser.visible === false && Notification.permission === "granted") {
-                const messageBody:string = messageData[0].message,
-                    messageString:string = (messageBody.length > 100)
-                        ? `${messageBody.slice(0, 100)}\u2026`
-                        : messageBody,
-                    notifyOptions:NotificationOptions = {
-                        body: `Received new message from ${agentType} ${browser.agents[agentType][agentFrom].name}.\r\n\r\n${messageString}`,
-                        vibrate: [200, 100]
-                    },
-                    notify:Notification = new Notification(`${browser.title} - New Message`, notifyOptions);
-                notify.onshow = function browser_content_message_receive():void {
-                    notify.close();
-                };
             }
         }
     }

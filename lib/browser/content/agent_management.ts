@@ -1,18 +1,15 @@
 
 /* lib/browser/content/agent_management - Provide control of agent data: delete, invite, and edit. */
 
+import agent_add from "../utilities/agent_add.js";
 import agent_change from "../utilities/agent_change.js";
 import agent_delete from "../utilities/agent_delete";
 import browser from "../utilities/browser.js";
 import common from "../../common/common.js";
-import configuration from "./configuration.js";
 import configuration_radio from "../utilities/configuration_radio.js";
-import configuration_styleText from "../utilities/configuration_styleText.js";
 import invite_decline from "../utilities/invite_decline.js";
 import modal_inviteAsk from "../utilities/modal_inviteAsk.js";
-import modal_shares from "../utilities/modal_shares.js";
 import share_content from "../utilities/share_content.js";
-import share_update from "../utilities/share_update.js";
 import util from "../utilities/util.js";
 
 // cspell:words agenttype
@@ -263,69 +260,6 @@ const agent_management:module_agentManagement = {
         }
     },
     tools: {
-        /* Adds an agent into the browser user interface whether the agent is new or the page is loading. */
-        addAgent: function browser_content_agentManagement_addAgent(input:agentManagement_addAgent):void {
-            const li:HTMLLIElement = document.createElement("li"),
-                button:HTMLElement = document.createElement("button"),
-                addStyle = function browser_content_agentManagement_addUser_addStyle():void {
-                    let body:string,
-                        heading:string;
-                    if (browser.ui.colors[input.type][input.hash] === undefined) {
-                        body = browser.colorDefaults[browser.ui.color][0];
-                        heading = browser.colorDefaults[browser.ui.color][1];
-                        browser.ui.colors[input.type][input.hash] = [body, heading];
-                        if (input.callback === undefined) {
-                            browser.configuration();
-                        } else {
-                            browser.send({
-                                settings: browser.ui,
-                                type: "ui"
-                            }, "settings");
-                            input.callback();
-                        }
-                    } else {
-                        body = browser.ui.colors[input.type][input.hash][0];
-                        heading = browser.ui.colors[input.type][input.hash][1];
-                    }
-                    if (browser.loading === false) {
-                        configuration_styleText({
-                            agent: input.hash,
-                            agentType: input.type,
-                            colors: [body, heading],
-                            replace: false
-                        });
-                    }
-                },
-                status = function browser_content_agentManagement_addUser_status(status:activityStatus):HTMLElement {
-                    const em:HTMLElement = document.createElement("em"),
-                        span:HTMLElement = document.createElement("span");
-                    em.setAttribute("class", `status-${status}`);
-                    em.appendText("●");
-                    span.appendText(` ${common.capitalize(status)}`);
-                    em.appendChild(span);
-                    return em;
-                };
-            button.appendChild(status("active"));
-            button.appendChild(status("idle"));
-            button.appendChild(status("offline"));
-            button.appendText(` ${input.name}`);
-            if (input.hash === browser.identity.hashDevice) {
-                button.setAttribute("class", "active");
-            } else {
-                button.setAttribute("class", browser.agents[input.type][input.hash].status);
-            }
-            button.setAttribute("id", input.hash);
-            button.setAttribute("data-agenttype", input.type);
-            button.setAttribute("type", "button");
-            button.onclick = modal_shares;
-            li.appendChild(button);
-            document.getElementById(input.type).getElementsByTagName("ul")[0].appendChild(li);
-            addStyle();
-            configuration.tools.addUserColor(input.hash, input.type);
-            if (browser.loading === false) {
-                share_update("");
-            }
-        },
 
         /* Handles final status of an invitation completion */
         inviteComplete: function browser_content_agentManagement_inviteComplete(invitation:service_invite, modal:HTMLElement):void {
@@ -402,90 +336,6 @@ const agent_management:module_agentManagement = {
                     return;
                 }
                 agent_management.tools.inviteReceive(invitation);
-            }
-        },
-
-        /* Receives agent data from the terminal for processing in the browser. */
-        modifyReceive: function browser_content_agentManagement_modifyReceive(socketData:socketData):void {
-            const data:service_agentManagement = socketData.data as service_agentManagement;
-            if (data.action === "add") {
-                const addAgents = function browser_content_agentManagement_receive_addAgents(agentType:agentType):void {
-                    const keys:string[] = Object.keys(data.agents[agentType]),
-                        keyLength:number = keys.length;
-                    if (keyLength > 0) {
-                        let a:number = 0;
-                        do {
-                            if (browser.agents[agentType][keys[a]] === undefined) {
-                                browser.agents[agentType][keys[a]] = data.agents[agentType][keys[a]];
-                                agent_management.tools.addAgent({
-                                    hash: keys[a],
-                                    name: data.agents[agentType][keys[a]].name,
-                                    type: agentType
-                                });
-                            }
-                            a = a + 1;
-                        } while (a < keyLength);
-                    }
-                };
-                if (data.identity !== null) {
-                    browser.identity.hashUser = data.identity.hashUser;
-                    browser.identity.nameUser = data.identity.nameUser;
-                }
-                addAgents("device");
-                addAgents("user");
-            } else if (data.action === "delete") {
-                const deleteAgents = function browser_content_agentManagement_receive_deleteAgents(agentType:agentType):void {
-                    const keys:string[] = Object.keys(data.agents[agentType]),
-                        keyLength:number = keys.length,
-                        property:"hashDevice"|"hashUser" = `hash${common.capitalize(agentType)}` as "hashDevice"|"hashUser";
-                    if (keyLength > 0) {
-                        let a:number = 0;
-                        do {
-                            if (keys[a] === browser.identity[property]) {
-                                agent_delete(data.agentFrom, agentType);
-                            } else {
-                                agent_delete(keys[a], agentType);
-                            }
-                            a = a + 1;
-                        } while (a < keyLength);
-                    }
-                };
-                deleteAgents("device");
-                deleteAgents("user");
-            } else if (data.action === "modify") {
-                const shareContent = function browser_content_agentManagement_receive_shareContent(agentName:string, agentType:agentType|""):void {
-                        const shareModals:HTMLElement[] = document.getModalsByModalType("shares");
-                        let shareLength:number = shareModals.length,
-                            body:HTMLElement = null;
-                        if (shareLength > 0) {
-                            do {
-                                shareLength = shareLength - 1;
-                                if ((shareModals[shareLength].dataset.agent === agentName && shareModals[shareLength].dataset.agenttype === agentType) || (agentType === "" && shareModals[shareLength].getElementsByTagName("button")[0].firstChild.textContent === "⌘ All Shares")) {
-                                    body = shareModals[shareLength].getElementsByClassName("body")[0] as HTMLElement;
-                                    body.appendText("", true);
-                                    body.appendChild(share_content(agentName, agentType));
-                                }
-                            } while (shareLength > 0);
-                        }
-                    },
-                    modifyAgents = function browser_content_agentManagement_receive_modifyAgents(agentType:agentType):void {
-                        const keys:string[] = Object.keys(data.agents[agentType]),
-                            keyLength:number = keys.length;
-                        if (keyLength > 0) {
-                            let a:number = 0;
-                            do {
-                                if (browser.agents[agentType][keys[a]] !== undefined) {
-                                    browser.agents[agentType][keys[a]] = data.agents[agentType][keys[a]];
-                                    shareContent(keys[a], agentType);
-                                }
-                                a = a + 1;
-                            } while (a < keyLength);
-                            shareContent("", agentType);
-                        }
-                    };
-                modifyAgents("device");
-                modifyAgents("user");
-                shareContent("", "");
             }
         }
     }

@@ -10,6 +10,7 @@
  *     colorDefaults: browser_colorList;
  *     configuration: () => void;
  *     content: HTMLElement;
+ *     context_clipboard: string;
  *     contextElement: HTMLElement;
  *     contextType: contextType;
  *     dragFlag: dragFlag;
@@ -39,6 +40,7 @@ interface browser {
     colorDefaults: browser_colorList;
     configuration: () => void;
     content: HTMLElement;
+    context_clipboard: string;
     contextElement: HTMLElement;
     contextType: contextType;
     dragFlag: dragFlag;

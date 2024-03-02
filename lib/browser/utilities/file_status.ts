@@ -3,11 +3,12 @@
 
 import browser from "./browser.js";
 import common from "../../common/common.js";
-import context from "../content/context.js";
+import context_keys from "./context_keys.js";
+import context_menu from "./context_menu.js";
 import file_address from "./file_address";
 import file_directory from "./file_directory.js";
 import file_select from "./file_select.js";
-import file_select_none from "./files_select_none.js";
+import file_select_none from "./file_select_none.js";
 import util from "./util.js";
 
 const file_status = function browser_utilities_fileStatus(socketData:socketData):void {
@@ -432,8 +433,8 @@ const file_status = function browser_utilities_fileStatus(socketData:socketData)
                     p.appendChild(text);
             
                     // prepare the descriptive text
-                    p.oncontextmenu = context.events.menu;
-                    p.onkeydown = context.events.keys;
+                    p.oncontextmenu = context_menu;
+                    p.onkeydown = context_keys;
                     p.onclick = file_select;
                     p.appendChild(span);
                     li.appendChild(p);
@@ -482,8 +483,8 @@ const file_status = function browser_utilities_fileStatus(socketData:socketData)
                 li.appendChild(p);
                 output.appendChild(li);
             }
-            output.oncontextmenu = context.events.menu;
-            output.onkeydown = context.events.keys;
+            output.oncontextmenu = context_menu;
+            output.onkeydown = context_keys;
             output.onclick = function browser_content_fileBrowser_listFocus(event:MouseEvent):void {
                 const element:HTMLElement = event.target,
                     name:string = element.lowName(),

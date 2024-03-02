@@ -1,15 +1,20 @@
 
 /* lib/browser/utilities/receiver - Routes network messages to the respective browser library. */
 
+import agent_add from "./agent_add.js";
+import agent_delete from "./agent_delete.js";
 import browser from "./browser.js";
 import agent_management from "../content/agent_management.js";
 import common from "../../common/common.js";
 import configuration from "../content/configuration.js";
 import file_status from "./file_status.js";
-import message from "../content/message.js";
+import message_post from "./message_post.js";
 import remote from "./remote.js";
+import share_content from "./share_content.js";
 import share_update from "./share_update.js";
 import terminal from "../content/terminal.js";
+
+// cspell: words agenttype
 
 const receiver = function browser_utilities_receiver(event:websocket_event):void {
     const dataString:string = (typeof event.data === "string")
@@ -38,7 +43,7 @@ const receiver = function browser_utilities_receiver(event:websocket_event):void
                         shares: {},
                         status: "idle"
                     };
-                    agent_management.tools.addAgent({
+                    agent_add({
                         callback: function browser_utilities_receiver_agentHash_addAgent():void {
                             browser.pageBody.setAttribute("class", "default");
                         },
@@ -57,7 +62,88 @@ const receiver = function browser_utilities_receiver(event:websocket_event):void
                     agent.setAttribute("class", data.status);
                 }
             },
-            "agent-management": agent_management.tools.modifyReceive,
+            "agent-management": function browser_content_agentManagement_modifyReceive(socketData:socketData):void {
+                const data:service_agentManagement = socketData.data as service_agentManagement;
+                if (data.action === "add") {
+                    const addAgents = function browser_content_agentManagement_receive_addAgents(agentType:agentType):void {
+                        const keys:string[] = Object.keys(data.agents[agentType]),
+                            keyLength:number = keys.length;
+                        if (keyLength > 0) {
+                            let a:number = 0;
+                            do {
+                                if (browser.agents[agentType][keys[a]] === undefined) {
+                                    browser.agents[agentType][keys[a]] = data.agents[agentType][keys[a]];
+                                    agent_add({
+                                        hash: keys[a],
+                                        name: data.agents[agentType][keys[a]].name,
+                                        type: agentType
+                                    });
+                                }
+                                a = a + 1;
+                            } while (a < keyLength);
+                        }
+                    };
+                    if (data.identity !== null) {
+                        browser.identity.hashUser = data.identity.hashUser;
+                        browser.identity.nameUser = data.identity.nameUser;
+                    }
+                    addAgents("device");
+                    addAgents("user");
+                } else if (data.action === "delete") {
+                    const deleteAgents = function browser_content_agentManagement_receive_deleteAgents(agentType:agentType):void {
+                        const keys:string[] = Object.keys(data.agents[agentType]),
+                            keyLength:number = keys.length,
+                            property:"hashDevice"|"hashUser" = `hash${common.capitalize(agentType)}` as "hashDevice"|"hashUser";
+                        if (keyLength > 0) {
+                            let a:number = 0;
+                            do {
+                                if (keys[a] === browser.identity[property]) {
+                                    agent_delete(data.agentFrom, agentType);
+                                } else {
+                                    agent_delete(keys[a], agentType);
+                                }
+                                a = a + 1;
+                            } while (a < keyLength);
+                        }
+                    };
+                    deleteAgents("device");
+                    deleteAgents("user");
+                } else if (data.action === "modify") {
+                    const shareContent = function browser_content_agentManagement_receive_shareContent(agentName:string, agentType:agentType|""):void {
+                            const shareModals:HTMLElement[] = document.getModalsByModalType("shares");
+                            let shareLength:number = shareModals.length,
+                                body:HTMLElement = null;
+                            if (shareLength > 0) {
+                                do {
+                                    shareLength = shareLength - 1;
+                                    if ((shareModals[shareLength].dataset.agent === agentName && shareModals[shareLength].dataset.agenttype === agentType) || (agentType === "" && shareModals[shareLength].getElementsByTagName("button")[0].firstChild.textContent === "⌘ All Shares")) {
+                                        body = shareModals[shareLength].getElementsByClassName("body")[0] as HTMLElement;
+                                        body.appendText("", true);
+                                        body.appendChild(share_content(agentName, agentType));
+                                    }
+                                } while (shareLength > 0);
+                            }
+                        },
+                        modifyAgents = function browser_content_agentManagement_receive_modifyAgents(agentType:agentType):void {
+                            const keys:string[] = Object.keys(data.agents[agentType]),
+                                keyLength:number = keys.length;
+                            if (keyLength > 0) {
+                                let a:number = 0;
+                                do {
+                                    if (browser.agents[agentType][keys[a]] !== undefined) {
+                                        browser.agents[agentType][keys[a]] = data.agents[agentType][keys[a]];
+                                        shareContent(keys[a], agentType);
+                                    }
+                                    a = a + 1;
+                                } while (a < keyLength);
+                                shareContent("", agentType);
+                            }
+                        };
+                    modifyAgents("device");
+                    modifyAgents("user");
+                    shareContent("", "");
+                }
+            },
             "error": error,
             "hash-share": function browser_content_shares_hash(socketData:socketData):void {
                 const hash:service_hashShare = socketData.data as service_hashShare,
@@ -305,7 +391,32 @@ const receiver = function browser_utilities_receiver(event:websocket_event):void
                 browser.configuration();
             },
             "invite": agent_management.tools.inviteTransmissionReceipt,
-            "message": message.tools.receive,
+            "message": function browser_utilities_receiver_message(socketData:socketData):void {
+                const messageData:service_message = socketData.data as service_message,
+                    agentFrom:string = messageData[0].agentFrom,
+                    agentType:agentType = messageData[0].agentType,
+                    target:messageTarget = ((agentType === "user" && agentFrom === browser.identity.hashUser) || (agentType === "device" && agentFrom === browser.identity.hashDevice))
+                        ? "agentTo"
+                        : "agentFrom";
+                document.getElementById("message-update").appendText(messageData[0].message, true);
+                messageData.forEach(function browser_utilities_receiver_message_each(item:message_item):void {
+                    message_post(item, target, null);
+                });
+                if (browser.visible === false && Notification.permission === "granted") {
+                    const messageBody:string = messageData[0].message,
+                        messageString:string = (messageBody.length > 100)
+                            ? `${messageBody.slice(0, 100)}\u2026`
+                            : messageBody,
+                        notifyOptions:NotificationOptions = {
+                            body: `Received new message from ${agentType} ${browser.agents[agentType][agentFrom].name}.\r\n\r\n${messageString}`,
+                            vibrate: [200, 100]
+                        },
+                        notify:Notification = new Notification(`${browser.title} - New Message`, notifyOptions);
+                    notify.onshow = function browser_utilities_receiver_message_show():void {
+                        notify.close();
+                    };
+                }
+            },
             "reload": reload,
             "socket-map": configuration.tools.socketMap,
             "terminal": terminal.events.receive,

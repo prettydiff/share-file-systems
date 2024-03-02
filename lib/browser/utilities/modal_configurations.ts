@@ -6,10 +6,11 @@ import agent_management from "../content/agent_management.js";
 import browser from "./browser.js";
 import common from "../../common/common.js";
 import configuration from "../content/configuration.js";
-import file_select_addresses from "../utilities/file_select_addresses.js";
+import modal_fileEdit from "./modal_fileEdit.js";
 import media from "../content/media.js";
 import modal from "./modal.js";
 import modal_close from "./modal_close.js";
+import modal_fileDetails from "./modal_fileDetails.js";
 import modal_fileNavigate from "./modal_fileNavigate.js";
 import modal_inviteAsk from "./modal_inviteAsk.js";
 import modal_message from "./modal_message.js";
@@ -368,95 +369,7 @@ const modal_configuration:module_modalConfiguration = {
             document.getElementById("menu").style.display = "none";
         },
 
-        "details": function browser_utilities_modalConfiguration__details(event:Event, config?:config_modal):modal {
-            if (config === null || config === undefined) {
-                const name:string = browser.contextElement.lowName(),
-                    mouseEvent:MouseEvent = event as MouseEvent,
-                    element:HTMLElement = (name === "li" || name === "ul")
-                        ? browser.contextElement
-                        : browser.contextElement.getAncestor("li", "tag"),
-                    div:HTMLElement = util.delay(),
-                    box:modal = element.getAncestor("box", "class"),
-                    agency:agentId = util.getAgent(box),
-                    addresses:[string, fileType, string][] = file_select_addresses(element, "details"),
-                    plural:string = (addresses.length === 1)
-                        ? ""
-                        : "s",
-                    payloadModal:config_modal = {
-                        agent: agency[0],
-                        agentIdentity: true,
-                        agentType: agency[2],
-                        content: div,
-                        height: 600,
-                        inputs: ["close"],
-                        left: mouseEvent.clientX,
-                        read_only: agency[1],
-                        single: true,
-                        text_value: "",
-                        title_supplement: `${addresses.length} item${plural}`,
-                        top: (mouseEvent.clientY - 60 < 0)
-                            ? 60
-                            : mouseEvent.clientY - 60,
-                        type: "details",
-                        width: 500
-                    },
-                    modalInstance:modal = modal.content(payloadModal),
-                    id:string = modalInstance.getAttribute("id"),
-                    nameContext:string = browser.contextElement.lowName(),
-                    menu:HTMLElement = document.getElementById("contextMenu"),
-                    addressField:HTMLInputElement = box.getElementsByClassName("fileAddress")[0].getElementsByTagName("input")[0],
-                    agents:[fileAgent, fileAgent, fileAgent] = util.fileAgent(box, null),
-                    payloadNetwork:service_fileSystem = {
-                        action: "fs-details",
-                        agentRequest: agents[0],
-                        agentSource: agents[1],
-                        agentWrite: null,
-                        depth: 0,
-                        location: (function browser_content_context_details_addressList():string[] {
-                            const output:string[] = [],
-                                length:number = addresses.length;
-                            let a:number = 0;
-                            if (nameContext === "ul") {
-                                return [addressField.value];
-                            }
-                            do {
-                                output.push(addresses[a][0]);
-                                a = a + 1;
-                            } while (a < length);
-                            return output;
-                        }()),
-                        name: id
-                    };
-                if (browser.loading === true) {
-                    return;
-                }
-                browser.ui.modals[id].text_value = JSON.stringify(payloadNetwork.location);
-                browser.send(payloadNetwork, "file-system");
-                browser.configuration();
-                browser.contextElement = null;
-                if (menu !== null) {
-                    menu.parentNode.removeChild(menu);
-                }
-                return modalInstance;
-            }
-            let modalInstance:modal = null;
-            const agents:[fileAgent, fileAgent, fileAgent] = (function browser_init_modalDetails_agents():[fileAgent, fileAgent, fileAgent] {
-                    config.content = util.delay();
-                    modalInstance = modal.content(config);
-                    return util.fileAgent(modalInstance, null, config.text_value);
-                }()),
-                payloadNetwork:service_fileSystem = {
-                    action: "fs-details",
-                    agentRequest: agents[0],
-                    agentSource: agents[1],
-                    agentWrite: null,
-                    depth: 0,
-                    location: JSON.parse(config.text_value) as string[],
-                    name: config.id
-                };
-            browser.send(payloadNetwork, "file-system");
-            return modalInstance;
-        },
+        "details": modal_fileDetails,
 
         "document": function browser_utilities_modalConfiguration_document(event:Event, config?:config_modal):modal {
             const payload:config_modal = (config === null || config === undefined)
@@ -531,110 +444,7 @@ const modal_configuration:module_modalConfiguration = {
             return modalItem;
         },
 
-        "file-edit": function browser_utilities_modalConfiguration_fileEdit(event:Event, config?:config_modal):modal {
-            let modalInstance:modal = null,
-                agents:[fileAgent, fileAgent, fileAgent] = null;
-            const menu:HTMLElement = document.getElementById("contextMenu"),
-                payloadNetwork:service_fileSystem = {
-                    action: null,
-                    agentRequest: null,
-                    agentSource: null,
-                    agentWrite: null,
-                    depth: 1,
-                    location: [],
-                    name: ""
-                };
-            if (config === null || config === undefined) {
-                const element:HTMLElement = (browser.contextElement.lowName() === "li")
-                        ? browser.contextElement
-                        : browser.contextElement.getAncestor("li", "tag"),
-                    mouseEvent:MouseEvent = event as MouseEvent,
-                    contextElement:HTMLElement = event.target as HTMLElement,
-                    type:contextType = (browser.contextType !== "")
-                        ? browser.contextType
-                        : (contextElement.innerHTML.indexOf("Base64") === 0)
-                            ? "Base64"
-                            : (contextElement.innerHTML.indexOf("File as Text") > 0)
-                                ? "Edit"
-                                : "Hash",
-                    addresses:[string, fileType, string][] = file_select_addresses(element, "file-edit"),
-                    box:modal = element.getAncestor("box", "class"),
-                    length:number = addresses.length,
-                    agency:agentId = util.getAgent(box);
-                let a:number = 0;
-                agents = util.fileAgent(box, null);
-                config = {
-                    agent: agency[0],
-                    agentIdentity: true,
-                    agentType: agency[2],
-                    content: null,
-                    height: 500,
-                    inputs: (type === "Edit" && agency[1] === false)
-                        ? ["close", "save"]
-                        : ["close"],
-                    left: 0,
-                    read_only: agency[1],
-                    single: false,
-                    title_supplement: type,
-                    top: 0,
-                    type: "file-edit",
-                    width: 500
-                };
-                payloadNetwork.action = (type === "Edit")
-                    ? "fs-read"
-                    : `fs-${type.toLowerCase()}` as actionFile;
-                payloadNetwork.agentRequest = agents[0];
-                payloadNetwork.agentSource = agents[1];
-                do {
-                    if (addresses[a][1].indexOf("file") === 0) {
-                        config.content = modal.tools.textModal("File Edit", "", "file-edit");
-                        config.left = mouseEvent.clientX + (a * 10);
-                        config.top = (mouseEvent.clientY - 60) + (a * 10);
-                        config.text_value = addresses[a][0];
-                        modalInstance = modal.content(config);
-                        payloadNetwork.location.push(`${modalInstance.getAttribute("id")}:${addresses[a][0]}`);
-                    }
-                    a = a + 1;
-                } while (a < length);
-                browser.send(payloadNetwork, "file-system");
-                browser.contextElement = null;
-                browser.contextType = "";
-                if (menu !== null) {
-                    menu.parentNode.removeChild(menu);
-                }
-                return modalInstance;
-            }
-            config.content = modal.tools.textModal("File Edit", "", "file-edit");
-            modalInstance = modal.content(config);
-            agents = util.fileAgent(modalInstance, null, config.text_value);
-            payloadNetwork.action = payloadNetwork.action = (config.title_supplement === "Edit")
-                ? "fs-read"
-                : `fs-${config.title_supplement.toLowerCase()}` as actionFile;
-            payloadNetwork.agentRequest = {
-                device: browser.identity.hashDevice,
-                modalAddress: "",
-                share: "",
-                user: browser.identity.hashUser
-            };
-            payloadNetwork.agentSource = {
-                device: (config.agentType === "device")
-                    ? config.agent
-                    : "",
-                modalAddress: config.text_value,
-                share: "",
-                user: (config.agentType === "device")
-                    ? browser.identity.hashUser
-                    : config.agent
-            };
-            payloadNetwork.location = [`${modalInstance.getAttribute("id")}:${config.text_value}`];
-            browser.send(payloadNetwork, "file-system");
-            browser.contextElement = null;
-            browser.contextType = "";
-            if (menu !== null) {
-                menu.parentNode.removeChild(menu);
-            }
-            return modalInstance;
-        },
+        "file-edit": modal_fileEdit,
 
         "file-navigate": modal_fileNavigate,
 

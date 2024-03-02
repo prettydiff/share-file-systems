@@ -1,7 +1,7 @@
 
 /* lib/browser/index - The base JavaScript code that initiates the application in the browser. */
 
-import agent_management from "./content/agent_management.js";
+import agent_add from "./utilities/agent_add.js";
 import agent_status from "./utilities/agent_status.js";
 import browser from "./utilities/browser.js";
 import configuration from "./content/configuration.js";
@@ -227,7 +227,7 @@ import disallowed from "../common/disallowed.js";
 
                 // populate text messages
                 if (browser.ui.modalTypes.indexOf("message") > -1) {
-                    message.tools.populate("");
+                    message.tools.populate(null);
                 }
 
                 // assign key default events
@@ -326,7 +326,7 @@ import disallowed from "../common/disallowed.js";
                                     let a:number = 0;
                                     if (listLength > 0) {
                                         do {
-                                            agent_management.tools.addAgent({
+                                            agent_add({
                                                 hash: list[a],
                                                 name: browser.agents[type][list[a]].name,
                                                 type: type

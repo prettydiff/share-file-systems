@@ -51,7 +51,7 @@ const share_content = function browser_utilities_shareContent(agentName:string, 
                 } while (a > 0);
             }
             messageModal = modal_message(event, null);
-            message.tools.populate(messageModal.getAttribute("id"));
+            message.tools.populate(messageModal);
         },
         // open a file navigate modal to a location
         fileNavigate = function browser_utilities_shareContent_fileNavigate(event:MouseEvent):void {

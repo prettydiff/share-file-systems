@@ -14,6 +14,7 @@ const browser:browser = {
         "default": ["fff", "eee"]
     },
     content: document.getElementById("content-area"),   // content - stores a reference to the content area of the page
+    context_clipboard: "",                              // context_clipboard - stores JSON fragments used between context menu operations
     configuration: function browser_utilities_socketConfiguration():void { //configuration - send UI configuration data up for storage
         if (browser.loading === false) {
             browser.send({

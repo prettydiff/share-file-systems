@@ -1,16 +1,16 @@
 
-/* lib/browser/utilities/addAgent - Populates agents into the browser UI. */
+/* lib/browser/utilities/agent_add - Populates agents into the browser UI. */
 
 import browser from "./browser.js";
 import common from "../../common/common.js";
-import configuration from "../content/configuration";
+import configuration from "../content/configuration.js";
 import configuration_styleText from "./configuration_styleText.js";
-import modal_configuration from "./modal_configurations";
+import modal_shares from "./modal_shares.js";
 import share_update from "./share_update.js";
 
 // cspell: words agentType
 
-const addAgent = function browser_content_agentManagement_addAgent(input:agentManagement_addAgent):void {
+const agent_add = function browser_content_agentManagement_addAgent(input:agentManagement_addAgent):void {
     const li:HTMLLIElement = document.createElement("li"),
         button:HTMLElement = document.createElement("button"),
         addStyle = function browser_content_agentManagement_addUser_addStyle():void {
@@ -57,7 +57,7 @@ const addAgent = function browser_content_agentManagement_addAgent(input:agentMa
     button.setAttribute("id", input.hash);
     button.setAttribute("data-agenttype", input.type);
     button.setAttribute("type", "button");
-    button.onclick = modal_configuration.modals.shares;
+    button.onclick = modal_shares;
     li.appendChild(button);
     document.getElementById(input.type).getElementsByTagName("ul")[0].appendChild(li);
     addStyle();
@@ -67,4 +67,4 @@ const addAgent = function browser_content_agentManagement_addAgent(input:agentMa
     }
 };
 
-export default addAgent;
+export default agent_add;
