@@ -14,8 +14,6 @@ Tools and assistive functions for the browser environment associated more with a
 * **[configuration_styleText.ts](configuration_styleText.ts)** - Modifies a dynamically populated stylesheet with user specified colors.
 * **[context_copy.ts](context_copy.ts)**                       - File system copy function from the context menu.
 * **[context_destroy.ts](context_destroy.ts)**                 - File system destroy function from the context menu.
-* **[context_keys.ts](context_keys.ts)**                       - Shortcut key handling for context menu operations.
-* **[context_menu.ts](context_menu.ts)**                       - Displays the context menu.
 * **[context_paste.ts](context_paste.ts)**                     - File system paste function from the context menu.
 * **[context_rename.ts](context_rename.ts)**                   - File system rename function from the context menu.
 * **[context_share.ts](context_share.ts)**                     - File system share function from the context menu.
@@ -23,7 +21,6 @@ Tools and assistive functions for the browser environment associated more with a
 * **[dom.ts](dom.ts)**                                         - Extensions to the DOM to provide navigational functionality not present from the standard methods
 * **[file_address.ts](file_address.ts)**                       - Ensures all functionality is enforced with the address change of a file navigate modal.
 * **[file_directory.ts](file_directory.ts)**                   - Event handler for navigating directories in a file navigate modal.
-* **[file_new.ts](file_new.ts)**                               - File system new artifact function from the context menu.
 * **[file_select.ts](file_select.ts)**                         - Changes a file list item to a selected state.
 * **[file_select_addresses.ts](file_select_addresses.ts)**     - Gathers all items from a file list in a selected state.
 * **[file_select_none.ts](file_select_none.ts)**               - Ensures all items in a file list display and function in an unselected state.

@@ -1,15 +1,11 @@
 
 /* lib/browser/content/agent_management - Provide control of agent data: delete, invite, and edit. */
 
-import agent_add from "../utilities/agent_add.js";
 import agent_change from "../utilities/agent_change.js";
-import agent_delete from "../utilities/agent_delete";
 import browser from "../utilities/browser.js";
-import common from "../../common/common.js";
 import configuration_radio from "../utilities/configuration_radio.js";
 import invite_decline from "../utilities/invite_decline.js";
 import modal_inviteAsk from "../utilities/modal_inviteAsk.js";
-import share_content from "../utilities/share_content.js";
 import util from "../utilities/util.js";
 
 // cspell:words agenttype

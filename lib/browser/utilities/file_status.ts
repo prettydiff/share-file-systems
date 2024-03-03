@@ -3,12 +3,18 @@
 
 import browser from "./browser.js";
 import common from "../../common/common.js";
-import context_keys from "./context_keys.js";
-import context_menu from "./context_menu.js";
+import context_copy from "./context_copy.js";
+import context_destroy from "./context_destroy.js";
+import context_paste from "./context_paste.js";
+import context_rename from "./context_rename.js";
+import context_share from "./context_share.js";
 import file_address from "./file_address";
 import file_directory from "./file_directory.js";
 import file_select from "./file_select.js";
+import file_select_addresses from "./file_select_addresses.js";
 import file_select_none from "./file_select_none.js";
+import modal_fileDetails from "./modal_fileDetails.js";
+import modal_fileEdit from "./modal_fileEdit.js";
 import util from "./util.js";
 
 const file_status = function browser_utilities_fileStatus(socketData:socketData):void {
@@ -21,7 +27,7 @@ const file_status = function browser_utilities_fileStatus(socketData:socketData)
         search:boolean  = (data.message.indexOf("search-") === 0),
         expandTest:boolean = (data.message.indexOf("expand-") === 0),
         expandLocation:string = data.message.replace("expand-", ""),
-        fileList = function browser_utilities_fileStatus_fileList(location:string, dirs:directory_response, message:string):HTMLElement {
+        fileList = function browser_utilities_fileStatus_fileList(fileLocation:string, dirs:directory_response, message:string):HTMLElement {
             const listLength:number = dirs.length,
                 local:directory_list = (function browser_utilities_fileStatus_fileList_local():directory_list {
                     if (Array.isArray(dirs) === true) {
@@ -35,7 +41,7 @@ const file_status = function browser_utilities_fileStatus(socketData:socketData)
                                     }
                                     index = index + 1;
                                 } while (index < listLength);
-                                return common.sortFileList(output, location, browser.ui.fileSort);
+                                return common.sortFileList(output, fileLocation, browser.ui.fileSort);
                             }
                             return output;
                         }
@@ -43,12 +49,547 @@ const file_status = function browser_utilities_fileStatus(socketData:socketData)
                     }
                     return null;
                 }()),
+                context_menu = function browser_utilities_fileStatus_contextMenu(event:MouseEvent):void {
+                    const element:HTMLElement = (function browser_utilities_contextMenu_element():HTMLElement {
+                            const target:HTMLElement = event.target as HTMLElement,
+                                name:string = target.lowName();
+                            if (name === "li" || name === "ul") {
+                                return target;
+                            }
+                            return target.getAncestor("li", "tag");
+                        }()),
+                        inputAddress:string = element.getAncestor("border", "class").getElementsByTagName("input")[0].value,
+                        root:boolean = (inputAddress === "/" || inputAddress === "\\"),
+                        nodeName:string = element.lowName(),
+                        itemList:HTMLElement[] = [],
+                        menu:HTMLElement = document.createElement("ul"),
+                        command:string = (navigator.userAgent.indexOf("Mac OS X") > 0)
+                            ? "Command"
+                            : "CTRL",
+                        functions:context_functions = {
+                            base64: function browser_utilities_fileStatus_contextMenu_base64():void {
+                                const item:HTMLElement = document.createElement("li"),
+                                    button:HTMLElement = document.createElement("button"),
+                                    em:HTMLElement = document.createElement("em");
+                                em.appendText(`${command} + ALT + B`);
+                                button.appendText("Base64 ");
+                                button.appendChild(em);
+                                button.setAttribute("type", "button");
+                                button.onclick = modal_fileEdit;
+                                item.appendChild(button);
+                                itemList.push(item);
+                            },
+                            copy: function browser_utilities_fileStatus_contextMenu_copy():void {
+                                const item:HTMLElement = document.createElement("li"),
+                                    button:HTMLElement = document.createElement("button"),
+                                    em:HTMLElement = document.createElement("em");
+                                em.appendText(`${command} + C`);
+                                button.appendText("Copy ");
+                                button.appendChild(em);
+                                button.setAttribute("type", "button");
+                                button.onclick = context_copy;
+                                item.appendChild(button);
+                                itemList.push(item);
+                            },
+                            cut: function browser_utilities_fileStatus_contextMenu_cut():void {
+                                const item:HTMLElement = document.createElement("li"),
+                                    button:HTMLElement = document.createElement("button"),
+                                    em:HTMLElement = document.createElement("em");
+                                em.appendText(`${command} + X`);
+                                button.appendText("Cut ");
+                                button.appendChild(em);
+                                button.setAttribute("type", "button");
+                                button.onclick = context_copy;
+                                item.appendChild(button);
+                                itemList.push(item);
+                            },
+                            destroy: function browser_utilities_fileStatus_contextMenu_destroy():void {
+                                const item:HTMLElement = document.createElement("li"),
+                                    button:HTMLButtonElement = document.createElement("button"),
+                                    em:HTMLElement = document.createElement("em");
+                                em.appendText("DEL");
+                                button.appendText("Destroy ");
+                                button.appendChild(em);
+                                button.setAttribute("type", "button");
+                                button.setAttribute("class", "destroy");
+                                if (root === true) {
+                                    button.disabled = true;
+                                } else {
+                                    button.onclick = context_destroy;
+                                }
+                                item.appendChild(button);
+                                itemList.push(item);
+                            },
+                            details: function browser_utilities_fileStatus_contextMenu_details():void {
+                                const item:HTMLElement = document.createElement("li"),
+                                    button:HTMLElement = document.createElement("button"),
+                                    em:HTMLElement = document.createElement("em");
+                                em.appendText(`${command} + ALT + T`);
+                                button.appendText("Details ");
+                                button.appendChild(em);
+                                button.setAttribute("type", "button");
+                                button.onclick = modal_fileDetails;
+                                item.appendChild(button);
+                                itemList.push(item);
+                            },
+                            edit: function browser_utilities_fileStatus_contextMenu_edit():void {
+                                const item:HTMLElement = document.createElement("li"),
+                                    button:HTMLElement = document.createElement("button"),
+                                    em:HTMLElement = document.createElement("em");
+                                em.appendText(`${command} + ALT + E`);
+                                if (readOnly === true) {
+                                    button.appendText("Read File as Text ");
+                                } else {
+                                    button.appendText("Edit File as Text ");
+                                }
+                                button.appendChild(em);
+                                button.setAttribute("type", "button");
+                                button.onclick = modal_fileEdit;
+                                item.appendChild(button);
+                                itemList.push(item);
+                            },
+                            hash: function browser_utilities_fileStatus_contextMenu_hash():void {
+                                const item:HTMLElement = document.createElement("li"),
+                                    button:HTMLElement = document.createElement("button"),
+                                    em:HTMLElement = document.createElement("em");
+                                em.appendText(`${command} + ALT + H`);
+                                button.appendText("Hash ");
+                                button.appendChild(em);
+                                button.setAttribute("type", "button");
+                                button.onclick = modal_fileEdit;
+                                item.appendChild(button);
+                                itemList.push(item);
+                            },
+                            newDirectory: function browser_utilities_fileStatus_contextMenu_newDirectory():void {
+                                const item:HTMLElement = document.createElement("li"),
+                                    button:HTMLElement = document.createElement("button"),
+                                    em:HTMLElement = document.createElement("em");
+                                em.appendText(`${command} + ALT + D`);
+                                button.appendText("New Directory ");
+                                button.appendChild(em);
+                                button.setAttribute("type", "button");
+                                button.onclick = file_new;
+                                item.appendChild(button);
+                                itemList.push(item);
+                            },
+                            newFile: function browser_utilities_fileStatus_contextMenu_newFile():void {
+                                const item:HTMLElement = document.createElement("li"),
+                                    button:HTMLElement = document.createElement("button"),
+                                    em:HTMLElement = document.createElement("em");
+                                em.appendText(`${command} + ALT + F`);
+                                button.appendText("New File ");
+                                button.appendChild(em);
+                                button.setAttribute("type", "button");
+                                button.onclick = file_new;
+                                item.appendChild(button);
+                                itemList.push(item);
+                            },
+                            paste: function browser_utilities_fileStatus_contextMenu_paste():void {
+                                const item:HTMLElement = document.createElement("li"),
+                                    button:HTMLButtonElement = document.createElement("button"),
+                                    em:HTMLElement = document.createElement("em");
+                                em.appendText(`${command} + V`);
+                                button.appendText("Paste ");
+                                button.appendChild(em);
+                                button.setAttribute("type", "button");
+                                button.onclick = context_paste;
+                                if (browser.context_clipboard === "" || (browser.context_clipboard.indexOf("\"type\":") < 0 || browser.context_clipboard.indexOf("\"data\":") < 0)) {
+                                    button.disabled = true;
+                                }
+                                item.appendChild(button);
+                                itemList.push(item);
+                            },
+                            rename: function browser_utilities_fileStatus_contextMenu_rename():void {
+                                const item:HTMLElement = document.createElement("li"),
+                                    button:HTMLButtonElement = document.createElement("button"),
+                                    em:HTMLElement = document.createElement("em");
+                                em.appendText(`${command} + ALT + R`);
+                                button.appendText("Rename ");
+                                button.appendChild(em);
+                                button.setAttribute("type", "button");
+                                if (root === true) {
+                                    button.disabled = true;
+                                } else {
+                                    button.onclick = context_rename;
+                                }
+                                item.appendChild(button);
+                                itemList.push(item);
+                            },
+                            share: function browser_utilities_fileStatus_contextMenu_share():void {
+                                const item:HTMLElement = document.createElement("li"),
+                                    button:HTMLElement = document.createElement("button"),
+                                    em:HTMLElement = document.createElement("em");
+                                em.appendText(`${command} + ALT + S`);
+                                button.appendText("Share ");
+                                button.appendChild(em);
+                                button.setAttribute("type", "button");
+                                button.onclick = context_share;
+                                item.appendChild(button);
+                                itemList.push(item);
+                            }
+                        },
+                        box:modal = element.getAncestor("box", "class"),
+                        agentType:agentType = (box.dataset === undefined)
+                            ? null
+                            : box.dataset.agenttype as agentType,
+                        readOnly:boolean = (browser.ui.modals[box.getAttribute("id")].read_only && agentType !== "device"),
+                        clientHeight:number = browser.content.clientHeight;
+                    let clientX:number,
+                        clientY:number,
+                        menuTop:number = null,
+                        reverse:boolean = false,
+                        a:number = 0;
+                    browser.contextElement = element;
+                    util.contextMenuRemove();
+                    event.preventDefault();
+                    event.stopPropagation();
+                    menu.setAttribute("id", "contextMenu");
+                    menu.onclick = util.contextMenuRemove;
+                    if (nodeName === "ul") {
+                        functions.details();
+                        if (agentType === "device" || readOnly === false) {
+                            functions.newDirectory();
+                            functions.newFile();
+                            functions.paste();
+                        }
+                    } else if (nodeName === "li") {
+                        functions.details();
+                        if (agentType === "device") {
+                            functions.share();
+                        }
+                        if (element.getAttribute("class").indexOf("file") === 0) {
+                            functions.edit();
+                            functions.hash();
+                            functions.base64();
+                        }
+                
+                        if (readOnly === false) {
+                            functions.newDirectory();
+                            functions.newFile();
+                        }
+                        functions.copy();
+                        if (readOnly === false) {
+                            functions.cut();
+                            functions.paste();
+                            functions.rename();
+                            functions.destroy();
+                        }
+                    }
+                
+                    // this accounts for events artificially created during test automation
+                    if (event.clientY === undefined || event.clientX === undefined) {
+                        const body:HTMLElement = element.getAncestor("body", "class");
+                        clientX = element.offsetLeft + body.offsetLeft + box.offsetLeft + 50;
+                        clientY = element.offsetTop + body.offsetTop + box.offsetTop + 65;
+                    } else {
+                        clientX = event.clientX;
+                        clientY = event.clientY;
+                    }
+                
+                    // menu display position
+                    menu.style.zIndex = `${browser.ui.zIndex + 10}`;
+                
+                    menuTop = ((itemList.length * 52) + 1) + clientY;
+                    // vertical
+                    if (clientHeight < menuTop) {
+                        // above cursor
+                        menu.style.bottom = "1em";
+                        if (clientY > clientHeight - 52) {
+                            reverse = true;
+                        }
+                    } else {
+                        // below cursor
+                        menu.style.top = `${clientY /  10}em`;
+                    }
+                
+                    // horizontal
+                    if (browser.content.clientWidth < (200 + clientX)) {
+                        // right of cursor
+                        menu.style.left = `${(clientX - 200) / 10}em`;
+                    } else {
+                        // left of cursor
+                        menu.style.left = `${(clientX + 10) / 10}em`;
+                    }
+                
+                    // button order
+                    if (reverse === true) {
+                        a = itemList.length;
+                        do {
+                            a = a - 1;
+                            menu.appendChild(itemList[a]);
+                        } while (a > 0);
+                    } else {
+                        do {
+                            menu.appendChild(itemList[a]);
+                            a = a + 1;
+                        } while (a < itemList.length);
+                    }
+                    browser.content.parentNode.appendChild(menu);
+                },
+                context_keys = function browser_utilities_fileStatus_contextKeys(event:KeyboardEvent):void {
+                    const key:string = event.key.toLowerCase(),
+                        windowEvent:KeyboardEvent = window.event as KeyboardEvent,
+                        target:HTMLElement = event.target,
+                        element:HTMLElement = (function browser_utilities_contextKeys_element():HTMLElement {
+                            const el:HTMLElement = document.activeElement,
+                                name:string = el.lowName();
+                            if (el.parentNode === null || name === "li" || name === "ul") {
+                                return el;
+                            }
+                            return el.getAncestor("li", "tag");
+                        }()),
+                        input:HTMLInputElement = event.target as HTMLInputElement,
+                        elementName:string = element.lowName(),
+                        p:HTMLElement = element.getElementsByTagName("p")[0];
+                    if (key === "f5" || (windowEvent.ctrlKey === true && key === "r")) {
+                        location.reload();
+                    }
+                    if ((target.lowName() === "input" && input.type === "text") || element.parentNode === null || document.activeElement === document.getElementById("newFileItem")) {
+                        return;
+                    }
+                    if (key === "enter" && elementName === "li" && (element.getAttribute("class") === "directory" || element.getAttribute("class") === "directory lastType" || element.getAttribute("class") === "directory selected") && p.getAttribute("class") === "selected" && file_select_addresses(element, "directory").length === 1) {
+                        file_directory(event);
+                        return;
+                    }
+                    event.preventDefault();
+                    if (elementName !== "ul") {
+                        event.stopPropagation();
+                    }
+                    if (key === "delete" || key === "del") {
+                        browser.contextElement = element;
+                        context_destroy();
+                    } else if (windowEvent.altKey === true && windowEvent.ctrlKey === true) {
+                        if (key === "b" && elementName === "li") {
+                            // key b, base64
+                            browser.contextElement = element;
+                            browser.contextType = "Base64";
+                            modal_fileEdit(event);
+                        } else if (key === "d") {
+                            // key d, new directory
+                            browser.contextElement = element;
+                            browser.contextType = "directory";
+                            file_new(event);
+                        } else if (key === "e") {
+                            // key e, edit file
+                            browser.contextElement = element;
+                            browser.contextType = "Edit";
+                            modal_fileEdit(event);
+                        } else if (key === "f") {
+                            // key f, new file
+                            browser.contextElement = element;
+                            browser.contextType = "file";
+                            file_new(event);
+                        } else if (key === "h" && elementName === "li") {
+                            // key h, hash
+                            browser.contextElement = element;
+                            browser.contextType = "Hash";
+                            modal_fileEdit(event);
+                        } else if (key === "r" && elementName === "li") {
+                            // key r, rename
+                            context_rename(event);
+                        } else if (key === "s") {
+                            // key s, share
+                            browser.contextElement = element;
+                            context_share();
+                        } else if (key === "t") {
+                            // key t, details
+                            modal_fileDetails(event);
+                        }
+                    } else if (windowEvent.ctrlKey === true) {
+                        if (key === "a") {
+                            // key a, select all
+                            const list:HTMLElement = (elementName === "ul")
+                                    ? element
+                                    : element.parentNode,
+                                items:HTMLCollectionOf<Element> = list.getElementsByTagName("li"),
+                                length:number = items.length;
+                            let a:number = 0,
+                                classy:string;
+                            do {
+                                classy = items[a].getAttribute("class");
+                                if (classy !== null && classy.indexOf("cut") > -1) {
+                                    items[a].setAttribute("class", "selected cut");
+                                } else {
+                                    items[a].setAttribute("class", "selected");
+                                }
+                                items[a].getElementsByTagName("input")[0].checked = true;
+                                a = a + 1;
+                            } while (a < length);
+                        } else if (key === "c") {
+                            // key c, copy
+                            browser.contextElement = element;
+                            browser.contextType = "copy";
+                            context_copy(event);
+                        } else if (key === "d" && elementName === "li") {
+                            // key d, destroy
+                            browser.contextElement = element;
+                            context_destroy();
+                        } else if (key === "v") {
+                            // key v, paste
+                            browser.contextElement = element;
+                            context_paste();
+                        } else if (key === "x") {
+                            // key x, cut
+                            browser.contextElement = element;
+                            browser.contextType = "cut";
+                            context_copy(event);
+                        }
+                    }
+                },
+                file_new = function browser_utilities_fileStatus_fileNew(event:Event):void {
+                    const element:HTMLElement = event.target as HTMLElement,
+                        menu:HTMLElement = document.getElementById("contextMenu"),
+                        cancel = function browser_utilities_fileNew_cancel(actionElement:HTMLElement):void {
+                            const list:HTMLElement = actionElement.getAncestor("fileList", "class"),
+                                input:HTMLElement = list.getElementsByTagName("input")[0] as HTMLElement;
+                            setTimeout(function browser_utilities_fileNew_cancel_delay():void {
+                                if (actionElement.parentNode.parentNode.parentNode.parentNode === list) {
+                                    list.removeChild(actionElement.parentNode.parentNode.parentNode);
+                                    input.focus();
+                                }
+                            }, 10);
+                        },
+                        actionKeyboard = function browser_utilities_fileStatus_fileNew_actionKeyboard(actionEvent:KeyboardEvent):void {
+                            const actionElement:HTMLInputElement = actionEvent.target as HTMLInputElement,
+                                actionParent:HTMLElement = actionElement.parentNode;
+                            if (actionEvent.key === "Enter") {
+                                const value:string = actionElement.value.replace(/(\s+|\.)$/, ""),
+                                    agents:[fileAgent, fileAgent, fileAgent] = util.fileAgent(actionParent, null),
+                                    payload:service_fileSystem = {
+                                        action: "fs-new",
+                                        agentRequest: agents[0],
+                                        agentSource: agents[1],
+                                        agentWrite: null,
+                                        depth: 1,
+                                        location: [actionElement.dataset.location + value],
+                                        name: actionElement.dataset.type
+                                    };
+                                if (value.replace(/\s+/, "") !== "") {
+                                    actionElement.onkeyup = null;
+                                    actionElement.onblur = null;
+                                    actionParent.appendText(payload.location[0], true);
+                                    browser.send(payload, "file-system");
+                                }
+                            } else {
+                                if (actionEvent.key === "Escape") {
+                                    cancel(actionElement);
+                                    return;
+                                }
+                                actionElement.value = actionElement.value.replace(/\?|<|>|"|\||\*|:|\\|\/|\u0000/g, "");
+                            }
+                        },
+                        actionBlur = function browser_utilities_fileStatus_fileNew_actionBlur(actionEvent:FocusEvent):void {
+                            const actionElement:HTMLInputElement = actionEvent.target as HTMLInputElement,
+                                value:string = actionElement.value.replace(/(\s+|\.)$/, "");
+                            if (actionEvent.type === "blur") {
+                                if (value.replace(/\s+/, "") === "") {
+                                    cancel(actionElement);
+                                } else {
+                                    const actionParent:HTMLElement = actionElement.parentNode,
+                                        agents:[fileAgent, fileAgent, fileAgent] = util.fileAgent(actionParent, null),
+                                        payload:service_fileSystem = {
+                                            action: "fs-new",
+                                            agentRequest: agents[0],
+                                            agentSource: agents[1],
+                                            agentWrite: null,
+                                            depth: 1,
+                                            location: [actionElement.dataset.location + value],
+                                            name: actionElement.dataset.type
+                                        };
+                                    actionElement.onkeyup = null;
+                                    actionElement.onblur = null;
+                                    actionParent.appendText(payload.location[0], true);
+                                    browser.send(payload, "file-system");
+                                }
+                            }
+                        },
+                        build = function browser_utilities_fileStatus_fileNew_build():void {
+                            const li:HTMLElement = document.createElement("li"),
+                                label:HTMLLabelElement = document.createElement("label"),
+                                input:HTMLInputElement = document.createElement("input"),
+                                field:HTMLInputElement = document.createElement("input"),
+                                text:HTMLElement = document.createElement("label"),
+                                p:HTMLElement = document.createElement("p"),
+                                spanInfo:HTMLElement = document.createElement("span"),
+                                parent:HTMLElement = (browser.contextElement === null)
+                                    ? null
+                                    : browser.contextElement.parentNode,
+                                box:modal = (parent === null)
+                                    ? null
+                                    : parent.getAncestor("box", "class"),
+                                type:contextType = (browser.contextType !== "")
+                                    ? browser.contextType
+                                    : (element.innerHTML.indexOf("New File") === 0)
+                                        ? "file"
+                                        : "directory",
+                                span:HTMLElement = document.createElement("span");
+                
+                            if (parent === null) {
+                                return;
+                            }
+                            let slash:"/"|"\\" = "/",
+                                path:string = box.getElementsByTagName("input")[0].value;
+                
+                            li.setAttribute("class", type);
+                            if (type === "directory") {
+                                li.ondblclick = file_directory;
+                            }
+                            path = box.getElementsByTagName("input")[0].value;
+                            if (path.indexOf("/") < 0 || (path.indexOf("\\") < path.indexOf("/") && path.indexOf("\\") > -1 && path.indexOf("/") > -1)) {
+                                slash = "\\";
+                            }
+                            if (path.charAt(path.length - 1) !== slash) {
+                                path = path + slash;
+                            }
+                            input.type = "checkbox";
+                            input.checked = false;
+                            label.appendText("Selected");
+                            label.appendChild(input);
+                            label.setAttribute("class", "selection");
+                            p.appendChild(text);
+                            spanInfo.appendText((type === "file")
+                                ? "file - 0 bytes"
+                                : "directory - 0 items");
+                            p.appendChild(spanInfo);
+                            text.oncontextmenu = context_menu;
+                            text.onclick = file_select;
+                            text.appendText(path);
+                            field.onkeyup = actionKeyboard;
+                            field.onblur = actionBlur;
+                            field.setAttribute("id", "newFileItem");
+                            field.setAttribute("data-type", type);
+                            field.setAttribute("data-location", path);
+                            text.appendChild(field);
+                            li.appendChild(p);
+                            span.onclick = file_select;
+                            span.oncontextmenu = context_menu;
+                            li.appendChild(span);
+                            li.oncontextmenu = context_menu;
+                            li.appendChild(label);
+                            li.onclick = file_select;
+                            if (browser.contextElement.lowName() === "ul") {
+                                browser.contextElement.appendChild(li);
+                            } else {
+                                browser.contextElement.parentNode.appendChild(li);
+                            }
+                            field.focus();
+                        };
+                    if (document.getElementById("newFileItem") !== null) {
+                        return;
+                    }
+                    build();
+                    browser.contextElement = null;
+                    browser.contextType = "";
+                    if (menu !== null) {
+                        menu.parentNode.removeChild(menu);
+                    }
+                },
                 localLength:number = (local === null)
                     ? 0
                     : local.length,
                 output:HTMLElement = document.createElement("ul");
 
-            location = location.replace(/(\\|\/)+$/, "");
+            fileLocation = fileLocation.replace(/(\\|\/)+$/, "");
 
             if (dirs === "missing" || dirs === "noShare" || dirs === "readOnly") {
                 const p:HTMLElement = document.createElement("p");
@@ -88,7 +629,7 @@ const file_status = function browser_utilities_fileStatus(socketData:socketData)
 
             if (localLength > 0) {
                 let a:number = 0;
-                const fileListItem = function browser_utilities_fileStatus_fileList_listItem(item:directory_item, location:string, extraClass:string):HTMLElement {
+                const fileListItem = function browser_utilities_fileStatus_fileList_listItem(item:directory_item, itemLocation:string, extraClass:string):HTMLElement {
                     const li:HTMLElement = document.createElement("li"),
                         label:HTMLLabelElement = document.createElement("label"),
                         p:HTMLElement = document.createElement("p"),
@@ -425,10 +966,10 @@ const file_status = function browser_utilities_fileStatus(socketData:socketData)
                     }
             
                     // prepare the primary item text (address) to become a local name instead of absolute path
-                    if (location === "") {
+                    if (itemLocation === "") {
                         text.appendText(item[0]);
                     } else {
-                        text.appendText(item[0].slice(location.length + 1));
+                        text.appendText(item[0].slice(itemLocation.length + 1));
                     }
                     p.appendChild(text);
             
@@ -459,10 +1000,10 @@ const file_status = function browser_utilities_fileStatus(socketData:socketData)
                     return li;
                 };
                 do {
-                    if (local[a][0] !== location) {
+                    if (local[a][0] !== fileLocation) {
                         output.appendChild(fileListItem(
                             local[a],
-                            location,
+                            fileLocation,
                             (a < localLength - 1 && local[a + 1][1] !== local[a][1])
                                 ? "lastType"
                                 : ""
