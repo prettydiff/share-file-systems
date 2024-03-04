@@ -1,12 +1,12 @@
 
-/* lib/browser/utilities/modal_fileDetails - Modal content configuration for details modal type. */
+/* lib/browser/modal_config/modal_fileDetails - Modal content configuration for details modal type. */
 
-import browser from "./browser.js";
-import file_select_addresses from "./file_select_addresses.js";
-import modal from "./modal.js";
-import util from "./util.js";
+import browser from "../utilities/browser.js";
+import file_select_addresses from "../utilities/file_select_addresses.js";
+import modal from "../utilities/modal.js";
+import util from "../utilities/util.js";
 
-const modal_fileDetails = function browser_utilities_modalFileDetails(event:Event, config?:config_modal):modal {
+const modal_fileDetails = function browser_modalConfig_modalFileDetails(event:Event, config?:config_modal):modal {
     if (config === null || config === undefined) {
         const name:string = browser.contextElement.lowName(),
             mouseEvent:MouseEvent = event as MouseEvent,
@@ -50,7 +50,7 @@ const modal_fileDetails = function browser_utilities_modalFileDetails(event:Even
                 agentSource: agents[1],
                 agentWrite: null,
                 depth: 0,
-                location: (function browser_utilities_modalFileDetails_addressList():string[] {
+                location: (function browser_modalConfig_modalFileDetails_addressList():string[] {
                     const output:string[] = [],
                         length:number = addresses.length;
                     let a:number = 0;
@@ -78,7 +78,7 @@ const modal_fileDetails = function browser_utilities_modalFileDetails(event:Even
         return modalInstance;
     }
     let modalInstance:modal = null;
-    const agents:[fileAgent, fileAgent, fileAgent] = (function browser_utilities_modalFileDetails_agents():[fileAgent, fileAgent, fileAgent] {
+    const agents:[fileAgent, fileAgent, fileAgent] = (function browser_modalConfig_modalFileDetails_agents():[fileAgent, fileAgent, fileAgent] {
             config.content = util.delay();
             modalInstance = modal.content(config);
             return util.fileAgent(modalInstance, null, config.text_value);

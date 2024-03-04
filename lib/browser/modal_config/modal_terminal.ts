@@ -1,11 +1,11 @@
 
-/* lib/browser/utilities/modal_terminal - Modal configuration for terminal modals. */
+/* lib/browser/modal_config/modal_terminal - Modal configuration for terminal modals. */
 
-import browser from "./browser.js";
-import modal from "./modal.js";
+import browser from "../utilities/browser.js";
+import modal from "../utilities/modal.js";
 import terminal from "../content/terminal.js";
 
-const modal_terminal = function browser_utilities_modalTerminal(event:Event, config?:config_modal):modal {
+const modal_terminal = function browser_modalConfig_modalTerminal(event:Event, config?:config_modal):modal {
     let box:modal = null;
     const content:[HTMLElement, HTMLElement] = terminal.content(),
         element:HTMLElement = (event === null)
@@ -39,6 +39,7 @@ const modal_terminal = function browser_utilities_modalTerminal(event:Event, con
                     : config.id,
                 inputs: ["close", "maximize", "minimize"],
                 read_only: false,
+                socket: true,
                 string_store: [],
                 text_value: "",
                 type: "terminal",

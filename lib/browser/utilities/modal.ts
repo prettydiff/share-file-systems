@@ -9,7 +9,9 @@ import invite_decline from "./invite_decline.js";
 import media from "../content/media.js";
 import media_kill from "./media_kill.js";
 import modal_close from "./modal_close.js";
+import modal_textSave from "./modal_textSave.js";
 import util from "./util.js";
+import webSocket from "./webSocket.js";
 import zTop from "./zTop.js";
 
 // cspell:words agenttype
@@ -73,7 +75,10 @@ const modal:module_modal = {
                 el.setAttribute("title", config.title);
                 el.onclick = config.event;
                 config.parent.appendChild(el);
-            };
+            },
+            socket:WebSocket = (options.socket === true)
+                ? webSocket.start(null, browser.identity.hashDevice, options.type)
+                : null;
         // Uniqueness constraints
         if (browser.ui.modalTypes.indexOf(options.type) > -1) {
             if (options.single === true) {
@@ -167,6 +172,7 @@ const modal:module_modal = {
 
         // Box universal definitions
         browser.ui.modals[id] = options;
+        box.socket = socket;
         box.setAttribute("id", id);
         box.onmousedown = zTop;
         box.setAttribute("class", "box");
@@ -585,22 +591,6 @@ const modal:module_modal = {
                 browser.ui.modals[box.getAttribute("id")].status = "hidden";
             }
             browser.configuration();
-        },
-    
-        /* If a resizable textarea element is present in the modal outside the body this ensures the body is the correct size. */
-        footerResize: function browser_utilities_modal_footerResize(event:MouseEvent):void {
-            const element:HTMLElement = event.target,
-                box:modal = element.getAncestor("box", "class"),
-                body:HTMLElement = box.getElementsByClassName("body")[0] as HTMLElement,
-                bottom:HTMLElement = box.getElementsByClassName("side-b")[0] as HTMLElement,
-                top:HTMLElement = box.getElementsByClassName("side-t")[0] as HTMLElement,
-                width:number = (box.clientWidth - 19) / 10,
-                title:HTMLElement = box.getElementsByTagName("h2")[0];
-            body.style.width = `${width}em`;
-            bottom.style.width = `${width}em`;
-            top.style.width = `${width}em`;
-            title.style.width = `${(box.clientWidth - 17) / 10}em`;
-            element.style.width = "100%";
         },
     
         /* The given modal consumes the entire view port of the content area */
@@ -1031,35 +1021,6 @@ const modal:module_modal = {
                     document.onmouseup   = drop;
                 }
             }
-        },
-    
-        /* Pushes the text content of a text-pad modal into settings so that it is saved */
-        textSave: function browser_utilities_modal_textSave(event:Event):void {
-            const element:HTMLTextAreaElement = event.target as HTMLTextAreaElement,
-                box:modal = element.getAncestor("box", "class"),
-                data:config_modal = browser.ui.modals[box.getAttribute("id")];
-            if (box.timer !== undefined) {
-                window.clearTimeout(box.timer);
-            }
-            data.text_value = element.value;
-            browser.configuration();
-        },
-    
-        /* An idle delay is a good time to save written notes */
-        textTimer: function browser_utilities_modal_textTimer(event:KeyboardEvent):void {
-            const element:HTMLTextAreaElement = event.target as HTMLTextAreaElement,
-                box:modal = element.getAncestor("box", "class"),
-                data:config_modal = browser.ui.modals[box.getAttribute("id")];
-            if (box.timer !== undefined) {
-                window.clearTimeout(box.timer);
-            }
-            box.timer = window.setTimeout(function browser_utilities_modal_textTimer_delay() {
-                window.clearTimeout(box.timer);
-                if (data.text_value !== element.value) {
-                    data.text_value = element.value;
-                    browser.configuration();
-                }
-            }, browser.ui.statusTime);
         }
     },
 
@@ -1096,7 +1057,7 @@ const modal:module_modal = {
                 label:HTMLElement = document.createElement("label");
             textArea.value = value;
             if (type !== "file-edit") {
-                textArea.onblur = modal.events.textSave;
+                textArea.onblur = modal_textSave;
             }
             span.appendText(title);
             label.appendChild(span);

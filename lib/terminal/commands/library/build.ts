@@ -291,6 +291,7 @@ const build = function terminal_commands_library_build(config:config_command_bui
                     filePath:string = `${vars.path.js}browser${vars.path.sep}`,
                     dirs:string[] = [
                         `${filePath}content`,
+                        `${filePath}modal_config`,
                         `${filePath}utilities`,
                         `${vars.path.js}common`
                     ],

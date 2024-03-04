@@ -1,12 +1,12 @@
 
-/* lib/browser/utilities/modal_shares - Modal configuration for share type modals. */
+/* lib/browser/modal_config/modal_shares - Modal configuration for share type modals. */
 
-import share_content from "./share_content.js";
-import modal from "./modal.js";
+import share_content from "../utilities/share_content.js";
+import modal from "../utilities/modal.js";
 
 // cspell: words agentType
 
-const modal_shares = function browser_utilities_modalConfiguration_modal(event:Event, config?:config_modal):modal {
+const modal_shares = function browser_modalConfig_modalShares(event:Event, config?:config_modal):modal {
     if (config === null || config === undefined) {
         const element:HTMLElement = event.target as HTMLElement,
             classy:string = element.getAttribute("class"),

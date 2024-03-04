@@ -2,7 +2,8 @@
 /* lib/browser/utilities/terminal_send - Transmit terminal IO on a custom socket. */
 
 import browser from "./browser.js";
-import webSocket from "./webSocket";
+
+// cspell: words agenttype
 
 const terminal_send = function browser_utilities_terminalSend(box:modal, command:string, autoComplete:boolean):void {
 
@@ -34,14 +35,11 @@ const terminal_send = function browser_utilities_terminalSend(box:modal, command
             logs: [],
             target: "agentSource"
         };
-    if (box.socket === undefined) {
-        box.socket = webSocket.start(null, browser.identity.hashDevice, "terminal");
-    }
-    box.socket.send(JSON.stringify({
-        data: payload,
-        service: "terminal"
-    }));
-    //browser.send(payload, "terminal");
+    // box.socket.send(JSON.stringify({
+    //     data: payload,
+    //     service: "terminal"
+    // }));
+    browser.send(payload, "terminal");
 };
 
 export default terminal_send;

@@ -2,8 +2,11 @@
 /* lib/browser/content/terminal - A library to process command terminal output in the browser. */
 
 import browser from "../utilities/browser.js";
-import modal from "../utilities/modal.js";
 import modal_close from "../utilities/modal_close.js";
+import modal_footerResize from "../utilities/modal_footerResize.js";
+import modal_textSave from "../utilities/modal_textSave.js";
+import modal_textTimer from "../utilities/modal_textTimer.js";
+import terminal_send from "../utilities/terminal_send.js";
 import util from "../utilities/util.js";
 
 // cspell:words agenttype, arrowdown, arrowup, pagedown, pageup
@@ -49,8 +52,8 @@ const terminal:module_browserTerminal = {
         textArea.setAttribute("spellcheck", "false");
         textArea.onkeydown = terminal.events.command;
         textArea.onkeyup = terminal.events.keyInput;
-        textArea.onmouseup = modal.events.footerResize;
-        textArea.onblur = modal.events.textSave;
+        textArea.onmouseup = modal_footerResize;
+        textArea.onblur = modal_textSave;
         span.appendText("Terminal command input");
         label.appendChild(span);
         label.appendChild(textArea);
@@ -61,7 +64,7 @@ const terminal:module_browserTerminal = {
     events: {
         close: function browser_content_terminal_close(event:MouseEvent):void {
             const box:modal = event.target.getAncestor("box", "class");
-            terminal.tools.send(box, "close-modal", false);
+            terminal_send(box, "close-modal", false);
             modal_close(event);
         },
         command: function browser_content_terminal_command(event:KeyboardEvent):void {
@@ -89,14 +92,14 @@ const terminal:module_browserTerminal = {
                 }
                 event.preventDefault();
                 target.focus();
-                terminal.tools.send(box, target.value.replace(/^\s+/, "").replace(/\s+$/, ""), true);
-                modal.events.textTimer(event);
+                terminal_send(box, target.value.replace(/^\s+/, "").replace(/\s+$/, ""), true);
+                modal_textTimer(event);
                 box.setAttribute("data-tab", "true");
                 return;
             }
             box.setAttribute("data-tab", "false");
             if (key === "c" && event.ctrlKey === true) {
-                terminal.tools.send(box, "close-modal", false);
+                terminal_send(box, "close-modal", false);
                 terminal.tools.populate(box, [""], false);
                 clearTarget();
                 return;
@@ -115,7 +118,7 @@ const terminal:module_browserTerminal = {
                 } else if (value === "") {
                     terminal.tools.populate(box, [""], false);
                 } else {
-                    terminal.tools.send(box, value, false);
+                    terminal_send(box, value, false);
                 }
                 if (history[history.length - 1] !== value && value !== "") {
                     history.push(value);
@@ -160,7 +163,7 @@ const terminal:module_browserTerminal = {
                 terminal.tools.controlKeys(event, list);
                 return;
             }
-            modal.events.textTimer(event);
+            modal_textTimer(event);
         },
         keyOutput: function browser_content_terminal_keyOutput(event:KeyboardEvent):void {
             const list:HTMLElement = event.target;

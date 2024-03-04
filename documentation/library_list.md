@@ -38,6 +38,21 @@ This is a dynamically compiled list of supporting code files that comprise this 
    - **[../lib/browser/content/socketMap.ts](../lib/browser/content/socketMap.ts)**                                                                     - Updates socket map content.
    - **[../lib/browser/content/terminal.ts](../lib/browser/content/terminal.ts)**                                                                       - A library to process command terminal output in the browser.
    - **[../lib/browser/content/tutorial.ts](../lib/browser/content/tutorial.ts)**                                                                       - An interactive tutorial explaining the application.
+* Directory *[../lib/browser/modal_config](../lib/browser/modal_config)*
+   - **[../lib/browser/modal_config/modal_agentManagement.ts](../lib/browser/modal_config/modal_agentManagement.ts)**                                   - Modal configuration for agent management modal type.
+   - **[../lib/browser/modal_config/modal_configuration.ts](../lib/browser/modal_config/modal_configuration.ts)**                                       - Modal configuration for configuration modal type.
+   - **[../lib/browser/modal_config/modal_document.ts](../lib/browser/modal_config/modal_document.ts)**                                                 - Modal configuration for document modal type.
+   - **[../lib/browser/modal_config/modal_export.ts](../lib/browser/modal_config/modal_export.ts)**                                                     - Modal configuration for export modal type.
+   - **[../lib/browser/modal_config/modal_fileDetails.ts](../lib/browser/modal_config/modal_fileDetails.ts)**                                           - Modal content configuration for details modal type.
+   - **[../lib/browser/modal_config/modal_fileEdit.ts](../lib/browser/modal_config/modal_fileEdit.ts)**                                                 - Configuration details for edit modal type.
+   - **[../lib/browser/modal_config/modal_fileNavigate.ts](../lib/browser/modal_config/modal_fileNavigate.ts)**                                         - Modal configuration for file navigate modals.
+   - **[../lib/browser/modal_config/modal_inviteAsk.ts](../lib/browser/modal_config/modal_inviteAsk.ts)**                                               - Modal configuration for invitations from remote agents.
+   - **[../lib/browser/modal_config/modal_media.ts](../lib/browser/modal_config/modal_media.ts)**                                                       - Modal configuration for media type modals.
+   - **[../lib/browser/modal_config/modal_message.ts](../lib/browser/modal_config/modal_message.ts)**                                                   - Modal configuration for message modals.
+   - **[../lib/browser/modal_config/modal_shares.ts](../lib/browser/modal_config/modal_shares.ts)**                                                     - Modal configuration for share type modals.
+   - **[../lib/browser/modal_config/modal_socketMap.ts](../lib/browser/modal_config/modal_socketMap.ts)**                                               - Modal configuration for socket map type modals.
+   - **[../lib/browser/modal_config/modal_terminal.ts](../lib/browser/modal_config/modal_terminal.ts)**                                                 - Modal configuration for terminal modals.
+   - **[../lib/browser/modal_config/modal_textPad.ts](../lib/browser/modal_config/modal_textPad.ts)**                                                   - Modal configuration for text pad type modals.
 * Directory *[../lib/browser/utilities](../lib/browser/utilities)*
    - **[../lib/browser/utilities/agent_add.ts](../lib/browser/utilities/agent_add.ts)**                                                                 - Populates agents into the browser UI.
    - **[../lib/browser/utilities/agent_change.ts](../lib/browser/utilities/agent_change.ts)**                                                           - Modifies agent related data in share modals.
@@ -61,7 +76,6 @@ This is a dynamically compiled list of supporting code files that comprise this 
    - **[../lib/browser/utilities/file_select_none.ts](../lib/browser/utilities/file_select_none.ts)**                                                   - Ensures all items in a file list display and function in an unselected state.
    - **[../lib/browser/utilities/file_select_none.ts](../lib/browser/utilities/file_select_none.ts)**                                                   - Event handler for the address field of the file navigate modals.
    - **[../lib/browser/utilities/file_status.ts](../lib/browser/utilities/file_status.ts)**                                                             - File navigate modal type contents.
-   - **[../lib/browser/utilities/invite_ask.ts](../lib/browser/utilities/invite_ask.ts)**                                                               - Modal configuration for invitations from remote agents.
    - **[../lib/browser/utilities/invite_decline.ts](../lib/browser/utilities/invite_decline.ts)**                                                       - An event handler associated with closing invitation modals which require sending feedback.
    - **[../lib/browser/utilities/invite_remote.ts](../lib/browser/utilities/invite_remote.ts)**                                                         - Modal content for invitations from remote agents.
    - **[../lib/browser/utilities/media_kill.ts](../lib/browser/utilities/media_kill.ts)**                                                               - Closes a media modal and closes all associated streams.
@@ -69,13 +83,10 @@ This is a dynamically compiled list of supporting code files that comprise this 
    - **[../lib/browser/utilities/modal.ts](../lib/browser/utilities/modal.ts)**                                                                         - A collection of utilities for generating and manipulating modals/windows in the browser.
    - **[../lib/browser/utilities/modal_close.ts](../lib/browser/utilities/modal_close.ts)**                                                             - An event handler associated with closing modals.
    - **[../lib/browser/utilities/modal_configuration.ts](../lib/browser/utilities/modal_configuration.ts)**                                             - A single location for storing all modal content configurations by modal type.
-   - **[../lib/browser/utilities/modal_fileDetails.ts](../lib/browser/utilities/modal_fileDetails.ts)**                                                 - Modal content configuration for details modal type.
-   - **[../lib/browser/utilities/modal_fileEdit.ts](../lib/browser/utilities/modal_fileEdit.ts)**                                                       - Configuration details for edit modal type.
-   - **[../lib/browser/utilities/modal_fileNavigate.ts](../lib/browser/utilities/modal_fileNavigate.ts)**                                               - Modal configuration for file navigate modals.
-   - **[../lib/browser/utilities/modal_message.ts](../lib/browser/utilities/modal_message.ts)**                                                         - Modal configuration for message modals.
+   - **[../lib/browser/utilities/modal_footerResize.ts](../lib/browser/utilities/modal_footerResize.ts)**                                               - An event handler associated with resizing the footer areas of certain modals.
    - **[../lib/browser/utilities/modal_shareUpdate.ts](../lib/browser/utilities/modal_shareUpdate.ts)**                                                 - Updates existing modals with new share content.
-   - **[../lib/browser/utilities/modal_shares.ts](../lib/browser/utilities/modal_shares.ts)**                                                           - Modal configuration for share type modals.
-   - **[../lib/browser/utilities/modal_terminal.ts](../lib/browser/utilities/modal_terminal.ts)**                                                       - Modal configuration for terminal modals.
+   - **[../lib/browser/utilities/modal_textSave.ts](../lib/browser/utilities/modal_textSave.ts)**                                                       - Saves changes of user authored text as a state artifact.
+   - **[../lib/browser/utilities/modal_textTimer.ts](../lib/browser/utilities/modal_textTimer.ts)**                                                     - A imposes an idle timer on user text areas after which the text is saved as a state artifact.
    - **[../lib/browser/utilities/remote.ts](../lib/browser/utilities/remote.ts)**                                                                       - A collection of instructions to allow event execution from outside the browser, like a remote control.
    - **[../lib/browser/utilities/share_content.ts](../lib/browser/utilities/share_content.ts)**                                                         - The content of share modals.
    - **[../lib/browser/utilities/share_update.ts](../lib/browser/utilities/share_update.ts)**                                                           - A utility to dynamically update the content of share modals.

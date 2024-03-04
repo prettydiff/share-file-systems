@@ -26,7 +26,6 @@ Tools and assistive functions for the browser environment associated more with a
 * **[file_select_none.ts](file_select_none.ts)**               - Ensures all items in a file list display and function in an unselected state.
 * **[file_select_none.ts](file_select_none.ts)**               - Event handler for the address field of the file navigate modals.
 * **[file_status.ts](file_status.ts)**                         - File navigate modal type contents.
-* **[invite_ask.ts](invite_ask.ts)**                           - Modal configuration for invitations from remote agents.
 * **[invite_decline.ts](invite_decline.ts)**                   - An event handler associated with closing invitation modals which require sending feedback.
 * **[invite_remote.ts](invite_remote.ts)**                     - Modal content for invitations from remote agents.
 * **[media_kill.ts](media_kill.ts)**                           - Closes a media modal and closes all associated streams.
@@ -34,13 +33,10 @@ Tools and assistive functions for the browser environment associated more with a
 * **[modal.ts](modal.ts)**                                     - A collection of utilities for generating and manipulating modals/windows in the browser.
 * **[modal_close.ts](modal_close.ts)**                         - An event handler associated with closing modals.
 * **[modal_configuration.ts](modal_configuration.ts)**         - A single location for storing all modal content configurations by modal type.
-* **[modal_fileDetails.ts](modal_fileDetails.ts)**             - Modal content configuration for details modal type.
-* **[modal_fileEdit.ts](modal_fileEdit.ts)**                   - Configuration details for edit modal type.
-* **[modal_fileNavigate.ts](modal_fileNavigate.ts)**           - Modal configuration for file navigate modals.
-* **[modal_message.ts](modal_message.ts)**                     - Modal configuration for message modals.
+* **[modal_footerResize.ts](modal_footerResize.ts)**           - An event handler associated with resizing the footer areas of certain modals.
 * **[modal_shareUpdate.ts](modal_shareUpdate.ts)**             - Updates existing modals with new share content.
-* **[modal_shares.ts](modal_shares.ts)**                       - Modal configuration for share type modals.
-* **[modal_terminal.ts](modal_terminal.ts)**                   - Modal configuration for terminal modals.
+* **[modal_textSave.ts](modal_textSave.ts)**                   - Saves changes of user authored text as a state artifact.
+* **[modal_textTimer.ts](modal_textTimer.ts)**                 - A imposes an idle timer on user text areas after which the text is saved as a state artifact.
 * **[remote.ts](remote.ts)**                                   - A collection of instructions to allow event execution from outside the browser, like a remote control.
 * **[share_content.ts](share_content.ts)**                     - The content of share modals.
 * **[share_update.ts](share_update.ts)**                       - A utility to dynamically update the content of share modals.

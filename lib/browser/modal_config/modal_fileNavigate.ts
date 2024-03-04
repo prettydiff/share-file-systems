@@ -1,14 +1,14 @@
 
-/* lib/browser/utilities/modal_fileNavigate - Modal configuration for file navigate modals. */
+/* lib/browser/modal_config/modal_fileNavigate - Modal configuration for file navigate modals. */
 
-import browser from "./browser.js";
-import file_text from "./file_text.js";
-import modal from "./modal.js";
-import util from "./util.js";
+import browser from "../utilities/browser.js";
+import file_text from "../utilities/file_text.js";
+import modal from "../utilities/modal.js";
+import util from "../utilities/util.js";
 
 // cspell: words agentType
 
-const modal_fileNavigate = function browser_utilities_ModalFileNavigate(event:Event, config?:config_modal):modal {
+const modal_fileNavigate = function browser_modalConfig_modalFileNavigate(event:Event, config?:config_modal):modal {
     const element:HTMLElement = (event === null)
             ? null
             : (event as MouseEvent).target,

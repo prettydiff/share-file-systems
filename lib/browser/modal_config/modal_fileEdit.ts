@@ -1,12 +1,12 @@
 
-/* lib/browser/utilities/modal_fileEdit - Configuration details for edit modal type. */
+/* lib/browser/modal_config/modal_fileEdit - Configuration details for edit modal type. */
 
-import browser from "./browser.js";
-import file_select_addresses from "./file_select_addresses.js";
-import modal from "./modal.js";
-import util from "./util.js";
+import browser from "../utilities/browser.js";
+import file_select_addresses from "../utilities/file_select_addresses.js";
+import modal from "../utilities/modal.js";
+import util from "../utilities/util.js";
 
-const modal_fileEdit = function browser_utilities_modalConfiguration_fileEdit(event:Event, config?:config_modal):modal {
+const modal_fileEdit = function browser_modalConfig_modalFileEdit(event:Event, config?:config_modal):modal {
     let modalInstance:modal = null,
         agents:[fileAgent, fileAgent, fileAgent] = null;
     const menu:HTMLElement = document.getElementById("contextMenu"),

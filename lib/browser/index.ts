@@ -6,7 +6,7 @@ import browser from "./utilities/browser.js";
 import configuration from "./content/configuration.js";
 import dom from "./utilities/dom.js";
 import message from "./content/message.js";
-import modal_configuration from "./utilities/modal_configurations.js";
+import modal_list from "./utilities/modal_list.js";
 import modal from "./utilities/modal.js";
 import remote from "./utilities/remote.js";
 import tutorial from "./content/tutorial.js";
@@ -216,7 +216,7 @@ import disallowed from "../common/disallowed.js";
                             button.appendChild(span);
                             button.appendText(` ${browser.modal_titles[buttons[index]].text}`);
                             button.onblur = menuBlur;
-                            button.onclick = modal_configuration.modals[buttons[index] as modalType];
+                            button.onclick = modal_list[buttons[index] as modalType];
                             li.appendChild(button);
                             menu.appendChild(li);
                         }
@@ -232,10 +232,10 @@ import disallowed from "../common/disallowed.js";
                 // assign key default events
                 browser.content.onclick                             = util.contextMenuRemove;
                 document.getElementById("menuToggle").onclick       = menuAction;
-                allShares.onclick                                   = modal_configuration.modals.shares;
-                allDevice.onclick                                   = modal_configuration.modals.shares;
-                allUser.onclick                                     = modal_configuration.modals.shares;
-                socketMap.onclick                                   = modal_configuration.modals["socket-map"];
+                allShares.onclick                                   = modal_list.shares;
+                allDevice.onclick                                   = modal_list.shares;
+                allUser.onclick                                     = modal_list.shares;
+                socketMap.onclick                                   = modal_list["socket-map"];
                 document.getElementById("minimize-all").onclick     = minimizeAll;
                 document.onvisibilitychange                         = visibility;
                 if (document.fullscreenEnabled === true) {
@@ -244,18 +244,6 @@ import disallowed from "../common/disallowed.js";
                 } else {
                     const fullscreen:HTMLElement = document.getElementById("fullscreen");
                     fullscreen.parentNode.removeChild(fullscreen);
-                }
-
-                // build out the default modals, if not already present as a part of state restoration
-                if (document.getModalsByModalType("configuration")[0] === undefined) {
-                    modal_configuration.modals.configuration(null, null);
-                }
-                if (document.getModalsByModalType("socket-map")[0] === undefined) {
-                    modal_configuration.modals["socket-map"](null, null);
-                    configuration.tools.socketMap({
-                        data: state["socket-map"],
-                        service: "socket-map"
-                    });
                 }
 
                 // initiate webSocket and activity status
@@ -285,6 +273,20 @@ import disallowed from "../common/disallowed.js";
                 };
             },
 
+            defaultModals = function browser_init_defaultModals():void {
+                // build out the default modals, if not already present as a part of state restoration
+                if (document.getModalsByModalType("configuration")[0] === undefined) {
+                    modal_list.configuration(null, null);
+                }
+                if (document.getModalsByModalType("socket-map")[0] === undefined) {
+                    modal_list["socket-map"](null, null);
+                    configuration.tools.socketMap({
+                        data: state["socket-map"],
+                        service: "socket-map"
+                    });
+                }
+            },
+
             // apply background CSS
             restoreBackgrounds = function browser_init_restoreBackgrounds():void {
                 if (browser.ui.colorBackgrounds === undefined) {
@@ -307,34 +309,30 @@ import disallowed from "../common/disallowed.js";
                 let modalItem:config_modal = null,
                     count:number = 0;
                 const modalKeys:string[] = Object.keys(state.settings.ui.modals),
+                    modalLen:number = modalKeys.length,
                     indexes:[number, string][] = [],
-                    // applies z-index to the modals in the proper sequence while restarting the value at 0
-                    z = function browser_init_z(id:string):void {
-                        count = count + 1;
-                        if (id !== null) {
-                            indexes.push([state.settings.ui.modals[id].zIndex, id]);
-                        }
-                        if (count === modalKeys.length) {
-                            let index:number = 0,
-                                uiModal:config_modal,
-                                modalItem:HTMLElement = null;
-                            const len:number = indexes.length,
-                                restoreShares = function browser_init_restoreState_z_restoreShares(type:agentType):void {
-                                    const list:string[] = Object.keys(state.settings.agents[type]),
-                                        listLength:number = list.length;
-                                    let a:number = 0;
-                                    if (listLength > 0) {
-                                        do {
-                                            webSocket.agent_add({
-                                                hash: list[a],
-                                                name: browser.agents[type][list[a]].name,
-                                                type: type
-                                            });
-                                            a = a + 1;
-                                        } while (a < listLength);
-                                    }
-                                };
-                            browser.ui.zIndex = modalKeys.length;
+                    modalComplete = function browser_init_restoreState_modalComplete():void {
+                        let index:number = 0,
+                            uiModal:config_modal,
+                            modalItem:HTMLElement = null;
+                        const len:number = indexes.length,
+                            restoreShares = function browser_init_restoreState_z_restoreShares(type:agentType):void {
+                                const list:string[] = Object.keys(state.settings.agents[type]),
+                                    listLength:number = list.length;
+                                let a:number = 0;
+                                if (listLength > 0) {
+                                    do {
+                                        webSocket.agent_add({
+                                            hash: list[a],
+                                            name: browser.agents[type][list[a]].name,
+                                            type: type
+                                        });
+                                        a = a + 1;
+                                    } while (a < listLength);
+                                }
+                            };
+                        if (modalLen > 0) {
+                            browser.ui.zIndex = modalLen;
                             indexes.sort(function browser_init_restoreState_z_sort(aa:[number, string], bb:[number, string]):number {
                                 if (aa[0] < bb[0]) {
                                     return -1;
@@ -351,9 +349,20 @@ import disallowed from "../common/disallowed.js";
                                 }
                                 index = index + 1;
                             } while (index < len);
-                            restoreShares("device");
-                            restoreShares("user");
-                            loadComplete(true);
+                        }
+                        defaultModals();
+                        restoreShares("device");
+                        restoreShares("user");
+                        loadComplete(true);
+                    },
+                    // applies z-index to the modals in the proper sequence while restarting the value at 0
+                    z = function browser_init_z(id:string):void {
+                        count = count + 1;
+                        if (id !== null) {
+                            indexes.push([state.settings.ui.modals[id].zIndex, id]);
+                        }
+                        if (count === modalLen) {
+                            modalComplete();
                         }
                     };
                 logInTest = true;
@@ -361,13 +370,17 @@ import disallowed from "../common/disallowed.js";
                 browser.identity = state.settings.identity;
                 browser.ui = state.settings.ui;
                 restoreBackgrounds();
-                modalKeys.forEach(function browser_init_restoreState_modalKeys(value:string) {
-                    modalItem = state.settings.ui.modals[value];
-                    modalItem.callback = function browser_init_restoreState_modalKeys_callback():void {
-                        z(value);
-                    };
-                    modal_configuration.modals[modalItem.type](null, modalItem);
-                });
+                if (modalLen === 0) {
+                    modalComplete();
+                } else {
+                    modalKeys.forEach(function browser_init_restoreState_modalKeys(value:string) {
+                        modalItem = state.settings.ui.modals[value];
+                        modalItem.callback = function browser_init_restoreState_modalKeys_callback():void {
+                            z(value);
+                        };
+                        modal_list[modalItem.type](null, modalItem);
+                    });
+                }
             },
 
             // Resizes the interactive area to fit the browser viewport.
@@ -432,6 +445,7 @@ import disallowed from "../common/disallowed.js";
                 "primary"
             );
             restoreBackgrounds();
+            defaultModals();
             loadComplete(false);
         } else {
             restoreState();

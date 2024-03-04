@@ -281,13 +281,10 @@ interface module_message {
  *     content: (options:config_modal) => modal; // Creates a new modal.
  *     events: {
  *         closeEnduring : (event:MouseEvent) => void;                               // Modal types that are enduring are hidden, not destroyed, when closed.
- *         footerResize  : (event:MouseEvent) => void;                               // If a resizable textarea element is present in the modal outside the body this ensures the body is the correct size.
  *         maximize      : (event:MouseEvent, callback?:() => void, target?:HTMLElement) => void; // Maximizes a modal to fill the view port.
  *         minimize      : (event:MouseEvent, callback?:() => void, target?:HTMLElement) => void; // Minimizes a modal to the tray at the bottom of the page.
  *         move          : (event:MouseEvent|TouchEvent) => void;                    // Allows dragging a modal around the screen.
  *         resize        : (event:MouseEvent|TouchEvent, boxElement?:modal) => void; // Resizes a modal respective to the event target, which could be any of 4 corners or 4 sides.
- *         textSave      : (event:Event) => void;                                    // Handler to push the text content of a text-pad modal into settings so that it is saved.
- *         textTimer     : (event:KeyboardEvent) => void;                            // A timing event so that contents of a text-pad modal are automatically save after a brief duration of focus blur.
  *     };
  *     tools: {
  *         dynamicWidth : (box:modal, width:number, buttonCount:number) => [number, number]; // uniformly calculates widths for modal headings and status bars.
@@ -300,13 +297,10 @@ interface module_modal {
     content: (options:config_modal) => modal;
     events: {
         closeEnduring: (event:MouseEvent) => void;
-        footerResize: (event:MouseEvent) => void;
         maximize: (event:MouseEvent, callback?:() => void, target?:HTMLElement) => void;
         minimize: (event:MouseEvent, callback?:() => void, target?:HTMLElement) => void;
         move: (event:MouseEvent|TouchEvent) => void;
         resize: (event:MouseEvent|TouchEvent, boxElement?:modal) => void;
-        textSave: (event:Event) => void;
-        textTimer: (event:KeyboardEvent) => void;
     };
     tools: {
         dynamicWidth: (box:modal, width:number, buttonCount:number) => [number, number];
@@ -318,49 +312,38 @@ interface module_modal {
 /**
  * Provides a central location for the configuration of modals by modal type.
  * ```typescript
- * interface module_modalConfiguration {
- *     modals: {
- *         "agent-management": modal_open;
- *         "configuration": modal_open;
- *         "details": modal_open;
- *         "document": modal_open;
- *         "export": modal_open;
- *         "file-edit": modal_open;
- *         "file-navigate": modal_open;
- *         "invite-ask": modal_open;
- *         "media": modal_open;
- *         "message": modal_open;
- *         "shares": modal_open;
- *         "socket-map": modal_open;
- *         "terminal": modal_open;
- *         "text-pad": modal_open;
- *     };
- *     titles: {
- *         [key:string]: {
- *             icon: string;
- *             menu: boolean;
- *             text: string;
- *         };
- *     };
+ * interface module_modalList {
+ *     "agent-management": modal_open;
+ *     "configuration": modal_open;
+ *     "details": modal_open;
+ *     "document": modal_open;
+ *     "export": modal_open;
+ *     "file-edit": modal_open;
+ *     "file-navigate": modal_open;
+ *     "invite-ask": modal_open;
+ *     "media": modal_open;
+ *     "message": modal_open;
+ *     "shares": modal_open;
+ *     "socket-map": modal_open;
+ *     "terminal": modal_open;
+ *     "text-pad": modal_open;
  * }
  * ``` */
-interface module_modalConfiguration {
-    modals: {
-        "agent-management": modal_open;
-        "configuration": modal_open;
-        "details": modal_open;
-        "document": modal_open;
-        "export": modal_open;
-        "file-edit": modal_open;
-        "file-navigate": modal_open;
-        "invite-ask": modal_open;
-        "media": modal_open;
-        "message": modal_open;
-        "shares": modal_open;
-        "socket-map": modal_open;
-        "terminal": modal_open;
-        "text-pad": modal_open;
-    };
+interface module_modalList {
+    "agent-management": modal_open;
+    "configuration": modal_open;
+    "details": modal_open;
+    "document": modal_open;
+    "export": modal_open;
+    "file-edit": modal_open;
+    "file-navigate": modal_open;
+    "invite-ask": modal_open;
+    "media": modal_open;
+    "message": modal_open;
+    "shares": modal_open;
+    "socket-map": modal_open;
+    "terminal": modal_open;
+    "text-pad": modal_open;
 }
 
 /**

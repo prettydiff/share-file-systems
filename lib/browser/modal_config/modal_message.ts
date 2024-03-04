@@ -1,16 +1,19 @@
 
-/* lib/browser/utilities/modal_message - Modal configuration for message modals. */
+/* lib/browser/modal_config/modal_message - Modal configuration for message modals. */
 
-import browser from "./browser.js";
+import browser from "../utilities/browser.js";
 import common from "../../common/common.js";
-import configuration_radio from "./configuration_radio.js";
-import message_post from "./message_post.js";
-import modal from "./modal.js";
-import util from "./util.js";
+import configuration_radio from "../utilities/configuration_radio.js";
+import message_post from "../utilities/message_post.js";
+import modal from "../utilities/modal.js";
+import modal_footerResize from "../utilities/modal_footerResize.js";
+import modal_textSave from "../utilities/modal_textSave.js";
+import modal_textTimer from "../utilities/modal_textTimer.js";
+import util from "../utilities/util.js";
 
 // cspell: words arrowdown, arrowup
 
-const modal_message = function browser_utilities_modalMessage(event:Event, config?:config_modal):modal {
+const modal_message = function browser_modalConfig_modalMessage(event:Event, config?:config_modal):modal {
     const text:string = (config === null)
             ? ""
             : config.text_value,
@@ -28,10 +31,10 @@ const modal_message = function browser_utilities_modalMessage(event:Event, confi
         spanTextArea:HTMLElement = document.createElement("span"),
         textArea:HTMLTextAreaElement = document.createElement("textarea"),
         label:HTMLElement = document.createElement("label"),
-        inputControl = function browser_content_message_content_input(type:"code"|"text"):void {
+        inputControl = function browser_modalConfig_modalMessage_inputControl(type:"code"|"text"):void {
             const input:HTMLInputElement = document.createElement("input"),
                 label:HTMLElement = document.createElement("label"),
-                modeToggle = function browser_utilities_modeToggle_modeToggle(event:Event):void {
+                modeToggle = function browser_modalConfig_modeToggle_modeToggle(event:Event):void {
                     const element:HTMLInputElement = event.target as HTMLInputElement,
                         box:modal = element.getAncestor("box", "class"),
                         id:string = box.getAttribute("id"),
@@ -59,7 +62,7 @@ const modal_message = function browser_utilities_modalMessage(event:Event, confi
             label.appendText(`${common.capitalize(type)} Mode`);
             pToggle.appendChild(label);
         },
-        message_submit = function browser_utilities_modalMessage_messageSubmit(event:KeyboardEvent|MouseEvent):void {
+        message_submit = function browser_modalConfig_modalMessage_messageSubmit(event:KeyboardEvent|MouseEvent):void {
             const input:HTMLTextAreaElement = event.target as HTMLTextAreaElement,
                 box:modal = input.getAncestor("box", "class"),
                 id:string = box.getAttribute("id"),
@@ -144,9 +147,9 @@ const modal_message = function browser_utilities_modalMessage(event:Event, confi
     pToggle.appendChild(spanToggle);
     footer.appendChild(pToggle);
 
-    textArea.onmouseup = modal.events.footerResize;
-    textArea.onblur = modal.events.textSave;
-    textArea.onkeyup = modal.events.textTimer;
+    textArea.onmouseup = modal_footerResize;
+    textArea.onblur = modal_textSave;
+    textArea.onkeyup = modal_textTimer;
     textArea.placeholder = "Write a message.";
     textArea.value = text;
     textArea.setAttribute("class", placeholder);
