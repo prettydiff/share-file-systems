@@ -1,16 +1,17 @@
 
 /* lib/browser/utilities/webSocket - Handles web socket events and associated errors. This where most communications from outside the browser are processed. */
 
-import agent_add from "./agent_add.js";
 import agent_delete from "./agent_delete.js";
 import browser from "./browser.js";
 import agent_management from "../content/agent_management.js";
 import common from "../../common/common.js";
 import configuration from "../content/configuration.js";
+import configuration_styleText from "./configuration_styleText.js";
 import file_status from "./file_status.js";
 import message_post from "./message_post.js";
+import modal_shares from "./modal_shares.js";
+import modal_shareUpdate from "./modal_shareUpdate.js";
 import remote from "./remote.js";
-import share_content from "./share_content.js";
 import share_update from "./share_update.js";
 import terminal from "../content/terminal.js";
 
@@ -30,6 +31,62 @@ import terminal from "../content/terminal.js";
  * ``` */
 
 const webSocket:module_browserSocket = {
+    agent_add: function browser_content_agentManagement_addAgent(input:agentManagement_addAgent):void {
+        const li:HTMLLIElement = document.createElement("li"),
+            button:HTMLElement = document.createElement("button"),
+            addStyle = function browser_content_agentManagement_addUser_addStyle():void {
+                let body:string,
+                    heading:string;
+                if (browser.ui.colors[input.type][input.hash] === undefined) {
+                    body = browser.colorDefaults[browser.ui.color][0];
+                    heading = browser.colorDefaults[browser.ui.color][1];
+                    browser.ui.colors[input.type][input.hash] = [body, heading];
+                    if (input.callback !== undefined) {
+                        input.callback();
+                    }
+                } else {
+                    body = browser.ui.colors[input.type][input.hash][0];
+                    heading = browser.ui.colors[input.type][input.hash][1];
+                }
+                if (browser.loading === false) {
+                    configuration_styleText({
+                        agent: input.hash,
+                        agentType: input.type,
+                        colors: [body, heading],
+                        replace: false
+                    });
+                }
+            },
+            status = function browser_content_agentManagement_addUser_status(status:activityStatus):HTMLElement {
+                const em:HTMLElement = document.createElement("em"),
+                    span:HTMLElement = document.createElement("span");
+                em.setAttribute("class", `status-${status}`);
+                em.appendText("●");
+                span.appendText(` ${common.capitalize(status)}`);
+                em.appendChild(span);
+                return em;
+            };
+        button.appendChild(status("active"));
+        button.appendChild(status("idle"));
+        button.appendChild(status("offline"));
+        button.appendText(` ${input.name}`);
+        if (input.hash === browser.identity.hashDevice) {
+            button.setAttribute("class", "active");
+        } else {
+            button.setAttribute("class", browser.agents[input.type][input.hash].status);
+        }
+        button.setAttribute("id", input.hash);
+        button.setAttribute("data-agenttype", input.type);
+        button.setAttribute("type", "button");
+        button.onclick = modal_shares;
+        li.appendChild(button);
+        document.getElementById(input.type).getElementsByTagName("ul")[0].appendChild(li);
+        addStyle();
+        configuration.tools.addUserColor(input.hash, input.type);
+        if (browser.loading === false) {
+            share_update("");
+        }
+    },
     error: function browser_utilities_socketError():void {
         setTimeout(function browser_utilities_socketError_delay():void {
             webSocket.start(null, webSocket.hash, webSocket.type);
@@ -121,7 +178,7 @@ const webSocket:module_browserSocket = {
                                     shares: {},
                                     status: "idle"
                                 };
-                                agent_add({
+                                webSocket.agent_add({
                                     callback: function browser_utilities_webSocket_receiver_agentHash_addAgent():void {
                                         browser.pageBody.setAttribute("class", "default");
                                     },
@@ -150,7 +207,7 @@ const webSocket:module_browserSocket = {
                                         do {
                                             if (browser.agents[agentType][keys[a]] === undefined) {
                                                 browser.agents[agentType][keys[a]] = data.agents[agentType][keys[a]];
-                                                agent_add({
+                                                webSocket.agent_add({
                                                     hash: keys[a],
                                                     name: data.agents[agentType][keys[a]].name,
                                                     type: agentType
@@ -188,15 +245,12 @@ const webSocket:module_browserSocket = {
                             } else if (data.action === "modify") {
                                 const shareContent = function browser_utilities_webSocket_receiver_agentManagement_shareContent(agentName:string, agentType:agentType|""):void {
                                         const shareModals:HTMLElement[] = document.getModalsByModalType("shares");
-                                        let shareLength:number = shareModals.length,
-                                            body:HTMLElement = null;
+                                        let shareLength:number = shareModals.length;
                                         if (shareLength > 0) {
                                             do {
                                                 shareLength = shareLength - 1;
                                                 if ((shareModals[shareLength].dataset.agent === agentName && shareModals[shareLength].dataset.agenttype === agentType) || (agentType === "" && shareModals[shareLength].getElementsByTagName("button")[0].firstChild.textContent === "⌘ All Shares")) {
-                                                    body = shareModals[shareLength].getElementsByClassName("body")[0] as HTMLElement;
-                                                    body.empty();
-                                                    body.appendChild(share_content(agentName, agentType));
+                                                    modal_shareUpdate(shareModals[shareLength], agentName, agentType);
                                                 }
                                             } while (shareLength > 0);
                                         }

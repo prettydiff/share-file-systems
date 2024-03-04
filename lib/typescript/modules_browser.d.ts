@@ -127,6 +127,7 @@ interface module_agentStatus {
  * }
  * ``` */
 interface module_browserSocket {
+    agent_add: (input:agentManagement_addAgent) => void;
     error: () => void;
     hash: string;
     sock: websocket_local;
@@ -149,7 +150,6 @@ interface module_browserSocket {
  *     tools: {
  *         controlKeys: (event:KeyboardEvent, list:HTMLElement) => void;
  *         populate: (box:modal, logs:string[], restore:boolean) => void;
- *         send: (box:modal, command:string, autoComplete:boolean) => void;
  *     };
  * }
  * ``` */
@@ -165,7 +165,6 @@ interface module_browserTerminal {
     tools: {
         controlKeys: (event:KeyboardEvent, list:HTMLElement) => void;
         populate: (box:modal, logs:string[], restore:boolean) => void;
-        send: (box:modal, command:string, autoComplete:boolean) => void;
     };
 }
 

@@ -4,7 +4,6 @@
 import browser from "./browser.js";
 import modal from "./modal.js";
 import terminal from "../content/terminal.js";
-import webSocket from "./webSocket.js";
 
 const modal_terminal = function browser_utilities_modalTerminal(event:Event, config?:config_modal):modal {
     let box:modal = null;
@@ -60,10 +59,7 @@ const modal_terminal = function browser_utilities_modalTerminal(event:Event, con
     document.getElementById("menu").style.display = "none";
     textArea.placeholder = "Type a command here. Press 'tab' key for file system auto-completion. Press 'shift + tab' or 'tab, tab' to shift focus.";
     box = modal.content(payloadModal);
-    box.socket = webSocket.start(null, browser.identity.hashDevice, "terminal");
-    if (config === undefined) {
-        terminal.tools.send(box, "", false);
-    } else {
+    if (config !== undefined) {
         terminal.tools.populate(box, config.string_store, true);
     }
     return box;

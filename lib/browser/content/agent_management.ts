@@ -220,7 +220,7 @@ const agent_management:module_agentManagement = {
             }
             if (element.value === "device") {
                 strong.appendText("Including a personal device will provide unrestricted access to and from that device.");
-                description.appendText("", true);
+                description.empty();
                 description.appendChild(strong);
                 description.appendText(" This username will be imposed upon that device.");
             } else {

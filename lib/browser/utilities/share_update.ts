@@ -3,7 +3,7 @@
 
 import agent_change from "./agent_change.js";
 import browser from "./browser.js";
-import share_content from "./share_content.js";
+import modal_shareUpdate from "./modal_shareUpdate.js";
 
 const share_update = function browser_utilities_shareUpdate(exclusion:string):void {
     const modals:string[] = Object.keys(browser.ui.modals),
@@ -26,9 +26,7 @@ const share_update = function browser_utilities_shareUpdate(exclusion:string):vo
                 if (item.agent !== "" && browser.agents[item.agentType][item.agent] === undefined) {
                     closer(modals[a]);
                 } else {
-                    body = modal.getElementsByClassName("body")[0] as HTMLElement;
-                    body.empty();
-                    body.appendChild(share_content(item.agent, item.agentType));
+                    modal_shareUpdate(modal, item.agent, item.agentType);
                 }
             } else if (item.type === "agent-management") {
                 // redraw the edit and delete content of agent management modals

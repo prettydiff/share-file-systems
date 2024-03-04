@@ -5,7 +5,6 @@ import browser from "../utilities/browser.js";
 import modal from "../utilities/modal.js";
 import modal_close from "../utilities/modal_close.js";
 import util from "../utilities/util.js";
-import webSocket from "../utilities/webSocket.js";
 
 // cspell:words agenttype, arrowdown, arrowup, pagedown, pageup
 
@@ -350,38 +349,6 @@ const terminal:module_browserTerminal = {
             if (scrollBottom === true) {
                 parent.scrollTo(0, parent.scrollHeight);
             }
-        },
-        send: function browser_content_terminal_send(box:modal, command:string, autoComplete:boolean):void {
-
-            // send close signal on modal close
-            // capture c + ctrl - without alt or shift
-
-            const agentType:agentType = box.dataset.agenttype as agentType,
-                payload:service_terminal = {
-                    agentRequest: (agentType === "device")
-                        ? {
-                            agent: browser.identity.hashDevice,
-                            agentType: "device",
-                            share: box.getAttribute("id")
-                        }
-                        : {
-                            agent: browser.identity.hashUser,
-                            agentType: "user"
-                        },
-                    agentSource: {
-                        agent: box.dataset.agent,
-                        agentType: agentType
-                    },
-                    autoComplete: (autoComplete === true)
-                        ? box.getElementsByTagName("textarea")[0].selectionStart
-                        : -1,
-                    directory: box.getElementsByClassName("terminal-cwd")[0].innerHTML,
-                    id: box.getAttribute("id"),
-                    instruction: command,
-                    logs: [],
-                    target: "agentSource"
-                };
-            browser.send(payload, "terminal");
         }
     }
 };
