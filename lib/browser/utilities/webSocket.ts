@@ -133,7 +133,6 @@ const webSocket:module_browserSocket = {
                         },
                         "agent-status": function browser_utilities_webSocket_receiver_agentStatus(socketData:socketData):void {
                             const data:service_agentStatus = socketData.data as service_agentStatus;
-                
                             // do not receive local agent status from a remote agent
                             if (browser.agents[data.agentType][data.agent] !== undefined && (data.agentType !== "device" || (data.agentType === "device" && data.agent !== browser.identity.hashDevice))) {
                                 const agent:HTMLElement = document.getElementById(data.agent);
@@ -298,7 +297,7 @@ const webSocket:module_browserSocket = {
                                     a = a + 1;
                                 } while (a < length);
                             }
-                
+
                             output.setAttribute("class", "fileDetailOutput");
                             heading.appendText(`File System Details - ${common.commas(listLength)} item${plural}`);
                             output.appendChild(heading);
@@ -309,7 +308,7 @@ const webSocket:module_browserSocket = {
                             tbody);
                             table.appendChild(tbody);
                             output.appendChild(table);
-                    
+
                             heading = document.createElement("h3");
                             heading.appendText("Contains");
                             output.appendChild(heading);
@@ -323,7 +322,7 @@ const webSocket:module_browserSocket = {
                             row("Symbolic Links", common.commas(details.links), tbody);
                             table.appendChild(tbody);
                             output.appendChild(table);
-                
+
                             heading = document.createElement("h3");
                             heading.appendText("MAC");
                             output.appendChild(heading);
@@ -334,7 +333,7 @@ const webSocket:module_browserSocket = {
                             row("Created", common.dateFormat(cTime), tbody);
                             table.appendChild(tbody);
                             output.appendChild(table);
-                
+
                             if (list[0][1] === "directory" && details.files > 0) {
                                 const dataLength:number = fileList.length,
                                     hundred:number = Math.min(dataLength, 100),
@@ -423,12 +422,12 @@ const webSocket:module_browserSocket = {
                                 clickGenerator("largest");
                                 clickGenerator("changed");
                                 clickGenerator("alpha");
-                    
+
                                 // subject paragraph
                                 p = document.createElement("p");
                                 p.style.display = "none";
                                 output.appendChild(p);
-                    
+
                                 // table
                                 table = document.createElement("table");
                                 tbody = document.createElement("tbody");
@@ -437,7 +436,7 @@ const webSocket:module_browserSocket = {
                                 table.setAttribute("class", "detailFileList");
                                 output.appendChild(table);
                             }
-                    
+
                             body.empty();
                             body.appendChild(output);
                         },
