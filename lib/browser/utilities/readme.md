@@ -40,7 +40,6 @@ Tools and assistive functions for the browser environment associated more with a
 * **[modal_message.ts](modal_message.ts)**                     - Modal configuration for message modals.
 * **[modal_shares.ts](modal_shares.ts)**                       - Modal configuration for share type modals.
 * **[modal_terminal.ts](modal_terminal.ts)**                   - Modal configuration for terminal modals.
-* **[receiver.ts](receiver.ts)**                               - Routes network messages to the respective browser library.
 * **[remote.ts](remote.ts)**                                   - A collection of instructions to allow event execution from outside the browser, like a remote control.
 * **[share_content.ts](share_content.ts)**                     - The content of share modals.
 * **[share_update.ts](share_update.ts)**                       - A utility to dynamically update the content of share modals.

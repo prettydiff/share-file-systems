@@ -5,6 +5,7 @@ import browser from "../utilities/browser.js";
 import modal from "../utilities/modal.js";
 import modal_close from "../utilities/modal_close.js";
 import util from "../utilities/util.js";
+import webSocket from "../utilities/webSocket.js";
 
 // cspell:words agenttype, arrowdown, arrowup, pagedown, pageup
 
@@ -110,7 +111,7 @@ const terminal:module_browserTerminal = {
                         position: -1,
                         entries: []
                     };
-                    list.appendText("", true);
+                    list.empty();
                     list.setAttribute("data-scroll", JSON.stringify(scroll));
                 } else if (value === "") {
                     terminal.tools.populate(box, [""], false);
@@ -175,7 +176,8 @@ const terminal:module_browserTerminal = {
                         if (browser.ui.modals[data.id] !== null && browser.ui.modals[data.id].text_placeholder !== data.directory) {
                             browser.ui.modals[data.id].text_placeholder = data.directory;
                         }
-                        cwd.appendText(data.directory, true);
+                        cwd.empty();
+                        cwd.appendText(data.directory);
                         browser.configuration();
                     }
                 };

@@ -19,6 +19,7 @@ interface Document {
 interface Element {
     addClass: (className:string) => void;
     appendText: (text:string, empty?:boolean) => void;
+    empty: () => void;
     getAncestor: (identifier:string, selector:selector) => HTMLElement;
     getElementsByAttribute: (name:string, value:string) => HTMLElement[];
     getElementsByText: (textValue:string, caseSensitive?:boolean) => HTMLElement[];

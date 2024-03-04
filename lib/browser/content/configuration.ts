@@ -321,7 +321,8 @@ const configuration:module_configuration = {
                         existingCSS[css] = newProperty;
                         browser.ui.colorBackgrounds[color][index] = value;
                         browser.configuration();
-                        browser.style.appendText(existingCSS.join("\n"), true);
+                        browser.style.empty();
+                        browser.style.appendText(existingCSS.join("\n"));
                         return;
                     }
                 } while (css > 0);
@@ -431,12 +432,13 @@ const configuration:module_configuration = {
             const element:HTMLInputElement = event.target as HTMLInputElement,
                 parent:HTMLElement = element.parentNode,
                 info:HTMLElement = parent.getElementsByClassName("configuration-details")[0] as HTMLElement;
+            element.empty();
             if (info.style.display === "none") {
                 info.style.display = "block";
-                element.appendText("Less information ⇡", true);
+                element.appendText("Less information ⇡");
             } else {
                 info.style.display = "none";
-                element.appendText("More information ⇣", true);
+                element.appendText("More information ⇣");
             }
         }
     },

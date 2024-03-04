@@ -16,10 +16,11 @@ const configuration_styleText = function browser_content_configuration_styleText
         browser.ui.colors[input.agentType][input.agent][1],
         "}"
     ];
+    browser.style.empty();
     if (input.replace === true) {
         if (input.colors[0] === "" && input.colors[1] === "") {
             // removes an agent's colors
-            browser.style.appendText(browser.style.innerHTML.replace(template.join(""), ""), true);
+            browser.style.appendText(browser.style.innerHTML.replace(template.join(""), ""));
         } else {
             const old:string = template.join("");
             if (input.colors[0] !== "") {
@@ -29,7 +30,7 @@ const configuration_styleText = function browser_content_configuration_styleText
                 template[8] = input.colors[1];
             }
             // updates an agent's colors
-            browser.style.appendText(browser.style.innerHTML.replace(old, template.join("")), true);
+            browser.style.appendText(browser.style.innerHTML.replace(old, template.join("")));
         }
     } else {
         if (input.colors[0] !== "") {
@@ -39,7 +40,7 @@ const configuration_styleText = function browser_content_configuration_styleText
             template[8] = input.colors[1];
         }
         // adds an agent's colors
-        browser.style.appendText(browser.style.innerHTML + template.join(""), true);
+        browser.style.appendText(browser.style.innerHTML + template.join(""));
     }
 };
 

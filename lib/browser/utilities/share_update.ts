@@ -27,7 +27,7 @@ const share_update = function browser_utilities_shareUpdate(exclusion:string):vo
                     closer(modals[a]);
                 } else {
                     body = modal.getElementsByClassName("body")[0] as HTMLElement;
-                    body.appendText("", true);
+                    body.empty();
                     body.appendChild(share_content(item.agent, item.agentType));
                 }
             } else if (item.type === "agent-management") {

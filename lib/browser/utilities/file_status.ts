@@ -17,6 +17,8 @@ import modal_fileDetails from "./modal_fileDetails.js";
 import modal_fileEdit from "./modal_fileEdit.js";
 import util from "./util.js";
 
+// cspell: words agenttype
+
 const file_status = function browser_utilities_fileStatus(socketData:socketData):void {
     const data:service_fileSystem_status = socketData.data as service_fileSystem_status,
         keys:string[] = Object.keys(browser.ui.modals),
@@ -467,7 +469,8 @@ const file_status = function browser_utilities_fileStatus(socketData:socketData)
                                 if (value.replace(/\s+/, "") !== "") {
                                     actionElement.onkeyup = null;
                                     actionElement.onblur = null;
-                                    actionParent.appendText(payload.location[0], true);
+                                    actionParent.empty();
+                                    actionParent.appendText(payload.location[0]);
                                     browser.send(payload, "file-system");
                                 }
                             } else {
@@ -498,7 +501,8 @@ const file_status = function browser_utilities_fileStatus(socketData:socketData)
                                         };
                                     actionElement.onkeyup = null;
                                     actionElement.onblur = null;
-                                    actionParent.appendText(payload.location[0], true);
+                                    actionParent.empty();
+                                    actionParent.appendText(payload.location[0]);
                                     browser.send(payload, "file-system");
                                 }
                             }
@@ -913,7 +917,8 @@ const file_status = function browser_utilities_fileStatus(socketData:socketData)
                                             },
                                             span:HTMLElement = document.createElement("span");
                                         span.appendText("Collapse this folder");
-                                        button.appendText("-", true);
+                                        button.empty();
+                                        button.appendText("-");
                                         button.appendChild(span);
                                         button.setAttribute("title", "Collapse this folder");
                                         browser.send(payload, "file-system");
@@ -921,7 +926,8 @@ const file_status = function browser_utilities_fileStatus(socketData:socketData)
                                         const ul:HTMLCollectionOf<HTMLUListElement> = li.getElementsByTagName("ul"),
                                             span:HTMLElement = document.createElement("span");
                                         span.appendText("Expand this folder");
-                                        button.appendText("+", true);
+                                        button.empty();
+                                        button.appendText("+");
                                         button.appendChild(span);
                                         button.setAttribute("title", "Collapse this folder");
                                         if (ul.length > 0) {
@@ -931,7 +937,8 @@ const file_status = function browser_utilities_fileStatus(socketData:socketData)
                                 };
                             button.setAttribute("class", "expansion");
                             span.appendText("Expand this folder");
-                            button.appendText("+", true);
+                            button.empty();
+                            button.appendText("+");
                             button.appendChild(span);
                             button.setAttribute("title", "Expand this folder");
                             button.setAttribute("type", "button");
@@ -1144,7 +1151,7 @@ const file_status = function browser_utilities_fileStatus(socketData:socketData)
                     }
                     if (data.fileList !== null && expandTest === false) {
                         body = box.getElementsByClassName("body")[0] as HTMLElement;
-                        body.appendText("", true);
+                        body.empty();
                         listData = fileList(data.agentSource.modalAddress, data.fileList, data.message);
                         if (listData !== null) {
                             body.appendChild(listData);

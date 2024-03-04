@@ -24,16 +24,24 @@ const dom = function browser_utilities_dom():void {
         },
         // add text to an DOM element
         // * text: string - The text string to append.
-        // * empty: boolean (optional) - if true all child nodes will be removed before appending the text string.
-        appendText = function browser_utilities_dom_appendText(text:string, empty?:boolean):void {
+        appendText = function browser_utilities_dom_appendText(text:string):void {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, no-restricted-syntax
             const element:HTMLElement = this;
-            if (empty === true) {
-                // eslint-disable-next-line no-restricted-syntax
-                element.innerHTML = "";
-            }
             if (text !== "") {
                 element.appendChild(document.createTextNode(text));
+            }
+        },
+        // empty - A method to remove all child nodes from an element.
+        empty = function browser_utilities_dom_empty():void {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, no-restricted-syntax
+            const start:HTMLElement = this,
+                children:NodeListOf<ChildNode> = start.childNodes;
+            let len:number = children.length;
+            if (len > 0) {
+                do {
+                    len = len - 1;
+                    start.removeChild(children[len]);
+                } while (len > 0);
             }
         },
         // getAncestor - A method to walk up the DOM towards the documentElement.
@@ -328,6 +336,7 @@ const dom = function browser_utilities_dom():void {
     // Ensure dynamically created elements get these methods too
     Element.prototype.addClass               = addClass;
     Element.prototype.appendText             = appendText;
+    Element.prototype.empty                  = empty;
     Element.prototype.getAncestor            = getAncestor;
     Element.prototype.getElementsByAttribute = getElementsByAttribute;
     Element.prototype.getNodesByType         = getNodesByType;

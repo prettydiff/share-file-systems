@@ -400,7 +400,7 @@ const tutorial = function browser_content_tutorial():void {
         nextStep = function browser_content_tutorial_nextStep(node:HTMLElement):void {
             index = index + 1;
             browser.configuration();
-            body.appendText("", true);
+            body.empty();
             if (node !== undefined && node !== null && node.nodeType === 1) {
                 node.removeHighlight();
             }

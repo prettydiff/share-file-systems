@@ -52,7 +52,9 @@ const modal_terminal = function browser_utilities_modalTerminal(event:Event, con
         config.content = content[0];
         config.footer = content[1];
         if (typeof config.text_placeholder === "string" && config.text_placeholder !== "") {
-            config.footer.getElementsByClassName("terminal-cwd")[0].appendText(config.text_placeholder, true);
+            const terminalFooter:HTMLElement = config.footer.getElementsByClassName("terminal-cwd")[0] as HTMLElement;
+            terminalFooter.empty();
+            terminalFooter.appendText(config.text_placeholder);
         }
     }
     document.getElementById("menu").style.display = "none";

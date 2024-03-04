@@ -322,7 +322,7 @@ const modal:module_modal = {
                                         location: [address],
                                         name: value
                                     };
-                                body.appendText("", true);
+                                body.empty();
                                 body.append(util.delay());
                                 if (element.value.replace(/\s+/, "") === "") {
                                     file_text(event);

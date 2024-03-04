@@ -75,7 +75,6 @@ This is a dynamically compiled list of supporting code files that comprise this 
    - **[../lib/browser/utilities/modal_message.ts](../lib/browser/utilities/modal_message.ts)**                                                         - Modal configuration for message modals.
    - **[../lib/browser/utilities/modal_shares.ts](../lib/browser/utilities/modal_shares.ts)**                                                           - Modal configuration for share type modals.
    - **[../lib/browser/utilities/modal_terminal.ts](../lib/browser/utilities/modal_terminal.ts)**                                                       - Modal configuration for terminal modals.
-   - **[../lib/browser/utilities/receiver.ts](../lib/browser/utilities/receiver.ts)**                                                                   - Routes network messages to the respective browser library.
    - **[../lib/browser/utilities/remote.ts](../lib/browser/utilities/remote.ts)**                                                                       - A collection of instructions to allow event execution from outside the browser, like a remote control.
    - **[../lib/browser/utilities/share_content.ts](../lib/browser/utilities/share_content.ts)**                                                         - The content of share modals.
    - **[../lib/browser/utilities/share_update.ts](../lib/browser/utilities/share_update.ts)**                                                           - A utility to dynamically update the content of share modals.
