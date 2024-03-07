@@ -2,7 +2,7 @@
 /* lib/browser/utilities/agent_status - Receive and process agent activity status notifications from the network. */
 
 import browser from "./browser.js";
-import webSocket from "./webSocket.js";
+import websocket_primary from "./websocket_primary.js";
 
     /**
  * Manages local agent activity status from the browser.
@@ -39,7 +39,7 @@ const agent_status:module_agentStatus = {
             if (browser.socket !== null) {
                 socket();
             } else if (browser.loading === false) {
-                webSocket.start(socket, browser.identity.hashDevice, "primary");
+                websocket_primary(socket, browser.identity.hashDevice);
             }
             if (Notification.permission === "default") {
                 void Notification.requestPermission();

@@ -11,7 +11,7 @@ import media_kill from "./media_kill.js";
 import modal_close from "./modal_close.js";
 import modal_textSave from "./modal_textSave.js";
 import util from "./util.js";
-import webSocket from "./webSocket.js";
+import websocket_open from "./websocket_open.js";
 import zTop from "./zTop.js";
 
 // cspell:words agenttype
@@ -76,8 +76,8 @@ const modal:module_modal = {
                 el.onclick = config.event;
                 config.parent.appendChild(el);
             },
-            socket:WebSocket = (options.socket === true)
-                ? webSocket.start(null, browser.identity.hashDevice, options.type)
+            socket:websocket_browser = (typeof options.socketHandler === "function")
+                ? websocket_open(options.socketHandler, options.type, browser.identity.hashDevice)
                 : null;
         // Uniqueness constraints
         if (browser.ui.modalTypes.indexOf(options.type) > -1) {

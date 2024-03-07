@@ -54,7 +54,7 @@ This is a dynamically compiled list of supporting code files that comprise this 
    - **[../lib/browser/modal_config/modal_terminal.ts](../lib/browser/modal_config/modal_terminal.ts)**                                                 - Modal configuration for terminal modals.
    - **[../lib/browser/modal_config/modal_textPad.ts](../lib/browser/modal_config/modal_textPad.ts)**                                                   - Modal configuration for text pad type modals.
 * Directory *[../lib/browser/utilities](../lib/browser/utilities)*
-   - **[../lib/browser/utilities/agent_add.ts](../lib/browser/utilities/agent_add.ts)**                                                                 - Populates agents into the browser UI.
+   - **[../lib/browser/utilities/agent_add.ts](../lib/browser/utilities/agent_add.ts)**                                                                 - Adds agents to the UI.
    - **[../lib/browser/utilities/agent_change.ts](../lib/browser/utilities/agent_change.ts)**                                                           - Modifies agent related data in share modals.
    - **[../lib/browser/utilities/agent_delete.ts](../lib/browser/utilities/agent_delete.ts)**                                                           - Removes an agent from the UI.
    - **[../lib/browser/utilities/agent_status.ts](../lib/browser/utilities/agent_status.ts)**                                                           - Receive and process agent activity status notifications from the network.
@@ -92,7 +92,8 @@ This is a dynamically compiled list of supporting code files that comprise this 
    - **[../lib/browser/utilities/share_update.ts](../lib/browser/utilities/share_update.ts)**                                                           - A utility to dynamically update the content of share modals.
    - **[../lib/browser/utilities/terminal_send.ts](../lib/browser/utilities/terminal_send.ts)**                                                         - Transmit terminal IO on a custom socket.
    - **[../lib/browser/utilities/util.ts](../lib/browser/utilities/util.ts)**                                                                           - Miscellaneous tools for the browser environment.
-   - **[../lib/browser/utilities/webSocket.ts](../lib/browser/utilities/webSocket.ts)**                                                                 - Handles web socket events and associated errors. This where most communications from outside the browser are processed.
+   - **[../lib/browser/utilities/websocket_open.ts](../lib/browser/utilities/websocket_open.ts)**                                                       - Opens websocket connections using standard web APIs in the browser.
+   - **[../lib/browser/utilities/websocket_primary.ts](../lib/browser/utilities/websocket_primary.ts)**                                                 - Handles web socket events and associated errors. This where most communications from outside the browser are processed.
    - **[../lib/browser/utilities/zTop.ts](../lib/browser/utilities/zTop.ts)**                                                                           - Stacks modals visually to account for overlap.
 * Directory *[../lib/common](../lib/common)*
    - **[../lib/common/common.ts](../lib/common/common.ts)**                                                                                             - A collection of tools available to any environment.

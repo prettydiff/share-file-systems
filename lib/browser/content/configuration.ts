@@ -445,11 +445,9 @@ const configuration:module_configuration = {
 
     tools: {
         /* Add agent color options to the configuration modal content */
-        addUserColor: function browser_content_configuration_addUserColor(agent:string, type:agentType, configElement:HTMLElement):void {
-            const config:HTMLElement = (configElement === undefined || configElement === null)
-                    ? document.getElementById("configuration-modal").getElementsByClassName("body")[0].firstChild as HTMLElement
-                    : configElement,
-                ul:HTMLElement = config.getElementsByClassName(`${type}-color-list`)[0] as HTMLElement,
+        addUserColor: function browser_content_configuration_addUserColor(agent:string, type:agentType):void {
+            const configElement:HTMLElement = document.getElementById("configuration-modal").getElementsByClassName("body")[0].firstChild as HTMLElement,
+                ul:HTMLElement = configElement.getElementsByClassName(`${type}-color-list`)[0] as HTMLElement,
                 li:HTMLElement = document.createElement("li"),
                 p:HTMLElement = document.createElement("p"),
                 agentColor:[string, string] = browser.ui.colors[type][agent];

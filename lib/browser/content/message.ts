@@ -3,7 +3,7 @@
 
 import browser from "../utilities/browser.js";
 import message_post from "../utilities/message_post.js";
-import modal_message from "../utilities/modal_message.js";
+import modal_message from "../modal_config/modal_message.js";
 
 // cspell:words agenttype, arrowdown, arrowup
 
@@ -77,8 +77,7 @@ const message:module_message = {
         populate: function browser_content_message_populate(modal:modal):void {
             if (browser.message.length > 0) {
                 const modalMatch = function browser_content_message_populate_modalMatch(direction:"agentFrom"|"agentTo"):void {
-                        let modalItem:modal = modal;
-                        if (modalItem === null) {
+                        if (modal === null) {
                             const modals:modal[] = document.getModalsByModalType("message");
                             let len:number = modals.length,
                                 modalTest:boolean = false,

@@ -28,6 +28,7 @@
  *     scrollbar: number;
  *     send: (ata:socketDataType, service:service_type) => void;
  *     socket: WebSocket;
+ *     socketConstructor: websocket_local;
  *     style: HTMLStyleElement;
  *     testBrowser: service_testBrowser;
  *     title: string;
@@ -60,6 +61,7 @@ interface browser {
     scrollbar: number;
     send: (ata:socketDataType, service:service_type) => void;
     socket: WebSocket;
+    socketConstructor: websocket_local;
     style: HTMLStyleElement;
     testBrowser: service_testBrowser;
     title: string;

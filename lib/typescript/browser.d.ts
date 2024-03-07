@@ -269,10 +269,12 @@ interface websocket_event extends Event {
  * Extends the browser web socket data type to support a type property.
  * ```typescript
  * interface websocket_browser extends WebSocket {
+ *     hash: string;
  *     type: string;
  * }
  * ``` */
 interface websocket_browser extends WebSocket {
+    hash: string;
     type: string;
 }
 

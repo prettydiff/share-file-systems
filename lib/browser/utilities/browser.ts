@@ -129,6 +129,13 @@ const browser:browser = {
         }
     },
     socket: null,                                       // socket - stores the primary application socket out of the browser
+    socketConstructor: (function browser_utilities_socket():websocket_local { // an encapsulation of the web API for creating new sockets
+        // A minor security circumvention.
+        const socket:websocket_local = WebSocket as websocket_local;
+        // eslint-disable-next-line no-global-assign
+        WebSocket = null;
+        return socket;
+    }()),
     style: document.createElement("style"),             // style - stores a reference to a custom created style element that stores user defined presentation data
     testBrowser: null,                                  // testBrowser - stores test automation data respective to a current test item
     title: "",                                          // title - stores the text of the application name

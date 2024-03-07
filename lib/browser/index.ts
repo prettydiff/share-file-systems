@@ -1,6 +1,7 @@
 
 /* lib/browser/index - The base JavaScript code that initiates the application in the browser. */
 
+import agent_add from "./utilities/agent_add.js";
 import agent_status from "./utilities/agent_status.js";
 import browser from "./utilities/browser.js";
 import configuration from "./content/configuration.js";
@@ -12,7 +13,7 @@ import remote from "./utilities/remote.js";
 import tutorial from "./content/tutorial.js";
 import uiDefault from "../common/uiDefault.js";
 import util from "./utilities/util.js";
-import webSocket from "./utilities/webSocket.js";
+import websocket_primary from "./utilities/websocket_primary.js";
 
 import disallowed from "../common/disallowed.js";
 
@@ -258,10 +259,9 @@ import disallowed from "../common/disallowed.js";
                 // loading data and modals is complete
                 browser.loading = false;
                 if (socket === true) {
-                    webSocket.start(null, (state.test !== null && testBrowser === true)
+                    websocket_primary(null, (state.test !== null && testBrowser === true)
                         ? "test-browser"
-                        : hashDevice,
-                        "primary"
+                        : hashDevice
                     );
                 }
 
@@ -322,7 +322,7 @@ import disallowed from "../common/disallowed.js";
                                 let a:number = 0;
                                 if (listLength > 0) {
                                     do {
-                                        webSocket.agent_add({
+                                        agent_add({
                                             hash: list[a],
                                             name: browser.agents[type][list[a]].name,
                                             type: type
@@ -437,12 +437,11 @@ import disallowed from "../common/disallowed.js";
             browser.testBrowser = state.test;
         }
         if (hashUser === "") {
-            webSocket.start(
+            websocket_primary(
                 applyLogin,
                 (state.test !== null && testBrowser === true)
                     ? "test-browser"
-                    : hashDevice,
-                "primary"
+                    : hashDevice
             );
             restoreBackgrounds();
             defaultModals();

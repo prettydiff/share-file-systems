@@ -13,8 +13,8 @@ import file_directory from "./file_directory.js";
 import file_select from "./file_select.js";
 import file_select_addresses from "./file_select_addresses.js";
 import file_select_none from "./file_select_none.js";
-import modal_fileDetails from "./modal_fileDetails.js";
-import modal_fileEdit from "./modal_fileEdit.js";
+import modal_fileDetails from "../modal_config/modal_fileDetails.js";
+import modal_fileEdit from "../modal_config/modal_fileEdit.js";
 import util from "./util.js";
 
 // cspell: words agenttype
@@ -53,7 +53,7 @@ const file_status = function browser_utilities_fileStatus(socketData:socketData)
                 }()),
                 context_menu = function browser_utilities_fileStatus_contextMenu(event:MouseEvent):void {
                     const element:HTMLElement = (function browser_utilities_contextMenu_element():HTMLElement {
-                            const target:HTMLElement = event.target as HTMLElement,
+                            const target:HTMLElement = event.target,
                                 name:string = target.lowName();
                             if (name === "li" || name === "ul") {
                                 return target;

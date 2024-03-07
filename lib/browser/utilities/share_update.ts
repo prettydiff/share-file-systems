@@ -14,7 +14,6 @@ const share_update = function browser_utilities_shareUpdate(exclusion:string):vo
         };
     let a:number = 0,
         modal:HTMLElement,
-        body:HTMLElement,
         item:config_modal;
     do {
         if (exclusion !== modals[a]) {

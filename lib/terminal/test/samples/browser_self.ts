@@ -4482,7 +4482,7 @@ const buildExport = function terminal_test_samples_browserSelf_buildExport():str
                     ["parentNode", null, null],
                     ["parentNode", null, null],
                     ["getElementsByTagName", "li", 1],
-                    ["getElementsByTagName", "li", 3],
+                    ["getElementsByTagName", "li", 4],
                     ["getElementsByTagName", "p", 0],
                     ["getElementsByTagName", "label", 0]
                 ],

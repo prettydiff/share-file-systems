@@ -4,9 +4,10 @@
 import browser from "./browser.js";
 import common from "../../common/common.js";
 import message from "../content/message.js";
-import modal_fileNavigate from "./modal_fileNavigate.js";
-import modal_message from "./modal_message.js";
-import modal_terminal from "./modal_terminal.js";
+import modal_fileNavigate from "../modal_config/modal_fileNavigate.js";
+import modal_message from "../modal_config/modal_message.js";
+import modal_terminal from "../modal_config/modal_terminal.js";
+import share_update from "./share_update.js";
 
 // cspell: words agenttype
 
@@ -363,8 +364,10 @@ const share_content = function browser_utilities_shareContent(agentName:string, 
                     readOnly:HTMLButtonElement = document.createElement("button"),
                     span:HTMLElement = document.createElement("span"),
                     span1:HTMLElement = document.createElement("span"),
-                    readOnlyHandler = function browser_content_share_readOnly(event:MouseEvent):void {
+                    readOnlyHandler = function browser_utilities_shareContent_perShare_readOnly(event:MouseEvent):void {
                         const element:HTMLElement = event.target,
+                            shareContainer:HTMLElement = element.parentNode,
+                            shareHash:string = shareContainer.dataset["hash"],
                             box:modal = element.getAncestor("box", "class") ,
                             boxHash:string = box.dataset.agent,
                             parent:HTMLElement = element.parentNode,
@@ -380,8 +383,29 @@ const share_content = function browser_utilities_shareContent(agentName:string, 
                                     user: {}
                                 },
                                 identity: null
+                            },
+                            shareModals:modal[] = document.getModalsByModalType("shares"),
+                            modify = function browser_utilities_shareContent_perShare_readOnly_modify(shareItem:HTMLElement):void {
+                                const last:HTMLElement = shareItem.getElementsByTagName("button")[2],
+                                    statusItem:HTMLElement = shareItem.getElementsByClassName("read-only-status")[0] as HTMLElement;
+                                last.empty();
+                                statusItem.empty();
+                                if (item.readOnly === true) {
+                                    shareItem.setAttribute("class", "share");
+                                    last.setAttribute("class", "grant-full-access");
+                                    last.appendText("Grant Full Access");
+                                    statusItem.appendText("(Read Only)");
+                                } else {
+                                    shareItem.setAttribute("class", "share full-access");
+                                    last.setAttribute("class", "make-read-only");
+                                    last.appendText("Make Read Only");
+                                    statusItem.appendText("(Full Access)");
+                                }
                             };
-                        let item:agentShare = null;
+                        let item:agentShare = null,
+                            modalIndex:number = shareModals.length,
+                            shareIndex:number = 0,
+                            containers:HTMLCollectionOf<HTMLElement> = null;
                         if (hashDevice === null) {
                             return;
                         }
@@ -393,6 +417,20 @@ const share_content = function browser_utilities_shareContent(agentName:string, 
                         }
                         manage.agents.device[hashDevice] = browser.agents.device[hashDevice];
                         browser.send(manage, "agent-management");
+                        do {
+                            modalIndex = modalIndex - 1;
+                            containers = shareModals[modalIndex].getElementsByClassName("share") as HTMLCollectionOf<HTMLElement>;
+                            shareIndex = containers.length;
+                            if (shareIndex > 0) {
+                                do {
+                                    shareIndex = shareIndex - 1;
+                                    if (containers[shareIndex].dataset["hash"] === shareHash) {
+                                        modify(containers[shareIndex]);
+                                        break;
+                                    }
+                                } while (shareIndex > 0);
+                            }
+                        } while (modalIndex > 0);
                     };
                 if (shareItem.readOnly === true) {
                     li.setAttribute("class", "share");

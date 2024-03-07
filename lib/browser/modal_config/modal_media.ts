@@ -18,7 +18,7 @@ const modal_media = function browser_modalConfig_modalMedia(event:Event):modal {
         inputs: ["close", "maximize"],
         read_only: true,
         scroll: false,
-        socket: true,
+        socketHandler: function browser_modalConfig_modalMedia_socketHandler():void {},
         text_value: mediaType,
         type: "media"
     });

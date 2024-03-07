@@ -4,7 +4,7 @@ Tools and assistive functions for the browser environment associated more with a
 ## Files
 <!-- Do not edit below this line.  Contents dynamically populated. -->
 
-* **[agent_add.ts](agent_add.ts)**                             - Populates agents into the browser UI.
+* **[agent_add.ts](agent_add.ts)**                             - Adds agents to the UI.
 * **[agent_change.ts](agent_change.ts)**                       - Modifies agent related data in share modals.
 * **[agent_delete.ts](agent_delete.ts)**                       - Removes an agent from the UI.
 * **[agent_status.ts](agent_status.ts)**                       - Receive and process agent activity status notifications from the network.
@@ -42,5 +42,6 @@ Tools and assistive functions for the browser environment associated more with a
 * **[share_update.ts](share_update.ts)**                       - A utility to dynamically update the content of share modals.
 * **[terminal_send.ts](terminal_send.ts)**                     - Transmit terminal IO on a custom socket.
 * **[util.ts](util.ts)**                                       - Miscellaneous tools for the browser environment.
-* **[webSocket.ts](webSocket.ts)**                             - Handles web socket events and associated errors. This where most communications from outside the browser are processed.
+* **[websocket_open.ts](websocket_open.ts)**                   - Opens websocket connections using standard web APIs in the browser.
+* **[websocket_primary.ts](websocket_primary.ts)**             - Handles web socket events and associated errors. This where most communications from outside the browser are processed.
 * **[zTop.ts](zTop.ts)**                                       - Stacks modals visually to account for overlap.

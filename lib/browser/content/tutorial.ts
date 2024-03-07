@@ -2,7 +2,7 @@
 
 import browser from "../utilities/browser.js";
 import modal_close from "../utilities/modal_close.js";
-import modal_configuration from "../utilities/modal_configurations.js";
+import modal_configuration from "../utilities/modal_list.js";
 import remote from "../utilities/remote.js";
 
 const tutorial = function browser_content_tutorial():void {
@@ -473,7 +473,7 @@ const tutorial = function browser_content_tutorial():void {
             wrapper.setAttribute("class", "document");
             return wrapper;
         },
-        contentModal:modal = modal_configuration.modals.document(null, {
+        contentModal:modal = modal_configuration.document(null, {
             agent: browser.identity.hashDevice,
             agentIdentity: false,
             agentType: "device",

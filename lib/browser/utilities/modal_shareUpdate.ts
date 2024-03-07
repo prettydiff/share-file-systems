@@ -10,4 +10,4 @@ const modal_shareUpdate = function browser_utilities_modalShareUpdate(modal:moda
 
 };
 
-export default modal_shareUpdate
+export default modal_shareUpdate;

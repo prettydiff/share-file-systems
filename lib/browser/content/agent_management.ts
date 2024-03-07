@@ -5,7 +5,7 @@ import agent_change from "../utilities/agent_change.js";
 import browser from "../utilities/browser.js";
 import configuration_radio from "../utilities/configuration_radio.js";
 import invite_decline from "../utilities/invite_decline.js";
-import modal_inviteAsk from "../utilities/modal_inviteAsk.js";
+import modal_inviteAsk from "../modal_config/modal_inviteAsk.js";
 import util from "../utilities/util.js";
 
 // cspell:words agenttype

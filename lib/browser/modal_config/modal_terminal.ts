@@ -4,6 +4,7 @@
 import browser from "../utilities/browser.js";
 import modal from "../utilities/modal.js";
 import terminal from "../content/terminal.js";
+import terminal_send from "../utilities/terminal_send.js";
 
 const modal_terminal = function browser_modalConfig_modalTerminal(event:Event, config?:config_modal):modal {
     let box:modal = null;
@@ -39,7 +40,7 @@ const modal_terminal = function browser_modalConfig_modalTerminal(event:Event, c
                     : config.id,
                 inputs: ["close", "maximize", "minimize"],
                 read_only: false,
-                socket: true,
+                socketHandler: function browser_modalConfig_modalTerminal_socketHandler():void {},
                 string_store: [],
                 text_value: "",
                 type: "terminal",
@@ -60,7 +61,9 @@ const modal_terminal = function browser_modalConfig_modalTerminal(event:Event, c
     document.getElementById("menu").style.display = "none";
     textArea.placeholder = "Type a command here. Press 'tab' key for file system auto-completion. Press 'shift + tab' or 'tab, tab' to shift focus.";
     box = modal.content(payloadModal);
-    if (config !== undefined) {
+    if (config === undefined) {
+        terminal_send(box, "", false);
+    } else {
         terminal.tools.populate(box, config.string_store, true);
     }
     return box;

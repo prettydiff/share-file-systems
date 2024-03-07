@@ -1,19 +1,20 @@
 
-/* lib/browser/utilities/agent_add - Populates agents into the browser UI. */
+/* lib/browser/utilities/agent_add - Adds agents to the UI. */
+
 
 import browser from "./browser.js";
 import common from "../../common/common.js";
 import configuration from "../content/configuration.js";
 import configuration_styleText from "./configuration_styleText.js";
-import modal_shares from "./modal_shares.js";
+import modal_shares from "../modal_config/modal_shares.js";
 import share_update from "./share_update.js";
 
-// cspell: words agentType
+// cspell: words agenttype
 
-const agent_add = function browser_content_agentManagement_addAgent(input:agentManagement_addAgent):void {
+const agent_add = function browser_utilities_webSocket_socketOpen_receiver_addAgent(input:agentManagement_addAgent):void {
     const li:HTMLLIElement = document.createElement("li"),
         button:HTMLElement = document.createElement("button"),
-        addStyle = function browser_content_agentManagement_addUser_addStyle():void {
+        addStyle = function browser_utilities_webSocket_socketOpen_receiver_addAgent_addStyle():void {
             let body:string,
                 heading:string;
             if (browser.ui.colors[input.type][input.hash] === undefined) {
@@ -36,7 +37,7 @@ const agent_add = function browser_content_agentManagement_addAgent(input:agentM
                 });
             }
         },
-        status = function browser_content_agentManagement_addUser_status(status:activityStatus):HTMLElement {
+        status = function browser_utilities_webSocket_socketOpen_receiver_addAgent_status(status:activityStatus):HTMLElement {
             const em:HTMLElement = document.createElement("em"),
                 span:HTMLElement = document.createElement("span");
             em.setAttribute("class", `status-${status}`);
@@ -61,7 +62,7 @@ const agent_add = function browser_content_agentManagement_addAgent(input:agentM
     li.appendChild(button);
     document.getElementById(input.type).getElementsByTagName("ul")[0].appendChild(li);
     addStyle();
-    configuration.tools.addUserColor(input.hash, input.type);
+    configuration.tools.addUserColor(input.hash, input.type, button);
     if (browser.loading === false) {
         share_update("");
     }

@@ -338,7 +338,7 @@ interface config_list {
  *     selection?: stringStore;
  *     share?: string;
  *     single?: boolean;
- *     socket?: boolean;
+ *     socketHandler?: () => void;
  *     status?: modalStatus;
  *     string_store?: string[];
  *     text_event?: (event:KeyboardEvent|MouseEvent) => void;
@@ -376,7 +376,7 @@ interface config_modal extends agency {
     selection?: stringStore;
     share?: string;
     single?: boolean;
-    socket?: boolean;
+    socketHandler?: () => void;
     status?: modalStatus;
     string_store?: string[];
     text_event?: (event:KeyboardEvent|MouseEvent) => void;
