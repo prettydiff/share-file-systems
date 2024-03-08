@@ -15,6 +15,7 @@
         "@typescript-eslint/parser": "^5.57.1",
         "eslint": "^8.38.0",
         "eslint-plugin-eslint-comments": "^3.2.0",
+        "madge": "^6.1.0",
         "typescript": "^5.0.4"
     },
     "directories": {
