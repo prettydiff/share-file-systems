@@ -6,6 +6,7 @@ import error from "../../utilities/error.js";
 import humanTime from "../../utilities/humanTime.js";
 import ipList from "../../utilities/ipList.js";
 import log from "../../utilities/log.js";
+import message_receiver from "../../server/transmission/message_receiver.js";
 import network from "../../server/transmission/network.js";
 import node from "../../utilities/node.js";
 import remove_files from "../../../applications/remove_files/index.js";
@@ -179,7 +180,7 @@ const defaultCommand:commands = vars.environment.command,
                                     callback: function terminal_test_application_browser_execute_agents_socketCallback(socket:websocket_client):void {
                                         log([`${humanTime(false)}Socket established to remote ${socket.hash}.`]);
                                     },
-                                    handler: transmit_ws.clientReceiver,
+                                    handler: message_receiver,
                                     hash: list[index],
                                     ip: machines[list[index]].ip,
                                     port: machines[list[index]].port,

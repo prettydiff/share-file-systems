@@ -569,7 +569,6 @@ interface module_transmit_network {
  * ```typescript
  * interface transmit_ws {
  *     agentClose      : (socket:websocket_client) => void;                                     // A uniform way to notify browsers when a remote agent goes offline
- *     clientReceiver  : websocket_messageHandler;                                              // Processes data from regular agent websocket tunnels into JSON for processing by receiver library.
  *     createSocket    : (config:config_websocket_create) => void;                              // Creates a new socket for use by openAgent and openService methods.
  *     getSocket: (type:string, name:string) => websocket_client;                               // safely returns a socket from the store
  *     getSocketList: (type:string) => websocket_client[];                                      // safely returns a list of sockets from the store by socket type
@@ -599,7 +598,6 @@ interface module_transmit_network {
  * ``` */
 interface module_transmit_ws {
     agentClose: (socket:websocket_client) => void;
-    clientReceiver: websocket_messageHandler;
     createSocket: (config:config_websocket_create) => void;
     getSocket: (type:string, name:string) => websocket_client;
     getSocketList: (type:string) => websocket_client[];

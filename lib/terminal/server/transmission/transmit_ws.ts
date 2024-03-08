@@ -11,9 +11,9 @@ import hash from "../../commands/library/hash.js";
 import http from "./http.js";
 import log from "../../utilities/log.js";
 import mask from "../../utilities/mask.js";
+import message_receiver from "./message_receiver.js";
 import network from "./network.js";
 import node from "../../utilities/node.js";
-import receiver from "./receiver.js";
 import settings from "../services/settings.js";
 import vars from "../../utilities/vars.js";
 
@@ -74,20 +74,6 @@ const transmit_ws:module_transmit_ws = {
         }
         if (type === "device") {
             delete transmit_ws.socketMap[socket.hash];
-        }
-    },
-    // composes fragments from browsers and agents into JSON for processing by receiver library
-    clientReceiver: function terminal_server_transmission_transmitWs_clientReceiver(bufferData:Buffer):void {
-        const decoder:node_stringDecoder_StringDecoder = new node.stringDecoder.StringDecoder("utf8"),
-            result:string = decoder.end(bufferData);
-
-        // prevent parsing errors in the case of malformed or empty payloads
-        if (result.charAt(0) === "{" && result.charAt(result.length - 1) === "}" && result.indexOf("\"data\":") > 0 && result.indexOf("\"service\":") > 0) {
-            receiver(JSON.parse(result) as socketData, {
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, no-restricted-syntax
-                socket: this,
-                type: "ws"
-            });
         }
     },
     // creates a new socket as a client to a remote server
@@ -477,7 +463,7 @@ const transmit_ws:module_transmit_ws = {
                         callback: config.callback,
                         headers: [],
                         hash: config.agent,
-                        handler: transmit_ws.clientReceiver,
+                        handler: message_receiver,
                         ip: ip,
                         port: agent.port,
                         socketType: config.agentType
@@ -796,7 +782,7 @@ const transmit_ws:module_transmit_ws = {
                                             callback: (type === "testRemote")
                                                 ? testReset
                                                 : clientRespond,
-                                            handler: transmit_ws.clientReceiver,
+                                            handler: message_receiver,
                                             identifier: identifier,
                                             role: "server",
                                             socket: socket,

@@ -155,6 +155,7 @@ This is a dynamically compiled list of supporting code files that comprise this 
    - **[../lib/terminal/server/services/terminal.ts](../lib/terminal/server/services/terminal.ts)**                                                     - Processes terminal messaging for remote devices and display to the user in a browser.
 * Directory *[../lib/terminal/server/transmission](../lib/terminal/server/transmission)*
    - **[../lib/terminal/server/transmission/http.ts](../lib/terminal/server/transmission/http.ts)**                                                     - A library to process HTTP GET responses.
+   - **[../lib/terminal/server/transmission/http.ts](../lib/terminal/server/transmission/http.ts)**                                                     - Parses incoming messages from the network.
    - **[../lib/terminal/server/transmission/network.ts](../lib/terminal/server/transmission/network.ts)**                                               - Generic transmission tools shared between HTTP and WS libraries.
    - **[../lib/terminal/server/transmission/receiver.ts](../lib/terminal/server/transmission/receiver.ts)**                                             - Routes incoming messages from the network to the respective libraries.
    - **[../lib/terminal/server/transmission/transmit_http.ts](../lib/terminal/server/transmission/transmit_http.ts)**                                   - This library launches the HTTP service and all supporting service utilities.
